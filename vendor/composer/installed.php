@@ -1,0 +1,41 @@
+<?php return array(
+    'root' => array(
+        'pretty_version' => '1.0.0+no-version-set',
+        'version' => '1.0.0.0',
+        'type' => 'project',
+        'install_path' => __DIR__ . '/../../',
+        'aliases' => array(),
+        'reference' => NULL,
+        'name' => 'chapu93/inventario_insumos',
+        'dev' => true,
+    ),
+    'versions' => array(
+        'chapu93/inventario_insumos' => array(
+            'pretty_version' => '1.0.0+no-version-set',
+            'version' => '1.0.0.0',
+            'type' => 'project',
+            'install_path' => __DIR__ . '/../../',
+            'aliases' => array(),
+            'reference' => NULL,
+            'dev_requirement' => false,
+        ),
+        'setasign/fpdf' => array(
+            'pretty_version' => '1.8.2',
+            'version' => '1.8.2.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../setasign/fpdf',
+            'aliases' => array(),
+            'reference' => 'd77904018090c17dc9f3ab6e944679a7a47e710a',
+            'dev_requirement' => false,
+        ),
+        'setasign/fpdi' => array(
+            'pretty_version' => 'v2.6.4',
+            'version' => '2.6.4.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../setasign/fpdi',
+            'aliases' => array(),
+            'reference' => '4b53852fde2734ec6a07e458a085db627c60eada',
+            'dev_requirement' => false,
+        ),
+    ),
+);

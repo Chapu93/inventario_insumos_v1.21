@@ -1,0 +1,14 @@
+{
+  "name": "chapu93/inventario_insumos",
+  "description": "Sistema de Gestión de Insumos - Generación PDF de remitos",
+  "type": "project",
+  "require": {
+    "setasign/fpdf": "^1.8",
+    "setasign/fpdi": "^2.6"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/"
+    }
+  }
+}

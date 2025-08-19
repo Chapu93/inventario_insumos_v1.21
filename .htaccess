@@ -1,0 +1,20 @@
+# Configuración básica para el sistema de inventario
+Options -Indexes
+DirectoryIndex index.php
+
+# Configuración de PHP
+php_value upload_max_filesize 10M
+php_value post_max_size 10M
+php_value max_execution_time 300
+php_value memory_limit 256M
+
+# Configuración de seguridad
+<Files "*.sql">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "*.log">
+    Order allow,deny
+    Deny from all
+</Files>

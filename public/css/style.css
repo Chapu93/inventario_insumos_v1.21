@@ -1,0 +1,536 @@
+/* Estilos personalizados para el sistema de inventario */
+
+:root {
+    --primary-color: #0066cc; /* Azul de la bandera */
+    --secondary-color: #ffffff; /* Blanco de la bandera */
+    --success-color: #009933; /* Verde de la bandera */
+    --warning-color: #ffcc00; /* Amarillo complementario */
+    --danger-color: #cc0000; /* Rojo complementario */
+    --info-color: #0099cc; /* Azul claro */
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+
+/* Sidebar Styles */
+.wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+}
+
+.sidebar {
+    min-width: 250px;
+    max-width: 250px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, #004d99 100%);
+    color: #fff;
+    transition: all 0.3s;
+    position: fixed;
+    height: 100vh;
+    z-index: 1000;
+}
+
+.sidebar.active {
+    margin-left: -250px;
+}
+
+.sidebar-header {
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-header h3 {
+    color: #fff;
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.sidebar .components {
+    padding: 20px 0;
+}
+
+.sidebar .components li {
+    margin-bottom: 5px;
+}
+
+.sidebar .components li a {
+    padding: 10px 20px;
+    display: block;
+    color: #fff;
+    text-decoration: none;
+    transition: all 0.3s;
+    border-left: 3px solid transparent;
+}
+
+.sidebar .components li a:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-left-color: #fff;
+}
+
+.sidebar .components li a.active {
+    background: rgba(255, 255, 255, 0.2);
+    border-left-color: #fff;
+}
+
+.sidebar .components li ul {
+    padding-left: 20px;
+}
+
+.sidebar .components li ul li a {
+    padding: 8px 20px;
+    font-size: 0.9rem;
+    border-left: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.sidebar .components li ul li a:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-left-color: #fff;
+}
+
+.dropdown-toggle::after {
+    display: block;
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+}
+
+/* Content Styles */
+#content {
+    width: 100%;
+    padding: 0;
+    min-height: 100vh;
+    transition: all 0.3s;
+    margin-left: 250px;
+}
+
+#content.active {
+    margin-left: 0;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    color: var(--primary-color) !important;
+}
+
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 1px solid #dee2e6;
+    border-radius: 10px 10px 0 0 !important;
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+}
+
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: #004d99;
+    border-color: #004d99;
+}
+
+.btn-success {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+}
+
+.btn-success:hover {
+    background-color: #007a26;
+    border-color: #007a26;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    border-radius: 6px;
+}
+
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th:not(.table-dark th) {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+    color: #495057;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(0, 102, 204, 0.05);
+}
+
+.badge {
+    font-size: 0.75em;
+    padding: 0.35em 0.65em;
+    border-radius: 6px;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
+}
+
+.form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
+}
+
+/* Campos de formulario más cortos */
+.form-control, .form-select {
+    max-width: 60%;
+}
+
+/* Campos con ancho completo */
+.form-control.w-100, .form-select.w-100 {
+    max-width: 100%;
+    width: 100%;
+}
+
+/* Formulario de agregar insumos - todos los campos con ancho completo */
+#formInsumo .form-control,
+#formInsumo .form-select {
+    max-width: 100%;
+    width: 100%;
+}
+
+/* Selects de filtros adaptables */
+.filtros-container .form-select {
+    max-width: 100%;
+    min-width: 150px;
+}
+
+.filtros-container .form-control {
+    max-width: 100%;
+    min-width: 150px;
+}
+
+.dashboard-card {
+    background: linear-gradient(135deg, var(--primary-color) 0%, #004d99 100%);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+.dashboard-card h3 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.dashboard-card p {
+    margin-bottom: 0;
+    opacity: 0.9;
+    font-size: 0.9rem;
+}
+
+.estado-disponible {
+    background-color: var(--success-color) !important;
+    color: white !important;
+}
+
+.estado-asignado {
+    background-color: var(--warning-color) !important;
+    color: black !important;
+}
+
+.estado-baja {
+    background-color: var(--danger-color) !important;
+    color: white !important;
+}
+
+.estado-activa {
+    background-color: var(--success-color) !important;
+    color: white !important;
+}
+
+.estado-devuelta {
+    background-color: var(--secondary-color) !important;
+    color: var(--dark-color) !important;
+}
+
+.filtros-container {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    margin-bottom: 1.5rem;
+}
+
+/* Espacio adicional para los botones de filtros */
+.filtros-container .col-md-2:last-child {
+    padding-left: 0.5rem;
+}
+
+.modal-content {
+    border-radius: 10px;
+    border: none;
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 10px 10px 0 0;
+}
+
+.modal-header .btn-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+}
+
+.dataTables_wrapper .dataTables_length select {
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+}
+
+.dataTables_wrapper .dataTables_filter input {
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+}
+
+.select2-container--bootstrap-5 .select2-selection {
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        margin-left: -250px;
+    }
+    
+    .sidebar.active {
+        margin-left: 0;
+    }
+    
+    #content {
+        margin-left: 0;
+    }
+    
+    #content.active {
+        margin-left: 250px;
+    }
+    
+    .dashboard-card h3 {
+        font-size: 2rem;
+    }
+    
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+    
+    /* En móviles, los campos ocupan todo el ancho */
+    .form-control, .form-select {
+        max-width: 100%;
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .print-only {
+        display: block !important;
+    }
+}
+
+/* Estilos para botones de acción */
+.btn-group .btn {
+    margin: 0 1px;
+}
+
+.btn-group .btn:hover {
+    transform: scale(1.1);
+    transition: transform 0.2s ease;
+}
+
+/* Asegurar que los botones de acción sean clickeables */
+.btn-group .btn[onclick] {
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+/* Estilos para tooltips */
+.tooltip {
+    z-index: 9999;
+}
+
+/* Asegurar que los botones de acción en DataTables funcionen */
+.dataTables_wrapper .btn-group .btn {
+    pointer-events: auto !important;
+} 
+
+/* Estilos para la tabla de insumos en nueva asignación */
+#tablaInsumos {
+    font-size: 0.9rem;
+}
+
+#tablaInsumos thead th {
+    background-color: #212529 !important;
+    color: white !important;
+    border-color: #343a40 !important;
+    font-weight: 600;
+    text-align: center;
+}
+
+#tablaInsumos thead {
+    background-color: #212529 !important;
+}
+
+#tablaInsumos.table-dark thead th {
+    background-color: #212529 !important;
+    color: white !important;
+    border-color: #343a40 !important;
+}
+
+.table-dark thead th {
+    background-color: #212529 !important;
+    color: white !important;
+    border-color: #343a40 !important;
+}
+
+#tablaInsumos tbody tr:hover {
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+
+#tablaInsumos .btn-seleccionar {
+    min-width: 100px;
+}
+
+#tablaInsumos .badge {
+    font-size: 0.75rem;
+}
+
+.fila-insumo.highlight {
+    background-color: #e3f2fd !important;
+    border-left: 4px solid #2196f3;
+}
+
+.cantidad-item {
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 5px;
+    border-left: 3px solid #28a745;
+}
+
+.cantidad-varios {
+    max-width: 80px;
+}
+
+/* Estilos para filtros */
+.filtros-container {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    border: 1px solid #dee2e6;
+}
+
+/* Responsive para tabla de insumos */
+@media (max-width: 768px) {
+    #tablaInsumos {
+        font-size: 0.8rem;
+    }
+    
+    #tablaInsumos th,
+    #tablaInsumos td {
+        padding: 0.5rem 0.25rem;
+    }
+    
+    .cantidad-item {
+        padding: 8px;
+    }
+}
+
+/* Estilos para el modal de confirmación */
+#modalConfirmacion .modal-header {
+    border-bottom: 2px solid #0d6efd;
+}
+
+#modalConfirmacion .modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+#modalConfirmacion .table th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+}
+
+#modalConfirmacion .badge {
+    font-size: 0.75em;
+}
+
+#modalConfirmacion .alert-light {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 0.375rem;
+}
+
+#modalConfirmacion .text-primary {
+    color: #0d6efd !important;
+}
+
+#modalConfirmacion .modal-footer {
+    border-top: 2px solid #dee2e6;
+} 

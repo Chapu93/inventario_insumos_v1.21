@@ -1,0 +1,215 @@
+<?php
+require_once '../../includes/config.php';
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+    $_SESSION['mensaje'] = 'ID de insumo no válido.';
+    $_SESSION['tipo_mensaje'] = 'danger';
+    header('Location: listar.php');
+    exit;
+}
+
+$id = (int)$_GET['id'];
+$db = conectarDB();
+
+// Datos generales del insumo con ubicación
+$stmt = $db->prepare("
+    SELECT i.*, ps.nombre_punto, ar.nombre_area, s.nombre_sede, l.nombre_localidad, z.nombre_zona
+    FROM insumos i
+    LEFT JOIN puntos_stock ps ON i.id_punto_stock_actual = ps.id_punto_stock
+    LEFT JOIN areas ar ON i.id_area_asignacion_actual = ar.id_area
+    LEFT JOIN sedes s ON i.id_sede_actual = s.id_sede
+    LEFT JOIN localidades l ON s.id_localidad = l.id_localidad
+    LEFT JOIN zonas z ON l.id_zona = z.id_zona
+    WHERE i.id_insumo = ?
+");
+$stmt->execute([$id]);
+$insumo = $stmt->fetch();
+
+if (!$insumo) {
+    $_SESSION['mensaje'] = 'El insumo no existe.';
+    $_SESSION['tipo_mensaje'] = 'danger';
+    header('Location: listar.php');
+    exit;
+}
+
+// Especificaciones según tipo
+$esp = [];
+switch ($insumo['tipo_insumo']) {
+    case 'PC Completa':
+        $q = $db->prepare("SELECT * FROM pcs_completas WHERE id_insumo = ?");
+        $q->execute([$id]); $esp = $q->fetch() ?: [];
+        break;
+    case 'Notebook':
+        $q = $db->prepare("SELECT * FROM notebooks WHERE id_insumo = ?");
+        $q->execute([$id]); $esp = $q->fetch() ?: [];
+        break;
+    case 'Impresora':
+        $q = $db->prepare("SELECT * FROM impresoras WHERE id_insumo = ?");
+        $q->execute([$id]); $esp = $q->fetch() ?: [];
+        break;
+    case 'Monitor':
+        $q = $db->prepare("SELECT * FROM monitores WHERE id_insumo = ?");
+        $q->execute([$id]); $esp = $q->fetch() ?: [];
+        break;
+    case 'Escaner':
+        $q = $db->prepare("SELECT * FROM escaneres WHERE id_insumo = ?");
+        $q->execute([$id]); $esp = $q->fetch() ?: [];
+        break;
+}
+
+// Historial de asignaciones desde remitos/remitos_detalle
+$sqlHist = "
+    SELECT r.numero_remito, r.fecha_asignacion, r.fecha_devolucion, r.estado, s.nombre_sede, a.nombre_area
+    FROM remitos_detalle d
+    JOIN remitos r ON r.id_remito = d.id_remito
+    LEFT JOIN sedes s ON r.id_sede = s.id_sede
+    LEFT JOIN areas a ON r.id_area = a.id_area
+    WHERE d.id_insumo = ?
+    ORDER BY r.fecha_asignacion DESC
+";
+$st = $db->prepare($sqlHist);
+$st->execute([$id]);
+$historial = $st->fetchAll();
+
+include '../../includes/header.php';
+?>
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-eye me-2"></i>Detalles del Insumo</h1>
+            <div>
+                <a href="listar.php" class="btn btn-secondary"><i class="fas fa-arrow-left me-2"></i>Volver</a>
+                <a href="editar.php?id=<?php echo $insumo['id_insumo']; ?>" class="btn btn-warning"><i class="fas fa-edit me-2"></i>Editar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header"><h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Información General</h5></div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>ID:</strong> <?php echo $insumo['id_insumo']; ?></p>
+                        <p><strong>Nombre:</strong> <?php echo htmlspecialchars($insumo['nombre_insumo']); ?></p>
+                        <p><strong>Tipo:</strong> <span class="badge bg-info"><?php echo $insumo['tipo_insumo']; ?></span></p>
+                        <?php if ($insumo['subcategoria_varios']): ?>
+                            <p class="text-muted"><?php echo $insumo['subcategoria_varios']; ?></p>
+                        <?php endif; ?>
+                        <p><strong>Estado:</strong>
+                            <span class="badge estado-<?php echo strtolower(str_replace(' ','-',$insumo['estado'])); ?>">
+                                <?php echo $insumo['estado']; ?>
+                            </span>
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Cantidad:</strong>
+                            <span class="badge <?php echo $insumo['cantidad'] > 0 ? 'bg-success' : 'bg-danger'; ?>">
+                                <?php echo (int)$insumo['cantidad']; ?>
+                            </span>
+                        </p>
+                        <p><strong>Fecha de Adquisición:</strong> <?php echo $insumo['fecha_adquisicion'] ? date('d/m/Y', strtotime($insumo['fecha_adquisicion'])) : '-'; ?></p>
+                        <p><strong>Punto de Stock:</strong> <?php echo $insumo['nombre_punto'] ?: 'Sin asignar'; ?></p>
+                    </div>
+                </div>
+                <?php if ($insumo['numero_serie'] || $insumo['id_fisico']): ?>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-6"><?php if ($insumo['numero_serie']): ?><p><strong>Número de Serie:</strong> <?php echo htmlspecialchars($insumo['numero_serie']); ?></p><?php endif; ?></div>
+                        <div class="col-md-6"><?php if ($insumo['id_fisico']): ?><p><strong>ID Físico:</strong> <?php echo htmlspecialchars($insumo['id_fisico']); ?></p><?php endif; ?></div>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ($insumo['descripcion_general']): ?>
+                    <hr>
+                    <p><strong>Descripción:</strong></p>
+                    <p class="text-muted"><?php echo nl2br(htmlspecialchars($insumo['descripcion_general'])); ?></p>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <?php if ($insumo['tipo_insumo'] !== 'Varios'): ?>
+            <div class="card mb-4">
+                <div class="card-header"><h5 class="mb-0"><i class="fas fa-cogs me-2"></i>Especificaciones Técnicas</h5></div>
+                <div class="card-body">
+                    <?php if ($insumo['tipo_insumo'] === 'PC Completa'): ?>
+                        <p><strong>Procesador:</strong> <?php echo htmlspecialchars($esp['procesador'] ?? ''); ?></p>
+                        <p><strong>RAM:</strong> <?php echo htmlspecialchars($esp['ram_gb'] ?? ''); ?> GB</p>
+                        <p><strong>Almacenamiento:</strong> <?php echo htmlspecialchars($esp['almacenamiento_gb'] ?? ''); ?> GB</p>
+                        <p><strong>Mother:</strong> <?php echo htmlspecialchars($esp['mother'] ?? ''); ?></p>
+                    <?php elseif ($insumo['tipo_insumo'] === 'Notebook'): ?>
+                        <p><strong>Marca:</strong> <?php echo htmlspecialchars($esp['marca'] ?? ''); ?></p>
+                        <p><strong>Modelo:</strong> <?php echo htmlspecialchars($esp['modelo'] ?? ''); ?></p>
+                        <p><strong>Procesador:</strong> <?php echo htmlspecialchars($esp['procesador'] ?? ''); ?></p>
+                        <p><strong>RAM:</strong> <?php echo htmlspecialchars($esp['ram_gb'] ?? ''); ?> GB</p>
+                        <p><strong>Almacenamiento:</strong> <?php echo htmlspecialchars($esp['almacenamiento_gb'] ?? ''); ?> GB</p>
+                    <?php elseif ($insumo['tipo_insumo'] === 'Impresora'): ?>
+                        <p><strong>Marca:</strong> <?php echo htmlspecialchars($esp['marca'] ?? ''); ?></p>
+                        <p><strong>Modelo:</strong> <?php echo htmlspecialchars($esp['modelo'] ?? ''); ?></p>
+                    <?php elseif ($insumo['tipo_insumo'] === 'Monitor'): ?>
+                        <p><strong>Marca:</strong> <?php echo htmlspecialchars($esp['marca'] ?? ''); ?></p>
+                        <p><strong>Modelo:</strong> <?php echo htmlspecialchars($esp['modelo'] ?? ''); ?></p>
+                        <p><strong>Pulgadas:</strong> <?php echo htmlspecialchars($esp['pulgadas'] ?? ''); ?></p>
+                        <p><strong>Conexión:</strong> <?php echo htmlspecialchars($esp['conexion'] ?? ''); ?></p>
+                    <?php elseif ($insumo['tipo_insumo'] === 'Escaner'): ?>
+                        <p><strong>Marca:</strong> <?php echo htmlspecialchars($esp['marca'] ?? ''); ?></p>
+                        <p><strong>Modelo:</strong> <?php echo htmlspecialchars($esp['modelo'] ?? ''); ?></p>
+                    <?php endif; ?>
+                </div>
+            </div>
+        <?php endif; ?>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header"><h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Ubicación Actual</h5></div>
+            <div class="card-body">
+                <?php if ($insumo['nombre_sede']): ?>
+                    <p><strong>Sede:</strong> <?php echo htmlspecialchars($insumo['nombre_sede']); ?></p>
+                    <p><strong>Localidad:</strong> <?php echo htmlspecialchars($insumo['nombre_localidad']); ?></p>
+                    <p><strong>Zona:</strong> <?php echo htmlspecialchars($insumo['nombre_zona']); ?></p>
+                    <?php if ($insumo['nombre_area']): ?><p><strong>Área:</strong> <?php echo htmlspecialchars($insumo['nombre_area']); ?></p><?php endif; ?>
+                <?php else: ?>
+                    <p class="text-muted">Sin ubicación asignada</p>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><h5 class="mb-0"><i class="fas fa-history me-2"></i>Historial de Asignaciones</h5></div>
+            <div class="card-body">
+                <?php if (empty($historial)): ?>
+                    <p class="text-muted">No hay asignaciones registradas</p>
+                <?php else: ?>
+                    <div class="timeline">
+                        <?php foreach ($historial as $h): ?>
+                            <?php
+                                $estado_evento = !empty($h['fecha_devolucion']) ? 'Devuelta' : ($h['estado'] ?: 'Activa');
+                                $badge_class = 'estado-' . strtolower($estado_evento);
+                            ?>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <small class="text-muted"><?php echo date('d/m/Y', strtotime($h['fecha_asignacion'])); ?></small>
+                                    <span class="badge <?php echo $badge_class; ?>"><?php echo $estado_evento; ?></span>
+                                </div>
+                                <p class="mb-1">
+                                    <strong><?php echo htmlspecialchars($h['nombre_sede'] ?? ''); ?></strong>
+                                    <?php if (!empty($h['nombre_area'])): ?> - <?php echo htmlspecialchars($h['nombre_area']); ?><?php endif; ?>
+                                </p>
+                                <small class="text-muted">Remito: <?php echo htmlspecialchars($h['numero_remito']); ?></small>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php include '../../includes/footer.php'; ?>
