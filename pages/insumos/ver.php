@@ -181,10 +181,15 @@ include '../../includes/header.php';
                     <p class="text-muted">Sin ubicación asignada</p>
                 <?php endif; ?>
                 <?php
-                // Buscar asignación/remito activo para este insumo
-                $stmtAct = $db->prepare("SELECT r.id_remito, r.numero_remito, r.fecha_asignacion, r.estado
+                // Buscar asignación/remito activo para este insumo (incluye ubicación)
+                $stmtAct = $db->prepare("SELECT r.id_remito, r.numero_remito, r.fecha_asignacion, r.estado,
+                                                s.nombre_sede, l.nombre_localidad, z.nombre_zona, ar.nombre_area
                                          FROM remitos_detalle d
                                          JOIN remitos r ON r.id_remito = d.id_remito
+                                         JOIN sedes s ON r.id_sede = s.id_sede
+                                         JOIN localidades l ON s.id_localidad = l.id_localidad
+                                         JOIN zonas z ON l.id_zona = z.id_zona
+                                         JOIN areas ar ON r.id_area = ar.id_area
                                          WHERE d.id_insumo = ? AND r.estado = 'Activa'
                                          ORDER BY r.fecha_asignacion DESC LIMIT 1");
                 $stmtAct->execute([$id]);
@@ -203,6 +208,18 @@ include '../../includes/header.php';
                 <?php endif; ?>
             </div>
         </div>
+
+        <?php if (!empty($remAct)): ?>
+        <div class="card mb-4">
+            <div class="card-header"><h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Ubicación Actual</h5></div>
+            <div class="card-body">
+                <p class="mb-1"><strong>Sede:</strong> <?php echo htmlspecialchars($remAct['nombre_sede'] ?? ''); ?></p>
+                <p class="mb-1"><strong>Localidad:</strong> <?php echo htmlspecialchars($remAct['nombre_localidad'] ?? ''); ?></p>
+                <p class="mb-1"><strong>Zona:</strong> <?php echo htmlspecialchars($remAct['nombre_zona'] ?? ''); ?></p>
+                <?php if (!empty($remAct['nombre_area'])): ?><p class="mb-1"><strong>Área:</strong> <?php echo htmlspecialchars($remAct['nombre_area']); ?></p><?php endif; ?>
+            </div>
+        </div>
+        <?php endif; ?>
 
         <div class="card">
             <div class="card-header"><h5 class="mb-0"><i class="fas fa-history me-2"></i>Historial de Asignaciones</h5></div>

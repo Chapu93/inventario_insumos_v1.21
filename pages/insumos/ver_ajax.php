@@ -80,9 +80,14 @@ try {
     $asignaciones = $stmt_asignaciones->fetchAll();
     
     // Buscar remito activo (asignación actual) si existe
-    $stmt_act = $conexion->prepare("SELECT r.id_remito, r.numero_remito, r.fecha_asignacion, r.estado
+    $stmt_act = $conexion->prepare("SELECT r.id_remito, r.numero_remito, r.fecha_asignacion, r.estado,
+                                           s.nombre_sede, l.nombre_localidad, z.nombre_zona, ar.nombre_area
                                     FROM remitos_detalle d
                                     JOIN remitos r ON r.id_remito = d.id_remito
+                                    JOIN sedes s ON r.id_sede = s.id_sede
+                                    JOIN localidades l ON s.id_localidad = l.id_localidad
+                                    JOIN zonas z ON l.id_zona = z.id_zona
+                                    JOIN areas ar ON r.id_area = ar.id_area
                                     WHERE d.id_insumo = ? AND r.estado = 'Activa'
                                     ORDER BY r.fecha_asignacion DESC LIMIT 1");
     $stmt_act->execute([$id]);
@@ -252,6 +257,7 @@ try {
 
         <div class="col-md-4">
             <!-- Ubicación Actual -->
+            <?php if ($remito_activo): ?>
             <div class="card mb-3">
                 <div class="card-header">
                     <h6 class="mb-0">
@@ -259,18 +265,15 @@ try {
                     </h6>
                 </div>
                 <div class="card-body">
-                    <?php if ($insumo['nombre_sede']): ?>
-                        <p><strong>Sede:</strong> <?php echo htmlspecialchars($insumo['nombre_sede']); ?></p>
-                        <p><strong>Localidad:</strong> <?php echo htmlspecialchars($insumo['nombre_localidad']); ?></p>
-                        <p><strong>Zona:</strong> <?php echo htmlspecialchars($insumo['nombre_zona']); ?></p>
-                        <?php if ($insumo['nombre_area']): ?>
-                            <p><strong>Área:</strong> <?php echo htmlspecialchars($insumo['nombre_area']); ?></p>
-                        <?php endif; ?>
-                    <?php else: ?>
-                        <p class="text-muted">Sin ubicación asignada</p>
+                    <p class="mb-1"><strong>Sede:</strong> <?php echo htmlspecialchars($remito_activo['nombre_sede']); ?></p>
+                    <p class="mb-1"><strong>Localidad:</strong> <?php echo htmlspecialchars($remito_activo['nombre_localidad']); ?></p>
+                    <p class="mb-1"><strong>Zona:</strong> <?php echo htmlspecialchars($remito_activo['nombre_zona']); ?></p>
+                    <?php if (!empty($remito_activo['nombre_area'])): ?>
+                        <p class="mb-1"><strong>Área:</strong> <?php echo htmlspecialchars($remito_activo['nombre_area']); ?></p>
                     <?php endif; ?>
                 </div>
             </div>
+            <?php endif; ?>
 
             <?php if ($remito_activo): ?>
             <div class="card mb-3">
