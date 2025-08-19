@@ -77,7 +77,9 @@ if (!$templateLoaded) {
 $pdf->SetFont('Arial', '', 11);
 $pdf->SetTextColor(0,0,0);
 
-$y = 30;
+// Dejar dos líneas en blanco antes del contenido
+$lineHeight = 6;
+$y = 30 + (2 * $lineHeight);
 $pdf->SetXY(15, $y);
 $pdf->Cell(0, 6, 'Remito: ' . $cab['numero_remito'], 0, 1);
 $pdf->SetXY(15, $y += 7);
