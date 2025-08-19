@@ -277,6 +277,7 @@ include '../../includes/header.php';
                     </div>
                 </div>
 
+                <?php if ($tipo_insumo !== 'Varios'): ?>
                 <div class="col-md-4">
                     <div class="card h-100 border-0 shadow-sm">
                         <div class="card-header bg-light py-2">
@@ -329,6 +330,7 @@ include '../../includes/header.php';
                         </div>
                     </div>
                 </div>
+                <?php endif; ?>
             </div>
 
             <div class="mt-3 d-flex justify-content-end gap-2">
