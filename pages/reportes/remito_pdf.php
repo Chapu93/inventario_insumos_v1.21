@@ -49,15 +49,29 @@ if (!$cab) {
 }
 
 // PDF
-$pdf = new FPDI('P', 'mm', 'A4');
-$pdf->AddPage();
+$pdf = new Fpdi();
 
-// Fondo membretado
+// Fondo membretado con manejo robusto de tamaños y errores
+$templateLoaded = false;
 $templatePath = __DIR__ . '/../../membretada.pdf';
 if (file_exists($templatePath)) {
-    $tplIdx = $pdf->setSourceFile($templatePath);
-    $pageId = $pdf->importPage(1);
-    $pdf->useTemplate($pageId, 0, 0, 210, 297, true);
+    try {
+        // Importar primera página y obtener tamaño/orientación
+        $pdf->setSourceFile($templatePath);
+        $tplId = $pdf->importPage(1);
+        $size = $pdf->getTemplateSize($tplId);
+        // Crear página con el tamaño de la plantilla
+        $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
+        $pdf->useTemplate($tplId);
+        $templateLoaded = true;
+    } catch (Throwable $e) {
+        error_log('[remito_pdf] No se pudo cargar plantilla PDF: ' . $e->getMessage());
+    }
+}
+
+// Fallback a página A4 si no se pudo cargar la plantilla
+if (!$templateLoaded) {
+    $pdf->AddPage('P', 'mm', 'A4');
 }
 
 $pdf->SetFont('Arial', '', 11);
