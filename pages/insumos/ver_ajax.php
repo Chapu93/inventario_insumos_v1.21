@@ -79,6 +79,15 @@ try {
     $stmt_asignaciones->execute([$id]);
     $asignaciones = $stmt_asignaciones->fetchAll();
     
+    // Buscar remito activo (asignación actual) si existe
+    $stmt_act = $conexion->prepare("SELECT r.id_remito, r.numero_remito, r.fecha_asignacion, r.estado
+                                    FROM remitos_detalle d
+                                    JOIN remitos r ON r.id_remito = d.id_remito
+                                    WHERE d.id_insumo = ? AND r.estado = 'Activa'
+                                    ORDER BY r.fecha_asignacion DESC LIMIT 1");
+    $stmt_act->execute([$id]);
+    $remito_activo = $stmt_act->fetch();
+
     // Generar HTML para el modal
     ob_start();
     ?>
@@ -117,7 +126,9 @@ try {
                             <p><strong>Fecha de Adquisición:</strong> 
                                 <?php echo $insumo['fecha_adquisicion'] ? date('d/m/Y', strtotime($insumo['fecha_adquisicion'])) : '-'; ?>
                             </p>
-                            <p><strong>Punto de Almacenamiento:</strong> <?php echo $insumo['nombre_punto'] ?: 'Sin asignar'; ?></p>
+                            <?php if ($insumo['estado'] !== 'Asignado'): ?>
+                                <p><strong>Punto de Almacenamiento:</strong> <?php echo $insumo['nombre_punto'] ?: 'Sin asignar'; ?></p>
+                            <?php endif; ?>
                         </div>
                     </div>
                     
@@ -260,6 +271,26 @@ try {
                     <?php endif; ?>
                 </div>
             </div>
+
+            <?php if ($remito_activo): ?>
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-link me-2"></i>Asignación activa
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-1">
+                        <span class="badge bg-warning">Activa</span>
+                        <strong>ID:</strong> <?php echo (int)$remito_activo['id_remito']; ?>
+                    </p>
+                    <p class="mb-1"><strong>Remito:</strong> <?php echo htmlspecialchars($remito_activo['numero_remito']); ?></p>
+                    <a class="btn btn-sm btn-outline-primary" href="<?php echo app_base_url(); ?>/pages/reportes/remito.php?remito=<?php echo urlencode($remito_activo['numero_remito']); ?>">
+                        Ver remito
+                    </a>
+                </div>
+            </div>
+            <?php endif; ?>
 
             <!-- Historial de Asignaciones -->
             <div class="card">

@@ -44,10 +44,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($ins['tipo_insumo'] === 'Varios') {
                 $nuevo = (int)$ins['cantidad'] - $reps;
                 $estado = $nuevo > 0 ? 'Disponible' : 'Asignado';
-                $upd = $db->prepare("UPDATE insumos SET cantidad=?, estado=?, id_sede_actual=?, id_area_asignacion_actual=? WHERE id_insumo=?");
-                $upd->execute([$nuevo, $estado, $idSede, $idArea, $idIns]);
+                if ($nuevo > 0) {
+                    $upd = $db->prepare("UPDATE insumos SET cantidad=?, estado=?, id_sede_actual=?, id_area_asignacion_actual=? WHERE id_insumo=?");
+                    $upd->execute([$nuevo, $estado, $idSede, $idArea, $idIns]);
+                } else {
+                    // Sin stock remanente: limpiar punto de stock
+                    $upd = $db->prepare("UPDATE insumos SET cantidad=?, estado=?, id_sede_actual=?, id_area_asignacion_actual=?, id_punto_stock_actual = NULL WHERE id_insumo=?");
+                    $upd->execute([$nuevo, $estado, $idSede, $idArea, $idIns]);
+                }
             } else {
-                $upd = $db->prepare("UPDATE insumos SET estado='Asignado', id_sede_actual=?, id_area_asignacion_actual=? WHERE id_insumo=?");
+                // Unitarios: al asignar, limpiar punto de stock
+                $upd = $db->prepare("UPDATE insumos SET estado='Asignado', id_sede_actual=?, id_area_asignacion_actual=?, id_punto_stock_actual = NULL WHERE id_insumo=?");
                 $upd->execute([$idSede, $idArea, $idIns]);
             }
         }

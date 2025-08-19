@@ -72,10 +72,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($insumo['tipo_insumo'] === 'Varios') {
                 $nueva_cantidad = max(0, (int)$insumo['cantidad'] - $repeticiones);
                 $nuevo_estado = ($nueva_cantidad > 0) ? 'Disponible' : 'Asignado';
-                $conexion->prepare("UPDATE insumos SET cantidad = ?, estado = ?, id_sede_actual = ?, id_area_asignacion_actual = ? WHERE id_insumo = ?")
-                         ->execute([$nueva_cantidad, $nuevo_estado, $_POST['id_sede'], $_POST['id_area_asignada'], $idInsumo]);
+                if ($nueva_cantidad > 0) {
+                    $conexion->prepare("UPDATE insumos SET cantidad = ?, estado = ?, id_sede_actual = ?, id_area_asignacion_actual = ? WHERE id_insumo = ?")
+                             ->execute([$nueva_cantidad, $nuevo_estado, $_POST['id_sede'], $_POST['id_area_asignada'], $idInsumo]);
+                } else {
+                    // Sin stock remanente: marcar asignado y limpiar punto de stock
+                    $conexion->prepare("UPDATE insumos SET cantidad = ?, estado = ?, id_sede_actual = ?, id_area_asignacion_actual = ?, id_punto_stock_actual = NULL WHERE id_insumo = ?")
+                             ->execute([$nueva_cantidad, $nuevo_estado, $_POST['id_sede'], $_POST['id_area_asignada'], $idInsumo]);
+                }
             } else {
-                $conexion->prepare("UPDATE insumos SET estado = 'Asignado', id_sede_actual = ?, id_area_asignacion_actual = ? WHERE id_insumo = ?")
+                // Unitarios: al asignar, limpiar punto de stock
+                $conexion->prepare("UPDATE insumos SET estado = 'Asignado', id_sede_actual = ?, id_area_asignacion_actual = ?, id_punto_stock_actual = NULL WHERE id_insumo = ?")
                          ->execute([$_POST['id_sede'], $_POST['id_area_asignada'], $idInsumo]);
             }
         }

@@ -115,7 +115,9 @@ include '../../includes/header.php';
                             </span>
                         </p>
                         <p><strong>Fecha de Adquisición:</strong> <?php echo $insumo['fecha_adquisicion'] ? date('d/m/Y', strtotime($insumo['fecha_adquisicion'])) : '-'; ?></p>
-                        <p><strong>Punto de Stock:</strong> <?php echo $insumo['nombre_punto'] ?: 'Sin asignar'; ?></p>
+                        <?php if ($insumo['estado'] !== 'Asignado'): ?>
+                            <p><strong>Punto de Stock:</strong> <?php echo $insumo['nombre_punto'] ?: 'Sin asignar'; ?></p>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <?php if ($insumo['numero_serie'] || $insumo['id_fisico']): ?>
@@ -177,6 +179,27 @@ include '../../includes/header.php';
                     <?php if ($insumo['nombre_area']): ?><p><strong>Área:</strong> <?php echo htmlspecialchars($insumo['nombre_area']); ?></p><?php endif; ?>
                 <?php else: ?>
                     <p class="text-muted">Sin ubicación asignada</p>
+                <?php endif; ?>
+                <?php
+                // Buscar asignación/remito activo para este insumo
+                $stmtAct = $db->prepare("SELECT r.id_remito, r.numero_remito, r.fecha_asignacion, r.estado
+                                         FROM remitos_detalle d
+                                         JOIN remitos r ON r.id_remito = d.id_remito
+                                         WHERE d.id_insumo = ? AND r.estado = 'Activa'
+                                         ORDER BY r.fecha_asignacion DESC LIMIT 1");
+                $stmtAct->execute([$id]);
+                $remAct = $stmtAct->fetch();
+                if ($remAct): ?>
+                    <hr>
+                    <p class="mb-1"><strong>Asignación activa:</strong></p>
+                    <p class="mb-1">
+                        <span class="badge bg-warning">Activa</span>
+                        <strong>ID:</strong> <?php echo (int)$remAct['id_remito']; ?>
+                    </p>
+                    <p class="mb-1"><strong>Remito:</strong> <?php echo htmlspecialchars($remAct['numero_remito']); ?></p>
+                    <a class="btn btn-sm btn-outline-primary" href="<?php echo app_base_url(); ?>/pages/reportes/remito.php?remito=<?php echo urlencode($remAct['numero_remito']); ?>">
+                        Ver remito
+                    </a>
                 <?php endif; ?>
             </div>
         </div>
