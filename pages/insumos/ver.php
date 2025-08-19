@@ -209,7 +209,7 @@ include '../../includes/header.php';
             </div>
         </div>
 
-        <?php if (!empty($remAct)): ?>
+        <?php if (!empty($remAct) && $insumo['tipo_insumo'] !== 'Varios'): ?>
         <div class="card mb-4">
             <div class="card-header"><h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Ubicación Actual</h5></div>
             <div class="card-body">

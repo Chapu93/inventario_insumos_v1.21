@@ -257,7 +257,7 @@ try {
 
         <div class="col-md-4">
             <!-- Ubicación Actual -->
-            <?php if ($remito_activo): ?>
+            <?php if ($remito_activo && $insumo['tipo_insumo'] !== 'Varios'): ?>
             <div class="card mb-3">
                 <div class="card-header">
                     <h6 class="mb-0">
