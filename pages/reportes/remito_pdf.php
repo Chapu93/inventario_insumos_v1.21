@@ -80,21 +80,25 @@ $pdf->SetTextColor(0,0,0);
 // Márgenes y medidas
 $leftMargin = 15;  // 1,5 cm
 $rightMargin = 15; // 1,5 cm
-$topMargin = 15;   // mantener margen superior
+$topMargin = 15;   // margen superior base
 $lineHeight = 6;
 $pageWidth = $pdf->GetPageWidth();
 $pageHeight = $pdf->GetPageHeight();
 $contentWidth = $pageWidth - $leftMargin - $rightMargin;
 
-// Encabezado: Remito (izq) y Fecha (esquina superior derecha)
-$y = $topMargin;
+// Offset adicional para respetar membrete cuando hay plantilla
+$envHeaderOffset = getenv('REMITO_PDF_HEADER_OFFSET_MM');
+$headerOffset = $templateLoaded ? (is_numeric($envHeaderOffset) ? (float)$envHeaderOffset : 30.0) : 0.0; // por defecto 30mm
+
+// Encabezado: Remito (izq) y Fecha (esquina superior derecha) debajo del membrete
+$y = $topMargin + $headerOffset;
 $pdf->SetFont('Arial', '', 11);
 $pdf->SetXY($leftMargin, $y);
 $pdf->Cell($contentWidth/2, 6, 'Remito: ' . $cab['numero_remito'], 0, 0, 'L');
 $pdf->SetXY($leftMargin + $contentWidth/2, $y);
 $pdf->Cell($contentWidth/2, 6, 'Fecha: ' . date('d/m/Y', strtotime($cab['fecha_asignacion'])), 0, 1, 'R');
 
-// Dos líneas en blanco antes del contenido del remito
+// Dos líneas en blanco antes del contenido (después de remito/fecha)
 $y += (2 * $lineHeight);
 
 // Bloque de datos en dos columnas: Persona (izq) y Destino (der)
