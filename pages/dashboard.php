@@ -35,13 +35,28 @@ $stmt = $conexion->query("SELECT r.fecha_asignacion,
                           LIMIT 5");
 $asignaciones_recientes = $stmt->fetchAll();
 
-// Insumos por tipo
-$insumos_por_tipo = $conexion->query("
-    SELECT tipo_insumo, COUNT(*) as total 
-    FROM insumos 
-    GROUP BY tipo_insumo 
-    ORDER BY total DESC
-")->fetchAll();
+// Insumos por tipo (cantidad disponible) y subtipos de 'Varios'
+$insumos_por_tipo = [];
+// Tipos unitarios (disponibles)
+$stmtTipos = $conexion->query("SELECT tipo_insumo AS label, COUNT(*) AS total
+                               FROM insumos
+                               WHERE tipo_insumo <> 'Varios' AND estado = 'Disponible'
+                               GROUP BY tipo_insumo");
+$insumos_por_tipo = $stmtTipos->fetchAll();
+// Subtipos de Varios (sumatoria de cantidades > 0)
+$stmtVarios = $conexion->query("SELECT 
+                                  CASE subcategoria_varios
+                                    WHEN 'Hardware' THEN 'Varios - Hardware'
+                                    WHEN 'Periféricos' THEN 'Varios - Periféricos'
+                                    WHEN 'Red' THEN 'Varios - Red'
+                                    ELSE 'Varios - (Sin subcategoría)'
+                                  END AS label,
+                                  COALESCE(SUM(cantidad),0) AS total
+                                FROM insumos
+                                WHERE tipo_insumo = 'Varios' AND cantidad > 0
+                                GROUP BY subcategoria_varios");
+$varios = $stmtVarios->fetchAll();
+$insumos_por_tipo = array_merge($insumos_por_tipo, $varios);
 
 // Insumos por sede
 $insumos_por_sede = $conexion->query("
@@ -157,7 +172,7 @@ $insumos_por_sede = $conexion->query("
         <div class="card">
             <div class="card-header">
                 <h5 class="mb-0">
-                    <i class="fas fa-chart-pie me-2"></i>Insumos por Tipo
+                    <i class="fas fa-chart-pie me-2"></i>Cantidad disponible (por tipo)
                 </h5>
             </div>
             <div class="card-body">
@@ -230,9 +245,9 @@ const ctx1 = document.getElementById('chartInsumosPorTipo').getContext('2d');
 new Chart(ctx1, {
     type: 'doughnut',
     data: {
-        labels: datosInsumosPorTipo.map(item => item.tipo_insumo),
+        labels: datosInsumosPorTipo.map(item => item.label || item.tipo_insumo),
         datasets: [{
-            data: datosInsumosPorTipo.map(item => item.total),
+            data: datosInsumosPorTipo.map(item => parseInt(item.total, 10)),
             backgroundColor: [
                 '#0d6efd',
                 '#198754',
