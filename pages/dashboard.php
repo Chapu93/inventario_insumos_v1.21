@@ -166,18 +166,12 @@ $insumos_por_sede = $conexion->query("
         <div class="card">
             <div class="card-header">
                 <h5 class="mb-0">
-                    <i class="fas fa-layer-group me-2"></i>Varios - Cantidad disponible por subcategoría
+                    <i class="fas fa-layer-group me-2"></i>Cantidades disponibles
                 </h5>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-sm">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Subtipo</th>
-                                <th class="text-end">Cantidad disponible</th>
-                            </tr>
-                        </thead>
                         <tbody>
                             <tr>
                                 <td><strong>Periféricos</strong></td>
