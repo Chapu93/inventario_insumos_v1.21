@@ -50,17 +50,27 @@ foreach ($rowsTipos as $r) {
     ];
 }
 // Subtipos de Varios (sumatoria de cantidades > 0)
+// Construir base con todas las subcategorías esperadas
+$baseVarios = [
+    'Hardware' => 0,
+    'Periféricos' => 0,
+    'Red' => 0,
+];
 $stmtVarios = $conexion->query("SELECT subcategoria_varios, COALESCE(SUM(cantidad),0) AS total
                                 FROM insumos
                                 WHERE TRIM(tipo_insumo) = 'Varios' AND cantidad > 0
                                 GROUP BY subcategoria_varios");
 $rowsVarios = $stmtVarios->fetchAll();
 foreach ($rowsVarios as $r) {
-    $sub = $r['subcategoria_varios'];
-    $label = 'Varios - ' . ($sub ? $sub : '(Sin subcategoría)');
+    $key = $r['subcategoria_varios'];
+    if ($key === null || $key === '') { continue; }
+    if (!array_key_exists($key, $baseVarios)) { $baseVarios[$key] = 0; }
+    $baseVarios[$key] = (int)$r['total'];
+}
+foreach ($baseVarios as $k => $v) {
     $insumos_por_tipo[] = [
-        'label' => (string)$label,
-        'total' => (int)$r['total'],
+        'label' => 'Varios - ' . $k,
+        'total' => (int)$v,
     ];
 }
 // Reindexar y ordenar desc por total
@@ -245,7 +255,7 @@ $insumos_por_sede = $conexion->query("
 
 <script>
 // Datos para los gráficos
-const datosInsumosPorTipo = <?php echo json_encode(array_values($insumos_por_tipo)); ?>;
+const datosInsumosPorTipo = <?php echo json_encode(array_values($insumos_por_tipo), JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE); ?>;
 const datosInsumosPorSede = <?php echo json_encode($insumos_por_sede); ?>;
 
 // Gráfico de insumos por tipo
