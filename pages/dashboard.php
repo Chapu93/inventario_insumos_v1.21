@@ -24,12 +24,14 @@ $asignaciones_activas = $conexion->query("SELECT COALESCE(SUM(d.cantidad),0) as 
                                           WHERE i.estado = 'Asignado'")->fetch()['total'];
 
 // Asignaciones recientes (remitos)
-$stmt = $conexion->query("SELECT r.numero_remito, r.fecha_asignacion, r.nombre_persona_asignada, r.apellido_persona_asignada,
-                                 ar.nombre_area, s.nombre_sede 
+$stmt = $conexion->query("SELECT r.fecha_asignacion,
+                                 r.nombre_persona_asignada,
+                                 r.apellido_persona_asignada,
+                                 l.nombre_localidad
                           FROM remitos r
-                          JOIN areas ar ON r.id_area = ar.id_area 
-                          JOIN sedes s ON r.id_sede = s.id_sede 
-                          ORDER BY r.fecha_asignacion DESC 
+                          JOIN sedes s ON r.id_sede = s.id_sede
+                          JOIN localidades l ON s.id_localidad = l.id_localidad
+                          ORDER BY r.fecha_asignacion DESC
                           LIMIT 5");
 $asignaciones_recientes = $stmt->fetchAll();
 
@@ -134,48 +136,17 @@ $insumos_por_sede = $conexion->query("
                 <?php if (empty($asignaciones_recientes)): ?>
                     <p class="text-muted">No hay asignaciones recientes</p>
                 <?php else: ?>
-                    <div class="table-responsive">
-                        <table class="table table-sm">
-                            <thead>
-                                <tr>
-                                    <th>Remito</th>
-                                    <th>Persona</th>
-                                    <th>Área</th>
-                                    <th>Sede</th>
-                                    <th>Fecha</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($asignaciones_recientes as $asignacion): ?>
-                                    <tr>
-                                        <td><strong><?php echo htmlspecialchars($asignacion['numero_remito']); ?></strong></td>
-                                        <td><?php echo htmlspecialchars($asignacion['nombre_persona_asignada'] . ' ' . $asignacion['apellido_persona_asignada']); ?></td>
-                                        <td><?php echo htmlspecialchars($asignacion['nombre_area']); ?></td>
-                                        <td><?php echo htmlspecialchars($asignacion['nombre_sede']); ?></td>
-                                        <td><?php echo date('d/m/Y', strtotime($asignacion['fecha_asignacion'])); ?></td>
-                                        <td>
-                                            <div class="btn-group" role="group">
-                                                <a href="reportes/remito.php?remito=<?php echo urlencode($asignacion['numero_remito']); ?>" 
-                                                   class="btn btn-sm btn-info"
-                                                   data-bs-toggle="tooltip"
-                                                   title="Ver remito">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <button type="button" 
-                                                        class="btn btn-sm btn-primary" 
-                                                        onclick="generarRemitoPDF('<?php echo $asignacion['numero_remito']; ?>')"
-                                                        data-bs-toggle="tooltip" 
-                                                        title="Imprimir remito">
-                                                    <i class="fas fa-print"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
+                    <ul class="list-group list-group-flush">
+                        <?php foreach ($asignaciones_recientes as $asignacion): ?>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong><?php echo htmlspecialchars($asignacion['nombre_persona_asignada'] . ' ' . $asignacion['apellido_persona_asignada']); ?></strong>
+                                <div class="text-muted small"><?php echo htmlspecialchars($asignacion['nombre_localidad']); ?></div>
+                            </div>
+                            <div class="text-nowrap"><?php echo date('d/m/Y', strtotime($asignacion['fecha_asignacion'])); ?></div>
+                        </li>
+                        <?php endforeach; ?>
+                    </ul>
                 <?php endif; ?>
             </div>
         </div>
