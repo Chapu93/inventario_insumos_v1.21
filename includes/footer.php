@@ -21,9 +21,7 @@
     <script>
         // Toggle sidebar
         $(document).ready(function() {
-            $('#sidebarCollapse').on('click', function() {
-                $('#sidebar').toggleClass('active');
-            });
+            // Sidebar toggle removido: menú siempre visible
             
             // Inicializar DataTables
             $('.datatable').DataTable({
