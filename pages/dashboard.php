@@ -35,23 +35,8 @@ $stmt = $conexion->query("SELECT r.fecha_asignacion,
                           LIMIT 5");
 $asignaciones_recientes = $stmt->fetchAll();
 
-// Insumos por tipo (cantidad disponible) y subtipos de 'Varios'
-$insumos_por_tipo = [];
-// Tipos unitarios (disponibles)
-$stmtTipos = $conexion->query("SELECT TRIM(tipo_insumo) AS tipo_insumo, COUNT(*) AS total
-                               FROM insumos
-                               WHERE TRIM(tipo_insumo) <> 'Varios' AND estado = 'Disponible'
-                               GROUP BY TRIM(tipo_insumo)");
-$rowsTipos = $stmtTipos->fetchAll();
-foreach ($rowsTipos as $r) {
-    $insumos_por_tipo[] = [
-        'label' => (string)$r['tipo_insumo'],
-        'total' => (int)$r['total'],
-    ];
-}
-// Subtipos de Varios (sumatoria de cantidades > 0)
-// Construir base con todas las subcategorías esperadas
-$baseVarios = [
+// Cantidades disponibles por subtipos de 'Varios'
+$varios_subtipos = [
     'Hardware' => 0,
     'Periféricos' => 0,
     'Red' => 0,
@@ -60,21 +45,12 @@ $stmtVarios = $conexion->query("SELECT subcategoria_varios, COALESCE(SUM(cantida
                                 FROM insumos
                                 WHERE TRIM(tipo_insumo) = 'Varios' AND cantidad > 0
                                 GROUP BY subcategoria_varios");
-$rowsVarios = $stmtVarios->fetchAll();
-foreach ($rowsVarios as $r) {
-    $key = $r['subcategoria_varios'];
-    if ($key === null || $key === '') { continue; }
-    if (!array_key_exists($key, $baseVarios)) { $baseVarios[$key] = 0; }
-    $baseVarios[$key] = (int)$r['total'];
+$rowsV = $stmtVarios->fetchAll();
+foreach ($rowsV as $row) {
+    $sub = $row['subcategoria_varios'];
+    if ($sub === null || $sub === '') { continue; }
+    $varios_subtipos[$sub] = (int)$row['total'];
 }
-foreach ($baseVarios as $k => $v) {
-    $insumos_por_tipo[] = [
-        'label' => 'Varios - ' . $k,
-        'total' => (int)$v,
-    ];
-}
-// Reindexar y ordenar desc por total
-usort($insumos_por_tipo, function($a, $b){ return $b['total'] <=> $a['total']; });
 
 // Insumos por sede
 $insumos_por_sede = $conexion->query("
@@ -185,16 +161,39 @@ $insumos_por_sede = $conexion->query("
         </div>
     </div>
     
-    <!-- Gráfico de insumos por tipo -->
+    <!-- Tabla: Varios por subtipos (cantidad disponible) -->
     <div class="col-md-6">
         <div class="card">
             <div class="card-header">
                 <h5 class="mb-0">
-                    <i class="fas fa-chart-pie me-2"></i>Cantidad disponible
+                    <i class="fas fa-layer-group me-2"></i>Varios - Cantidad disponible por subcategoría
                 </h5>
             </div>
             <div class="card-body">
-                <canvas id="chartInsumosPorTipo" width="400" height="200"></canvas>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Subtipo</th>
+                                <th class="text-end">Cantidad disponible</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Periféricos</strong></td>
+                                <td class="text-end"><span class="badge bg-primary"><?php echo (int)$varios_subtipos['Periféricos']; ?></span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Hardware</strong></td>
+                                <td class="text-end"><span class="badge bg-primary"><?php echo (int)$varios_subtipos['Hardware']; ?></span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Red</strong></td>
+                                <td class="text-end"><span class="badge bg-primary"><?php echo (int)$varios_subtipos['Red']; ?></span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -254,37 +253,8 @@ $insumos_por_sede = $conexion->query("
 </div>
 
 <script>
-// Datos para los gráficos
-const datosInsumosPorTipo = <?php echo json_encode(array_values($insumos_por_tipo), JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE); ?>;
+// Datos para gráfico de insumos por sede
 const datosInsumosPorSede = <?php echo json_encode($insumos_por_sede); ?>;
-
-// Gráfico de insumos por tipo
-const ctx1 = document.getElementById('chartInsumosPorTipo').getContext('2d');
-new Chart(ctx1, {
-    type: 'doughnut',
-    data: {
-        labels: datosInsumosPorTipo.map(item => item.label),
-        datasets: [{
-            data: datosInsumosPorTipo.map(item => parseInt(item.total, 10)),
-            backgroundColor: [
-                '#0d6efd',
-                '#198754',
-                '#ffc107',
-                '#dc3545',
-                '#0dcaf0',
-                '#6c757d'
-            ]
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'bottom'
-            }
-        }
-    }
-});
 
 // Gráfico de insumos por sede
 const ctx2 = document.getElementById('chartInsumosPorSede').getContext('2d');
