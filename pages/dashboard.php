@@ -52,16 +52,7 @@ foreach ($rowsV as $row) {
     $varios_subtipos[$sub] = (int)$row['total'];
 }
 
-// Insumos por sede
-$insumos_por_sede = $conexion->query("
-    SELECT s.nombre_sede, COUNT(*) as total 
-    FROM insumos i 
-    JOIN sedes s ON i.id_sede_actual = s.id_sede 
-    WHERE i.id_sede_actual IS NOT NULL 
-    GROUP BY s.id_sede 
-    ORDER BY total DESC 
-    LIMIT 10
-")->fetchAll();
+// (Se eliminó 'Insumos por Sede' del dashboard)
 ?>
 <?php include '../includes/header.php'; ?>
 
@@ -193,21 +184,7 @@ $insumos_por_sede = $conexion->query("
     </div>
 </div>
 
-<div class="row mt-4">
-    <!-- Gráfico de insumos por sede -->
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-chart-bar me-2"></i>Insumos por Sede
-                </h5>
-            </div>
-            <div class="card-body">
-                <canvas id="chartInsumosPorSede" width="400" height="200"></canvas>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- Se eliminó la sección 'Insumos por Sede' -->
 
 <!-- Acciones rápidas -->
 <div class="row mt-4">
@@ -247,37 +224,7 @@ $insumos_por_sede = $conexion->query("
 </div>
 
 <script>
-// Datos para gráfico de insumos por sede
-const datosInsumosPorSede = <?php echo json_encode($insumos_por_sede); ?>;
-
-// Gráfico de insumos por sede
-const ctx2 = document.getElementById('chartInsumosPorSede').getContext('2d');
-new Chart(ctx2, {
-    type: 'bar',
-    data: {
-        labels: datosInsumosPorSede.map(item => item.nombre_sede),
-        datasets: [{
-            label: 'Cantidad de Insumos',
-            data: datosInsumosPorSede.map(item => item.total),
-            backgroundColor: '#0d6efd',
-            borderColor: '#0d6efd',
-            borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true,
-        scales: {
-            y: {
-                beginAtZero: true
-            }
-        },
-        plugins: {
-            legend: {
-                display: false
-            }
-        }
-    }
-});
+// (Sin gráfico de 'Insumos por Sede')
 </script>
 
 <?php include '../includes/footer.php'; ?> 
