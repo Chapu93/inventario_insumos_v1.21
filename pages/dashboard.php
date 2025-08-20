@@ -38,10 +38,10 @@ $asignaciones_recientes = $stmt->fetchAll();
 // Insumos por tipo (cantidad disponible) y subtipos de 'Varios'
 $insumos_por_tipo = [];
 // Tipos unitarios (disponibles)
-$stmtTipos = $conexion->query("SELECT tipo_insumo, COUNT(*) AS total
+$stmtTipos = $conexion->query("SELECT TRIM(tipo_insumo) AS tipo_insumo, COUNT(*) AS total
                                FROM insumos
-                               WHERE tipo_insumo <> 'Varios' AND estado = 'Disponible'
-                               GROUP BY tipo_insumo");
+                               WHERE TRIM(tipo_insumo) <> 'Varios' AND estado = 'Disponible'
+                               GROUP BY TRIM(tipo_insumo)");
 $rowsTipos = $stmtTipos->fetchAll();
 foreach ($rowsTipos as $r) {
     $insumos_por_tipo[] = [
@@ -52,7 +52,7 @@ foreach ($rowsTipos as $r) {
 // Subtipos de Varios (sumatoria de cantidades > 0)
 $stmtVarios = $conexion->query("SELECT subcategoria_varios, COALESCE(SUM(cantidad),0) AS total
                                 FROM insumos
-                                WHERE tipo_insumo = 'Varios' AND cantidad > 0
+                                WHERE TRIM(tipo_insumo) = 'Varios' AND cantidad > 0
                                 GROUP BY subcategoria_varios");
 $rowsVarios = $stmtVarios->fetchAll();
 foreach ($rowsVarios as $r) {
