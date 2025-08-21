@@ -90,11 +90,11 @@ $contentWidth = $pageWidth - $leftMargin - $rightMargin;
 $envHeaderOffset = getenv('REMITO_PDF_HEADER_OFFSET_MM');
 $headerOffset = $templateLoaded ? (is_numeric($envHeaderOffset) ? (float)$envHeaderOffset : 30.0) : 0.0; // por defecto 30mm
 
-// Encabezado: Remito (izq) y Fecha (esquina superior derecha) debajo del membrete
+// Encabezado: Número (izq) y Fecha (esquina superior derecha) debajo del membrete
 $y = $topMargin + $headerOffset;
 $pdf->SetFont('Arial', '', 11);
 $pdf->SetXY($leftMargin, $y);
-$pdf->Cell($contentWidth/2, 6, 'Remito: ' . $cab['numero_remito'], 0, 0, 'L');
+$pdf->Cell($contentWidth/2, 6, 'Número: ' . $cab['numero_remito'], 0, 0, 'L');
 $pdf->SetXY($leftMargin + $contentWidth/2, $y);
 $pdf->Cell($contentWidth/2, 6, 'Fecha: ' . date('d/m/Y', strtotime($cab['fecha_asignacion'])), 0, 1, 'R');
 
@@ -105,25 +105,25 @@ $y += (2 * $lineHeight);
 $colGap = 6; // separación entre columnas
 $colWidth = ($contentWidth - $colGap) / 2;
 
-// Persona Asignada (izquierda)
+// Agente Asignado (izquierda)
 $pdf->SetFont('Arial', 'B', 12);
 $pdf->SetXY($leftMargin, $y);
-$pdf->Cell($colWidth, 6, 'Persona Asignada', 0, 1, 'L');
+$pdf->Cell($colWidth, 6, 'Agente Asignado', 0, 1, 'L');
 $pdf->SetFont('Arial', '', 11);
 $y += 7;
 $pdf->SetXY($leftMargin, $y);
 $pdf->MultiCell($colWidth, 6, 'Nombre: ' . $cab['nombre_persona_asignada'] . ' ' . $cab['apellido_persona_asignada'], 0, 'L');
 
-// Destino (derecha)
+// Destino (derecha): Área, Sede, Localidad
 $yRightStart = $y - 7; // alinear título con el de Persona
 $pdf->SetFont('Arial', 'B', 12);
 $pdf->SetXY($leftMargin + $colWidth + $colGap, $yRightStart);
 $pdf->Cell($colWidth, 6, 'Destino', 0, 1, 'L');
 $pdf->SetFont('Arial', '', 11);
 $pdf->SetXY($leftMargin + $colWidth + $colGap, $yRightStart + 7);
-$destinoTexto = 'Sede: ' . ($cab['nombre_sede'] ?: '-') . "\n" .
-                'Localidad: ' . ($cab['nombre_localidad'] ?: '-') . ' - Zona: ' . ($cab['nombre_zona'] ?: '-') . "\n" .
-                'Area: ' . ($cab['nombre_area'] ?: '-');
+$destinoTexto = 'Area: ' . ($cab['nombre_area'] ?: '-') . "\n" .
+                'Sede: ' . ($cab['nombre_sede'] ?: '-') . "\n" .
+                'Localidad: ' . ($cab['nombre_localidad'] ?: '-') . ' - Zona: ' . ($cab['nombre_zona'] ?: '-');
 $pdf->MultiCell($colWidth, 6, $destinoTexto, 0, 'L');
 
 // Calcular la posición Y más baja de ambas columnas
@@ -163,20 +163,18 @@ foreach ($items as $it) {
     $y += 6;
 }
 
-// Área de firma antes del pie de página
-$bottomMargin = 15; // 1,5 cm
-$firmaY = $pageHeight - $bottomMargin - 20; // espacio para la línea y leyenda
-if ($y > $firmaY - 10) {
-    // Si el contenido llegó muy abajo, ajustar la firma un poco más arriba
-    $firmaY = max($y + 10, $pageHeight - $bottomMargin - 20);
-}
+// Área de firma: a 6 líneas del final de la tabla
+$lineasDesdeFin = 6; // líneas
+$firmaY = $y + ($lineasDesdeFin * $lineHeight);
+// Evitar salir del área imprimible
+if ($firmaY > $pageHeight - 20) { $firmaY = $pageHeight - 20; }
 $firmaWidth = 60; // ancho de línea de firma
 $firmaX1 = $leftMargin + ($contentWidth - $firmaWidth) / 2;
 $firmaX2 = $firmaX1 + $firmaWidth;
 $pdf->Line($firmaX1, $firmaY, $firmaX2, $firmaY);
 $pdf->SetXY($leftMargin, $firmaY + 2);
 $pdf->SetFont('Arial', '', 10);
-$pdf->Cell($contentWidth, 6, 'Firma del agente', 0, 0, 'C');
+$pdf->Cell($contentWidth, 6, 'Firma y aclaracion del agente', 0, 0, 'C');
 
 $pdf->Output('I', $cab['numero_remito'] . '.pdf');
 exit;

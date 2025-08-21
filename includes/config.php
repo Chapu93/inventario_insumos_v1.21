@@ -63,22 +63,22 @@ function conectarDB() {
 function generarNumeroRemito() {
     $conexion = conectarDB();
     $anio = date('Y');
-    // Buscar el último remito del año (esquema nuevo en tabla remitos)
+    // Buscar el último remito del año con formato nnnn_aaaa
     $stmt = $conexion->prepare("SELECT numero_remito FROM remitos WHERE numero_remito LIKE ? ORDER BY numero_remito DESC LIMIT 1");
-    $stmt->execute(["REMITO_{$anio}_%"]);
+    $stmt->execute(["%_{$anio}"]);
     $ultimo = $stmt->fetch();
     $secuencia = 0;
     if ($ultimo && isset($ultimo['numero_remito'])) {
         $partes = explode('_', $ultimo['numero_remito']);
-        $n = end($partes);
-        if (ctype_digit($n)) {
-            $secuencia = (int)$n;
+        // Esperado: [nnnn, aaaa]
+        if (!empty($partes[0]) && ctype_digit($partes[0])) {
+            $secuencia = (int)$partes[0];
         }
     }
     // Incrementar y asegurar unicidad en caso de colisiones
     do {
         $secuencia++;
-        $numero = sprintf('REMITO_%s_%04d', $anio, $secuencia);
+        $numero = sprintf('%04d_%s', $secuencia, $anio);
     } while (remitoExiste($numero));
     return $numero;
 }
