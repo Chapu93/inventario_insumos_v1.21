@@ -29,7 +29,23 @@ function generarRemitoPDF(numeroRemito) {
 
 function abrirVerAsignacion(numeroRemito) {
   const base = getAppBase();
-  window.location.href = `${base}/pages/reportes/remito.php?remito=${encodeURIComponent(numeroRemito)}`;
+  const url = `${base}/pages/asignaciones/ver_ajax.php?remito=${encodeURIComponent(numeroRemito)}`;
+  const $modal = $('#modalVerAsignacion');
+  const $body = $modal.find('.modal-body');
+  $body.html('<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div><div class="mt-2 text-muted">Cargando detalles...</div></div>');
+  fetch(url)
+    .then(r => r.text())
+    .then(html => {
+      $body.html(html);
+      const modal = new bootstrap.Modal($modal[0]);
+      modal.show();
+    })
+    .catch(err => {
+      console.error('Error cargando detalles de asignación', err);
+      $body.html('<div class="alert alert-danger">No se pudieron cargar los detalles. Intente nuevamente.</div>');
+      const modal = new bootstrap.Modal($modal[0]);
+      modal.show();
+    });
 }
 
 // Función para cargar insumos por sede

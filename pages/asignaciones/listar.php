@@ -217,4 +217,22 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
     </div>
 </div>
 
+<!-- Modal Ver Asignación -->
+<div class="modal fade" id="modalVerAsignacion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalle de asignación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Contenido cargado por AJAX -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <?php include '../../includes/footer.php'; ?>
