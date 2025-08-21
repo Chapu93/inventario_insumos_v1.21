@@ -32,10 +32,20 @@ $cab = $stmt->fetch();
 // Detalle
 $items = [];
 if ($cab) {
-    $stmtDet = $conexion->prepare("SELECT i.nombre_insumo, i.tipo_insumo, i.numero_serie, i.id_fisico, d.cantidad
+    $stmtDet = $conexion->prepare("SELECT 
+                                        i.nombre_insumo,
+                                        i.numero_serie,
+                                        i.id_fisico,
+                                        d.cantidad,
+                                        COALESCE(nb.marca, imp.marca, mon.marca, esc.marca) AS marca,
+                                        COALESCE(nb.modelo, imp.modelo, mon.modelo, esc.modelo) AS modelo
                                    FROM remitos_detalle d
                                    JOIN insumos i ON d.id_insumo = i.id_insumo
                                    JOIN remitos r ON r.id_remito = d.id_remito
+                                   LEFT JOIN notebooks nb ON nb.id_insumo = i.id_insumo
+                                   LEFT JOIN impresoras imp ON imp.id_insumo = i.id_insumo
+                                   LEFT JOIN monitores mon ON mon.id_insumo = i.id_insumo
+                                   LEFT JOIN escaneres esc ON esc.id_insumo = i.id_insumo
                                    WHERE r.numero_remito = ?
                                    ORDER BY i.nombre_insumo");
     $stmtDet->execute([$numero_remito]);
@@ -151,18 +161,20 @@ $pdf->Cell(0, 6, $enc('Insumos'), 0, 1);
 $pdf->SetFont('Arial', 'B', 10);
 $pdf->SetXY($leftMargin, $y += 7);
 // Anchos de columnas dentro del área de contenido (suman contentWidth)
-$wNombre = 90; $wTipo = 25; $wCant = 15; $wSN = 30; $wID = $contentWidth - ($wNombre + $wTipo + $wCant + $wSN);
+$wNombre = 70; $wMarca = 35; $wModelo = 35; $wCant = 15; $wSN = 30; $wID = $contentWidth - ($wNombre + $wMarca + $wModelo + $wCant + $wSN);
 $pdf->Cell($wNombre, 6, $enc('Insumo'), 1);
-$pdf->Cell($wTipo, 6, $enc('Tipo'), 1);
+$pdf->Cell($wMarca, 6, $enc('Marca'), 1);
+$pdf->Cell($wModelo, 6, $enc('Modelo'), 1);
 $pdf->Cell($wCant, 6, $enc('Cant.'), 1);
-$pdf->Cell($wSN, 6, $enc('S/N'), 1);
+$pdf->Cell($wSN, 6, $enc('Nro. de serie'), 1);
 $pdf->Cell($wID, 6, $enc('ID Físico'), 1);
 $y += 6;
 $pdf->SetFont('Arial', '', 10);
 foreach ($items as $it) {
     $pdf->SetXY($leftMargin, $y);
     $pdf->Cell($wNombre, 6, $enc($it['nombre_insumo']), 1);
-    $pdf->Cell($wTipo, 6, $enc($it['tipo_insumo']), 1);
+    $pdf->Cell($wMarca, 6, $enc($it['marca'] ?: '-'), 1);
+    $pdf->Cell($wModelo, 6, $enc($it['modelo'] ?: '-'), 1);
     $pdf->Cell($wCant, 6, (isset($it['cantidad']) ? (int)$it['cantidad'] : 1), 1);
     $pdf->Cell($wSN, 6, $enc($it['numero_serie'] ?: '-'), 1);
     $pdf->Cell($wID, 6, $enc($it['id_fisico'] ?: '-'), 1);
