@@ -194,10 +194,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
             
             <!-- Observaciones -->
-            <div class="row mt-2">
+            <div class="row mt-2 align-items-end">
                 <div class="col-md-6">
                     <label for="observaciones" class="form-label">Observaciones</label>
                     <textarea class="form-control" id="observaciones" name="observaciones" rows="2" placeholder="Observaciones adicionales sobre la asignación..."></textarea>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="ocultarFormulario()">
+                        <i class="fas fa-chevron-up me-1"></i>Ocultar formulario
+                    </button>
                 </div>
             </div>
             
