@@ -152,7 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <div class="invalid-feedback">Debe seleccionar una sede</div>
                     </div>
                     
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label for="id_area_asignada" class="form-label">Área *</label>
                         <select class="form-select" id="id_area_asignada" name="id_area_asignada" required>
                             <option value="">Seleccione un área</option>
@@ -184,21 +184,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <div class="invalid-feedback">El apellido es obligatorio</div>
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-2">
                         <label for="fecha_asignacion" class="form-label">Fecha de Asignación *</label>
                         <input type="date" class="form-control" id="fecha_asignacion" name="fecha_asignacion" value="<?php echo date('Y-m-d'); ?>" required>
                         <div class="invalid-feedback">Debe seleccionar una fecha</div>
-                        <div class="mt-2">
-                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="ocultarFormulario()">
-                                <i class="fas fa-chevron-up me-1"></i>Ocultar formulario
-                            </button>
-                        </div>
+                        
                     </div>
                 </div>
             </div>
             
             <!-- Observaciones -->
-            <div class="row mt-3">
+            <div class="row mt-2">
                 <div class="col-md-6">
                     <label for="observaciones" class="form-label">Observaciones</label>
                     <textarea class="form-control" id="observaciones" name="observaciones" rows="2" placeholder="Observaciones adicionales sobre la asignación..."></textarea>
