@@ -440,11 +440,18 @@ body {
 }
 
 .tabla-asignacion .btn-seleccionar {
-    min-width: 100px;
+    min-width: 120px;
 }
 
 .tabla-asignacion .badge {
     font-size: 0.75rem;
+}
+
+/* Dar más espacio a la columna de seleccionar/acciones en nueva asignación */
+.tabla-asignacion th:last-child,
+.tabla-asignacion td:last-child {
+    width: 200px;
+    min-width: 180px;
 }
 
 .fila-insumo.highlight {
