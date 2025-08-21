@@ -27,6 +27,11 @@ function generarRemitoPDF(numeroRemito) {
   window.open(`${base}/pages/reportes/remito_pdf.php?remito=${encodeURIComponent(numeroRemito)}`, '_blank');
 }
 
+function abrirVerAsignacion(numeroRemito) {
+  const base = getAppBase();
+  window.location.href = `${base}/pages/reportes/remito.php?remito=${encodeURIComponent(numeroRemito)}`;
+}
+
 // Función para cargar insumos por sede
 function cargarInsumosPorSede(sedeId, selectId) {
     if (!sedeId) {
