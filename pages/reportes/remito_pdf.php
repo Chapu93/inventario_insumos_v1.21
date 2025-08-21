@@ -110,6 +110,28 @@ $enc = function($s) {
     if ($out === false) { $out = utf8_decode((string)$s); }
     return $out;
 };
+// Truncador para ajustar textos a ancho de celda (con margen interno)
+$fit = function($text, $width) use ($pdf, $enc) {
+    $padding = 2; // mm
+    $max = max(0, $width - $padding);
+    $raw = (string)$text;
+    $ellipsis = $enc('…');
+    $encoded = $enc($raw);
+    if ($pdf->GetStringWidth($encoded) <= $max) {
+        return $encoded;
+    }
+    $len = function_exists('mb_strlen') ? mb_strlen($raw) : strlen($raw);
+    while ($len > 0) {
+        $substr = function_exists('mb_substr') ? mb_substr($raw, 0, $len) : substr($raw, 0, $len);
+        $trial = $enc($substr . '…');
+        if ($pdf->GetStringWidth($trial) <= $max) {
+            return $trial;
+        }
+        $len--;
+    }
+    return $ellipsis;
+};
+
 $pdf->Cell($contentWidth/2, 6, $enc('Número: ' . $cab['numero_remito']), 0, 0, 'L');
 $pdf->SetXY($leftMargin + $contentWidth/2, $y);
 $pdf->Cell($contentWidth/2, 6, $enc('Fecha: ' . date('d/m/Y', strtotime($cab['fecha_asignacion']))), 0, 1, 'R');
@@ -161,7 +183,7 @@ $pdf->Cell(0, 6, $enc('Insumos'), 0, 1);
 $pdf->SetFont('Arial', 'B', 10);
 $pdf->SetXY($leftMargin, $y += 7);
 // Anchos de columnas dentro del área de contenido (suman contentWidth)
-$wNombre = 70; $wMarca = 35; $wModelo = 35; $wCant = 15; $wSN = 30; $wID = $contentWidth - ($wNombre + $wMarca + $wModelo + $wCant + $wSN);
+$wNombre = 60; $wMarca = 30; $wModelo = 30; $wCant = 15; $wSN = 25; $wID = max(20, $contentWidth - ($wNombre + $wMarca + $wModelo + $wCant + $wSN));
 $pdf->Cell($wNombre, 6, $enc('Insumo'), 1);
 $pdf->Cell($wMarca, 6, $enc('Marca'), 1);
 $pdf->Cell($wModelo, 6, $enc('Modelo'), 1);
@@ -172,12 +194,12 @@ $y += 6;
 $pdf->SetFont('Arial', '', 10);
 foreach ($items as $it) {
     $pdf->SetXY($leftMargin, $y);
-    $pdf->Cell($wNombre, 6, $enc($it['nombre_insumo']), 1);
-    $pdf->Cell($wMarca, 6, $enc($it['marca'] ?: '-'), 1);
-    $pdf->Cell($wModelo, 6, $enc($it['modelo'] ?: '-'), 1);
-    $pdf->Cell($wCant, 6, (isset($it['cantidad']) ? (int)$it['cantidad'] : 1), 1);
-    $pdf->Cell($wSN, 6, $enc($it['numero_serie'] ?: '-'), 1);
-    $pdf->Cell($wID, 6, $enc($it['id_fisico'] ?: '-'), 1);
+    $pdf->Cell($wNombre, 6, $fit($it['nombre_insumo'], $wNombre), 1);
+    $pdf->Cell($wMarca, 6, $fit($it['marca'] ?: '-', $wMarca), 1);
+    $pdf->Cell($wModelo, 6, $fit($it['modelo'] ?: '-', $wModelo), 1);
+    $pdf->Cell($wCant, 6, (isset($it['cantidad']) ? (int)$it['cantidad'] : 1), 1, 0, 'C');
+    $pdf->Cell($wSN, 6, $fit($it['numero_serie'] ?: '-', $wSN), 1);
+    $pdf->Cell($wID, 6, $fit($it['id_fisico'] ?: '-', $wID), 1);
     $y += 6;
 }
 
