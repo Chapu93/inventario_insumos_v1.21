@@ -7,7 +7,6 @@ $conexion = conectarDB();
 $filtro_tipo = isset($_GET['tipo']) ? $_GET['tipo'] : '';
 $filtro_localidad = isset($_GET['localidad']) ? $_GET['localidad'] : '';
 $filtro_estado = isset($_GET['estado']) ? $_GET['estado'] : '';
-$filtro_cantidad = isset($_GET['cantidad']) ? $_GET['cantidad'] : '';
 
 // Construir consulta con filtros
 $sql = "SELECT i.*, ps.nombre_punto, ar.nombre_area, s.nombre_sede, l.nombre_localidad, z.nombre_zona 
@@ -36,15 +35,7 @@ if ($filtro_estado) {
     $params[] = $filtro_estado;
 }
 
-if ($filtro_cantidad) {
-    if ($filtro_cantidad == 'disponible') {
-        $sql .= " AND i.cantidad > 0";
-    } elseif ($filtro_cantidad == 'agotado') {
-        $sql .= " AND i.cantidad = 0";
-    }
-}
-
-$sql .= " ORDER BY i.fecha_adquisicion DESC";
+$sql .= " ORDER BY i.nombre_insumo ASC";
 
 $stmt = $conexion->prepare($sql);
 $stmt->execute($params);
@@ -102,7 +93,7 @@ $localidades = $stmt->fetchAll();
             </select>
         </div>
         
-        <div class="col-md-2">
+        <div class="col-md-3">
             <label for="estado" class="form-label">Estado</label>
             <select name="estado" id="estado" class="form-select">
                 <option value="">Todos los estados</option>
@@ -112,16 +103,7 @@ $localidades = $stmt->fetchAll();
             </select>
         </div>
         
-        <div class="col-md-2">
-            <label for="cantidad" class="form-label">Cantidad</label>
-            <select name="cantidad" id="cantidad" class="form-select">
-                <option value="">Todas las cantidades</option>
-                <option value="disponible" <?php echo $filtro_cantidad == 'disponible' ? 'selected' : ''; ?>>Con stock</option>
-                <option value="agotado" <?php echo $filtro_cantidad == 'agotado' ? 'selected' : ''; ?>>Sin stock</option>
-            </select>
-        </div>
-        
-        <div class="col-md-2 d-flex align-items-end">
+        <div class="col-md-3 d-flex align-items-end">
             <div class="d-grid gap-1 w-100">
                 <button type="submit" class="btn btn-primary btn-sm">
                     <i class="fas fa-search me-1"></i>Filtrar
@@ -150,34 +132,20 @@ $localidades = $stmt->fetchAll();
             </div>
         <?php else: ?>
             <div class="table-responsive">
-                <table class="table table-striped datatable" id="tablaInsumos">
+                <table class="table table-striped" id="tablaInsumos">
                     <thead>
                         <tr>
-                            <th>ID</th>
                             <th>Nombre</th>
-                            <th>Tipo</th>
                             <th>Estado</th>
-                            <th>Sede</th>
                             <th>Cantidad</th>
-                            <th>Fecha Adquisición</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($insumos as $insumo): ?>
                             <tr>
-                                <td><?php echo $insumo['id_insumo']; ?></td>
                                 <td>
                                     <strong><?php echo htmlspecialchars($insumo['nombre_insumo']); ?></strong>
-                                    <?php if ($insumo['numero_serie']): ?>
-                                        <br><small class="text-muted">S/N: <?php echo $insumo['numero_serie']; ?></small>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
-                                    <span class="badge bg-info"><?php echo $insumo['tipo_insumo']; ?></span>
-                                    <?php if ($insumo['subcategoria_varios']): ?>
-                                        <br><small class="text-muted"><?php echo $insumo['subcategoria_varios']; ?></small>
-                                    <?php endif; ?>
                                 </td>
                                 <td>
                                     <span class="badge estado-<?php echo strtolower(str_replace(' ', '-', $insumo['estado'])); ?>">
@@ -185,20 +153,9 @@ $localidades = $stmt->fetchAll();
                                     </span>
                                 </td>
                                 <td>
-                                    <?php if ($insumo['nombre_sede']): ?>
-                                        <?php echo $insumo['nombre_sede']; ?>
-                                        <br><small class="text-muted"><?php echo $insumo['nombre_localidad']; ?></small>
-                                    <?php else: ?>
-                                        <span class="text-muted">Sin asignar</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td>
                                     <span class="badge <?php echo $insumo['cantidad'] > 0 ? 'bg-success' : 'bg-danger'; ?>">
                                         <?php echo $insumo['cantidad']; ?>
                                     </span>
-                                </td>
-                                <td>
-                                    <?php echo $insumo['fecha_adquisicion'] ? date('d/m/Y', strtotime($insumo['fecha_adquisicion'])) : '-'; ?>
                                 </td>
                                 <td>
                                     <div class="btn-group" role="group">
@@ -352,83 +309,6 @@ function verInsumo(id) {
             btnEditar.style.display = 'none';
         });
 }
-
-// Función para eliminar insumo con opciones según tipo
-function eliminarInsumo(id, tipo, nombre, cantidad) {
-    const modal = new bootstrap.Modal(document.getElementById('modalEliminarInsumo'));
-    const modalContent = document.getElementById('eliminarInsumoContent');
-    const btnConfirmar = document.getElementById('btnConfirmarEliminar');
-    
-    if (tipo === 'Varios' && cantidad > 1) {
-        // Para insumos tipo "Varios" con cantidad > 1, mostrar opciones
-        modalContent.innerHTML = `
-            <div class="alert alert-warning">
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                <strong>Insumo: ${nombre}</strong><br>
-                Cantidad actual: <strong>${cantidad}</strong>
-            </div>
-            <p>¿Qué acción desea realizar?</p>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="accionEliminar" id="eliminarCompleto" value="eliminar" checked>
-                <label class="form-check-label" for="eliminarCompleto">
-                    <strong>Eliminar completamente</strong> - Se eliminará todo el stock del insumo
-                </label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="accionEliminar" id="reducirCantidad" value="reducir">
-                <label class="form-check-label" for="reducirCantidad">
-                    <strong>Reducir cantidad</strong> - Se reducirá la cantidad en stock
-                </label>
-            </div>
-            <div id="divCantidadReducir" style="display: none;" class="mt-3">
-                <label for="cantidadReducir" class="form-label">Cantidad a reducir:</label>
-                <input type="number" class="form-control" id="cantidadReducir" min="1" max="${cantidad}" value="1">
-                <small class="form-text text-muted">Máximo: ${cantidad}</small>
-            </div>
-        `;
-        
-        // Mostrar/ocultar campo de cantidad según selección
-        document.querySelectorAll('input[name="accionEliminar"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                const divCantidad = document.getElementById('divCantidadReducir');
-                if (this.value === 'reducir') {
-                    divCantidad.style.display = 'block';
-                } else {
-                    divCantidad.style.display = 'none';
-                }
-            });
-        });
-        
-        btnConfirmar.onclick = () => {
-            const accion = document.querySelector('input[name="accionEliminar"]:checked').value;
-            let url = `eliminar.php?id=${id}&tipo=insumo`;
-            
-            if (accion === 'reducir') {
-                const cantidadReducir = document.getElementById('cantidadReducir').value;
-                url += `&accion=reducir&cantidad=${cantidadReducir}`;
-            }
-            
-            window.location.href = url;
-        };
-    } else {
-        // Para otros tipos o insumos con cantidad = 1, confirmación simple
-        modalContent.innerHTML = `
-            <div class="alert alert-danger">
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                <strong>¿Está seguro que desea eliminar este insumo?</strong>
-            </div>
-            <p><strong>Insumo:</strong> ${nombre}</p>
-            <p><strong>Tipo:</strong> ${tipo}</p>
-            ${tipo === 'Varios' ? `<p><strong>Cantidad:</strong> ${cantidad}</p>` : ''}
-        `;
-        
-        btnConfirmar.onclick = () => {
-            window.location.href = `eliminar.php?id=${id}&tipo=insumo`;
-        };
-    }
-    
-    modal.show();
-}
 </script>
 
-<?php include '../../includes/footer.php'; ?> 
+<?php include '../../includes/footer.php'; ?>
