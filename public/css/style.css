@@ -175,7 +175,7 @@ body {
     margin-bottom: 0;
 }
 
-.table thead th:not(.table-dark th) {
+.table thead th {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     border-bottom: 2px solid #dee2e6;
     font-weight: 600;
@@ -423,29 +423,16 @@ body {
     font-size: 0.9rem;
 }
 
+/* Encabezados unificados para todas las tablas */
 .tabla-asignacion thead th {
-    background-color: #212529 !important;
-    color: white !important;
-    border-color: #343a40 !important;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+    color: #495057 !important;
+    border-color: #dee2e6 !important;
     font-weight: 600;
     text-align: center;
 }
 
-.tabla-asignacion thead {
-    background-color: #212529 !important;
-}
-
-.tabla-asignacion.table-dark thead th {
-    background-color: #212529 !important;
-    color: white !important;
-    border-color: #343a40 !important;
-}
-
-.table-dark thead th {
-    background-color: #212529 !important;
-    color: white !important;
-    border-color: #343a40 !important;
-}
+/* Eliminar encabezado oscuro global */
 
 .tabla-asignacion tbody tr:hover {
     background-color: #f8f9fa;
