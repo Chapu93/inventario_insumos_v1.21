@@ -94,9 +94,15 @@ $headerOffset = $templateLoaded ? (is_numeric($envHeaderOffset) ? (float)$envHea
 $y = $topMargin + $headerOffset;
 $pdf->SetFont('Arial', '', 11);
 $pdf->SetXY($leftMargin, $y);
-$pdf->Cell($contentWidth/2, 6, 'Número: ' . $cab['numero_remito'], 0, 0, 'L');
+$enc = function($s) {
+    if ($s === null) { return ''; }
+    $out = @iconv('UTF-8', 'ISO-8859-1//TRANSLIT', (string)$s);
+    if ($out === false) { $out = utf8_decode((string)$s); }
+    return $out;
+};
+$pdf->Cell($contentWidth/2, 6, $enc('Número: ' . $cab['numero_remito']), 0, 0, 'L');
 $pdf->SetXY($leftMargin + $contentWidth/2, $y);
-$pdf->Cell($contentWidth/2, 6, 'Fecha: ' . date('d/m/Y', strtotime($cab['fecha_asignacion'])), 0, 1, 'R');
+$pdf->Cell($contentWidth/2, 6, $enc('Fecha: ' . date('d/m/Y', strtotime($cab['fecha_asignacion']))), 0, 1, 'R');
 
 // Dos líneas en blanco antes del contenido (después de remito/fecha)
 $y += (2 * $lineHeight);
@@ -108,23 +114,23 @@ $colWidth = ($contentWidth - $colGap) / 2;
 // Agente Asignado (izquierda)
 $pdf->SetFont('Arial', 'B', 12);
 $pdf->SetXY($leftMargin, $y);
-$pdf->Cell($colWidth, 6, 'Agente Asignado', 0, 1, 'L');
+$pdf->Cell($colWidth, 6, $enc('Agente Asignado'), 0, 1, 'L');
 $pdf->SetFont('Arial', '', 11);
 $y += 7;
 $pdf->SetXY($leftMargin, $y);
-$pdf->MultiCell($colWidth, 6, 'Nombre: ' . $cab['nombre_persona_asignada'] . ' ' . $cab['apellido_persona_asignada'], 0, 'L');
+$pdf->MultiCell($colWidth, 6, $enc('Nombre: ' . $cab['nombre_persona_asignada'] . ' ' . $cab['apellido_persona_asignada']), 0, 'L');
 
 // Destino (derecha): Área, Sede, Localidad
 $yRightStart = $y - 7; // alinear título con el de Persona
 $pdf->SetFont('Arial', 'B', 12);
 $pdf->SetXY($leftMargin + $colWidth + $colGap, $yRightStart);
-$pdf->Cell($colWidth, 6, 'Destino', 0, 1, 'L');
+$pdf->Cell($colWidth, 6, $enc('Destino'), 0, 1, 'L');
 $pdf->SetFont('Arial', '', 11);
 $pdf->SetXY($leftMargin + $colWidth + $colGap, $yRightStart + 7);
-$destinoTexto = 'Area: ' . ($cab['nombre_area'] ?: '-') . "\n" .
+$destinoTexto = 'Área: ' . ($cab['nombre_area'] ?: '-') . "\n" .
                 'Sede: ' . ($cab['nombre_sede'] ?: '-') . "\n" .
                 'Localidad: ' . ($cab['nombre_localidad'] ?: '-') . ' - Zona: ' . ($cab['nombre_zona'] ?: '-');
-$pdf->MultiCell($colWidth, 6, $destinoTexto, 0, 'L');
+$pdf->MultiCell($colWidth, 6, $enc($destinoTexto), 0, 'L');
 
 // Calcular la posición Y más baja de ambas columnas
 $y = max($pdf->GetY(), $yRightStart + 7 + 3*$lineHeight);
@@ -132,39 +138,39 @@ $y = max($pdf->GetY(), $yRightStart + 7 + 3*$lineHeight);
 if (!empty($cab['observaciones'])) {
     $pdf->SetXY($leftMargin, $y += 10);
     $pdf->SetFont('Arial', 'B', 12);
-    $pdf->Cell(0, 6, 'Observaciones', 0, 1);
+    $pdf->Cell(0, 6, $enc('Observaciones'), 0, 1);
     $pdf->SetFont('Arial', '', 11);
     $pdf->SetXY($leftMargin, $y += 7);
-    $pdf->MultiCell($contentWidth, 6, $cab['observaciones']);
+    $pdf->MultiCell($contentWidth, 6, $enc($cab['observaciones']));
 }
 
 // Tabla de insumos
 $pdf->SetXY($leftMargin, $y += 10);
 $pdf->SetFont('Arial', 'B', 12);
-$pdf->Cell(0, 6, 'Insumos', 0, 1);
+$pdf->Cell(0, 6, $enc('Insumos'), 0, 1);
 $pdf->SetFont('Arial', 'B', 10);
 $pdf->SetXY($leftMargin, $y += 7);
 // Anchos de columnas dentro del área de contenido (suman contentWidth)
 $wNombre = 90; $wTipo = 25; $wCant = 15; $wSN = 30; $wID = $contentWidth - ($wNombre + $wTipo + $wCant + $wSN);
-$pdf->Cell($wNombre, 6, 'Insumo', 1);
-$pdf->Cell($wTipo, 6, 'Tipo', 1);
-$pdf->Cell($wCant, 6, 'Cant.', 1);
-$pdf->Cell($wSN, 6, 'S/N', 1);
-$pdf->Cell($wID, 6, 'ID Fisico', 1);
+$pdf->Cell($wNombre, 6, $enc('Insumo'), 1);
+$pdf->Cell($wTipo, 6, $enc('Tipo'), 1);
+$pdf->Cell($wCant, 6, $enc('Cant.'), 1);
+$pdf->Cell($wSN, 6, $enc('S/N'), 1);
+$pdf->Cell($wID, 6, $enc('ID Físico'), 1);
 $y += 6;
 $pdf->SetFont('Arial', '', 10);
 foreach ($items as $it) {
     $pdf->SetXY($leftMargin, $y);
-    $pdf->Cell($wNombre, 6, $it['nombre_insumo'], 1);
-    $pdf->Cell($wTipo, 6, $it['tipo_insumo'], 1);
+    $pdf->Cell($wNombre, 6, $enc($it['nombre_insumo']), 1);
+    $pdf->Cell($wTipo, 6, $enc($it['tipo_insumo']), 1);
     $pdf->Cell($wCant, 6, (isset($it['cantidad']) ? (int)$it['cantidad'] : 1), 1);
-    $pdf->Cell($wSN, 6, ($it['numero_serie'] ?: '-'), 1);
-    $pdf->Cell($wID, 6, ($it['id_fisico'] ?: '-'), 1);
+    $pdf->Cell($wSN, 6, $enc($it['numero_serie'] ?: '-'), 1);
+    $pdf->Cell($wID, 6, $enc($it['id_fisico'] ?: '-'), 1);
     $y += 6;
 }
 
-// Área de firma: a 6 líneas del final de la tabla
-$lineasDesdeFin = 6; // líneas
+// Área de firma: a 8 líneas del final de la tabla
+$lineasDesdeFin = 8; // líneas
 $firmaY = $y + ($lineasDesdeFin * $lineHeight);
 // Evitar salir del área imprimible
 if ($firmaY > $pageHeight - 20) { $firmaY = $pageHeight - 20; }
@@ -174,7 +180,7 @@ $firmaX2 = $firmaX1 + $firmaWidth;
 $pdf->Line($firmaX1, $firmaY, $firmaX2, $firmaY);
 $pdf->SetXY($leftMargin, $firmaY + 2);
 $pdf->SetFont('Arial', '', 10);
-$pdf->Cell($contentWidth, 6, 'Firma y aclaracion del agente', 0, 0, 'C');
+$pdf->Cell($contentWidth, 6, $enc('Firma y aclaración del agente'), 0, 0, 'C');
 
 $pdf->Output('I', $cab['numero_remito'] . '.pdf');
 exit;
