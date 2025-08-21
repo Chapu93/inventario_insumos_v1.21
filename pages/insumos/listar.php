@@ -132,7 +132,7 @@ $localidades = $stmt->fetchAll();
             </div>
         <?php else: ?>
             <div class="table-responsive">
-                <table class="table table-striped" id="tablaInsumos">
+                <table class="table table-striped datatable" id="tablaInsumos">
                     <thead>
                         <tr>
                             <th>Nombre</th>
