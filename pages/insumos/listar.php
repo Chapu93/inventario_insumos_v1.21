@@ -69,7 +69,7 @@ $localidades = $stmt->fetchAll();
     <form method="GET" class="row g-3">
         <div class="col-md-3">
             <label for="tipo" class="form-label">Tipo de Insumo</label>
-            <select name="tipo" id="tipo" class="form-select select2">
+            <select name="tipo" id="tipo" class="form-select">
                 <option value="">Todos los tipos</option>
                 <?php foreach ($tipos_insumo as $tipo): ?>
                     <option value="<?php echo $tipo['tipo_insumo']; ?>" 
@@ -82,7 +82,7 @@ $localidades = $stmt->fetchAll();
         
         <div class="col-md-3">
             <label for="localidad" class="form-label">Localidad</label>
-            <select name="localidad" id="localidad" class="form-select select2">
+            <select name="localidad" id="localidad" class="form-select">
                 <option value="">Todas las localidades</option>
                 <?php foreach ($localidades as $localidad): ?>
                     <option value="<?php echo $localidad['id_localidad']; ?>" 
@@ -95,7 +95,7 @@ $localidades = $stmt->fetchAll();
         
         <div class="col-md-3">
             <label for="estado" class="form-label">Estado</label>
-            <select name="estado" id="estado" class="form-select select2">
+            <select name="estado" id="estado" class="form-select">
                 <option value="">Todos los estados</option>
                 <option value="Disponible" <?php echo $filtro_estado == 'Disponible' ? 'selected' : ''; ?>>Disponible</option>
                 <option value="Asignado" <?php echo $filtro_estado == 'Asignado' ? 'selected' : ''; ?>>Asignado</option>
@@ -115,17 +115,6 @@ $localidades = $stmt->fetchAll();
         </div>
     </form>
 </div>
-
-<script>
-$(function(){
-  const BASE = typeof getAppBase === 'function' ? getAppBase() : '';
-  $('#localidad').on('change', function(){
-    const id = $(this).val();
-    if (!id) { return; }
-    // Si existiera un select de sedes en este listado, se podría poblar aquí con sedes_por_localidad
-  });
-});
-</script>
 
 <!-- Tabla de insumos -->
 <div class="card">
