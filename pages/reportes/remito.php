@@ -87,7 +87,7 @@ $asignaciones_recientes = $stmt->fetchAll();
         <?php endif; ?>
 
         <div class="table-responsive mt-3">
-            <table class="table table-sm table-striped">
+            <table class="table table-striped datatable">
                 <thead class="table-light">
                     <tr>
                         <th>Insumo</th>

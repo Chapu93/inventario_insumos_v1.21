@@ -162,7 +162,7 @@ foreach ($rowsV as $row) {
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-sm">
+                    <table class="table table-striped datatable">
                         <tbody>
                             <tr>
                                 <td><strong>Periféricos</strong></td>
