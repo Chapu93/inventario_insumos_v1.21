@@ -294,7 +294,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                                 <button type="button" class="btn btn-sm btn-outline-primary btn-seleccionar" 
                                                         data-insumo-id="<?php echo $insumo['id_insumo']; ?>"
                                                         onclick="toggleSeleccionInsumo(<?php echo $insumo['id_insumo']; ?>)">
-                                                    <i class="fas fa-plus"></i> Seleccionar
+                                                    <i class="fas fa-plus"></i><span> Seleccionar</span>
                                                 </button>
                                                 <?php if ($insumo['tipo_insumo'] === 'Varios' && $insumo['cantidad'] > 1): ?>
                                                     <div class="cantidad-input" style="display: none;">

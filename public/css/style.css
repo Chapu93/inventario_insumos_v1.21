@@ -440,7 +440,15 @@ body {
 }
 
 .tabla-asignacion .btn-seleccionar {
-    min-width: 120px;
+    width: 140px;
+    min-width: 140px;
+    max-width: 140px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .tabla-asignacion .badge {
