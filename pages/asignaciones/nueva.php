@@ -252,7 +252,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     
                     <!-- Tabla de insumos disponibles -->
                     <div class="table-responsive">
-                        <table class="table table-striped datatable" id="tablaInsumos">
+                        <table class="table table-striped datatable tabla-asignacion" id="tablaInsumos">
                             <thead>
                                 <tr>
                                     <th>Nombre Insumo</th>

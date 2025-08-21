@@ -419,11 +419,11 @@ body {
 } 
 
 /* Estilos para la tabla de insumos en nueva asignación */
-#tablaInsumos {
+.tabla-asignacion {
     font-size: 0.9rem;
 }
 
-#tablaInsumos thead th {
+.tabla-asignacion thead th {
     background-color: #212529 !important;
     color: white !important;
     border-color: #343a40 !important;
@@ -431,11 +431,11 @@ body {
     text-align: center;
 }
 
-#tablaInsumos thead {
+.tabla-asignacion thead {
     background-color: #212529 !important;
 }
 
-#tablaInsumos.table-dark thead th {
+.tabla-asignacion.table-dark thead th {
     background-color: #212529 !important;
     color: white !important;
     border-color: #343a40 !important;
@@ -447,16 +447,16 @@ body {
     border-color: #343a40 !important;
 }
 
-#tablaInsumos tbody tr:hover {
+.tabla-asignacion tbody tr:hover {
     background-color: #f8f9fa;
     cursor: pointer;
 }
 
-#tablaInsumos .btn-seleccionar {
+.tabla-asignacion .btn-seleccionar {
     min-width: 100px;
 }
 
-#tablaInsumos .badge {
+.tabla-asignacion .badge {
     font-size: 0.75rem;
 }
 
@@ -485,14 +485,14 @@ body {
     border: 1px solid #dee2e6;
 }
 
-/* Responsive para tabla de insumos */
+/* Responsive para tabla de insumos (nueva asignación) */
 @media (max-width: 768px) {
-    #tablaInsumos {
+    .tabla-asignacion {
         font-size: 0.8rem;
     }
     
-    #tablaInsumos th,
-    #tablaInsumos td {
+    .tabla-asignacion th,
+    .tabla-asignacion td {
         padding: 0.5rem 0.25rem;
     }
     
