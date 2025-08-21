@@ -217,16 +217,163 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
     </div>
 </div>
 
-<!-- Modal Ver Asignación -->
-<div class="modal fade" id="modalVerAsignacion" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+<script>
+function cambiarEstadoPorRemito(remito, estado) {
+    if (!remito || !estado) return;
+    if (confirm(`¿Está seguro que desea cambiar el estado del remito ${remito} a "${estado}"?`)) {
+        const base = typeof getAppBase === 'function' ? getAppBase() : '';
+        window.location.href = `${base}/pages/asignaciones/cambiar_estado.php?remito=${encodeURIComponent(remito)}&estado=${encodeURIComponent(estado)}`;
+    }
+}
+</script>
+
+<!-- Modal Devolución de Insumos -->
+<div class="modal fade" id="modalDevolucion" tabindex="-1" aria-labelledby="modalDevolucionLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Detalle de asignación</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                <h5 class="modal-title" id="modalDevolucionLabel">
+                    <i class="fas fa-undo me-2"></i>Devolver Insumos
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <!-- Contenido cargado por AJAX -->
+                <div id="devolucionAlert" style="display:none;"></div>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th style="width: 40px;"><input type="checkbox" id="chkAllDevolver"></th>
+                                <th>Insumo</th>
+                                <th>Tipo</th>
+                                <th>Cantidad Asignada</th>
+                                <th>Devolver</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaDevolucionBody">
+                            <tr><td colspan="5" class="text-center text-muted">Cargando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnConfirmarDevolucion">Confirmar Devolución</button>
+            </div>
+        </div>
+    </div>
+    </div>
+
+<script>
+let DEVOLUCION_REM = '';
+let VER_REM = '';
+
+function abrirDevolucion(remito) {
+    DEVOLUCION_REM = remito;
+    const modal = new bootstrap.Modal(document.getElementById('modalDevolucion'));
+    const body = document.getElementById('tablaDevolucionBody');
+    const alertBox = document.getElementById('devolucionAlert');
+    alertBox.style.display = 'none';
+    body.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Cargando...</td></tr>';
+    fetch(`${getAppBase()}/ajax/remito_items.php?remito=${encodeURIComponent(remito)}`)
+      .then(r => r.json())
+      .then(data => {
+        if (!data.success) { throw new Error(data.error || 'Error al cargar items'); }
+        const rows = [];
+        data.items.forEach(it => {
+          const isVarios = it.tipo_insumo === 'Varios';
+          const devueltos = parseInt(it.cantidad_devuelta || '0', 10);
+          const asignados = parseInt(it.cantidad || '0', 10);
+          const pendientes = Math.max(0, asignados - devueltos);
+          const qtyInput = isVarios
+            ? `<input type="number" class="form-control form-control-sm" min="1" max="${pendientes}" value="${pendientes}" data-id="${it.id_insumo}" data-max="${pendientes}" style="width:90px;" ${pendientes > 0 ? '' : 'disabled'}>`
+            : `<span class="badge bg-secondary">1</span>`;
+          rows.push(`
+            <tr>
+              <td><input type="checkbox" class="chk-dev" data-id="${it.id_insumo}" ${pendientes > 0 ? 'checked' : 'disabled'}></td>
+              <td><strong>${it.nombre_insumo}</strong>${it.numero_serie ? `<br><small class=\"text-muted\">S/N: ${it.numero_serie}</small>` : ''}${it.id_fisico ? `<br><small class=\"text-muted\">ID: ${it.id_fisico}</small>` : ''}</td>
+              <td><span class="badge ${isVarios ? 'bg-info' : 'bg-primary'}">${it.tipo_insumo}</span></td>
+              <td><span class="badge bg-dark">${it.cantidad}</span> ${devueltos > 0 ? `<small class=\"text-muted\">(devueltos: ${devueltos})</small>` : ''}</td>
+              <td>${qtyInput}</td>
+            </tr>
+          `);
+        });
+        body.innerHTML = rows.join('') || '<tr><td colspan="5" class="text-center text-muted">Sin items activos</td></tr>';
+        document.getElementById('chkAllDevolver').checked = true;
+      })
+      .catch(err => {
+        alertBox.className = 'alert alert-danger';
+        alertBox.textContent = err.message;
+        alertBox.style.display = 'block';
+        body.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error</td></tr>';
+      });
+    modal.show();
+}
+
+document.getElementById('chkAllDevolver').addEventListener('change', function(){
+  document.querySelectorAll('#tablaDevolucionBody .chk-dev').forEach(chk => { chk.checked = this.checked; });
+});
+
+document.getElementById('btnConfirmarDevolucion').addEventListener('click', function() {
+  const seleccion = [];
+  document.querySelectorAll('#tablaDevolucionBody .chk-dev:checked').forEach(chk => {
+    const id = parseInt(chk.getAttribute('data-id'), 10);
+    const qtyInput = document.querySelector(`#tablaDevolucionBody input[data-id="${id}"]`);
+    const cantidad = qtyInput ? Math.max(1, Math.min(parseInt(qtyInput.value || '1', 10), parseInt(qtyInput.getAttribute('data-max') || '1', 10))) : 1;
+    seleccion.push({ id_insumo: id, cantidad });
+  });
+  if (seleccion.length === 0) {
+    alert('Debe seleccionar al menos un insumo a devolver');
+    return;
+  }
+  fetch(`${getAppBase()}/ajax/devolver_insumos.php`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ remito: DEVOLUCION_REM, items: seleccion })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (!data.success) { throw new Error(data.error || 'Error en devolución'); }
+    location.reload();
+  })
+  .catch(err => {
+    const alertBox = document.getElementById('devolucionAlert');
+    alertBox.className = 'alert alert-danger';
+    alertBox.textContent = err.message;
+    alertBox.style.display = 'block';
+  });
+});
+</script>
+
+<!-- Modal Ver Asignación -->
+<div class="modal fade" id="modalVerAsignacion" tabindex="-1" aria-labelledby="modalVerAsignacionLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalVerAsignacionLabel">
+                    <i class="fas fa-eye me-2"></i>Detalle de Asignación
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="verAlert" style="display:none;"></div>
+                <div id="verCabecera" class="mb-3"></div>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Insumo</th>
+                                <th>Tipo</th>
+                                <th>Asignados</th>
+                                <th>Devueltos</th>
+                                <th>Pendientes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="verTablaBody">
+                            <tr><td colspan="5" class="text-center text-muted">Cargando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -234,5 +381,61 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
         </div>
     </div>
 </div>
+
+<script>
+function abrirVerAsignacion(remito) {
+  VER_REM = remito;
+  const modal = new bootstrap.Modal(document.getElementById('modalVerAsignacion'));
+  const cab = document.getElementById('verCabecera');
+  const body = document.getElementById('verTablaBody');
+  const alertBox = document.getElementById('verAlert');
+  alertBox.style.display = 'none';
+  cab.innerHTML = '';
+  body.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Cargando...</td></tr>';
+  fetch(`${getAppBase()}/ajax/remito_detalle.php?remito=${encodeURIComponent(remito)}`)
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success) { throw new Error(data.error || 'Error al cargar remito'); }
+      const c = data.cab;
+      cab.innerHTML = `
+        <div class="row">
+          <div class="col-md-6">
+            <p class="mb-1"><strong>Remito:</strong> ${c.numero_remito}</p>
+            <p class="mb-1"><strong>Fecha:</strong> ${c.fecha_asignacion}</p>
+            <p class="mb-1"><strong>Estado:</strong> <span class="badge ${c.estado === 'Activa' ? 'bg-warning' : 'bg-success'}">${c.estado}</span></p>
+          </div>
+          <div class="col-md-6">
+            <p class="mb-1"><strong>Persona:</strong> ${c.nombre_persona_asignada} ${c.apellido_persona_asignada}</p>
+            <p class="mb-1"><strong>Área:</strong> ${c.nombre_area}</p>
+            <p class="mb-1"><strong>Sede:</strong> ${c.nombre_sede} - ${c.nombre_localidad} (${c.nombre_zona})</p>
+          </div>
+        </div>
+        ${c.observaciones ? `<div class="alert alert-light mt-2">${c.observaciones}</div>` : ''}
+      `;
+      const rows = [];
+      data.items.forEach(it => {
+        const asignados = parseInt(it.cantidad || '0', 10);
+        const devueltos = parseInt(it.cantidad_devuelta || '0', 10);
+        const pendientes = Math.max(0, asignados - devueltos);
+        rows.push(`
+          <tr>
+            <td><strong>${it.nombre_insumo}</strong>${it.numero_serie ? `<br><small class=\"text-muted\">S/N: ${it.numero_serie}</small>` : ''}${it.id_fisico ? `<br><small class=\"text-muted\">ID: ${it.id_fisico}</small>` : ''}</td>
+            <td><span class="badge ${it.tipo_insumo === 'Varios' ? 'bg-info' : 'bg-primary'}">${it.tipo_insumo}</span></td>
+            <td><span class="badge bg-dark">${asignados}</span></td>
+            <td><span class="badge bg-success">${devueltos}</span></td>
+            <td><span class="badge ${pendientes > 0 ? 'bg-warning' : 'bg-secondary'}">${pendientes}</span></td>
+          </tr>
+        `);
+      });
+      body.innerHTML = rows.join('') || '<tr><td colspan="5" class="text-center text-muted">Sin ítems</td></tr>';
+    })
+    .catch(err => {
+      alertBox.className = 'alert alert-danger';
+      alertBox.textContent = err.message;
+      alertBox.style.display = 'block';
+    });
+  modal.show();
+}
+</script>
 
 <?php include '../../includes/footer.php'; ?>
