@@ -136,11 +136,10 @@ $asignaciones_recientes = $stmt->fetchAll();
                 <table class="table table-striped datatable" id="tablaRemitos">
                     <thead>
                         <tr>
-                            <th>Remito</th>
-                            <th>Fecha</th>
+                            <th>Número de Remito</th>
                             <th>Persona</th>
-                            <th>Área</th>
-                            <th>Sede</th>
+                            <th>Fecha</th>
+                            <th>Localidad</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -148,9 +147,8 @@ $asignaciones_recientes = $stmt->fetchAll();
                         <?php foreach ($asignaciones_recientes as $asignacion): ?>
                             <tr>
                                 <td><strong><?php echo htmlspecialchars($asignacion['numero_remito']); ?></strong></td>
-                                <td><?php echo date('d/m/Y', strtotime($asignacion['fecha_asignacion'])); ?></td>
                                 <td><?php echo htmlspecialchars($asignacion['nombre_persona_asignada'] . ' ' . $asignacion['apellido_persona_asignada']); ?></td>
-                                <td><?php echo htmlspecialchars($asignacion['nombre_area']); ?></td>
+                                <td><?php echo date('d/m/Y', strtotime($asignacion['fecha_asignacion'])); ?></td>
                                 <td><?php echo htmlspecialchars($asignacion['nombre_sede']); ?></td>
                                 <td>
                                     <div class="btn-group" role="group">
