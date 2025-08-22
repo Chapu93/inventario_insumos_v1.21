@@ -112,7 +112,7 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
             </select>
         </div>
         
-        <div class="col-md-2">
+        <div class="col-md-3">
             <label for="estado" class="form-label">Estado</label>
             <select name="estado" id="estado" class="form-select">
                 <option value="">Todos los estados</option>
@@ -121,13 +121,13 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
             </select>
         </div>
         
-        <div class="col-md-2 d-flex align-items-end">
-            <div class="d-grid gap-2 w-100">
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-search me-2"></i>Filtrar
+        <div class="col-md-3 d-flex align-items-end">
+            <div class="d-grid gap-1 w-100">
+                <button type="submit" class="btn btn-primary btn-sm">
+                    <i class="fas fa-search me-1"></i>Filtrar
                 </button>
-                <a href="listar.php" class="btn btn-secondary">
-                    <i class="fas fa-times me-2"></i>Limpiar
+                <a href="listar.php" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-times me-1"></i>Limpiar
                 </a>
             </div>
         </div>
@@ -286,26 +286,26 @@ function abrirDevolucion(remito) {
           const asignados = parseInt(it.cantidad || '0', 10);
           const pendientes = Math.max(0, asignados - devueltos);
           const qtyInput = isVarios
-            ? `<input type="number" class="form-control form-control-sm" min="1" max="${pendientes}" value="${pendientes}" data-id="${it.id_insumo}" data-max="${pendientes}" style="width:90px;" ${pendientes > 0 ? '' : 'disabled'}>`
-            : `<span class="badge bg-secondary">1</span>`;
+            ? `<input type=\"number\" class=\"form-control form-control-sm\" min=\"1\" max=\"${pendientes}\" value=\"${pendientes}\" data-id=\"${it.id_insumo}\" data-max=\"${pendientes}\" style=\"width:90px;\" ${pendientes > 0 ? '' : 'disabled'}>`
+            : `<span class=\"badge bg-secondary\">1</span>`;
           rows.push(`
             <tr>
-              <td><input type="checkbox" class="chk-dev" data-id="${it.id_insumo}" ${pendientes > 0 ? 'checked' : 'disabled'}></td>
-              <td><strong>${it.nombre_insumo}</strong>${it.numero_serie ? `<br><small class=\"text-muted\">S/N: ${it.numero_serie}</small>` : ''}${it.id_fisico ? `<br><small class=\"text-muted\">ID: ${it.id_fisico}</small>` : ''}</td>
-              <td><span class="badge ${isVarios ? 'bg-info' : 'bg-primary'}">${it.tipo_insumo}</span></td>
-              <td><span class="badge bg-dark">${it.cantidad}</span> ${devueltos > 0 ? `<small class=\"text-muted\">(devueltos: ${devueltos})</small>` : ''}</td>
+              <td><input type=\"checkbox\" class=\"chk-dev\" data-id=\"${it.id_insumo}\" ${pendientes > 0 ? 'checked' : 'disabled'}></td>
+              <td><strong>${it.nombre_insumo}</strong>${it.numero_serie ? `<br><small class=\\\"text-muted\\\">S/N: ${it.numero_serie}</small>` : ''}${it.id_fisico ? `<br><small class=\\\"text-muted\\\">ID: ${it.id_fisico}</small>` : ''}</td>
+              <td><span class=\"badge ${isVarios ? 'bg-info' : 'bg-primary'}\">${it.tipo_insumo}</span></td>
+              <td><span class=\"badge bg-dark\">${it.cantidad}</span> ${devueltos > 0 ? `<small class=\\\"text-muted\\\">(devueltos: ${devueltos})</small>` : ''}</td>
               <td>${qtyInput}</td>
             </tr>
           `);
         });
-        body.innerHTML = rows.join('') || '<tr><td colspan="5" class="text-center text-muted">Sin items activos</td></tr>';
+        body.innerHTML = rows.join('') || '<tr><td colspan=\"5\" class=\"text-center text-muted\">Sin items activos</td></tr>';
         document.getElementById('chkAllDevolver').checked = true;
       })
       .catch(err => {
         alertBox.className = 'alert alert-danger';
         alertBox.textContent = err.message;
         alertBox.style.display = 'block';
-        body.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error</td></tr>';
+        body.innerHTML = '<tr><td colspan=\"5\" class=\"text-center text-danger\">Error</td></tr>';
       });
     modal.show();
 }
@@ -318,7 +318,7 @@ document.getElementById('btnConfirmarDevolucion').addEventListener('click', func
   const seleccion = [];
   document.querySelectorAll('#tablaDevolucionBody .chk-dev:checked').forEach(chk => {
     const id = parseInt(chk.getAttribute('data-id'), 10);
-    const qtyInput = document.querySelector(`#tablaDevolucionBody input[data-id="${id}"]`);
+    const qtyInput = document.querySelector(`#tablaDevolucionBody input[data-id=\"${id}\"]`);
     const cantidad = qtyInput ? Math.max(1, Math.min(parseInt(qtyInput.value || '1', 10), parseInt(qtyInput.getAttribute('data-max') || '1', 10))) : 1;
     seleccion.push({ id_insumo: id, cantidad });
   });
