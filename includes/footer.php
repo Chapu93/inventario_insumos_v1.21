@@ -21,6 +21,35 @@
     <script>
         // Toggle sidebar
         $(document).ready(function() {
+            // Idioma español global para cualquier DataTable
+            if ($.fn && $.fn.dataTable) {
+                $.extend(true, $.fn.dataTable.defaults, {
+                    language: {
+                        decimal: ',',
+                        thousands: '.',
+                        processing: 'Procesando...',
+                        search: 'Buscar:',
+                        lengthMenu: 'Mostrar _MENU_ registros',
+                        info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
+                        infoEmpty: 'Mostrando 0 a 0 de 0 registros',
+                        infoFiltered: '(filtrado de _MAX_ registros totales)',
+                        infoPostFix: '',
+                        loadingRecords: 'Cargando...',
+                        zeroRecords: 'No se encontraron resultados',
+                        emptyTable: 'Ningún dato disponible en la tabla',
+                        paginate: {
+                            first: 'Primero',
+                            previous: 'Anterior',
+                            next: 'Siguiente',
+                            last: 'Último'
+                        },
+                        aria: {
+                            sortAscending: ': activar para ordenar ascendente',
+                            sortDescending: ': activar para ordenar descendente'
+                        }
+                    }
+                });
+            }
             // Sidebar toggle removido: menú siempre visible
             
             // Inicializar DataTables (por tabla para permitir orden inicial personalizado)
