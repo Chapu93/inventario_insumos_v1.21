@@ -94,13 +94,8 @@ body {
     border-left-color: #fff;
 }
 
-.dropdown-toggle::after {
-    display: block;
-    position: absolute;
-    top: 50%;
-    right: 20px;
-    transform: translateY(-50%);
-}
+/* Quitar flechita de dropdowns en el menú */
+.dropdown-toggle::after { display: none !important; }
 
 /* Content Styles */
 #content {

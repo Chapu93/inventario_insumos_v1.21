@@ -35,57 +35,66 @@
                 </h3>
             </div>
 
+            <?php
+                $currentPath = isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '';
+                $isDashboard = strpos($currentPath, '/pages/dashboard.php') !== false;
+                $isInsumos = strpos($currentPath, '/pages/insumos/') !== false;
+                $isAsignaciones = strpos($currentPath, '/pages/asignaciones/') !== false;
+                $isAdmin = strpos($currentPath, '/pages/admin/') !== false;
+                $isReportes = strpos($currentPath, '/pages/reportes/') !== false;
+            ?>
+
             <ul class="list-unstyled components">
                 <li>
-                    <a href="<?php echo app_base_url(); ?>/pages/dashboard.php" class="nav-link">
+                    <a href="<?php echo app_base_url(); ?>/pages/dashboard.php" class="nav-link <?php echo $isDashboard ? 'active' : ''; ?>">
                         <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                     </a>
                 </li>
                 
                 <li>
-                    <a href="#insumosSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                    <a href="#insumosSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo $isInsumos ? 'true' : 'false'; ?>" class="nav-link <?php echo $isInsumos ? 'active' : ''; ?>">
                         <i class="fas fa-box me-2"></i>Insumos
                     </a>
-                    <ul class="collapse list-unstyled" id="insumosSubmenu">
+                    <ul class="collapse list-unstyled <?php echo $isInsumos ? 'show' : ''; ?>" id="insumosSubmenu">
                         <li>
-                            <a href="<?php echo app_base_url(); ?>/pages/insumos/listar.php">Listar Insumos</a>
+                            <a href="<?php echo app_base_url(); ?>/pages/insumos/listar.php" class="<?php echo strpos($currentPath, '/pages/insumos/listar.php') !== false ? 'active' : ''; ?>">Listar Insumos</a>
                         </li>
                         <li>
-                            <a href="<?php echo app_base_url(); ?>/pages/insumos/agregar.php">Agregar Insumo</a>
+                            <a href="<?php echo app_base_url(); ?>/pages/insumos/agregar.php" class="<?php echo strpos($currentPath, '/pages/insumos/agregar.php') !== false ? 'active' : ''; ?>">Agregar Insumo</a>
                         </li>
                     </ul>
                 </li>
                 
                 <li>
-                    <a href="#asignacionesSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                    <a href="#asignacionesSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo $isAsignaciones ? 'true' : 'false'; ?>" class="nav-link <?php echo $isAsignaciones ? 'active' : ''; ?>">
                         <i class="fas fa-clipboard-list me-2"></i>Asignaciones
                     </a>
-                    <ul class="collapse list-unstyled" id="asignacionesSubmenu">
+                    <ul class="collapse list-unstyled <?php echo $isAsignaciones ? 'show' : ''; ?>" id="asignacionesSubmenu">
                         <li>
-                            <a href="<?php echo app_base_url(); ?>/pages/asignaciones/listar.php">Listar Asignaciones</a>
+                            <a href="<?php echo app_base_url(); ?>/pages/asignaciones/listar.php" class="<?php echo strpos($currentPath, '/pages/asignaciones/listar.php') !== false ? 'active' : ''; ?>">Listar Asignaciones</a>
                         </li>
                         <li>
-                            <a href="<?php echo app_base_url(); ?>/pages/asignaciones/nueva.php">Nueva Asignación</a>
+                            <a href="<?php echo app_base_url(); ?>/pages/asignaciones/nueva.php" class="<?php echo strpos($currentPath, '/pages/asignaciones/nueva.php') !== false ? 'active' : ''; ?>">Nueva Asignación</a>
                         </li>
                     </ul>
                 </li>
                 
                 <li>
-                    <a href="#adminSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                    <a href="#adminSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo $isAdmin ? 'true' : 'false'; ?>" class="nav-link <?php echo $isAdmin ? 'active' : ''; ?>">
                         <i class="fas fa-cog me-2"></i>Administración
                     </a>
-                    <ul class="collapse list-unstyled" id="adminSubmenu">
+                    <ul class="collapse list-unstyled <?php echo $isAdmin ? 'show' : ''; ?>" id="adminSubmenu">
                         <li>
-                            <a href="<?php echo app_base_url(); ?>/pages/admin/sedes.php">Gestión de Sedes</a>
+                            <a href="<?php echo app_base_url(); ?>/pages/admin/sedes.php" class="<?php echo strpos($currentPath, '/pages/admin/sedes.php') !== false ? 'active' : ''; ?>">Gestión de Sedes</a>
                         </li>
                         <li>
-                            <a href="<?php echo app_base_url(); ?>/pages/admin/areas.php">Gestión de Áreas</a>
+                            <a href="<?php echo app_base_url(); ?>/pages/admin/areas.php" class="<?php echo strpos($currentPath, '/pages/admin/areas.php') !== false ? 'active' : ''; ?>">Gestión de Áreas</a>
                         </li>
                     </ul>
                 </li>
                 
                 <li>
-                    <a href="<?php echo app_base_url(); ?>/pages/reportes/remito.php" class="nav-link">
+                    <a href="<?php echo app_base_url(); ?>/pages/reportes/remito.php" class="nav-link <?php echo $isReportes ? 'active' : ''; ?>">
                         <i class="fas fa-file-pdf me-2"></i>Remitos
                     </a>
                 </li>
