@@ -52,7 +52,7 @@
                 </li>
                 
                 <li>
-                    <a href="#insumosSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo $isInsumos ? 'true' : 'false'; ?>" class="nav-link <?php echo $isInsumos ? 'active' : ''; ?>">
+                    <a href="<?php echo app_base_url(); ?>/pages/insumos/listar.php" class="nav-link <?php echo $isInsumos ? 'active' : ''; ?>">
                         <i class="fas fa-box me-2"></i>Insumos
                     </a>
                     <ul class="collapse list-unstyled <?php echo $isInsumos ? 'show' : ''; ?>" id="insumosSubmenu" data-bs-parent="#sidebar">
@@ -66,7 +66,7 @@
                 </li>
                 
                 <li>
-                    <a href="#asignacionesSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo $isAsignaciones ? 'true' : 'false'; ?>" class="nav-link <?php echo $isAsignaciones ? 'active' : ''; ?>">
+                    <a href="<?php echo app_base_url(); ?>/pages/asignaciones/listar.php" class="nav-link <?php echo $isAsignaciones ? 'active' : ''; ?>">
                         <i class="fas fa-clipboard-list me-2"></i>Asignaciones
                     </a>
                     <ul class="collapse list-unstyled <?php echo $isAsignaciones ? 'show' : ''; ?>" id="asignacionesSubmenu" data-bs-parent="#sidebar">
@@ -80,7 +80,7 @@
                 </li>
                 
                 <li>
-                    <a href="#adminSubmenu" data-bs-toggle="collapse" aria-expanded="<?php echo $isAdmin ? 'true' : 'false'; ?>" class="nav-link <?php echo $isAdmin ? 'active' : ''; ?>">
+                    <a href="<?php echo app_base_url(); ?>/pages/admin/sedes.php" class="nav-link <?php echo $isAdmin ? 'active' : ''; ?>">
                         <i class="fas fa-cog me-2"></i>Administración
                     </a>
                     <ul class="collapse list-unstyled <?php echo $isAdmin ? 'show' : ''; ?>" id="adminSubmenu" data-bs-parent="#sidebar">
