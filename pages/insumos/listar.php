@@ -323,11 +323,7 @@ function verInsumo(id) {
 
 <script>
 $(function(){
-  // Reordenar por columna Estado usando data-order (Disponibles primero)
-  try {
-    const dt = $('#tablaInsumos').DataTable();
-    dt.order([1, 'asc']).draw();
-  } catch(e) { /* DataTables no cargado */ }
+  // Orden inicial se define vía data-default-order-col/dir y se aplica en footer
 });
 </script>
 

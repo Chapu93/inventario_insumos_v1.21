@@ -21,6 +21,26 @@
     <script>
         // Toggle sidebar
         $(document).ready(function() {
+            function traducirWrappersDT($wrapper) {
+                try {
+                    var $len = $wrapper.find('.dataTables_length label');
+                    if ($len.length) {
+                        var $sel = $len.find('select');
+                        $len.html('Mostrar ').append($sel).append(' registros');
+                    }
+                    var $fil = $wrapper.find('.dataTables_filter label');
+                    if ($fil.length) {
+                        var $inp = $fil.find('input');
+                        $fil.html('Buscar: ').append($inp);
+                        $inp.attr('placeholder', 'Buscar...');
+                    }
+                    var $pag = $wrapper.find('.dataTables_paginate');
+                    $pag.find('.first').text('Primero');
+                    $pag.find('.previous').text('Anterior');
+                    $pag.find('.next').text('Siguiente');
+                    $pag.find('.last').text('Último');
+                } catch(e) {}
+            }
             // Idioma español global para cualquier DataTable
             if ($.fn && $.fn.dataTable) {
                 $.extend(true, $.fn.dataTable.defaults, {
@@ -58,7 +78,7 @@
                 if ($.fn.DataTable.isDataTable($t)) { return; }
                 var defaultCol = parseInt($t.data('default-order-col')) || 0;
                 var defaultDir = String($t.data('default-order-dir') || 'asc');
-                $t.DataTable({
+                var dt = $t.DataTable({
                     language: {
                         decimal: ',',
                         thousands: '.',
@@ -97,12 +117,12 @@
                         // Reinicializar tooltips después de cada redibujado
                         inicializarTooltips();
                         // Placeholder de búsqueda en español
-                        try {
-                            var wrapper = $t.closest('.dataTables_wrapper');
-                            wrapper.find('.dataTables_filter input[type="search"]').attr('placeholder', 'Buscar...');
-                        } catch(e) {}
+                        var wrapper = $t.closest('.dataTables_wrapper');
+                        traducirWrappersDT(wrapper);
                     }
                 });
+                // Ajuste inicial por si algún tema/estilo sobreescribe textos
+                setTimeout(function(){ traducirWrappersDT($t.closest('.dataTables_wrapper')); }, 0);
             });
             
             // Inicializar Select2
