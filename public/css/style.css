@@ -75,8 +75,8 @@ body {
 }
 
 .sidebar .components li a.active {
-    background: rgba(255, 255, 255, 0.2);
-    border-left-color: #fff;
+    background: rgba(255, 255, 255, 0.12);
+    border-left-color: rgba(255,255,255,0.6);
 }
 
 .sidebar .components li ul {
@@ -86,12 +86,12 @@ body {
 .sidebar .components li ul li a {
     padding: 8px 20px;
     font-size: 0.9rem;
-    border-left: 2px solid rgba(255, 255, 255, 0.3);
+    border-left: 2px solid rgba(255, 255, 255, 0.25);
 }
 
 .sidebar .components li ul li a:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-left-color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+    border-left-color: rgba(255,255,255,0.6);
 }
 
 /* Quitar flechita de dropdowns en el menú */
