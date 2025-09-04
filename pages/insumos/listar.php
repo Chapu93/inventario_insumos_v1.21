@@ -35,7 +35,7 @@ if ($filtro_estado) {
     $params[] = $filtro_estado;
 }
 
-$sql .= " ORDER BY i.nombre_insumo ASC";
+$sql .= " ORDER BY CASE i.estado WHEN 'Disponible' THEN 0 WHEN 'Asignado' THEN 1 ELSE 2 END, i.nombre_insumo ASC";
 
 $stmt = $conexion->prepare($sql);
 $stmt->execute($params);
@@ -147,7 +147,7 @@ $localidades = $stmt->fetchAll();
                                 <td>
                                     <strong><?php echo htmlspecialchars($insumo['nombre_insumo']); ?></strong>
                                 </td>
-                                <td>
+                                <td data-order="<?php echo ($insumo['estado']==='Disponible'?0:($insumo['estado']==='Asignado'?1:2)); ?>">
                                     <span class="badge estado-<?php echo strtolower(str_replace(' ', '-', $insumo['estado'])); ?>">
                                         <?php echo $insumo['estado']; ?>
                                     </span>
@@ -166,12 +166,22 @@ $localidades = $stmt->fetchAll();
                                                 title="Ver detalles">
                                             <i class="fas fa-eye"></i>
                                         </button>
+<?php $bloquearEdit = ($insumo['estado'] === 'Asignado'); ?>
+<?php if ($bloquearEdit): ?>
+                                        <button type="button"
+                                                class="btn btn-sm btn-warning" 
+                                                data-bs-toggle="tooltip" 
+                                                title="No se puede editar un insumo asignado" disabled>
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+<?php else: ?>
                                         <a href="editar.php?id=<?php echo $insumo['id_insumo']; ?>" 
                                            class="btn btn-sm btn-warning" 
                                            data-bs-toggle="tooltip" 
                                            title="Editar">
                                             <i class="fas fa-edit"></i>
                                         </a>
+<?php endif; ?>
 <?php $bloquear = ($insumo['estado'] === 'Asignado'); ?>
 <button type="button" 
         class="btn btn-sm btn-danger" 
@@ -309,6 +319,16 @@ function verInsumo(id) {
             btnEditar.style.display = 'none';
         });
 }
+</script>
+
+<script>
+$(function(){
+  // Reordenar por columna Estado usando data-order (Disponibles primero)
+  try {
+    const dt = $('#tablaInsumos').DataTable();
+    dt.order([1, 'asc']).draw();
+  } catch(e) { /* DataTables no cargado */ }
+});
 </script>
 
 <?php include '../../includes/footer.php'; ?>

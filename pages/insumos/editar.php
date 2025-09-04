@@ -28,6 +28,14 @@ if (!$insumo) {
 }
 $tipo_insumo = $insumo['tipo_insumo'];
 
+// Bloquear edición si está asignado
+if (isset($insumo['estado']) && $insumo['estado'] === 'Asignado') {
+    $_SESSION['mensaje'] = 'No se puede editar un insumo en estado Asignado.';
+    $_SESSION['tipo_mensaje'] = 'warning';
+    header('Location: listar.php');
+    exit;
+}
+
 // Tablas específicas
 $esp = [];
 switch ($tipo_insumo) {
