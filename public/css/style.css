@@ -66,7 +66,7 @@ body {
     color: #fff;
     text-decoration: none;
     transition: all 0.3s;
-    border-left: 2px solid transparent;
+    position: relative;
 }
 
 .sidebar .components li a:hover {
@@ -76,8 +76,16 @@ body {
 
 .sidebar .components li a.active {
     background: transparent !important;
-    border-left-color: rgba(255,255,255,0.85);
-    border-left-width: 4px;
+}
+.sidebar .components li a.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 0 2px 2px 0;
 }
 
 .sidebar .components li ul {
@@ -87,19 +95,25 @@ body {
 .sidebar .components li ul li a {
     padding: 8px 20px;
     font-size: 0.9rem;
-    border-left: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .sidebar .components li ul li a:hover {
     background: rgba(255, 255, 255, 0.06);
-    border-left-color: rgba(255,255,255,0.6);
 }
 
 /* Active state para subitems: solo barra izquierda más marcada */
 .sidebar .components li ul li a.active {
     background: transparent !important;
-    border-left-color: rgba(255,255,255,0.85);
-    border-left-width: 3px;
+}
+.sidebar .components li ul li a.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: rgba(255,255,255,0.85);
+    border-radius: 0 2px 2px 0;
 }
 
 /* Quitar flechita de dropdowns en el menú */
