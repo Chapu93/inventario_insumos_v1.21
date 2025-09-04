@@ -18,6 +18,7 @@ if ($remito === '' || $nuevoEstado === '') {
 try {
     $db = conectarDB();
 
+    // Solo permitir 'Devuelta'. Evitar uso para devolver stock si hay parciales
     if (strcasecmp($nuevoEstado, 'Devuelta') !== 0) {
         $_SESSION['mensaje'] = 'Estado no soportado.';
         $_SESSION['tipo_mensaje'] = 'warning';
@@ -37,7 +38,7 @@ try {
 
     $idRemito = (int)$cab['id_remito'];
 
-    $sql = "SELECT d.id_insumo, d.cantidad, i.tipo_insumo, i.cantidad AS stock_actual
+    $sql = "SELECT d.id_insumo, d.cantidad, COALESCE(d.cantidad_devuelta,0) AS cantidad_devuelta, i.tipo_insumo, i.cantidad AS stock_actual
             FROM remitos_detalle d
             JOIN insumos i ON i.id_insumo = d.id_insumo
             WHERE d.id_remito = ?";
@@ -51,28 +52,28 @@ try {
         exit;
     }
 
-    $db->beginTransaction();
+    // Impedir cierre si quedan pendientes de devolución
+    $pendientes = 0;
     foreach ($detalles as $row) {
-        $idInsumo = (int)$row['id_insumo'];
-        $cant = max(1, (int)$row['cantidad']);
-        $tipo = $row['tipo_insumo'];
-
-        if ($tipo === 'Varios') {
-            $nuevoStock = ((int)$row['stock_actual']) + $cant;
-            $db->prepare("UPDATE insumos SET cantidad = ?, estado = 'Disponible', id_sede_actual = NULL, id_area_asignacion_actual = NULL WHERE id_insumo = ?")
-               ->execute([$nuevoStock, $idInsumo]);
-        } else {
-            $db->prepare("UPDATE insumos SET estado = 'Disponible', id_sede_actual = NULL, id_area_asignacion_actual = NULL WHERE id_insumo = ?")
-               ->execute([$idInsumo]);
-        }
+        $asignados = (int)$row['cantidad'];
+        $devueltos = (int)$row['cantidad_devuelta'];
+        $pendientes += max(0, $asignados - $devueltos);
     }
-    // Marcar cabecera como Devuelta
+    if ($pendientes > 0) {
+        $_SESSION['mensaje'] = 'No se puede marcar como Devuelta: aún hay items pendientes. Use "Devolver Insumos".';
+        $_SESSION['tipo_mensaje'] = 'warning';
+        header('Location: listar.php');
+        exit;
+    }
+
+    // Solo actualizar estado del remito (sin tocar stock, ya devuelto por flujo AJAX)
+    $db->beginTransaction();
     $db->prepare("UPDATE remitos SET estado = 'Devuelta', fecha_devolucion = CURDATE() WHERE numero_remito = ?")
        ->execute([$remito]);
 
     $db->commit();
 
-    $_SESSION['mensaje'] = "Remito $remito marcado como Devuelto. Estados/stock actualizados.";
+    $_SESSION['mensaje'] = "Remito $remito marcado como Devuelto.";
     $_SESSION['tipo_mensaje'] = 'success';
     header('Location: listar.php');
     exit;

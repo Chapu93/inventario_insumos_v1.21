@@ -59,26 +59,27 @@ function conectarDB() {
     }
 }
 
-// Función para generar números de remito únicos
+// Función para generar números de remito únicos con formato REMITO_YYYY_NNNN
 function generarNumeroRemito() {
     $conexion = conectarDB();
     $anio = date('Y');
-    // Buscar el último remito del año con formato nnnn_aaaa
+    // Buscar el último remito del año con formato REMITO_YYYY_NNNN
     $stmt = $conexion->prepare("SELECT numero_remito FROM remitos WHERE numero_remito LIKE ? ORDER BY numero_remito DESC LIMIT 1");
-    $stmt->execute(["%_{$anio}"]);
+    $stmt->execute(["REMITO_{$anio}_%"]);
     $ultimo = $stmt->fetch();
     $secuencia = 0;
     if ($ultimo && isset($ultimo['numero_remito'])) {
+        // Esperado: REMITO_YYYY_NNNN
         $partes = explode('_', $ultimo['numero_remito']);
-        // Esperado: [nnnn, aaaa]
-        if (!empty($partes[0]) && ctype_digit($partes[0])) {
-            $secuencia = (int)$partes[0];
+        $posibleSec = end($partes);
+        if (!empty($posibleSec) && ctype_digit($posibleSec)) {
+            $secuencia = (int)$posibleSec;
         }
     }
     // Incrementar y asegurar unicidad en caso de colisiones
     do {
         $secuencia++;
-        $numero = sprintf('%04d_%s', $secuencia, $anio);
+        $numero = sprintf('REMITO_%s_%04d', $anio, $secuencia);
     } while (remitoExiste($numero));
     return $numero;
 }

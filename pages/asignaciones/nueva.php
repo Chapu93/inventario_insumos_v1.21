@@ -214,7 +214,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="row mt-4">
                 <div class="col-12">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h6 class="mb-0">Selección de Insumos</h6>
+                        <h6 class="mb-0">Selección de Insumos <span class="badge bg-secondary" id="contadorSeleccion">0 seleccionados</span></h6>
                         <button type="button" id="btn-mostrar-formulario" class="btn btn-sm btn-outline-secondary" style="display: none;" onclick="mostrarFormulario()">
                             <i class="fas fa-chevron-down me-1"></i>Mostrar formulario
                         </button>
@@ -243,6 +243,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <div class="d-grid gap-2 w-100">
                                 <button type="button" class="btn btn-outline-secondary btn-sm" onclick="limpiarFiltros()">
                                     <i class="fas fa-times me-1"></i>Limpiar Filtros
+                                </button>
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="seleccionarFiltrados()">
+                                    <i class="fas fa-check-double me-1"></i>Seleccionar filtrados
                                 </button>
                                 <button type="button" class="btn btn-outline-danger btn-sm" onclick="deseleccionarTodos()">
                                     <i class="fas fa-times me-1"></i>Deseleccionar Todo
@@ -546,8 +549,29 @@ function actualizarCantidades() {
 
 // Función para actualizar contador de insumos seleccionados
 function actualizarContadorSeleccionados() {
-    // Contador no requerido
-    return;
+    const total = $('.hidden-insumo-input:not(:disabled)').length;
+    $('#contadorSeleccion').text(`${total} seleccionados`);
+}
+
+function seleccionarFiltrados() {
+    $('.fila-insumo:visible').each(function(){
+        const $fila = $(this);
+        const id = $fila.find('.hidden-insumo-input').val();
+        const $hiddenInput = $fila.find('.hidden-insumo-input');
+        const $button = $fila.find('.btn-seleccionar');
+        if ($hiddenInput.prop('disabled')) {
+            $hiddenInput.prop('disabled', false);
+            $button.removeClass('btn-outline-primary').addClass('btn-primary');
+            $button.html('<i class="fas fa-minus"></i> Deseleccionar');
+            const tipo = $hiddenInput.data('tipo');
+            const max = parseInt($hiddenInput.data('max') || 1, 10);
+            if (tipo === 'Varios' && max > 1) {
+                $fila.find('.cantidad-input').show();
+                $fila.find('.cantidad-input input').prop('disabled', false);
+            }
+        }
+    });
+    actualizarContadorSeleccionados();
 }
 
 // Función para limpiar filtros

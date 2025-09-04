@@ -60,19 +60,22 @@ if (!$cab) {
 
 // PDF
 $pdf = new Fpdi();
+// Cache simple del template para no re-parsar en múltiples usos por request
+static $TPL_ID = null; static $TPL_SIZE = null;
 
 // Fondo membretado con manejo robusto de tamaños y errores
 $templateLoaded = false;
 $templatePath = __DIR__ . '/../../membretada.pdf';
 if (file_exists($templatePath)) {
     try {
-        // Importar primera página y obtener tamaño/orientación
-        $pdf->setSourceFile($templatePath);
-        $tplId = $pdf->importPage(1);
-        $size = $pdf->getTemplateSize($tplId);
-        // Crear página con el tamaño de la plantilla
+        if ($TPL_ID === null) {
+            $pdf->setSourceFile($templatePath);
+            $TPL_ID = $pdf->importPage(1);
+            $TPL_SIZE = $pdf->getTemplateSize($TPL_ID);
+        }
+        $size = $TPL_SIZE;
         $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
-        $pdf->useTemplate($tplId);
+        $pdf->useTemplate($TPL_ID);
         $templateLoaded = true;
     } catch (Throwable $e) {
         error_log('[remito_pdf] No se pudo cargar plantilla PDF: ' . $e->getMessage());
@@ -81,7 +84,7 @@ if (file_exists($templatePath)) {
 
 // Fallback a página A4 si no se pudo cargar la plantilla
 if (!$templateLoaded) {
-    $pdf->AddPage('P', 'mm', 'A4');
+    $pdf->AddPage('P', 'A4');
 }
 
 $pdf->SetFont('Arial', '', 11);
