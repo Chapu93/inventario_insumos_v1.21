@@ -193,6 +193,21 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
                                                 title="Imprimir remito">
                                             <i class="fas fa-print"></i>
                                         </button>
+<?php $esActiva = ($estado === 'Activa'); ?>
+                                        <button type="button"
+                                                class="btn btn-sm btn-warning"
+                                                onclick="abrirDevolucion('<?php echo $asignacion['numero_remito']; ?>')"
+                                                data-bs-toggle="tooltip"
+                                                title="Devolver insumos" <?php echo $esActiva ? '' : 'disabled'; ?>>
+                                            <i class="fas fa-undo"></i>
+                                        </button>
+                                        <button type="button"
+                                                class="btn btn-sm btn-success"
+                                                onclick="cambiarEstadoPorRemito('<?php echo $asignacion['numero_remito']; ?>','Devuelta')"
+                                                data-bs-toggle="tooltip"
+                                                title="Marcar como Devuelta" <?php echo $esActiva ? '' : 'disabled'; ?>>
+                                            <i class="fas fa-check"></i>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>

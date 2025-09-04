@@ -21,26 +21,7 @@
     <script>
         // Toggle sidebar
         $(document).ready(function() {
-            function traducirWrappersDT($wrapper) {
-                try {
-                    var $len = $wrapper.find('.dataTables_length label');
-                    if ($len.length) {
-                        var $sel = $len.find('select');
-                        $len.html('Mostrar ').append($sel).append(' registros');
-                    }
-                    var $fil = $wrapper.find('.dataTables_filter label');
-                    if ($fil.length) {
-                        var $inp = $fil.find('input');
-                        $fil.html('Buscar: ').append($inp);
-                        $inp.attr('placeholder', 'Buscar...');
-                    }
-                    var $pag = $wrapper.find('.dataTables_paginate');
-                    $pag.find('.first').text('Primero');
-                    $pag.find('.previous').text('Anterior');
-                    $pag.find('.next').text('Siguiente');
-                    $pag.find('.last').text('Último');
-                } catch(e) {}
-            }
+            // No manipular directamente el DOM de DataTables (evita romper eventos)
             // Idioma español global para cualquier DataTable
             if ($.fn && $.fn.dataTable) {
                 $.extend(true, $.fn.dataTable.defaults, {
@@ -103,6 +84,7 @@
                             sortDescending: ': activar para ordenar descendente'
                         }
                     },
+                    pagingType: 'full_numbers',
                     order: [[defaultCol, defaultDir]],
                     pageLength: 25,
                     responsive: true,
@@ -116,13 +98,20 @@
                     drawCallback: function() {
                         // Reinicializar tooltips después de cada redibujado
                         inicializarTooltips();
-                        // Placeholder de búsqueda en español
-                        var wrapper = $t.closest('.dataTables_wrapper');
-                        traducirWrappersDT(wrapper);
+                        // Placeholder de búsqueda en español (sin tocar estructura del label)
+                        try {
+                            var wrapper = $t.closest('.dataTables_wrapper');
+                            wrapper.find('.dataTables_filter input[type="search"]').attr('placeholder', 'Buscar...');
+                        } catch(e) {}
                     }
                 });
-                // Ajuste inicial por si algún tema/estilo sobreescribe textos
-                setTimeout(function(){ traducirWrappersDT($t.closest('.dataTables_wrapper')); }, 0);
+                // Ajuste inicial del placeholder
+                setTimeout(function(){
+                    try {
+                        var wrapper = $t.closest('.dataTables_wrapper');
+                        wrapper.find('.dataTables_filter input[type="search"]').attr('placeholder', 'Buscar...');
+                    } catch(e) {}
+                }, 0);
             });
             
             // Inicializar Select2
