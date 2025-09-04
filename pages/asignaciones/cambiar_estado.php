@@ -52,28 +52,36 @@ try {
         exit;
     }
 
-    // Impedir cierre si quedan pendientes de devolución
-    $pendientes = 0;
+    // Devolver automáticamente todos los pendientes y dejar registro
+    $db->beginTransaction();
     foreach ($detalles as $row) {
+        $idInsumo = (int)$row['id_insumo'];
         $asignados = (int)$row['cantidad'];
         $devueltos = (int)$row['cantidad_devuelta'];
-        $pendientes += max(0, $asignados - $devueltos);
-    }
-    if ($pendientes > 0) {
-        $_SESSION['mensaje'] = 'No se puede marcar como Devuelta: aún hay items pendientes. Use "Devolver Insumos".';
-        $_SESSION['tipo_mensaje'] = 'warning';
-        header('Location: listar.php');
-        exit;
+        $pend = max(0, $asignados - $devueltos);
+        if ($pend <= 0) { continue; }
+
+        if ($row['tipo_insumo'] === 'Varios') {
+            $nuevoStock = ((int)$row['stock_actual']) + $pend;
+            $db->prepare("UPDATE insumos SET cantidad = ?, estado = 'Disponible', id_sede_actual = NULL, id_area_asignacion_actual = NULL WHERE id_insumo = ?")
+               ->execute([$nuevoStock, $idInsumo]);
+        } else {
+            $db->prepare("UPDATE insumos SET estado = 'Disponible', id_sede_actual = NULL, id_area_asignacion_actual = NULL WHERE id_insumo = ?")
+               ->execute([$idInsumo]);
+        }
+
+        // Registrar devolución completa en el detalle
+        $db->prepare("UPDATE remitos_detalle SET cantidad_devuelta = cantidad WHERE id_remito = ? AND id_insumo = ?")
+           ->execute([$idRemito, $idInsumo]);
     }
 
-    // Solo actualizar estado del remito (sin tocar stock, ya devuelto por flujo AJAX)
-    $db->beginTransaction();
+    // Marcar remito como Devuelta
     $db->prepare("UPDATE remitos SET estado = 'Devuelta', fecha_devolucion = CURDATE() WHERE numero_remito = ?")
        ->execute([$remito]);
 
     $db->commit();
 
-    $_SESSION['mensaje'] = "Remito $remito marcado como Devuelto.";
+    $_SESSION['mensaje'] = "Remito $remito marcado como Devuelto. Se devolvieron los insumos pendientes.";
     $_SESSION['tipo_mensaje'] = 'success';
     header('Location: listar.php');
     exit;
