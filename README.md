@@ -5,7 +5,7 @@ Sistema web para la gestión de insumos informáticos dentro de un organismo adm
 
 ## Novedades recientes
 - Flujo de asignaciones Localidad → Sede → Área → Insumo (carga dinámica desde BD)
-- Remitos con numeración única anual `REMITO_YYYY_NNNN`
+- Remitos con numeración única anual `NNNN_YYYY`
 - Generación de PDF robusta usando `FPDI` y plantilla `membretada.pdf` (autodetección de tamaño/orientación y fallback a A4 si la importación falla)
 - Dashboard con contadores y gráficos (Chart.js) y actualización por AJAX
 - Devoluciones parciales con historial (`remitos_detalle.cantidad_devuelta`) vía endpoint `ajax/devolver_insumos.php`
@@ -113,7 +113,7 @@ Relaciones relevantes:
 5. Guardar: se genera un remito único `REMITO_YYYY_NNNN` y redirige a su vista
 
 ### Remitos
-- Numeración: correlativo anual con padding de 4 dígitos
+- Numeración: correlativo anual con padding de 4 dígitos (formato `NNNN_YYYY`)
 - PDF: botón “Imprimir remito” abre `reportes/remito_pdf.php`
   - Carga la plantilla `membretada.pdf` (autodetección de tamaño/orientación). Si falla, usa A4 en blanco
 
