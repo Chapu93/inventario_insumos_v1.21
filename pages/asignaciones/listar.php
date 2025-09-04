@@ -149,7 +149,7 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
             </div>
         <?php else: ?>
             <div class="table-responsive">
-                <table class="table table-striped datatable" id="tablaAsignaciones">
+                <table class="table table-striped datatable" id="tablaAsignaciones" data-default-order-col="2" data-default-order-dir="desc">
                     <thead>
                         <tr>
                             <th>Persona Asignada</th>

@@ -133,7 +133,7 @@ $asignaciones_recientes = $stmt->fetchAll();
             </div>
         <?php else: ?>
             <div class="table-responsive">
-                <table class="table table-striped datatable" id="tablaRemitos">
+                <table class="table table-striped datatable" id="tablaRemitos" data-default-order-col="2" data-default-order-dir="desc">
                     <thead>
                         <tr>
                             <th>Número de Remito</th>

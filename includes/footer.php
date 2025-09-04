@@ -23,25 +23,31 @@
         $(document).ready(function() {
             // Sidebar toggle removido: menú siempre visible
             
-            // Inicializar DataTables
-            $('.datatable').DataTable({
-                language: {
-                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
-                },
-                order: [[0, 'asc']],
-                pageLength: 25,
-                responsive: true,
-                columnDefs: [
-                    {
-                        targets: -1, // Última columna (acciones)
-                        orderable: false,
-                        searchable: false
+            // Inicializar DataTables (por tabla para permitir orden inicial personalizado)
+            $('.datatable').each(function() {
+                var $t = $(this);
+                if ($.fn.DataTable.isDataTable($t)) { return; }
+                var defaultCol = parseInt($t.data('default-order-col')) || 0;
+                var defaultDir = String($t.data('default-order-dir') || 'asc');
+                $t.DataTable({
+                    language: {
+                        url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+                    },
+                    order: [[defaultCol, defaultDir]],
+                    pageLength: 25,
+                    responsive: true,
+                    columnDefs: [
+                        {
+                            targets: -1, // Última columna (acciones)
+                            orderable: false,
+                            searchable: false
+                        }
+                    ],
+                    drawCallback: function() {
+                        // Reinicializar tooltips después de cada redibujado
+                        inicializarTooltips();
                     }
-                ],
-                drawCallback: function() {
-                    // Reinicializar tooltips después de cada redibujado
-                    inicializarTooltips();
-                }
+                });
             });
             
             // Inicializar Select2
