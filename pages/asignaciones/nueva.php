@@ -634,7 +634,7 @@ function mostrarModalConfirmacion() {
         $('#modal-observaciones-container').hide();
     }
     
-    // Generar tabla de insumos seleccionados
+    // Generar tabla de insumos seleccionados (sin columna de ubicación)
     let tablaInsumos = `
         <table class="table table-sm table-striped">
             <thead class="table-light">
@@ -642,7 +642,6 @@ function mostrarModalConfirmacion() {
                     <th>Insumo</th>
                     <th>Tipo</th>
                     <th>Cantidad</th>
-                    <th>Ubicación Actual</th>
                 </tr>
             </thead>
             <tbody>`;
@@ -652,7 +651,6 @@ function mostrarModalConfirmacion() {
         const $fila = $hiddenInput.closest('tr');
         const nombreInsumo = $fila.find('td:nth-child(1) strong').text();
         const tipo = $hiddenInput.data('tipo');
-        const ubicacion = $fila.find('td:nth-child(4)').text().trim();
         
         let cantidad = '1';
         if (tipo === 'Varios') {
@@ -665,7 +663,6 @@ function mostrarModalConfirmacion() {
                 <td><strong>${nombreInsumo}</strong></td>
                 <td><span class="badge bg-info">${tipo}</span></td>
                 <td><span class="badge bg-success">${cantidad}</span></td>
-                <td><small>${ubicacion || 'Sin ubicación'}</small></td>
             </tr>`;
     });
     
