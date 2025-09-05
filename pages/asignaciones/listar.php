@@ -57,7 +57,7 @@ if ($filtro_estado) {
     }
 }
 
-$sql .= " ORDER BY r.fecha_asignacion DESC";
+$sql .= " ORDER BY activas DESC, r.fecha_asignacion DESC";
 
 $stmt = $conexion->prepare($sql);
 $stmt->execute($params);
@@ -149,13 +149,13 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
             </div>
         <?php else: ?>
             <div class="table-responsive">
-                <table class="table table-striped datatable" id="tablaAsignaciones" data-default-order-col="2" data-default-order-dir="desc">
+                <table class="table table-striped datatable" id="tablaAsignaciones" data-default-order-col="3" data-default-order-dir="asc">
                     <thead>
                         <tr>
                             <th>Persona Asignada</th>
                             <th>Localidad</th>
                             <th>Fecha Asignación</th>
-                            <th>Estado</th>
+                            <th data-orderable="true">Estado</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -172,7 +172,7 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
                                 <td>
                                     <?php echo date('d/m/Y', strtotime($asignacion['fecha_asignacion'])); ?>
                                 </td>
-                                <td>
+                                <td data-order="<?php echo ($estado==='Activa'?0:1); ?>">
                                     <span class="badge estado-<?php echo strtolower($estado); ?>">
                                         <?php echo $estado; ?>
                                     </span>
