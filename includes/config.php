@@ -35,8 +35,12 @@ function app_base_url(): string {
     if (strpos($script, '/ajax/') !== false) {
         return substr($script, 0, strpos($script, '/ajax/'));
     }
-    // Fallback: raíz
-    return '';
+    // Si estamos en index.php dentro de una carpeta, usar ese directorio como base
+    if (preg_match('#^(.*)/index\.php$#', $script, $m)) {
+        return rtrim($m[1], '/');
+    }
+    // Fallback: BASE_URL si está definido
+    return defined('BASE_URL') ? BASE_URL : '';
 }
 
 // Función para conectar a la base de datos
