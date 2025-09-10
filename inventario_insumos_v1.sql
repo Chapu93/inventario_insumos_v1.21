@@ -387,39 +387,6 @@ CREATE TABLE `sede_areas` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
-
---
--- Estructura Stand-in para la vista `v_asignaciones_completas`
--- (Véase abajo para la vista actual)
---
-CREATE TABLE `v_asignaciones_completas` (
-);
-
--- --------------------------------------------------------
-
---
--- Estructura Stand-in para la vista `v_insumos_completos`
--- (Véase abajo para la vista actual)
---
-CREATE TABLE `v_insumos_completos` (
-`id_insumo` int(11)
-,`nombre_insumo` varchar(100)
-,`tipo_insumo` enum('Varios','PC Completa','Notebook','Impresora','Monitor','Escaner')
-,`subcategoria_varios` enum('Hardware','Periféricos','Red')
-,`numero_serie` varchar(50)
-,`id_fisico` varchar(50)
-,`cantidad` int(11)
-,`fecha_adquisicion` date
-,`estado` enum('Disponible','Asignado','De Baja')
-,`punto_stock` enum('Oficina','Depósito')
-,`area_actual` varchar(100)
-,`sede_actual` varchar(100)
-,`nombre_localidad` varchar(100)
-,`nombre_zona` varchar(100)
-);
-
--- --------------------------------------------------------
-
 --
 -- Estructura de tabla para la tabla `zonas`
 --
@@ -447,16 +414,6 @@ INSERT INTO `zonas` (`id_zona`, `nombre_zona`) VALUES
 (5, 'Valle Medio');
 
 -- --------------------------------------------------------
-
---
--- Estructura para la vista `v_asignaciones_completas`
---
-DROP TABLE IF EXISTS `v_asignaciones_completas`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_asignaciones_completas`  AS SELECT `a`.`id_asignacion` AS `id_asignacion`, `a`.`numero_remito` AS `numero_remito`, `i`.`nombre_insumo` AS `nombre_insumo`, `i`.`tipo_insumo` AS `tipo_insumo`, `ar`.`nombre_area` AS `nombre_area`, `s`.`nombre_sede` AS `nombre_sede`, `l`.`nombre_localidad` AS `nombre_localidad`, `z`.`nombre_zona` AS `nombre_zona`, `a`.`nombre_persona_asignada` AS `nombre_persona_asignada`, `a`.`apellido_persona_asignada` AS `apellido_persona_asignada`, `a`.`fecha_asignacion` AS `fecha_asignacion`, `a`.`fecha_devolucion_real` AS `fecha_devolucion_real`, `a`.`estado_asignacion` AS `estado_asignacion`, `a`.`observaciones` AS `observaciones` FROM (((((`asignaciones` `a` join `insumos` `i` on(`a`.`id_insumo` = `i`.`id_insumo`)) join `areas` `ar` on(`a`.`id_area_asignada` = `ar`.`id_area`)) join `sedes` `s` on(`i`.`id_sede_actual` = `s`.`id_sede`)) join `localidades` `l` on(`s`.`id_localidad` = `l`.`id_localidad`)) join `zonas` `z` on(`l`.`id_zona` = `z`.`id_zona`)) ;
-
--- --------------------------------------------------------
-
 --
 -- Estructura para la vista `v_insumos_completos`
 --
