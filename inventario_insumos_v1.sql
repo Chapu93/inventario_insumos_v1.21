@@ -741,6 +741,157 @@ ALTER TABLE `sedes`
 ALTER TABLE `sede_areas`
   ADD CONSTRAINT `fk_sede_areas_area` FOREIGN KEY (`id_area`) REFERENCES `areas` (`id_area`),
   ADD CONSTRAINT `fk_sede_areas_sede` FOREIGN KEY (`id_sede`) REFERENCES `sedes` (`id_sede`);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `sedes_internet`
+--
+
+CREATE TABLE `sedes_internet` (
+  `id_internet` int(11) NOT NULL,
+  `id_sede` int(11) NOT NULL,
+  `proveedor` varchar(100) NOT NULL,
+  `tipo_conexion` enum('ADSL','Fibra óptica','4G','5G','Satelital','Radioenlace') NOT NULL,
+  `velocidad_bajada_mbps` int(11) DEFAULT NULL,
+  `velocidad_subida_mbps` int(11) DEFAULT NULL,
+  `estado_servicio` enum('Activo','Pendiente','De Baja') NOT NULL DEFAULT 'Activo',
+  `observaciones` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `sedes_telefonia_lineas`
+--
+
+CREATE TABLE `sedes_telefonia_lineas` (
+  `id_linea` int(11) NOT NULL,
+  `id_sede` int(11) NOT NULL,
+  `tipo_linea` enum('Fija','Móvil') NOT NULL,
+  `operador` varchar(100) DEFAULT NULL,
+  `numero` varchar(30) DEFAULT NULL,
+  `dispositivo_modelo` varchar(100) DEFAULT NULL,
+  `interno_ext` varchar(20) DEFAULT NULL,
+  `estado` enum('Activa','Pendiente','De Baja') NOT NULL DEFAULT 'Activa',
+  `observaciones` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `sedes_red_dispositivos`
+--
+
+CREATE TABLE `sedes_red_dispositivos` (
+  `id_dispositivo` int(11) NOT NULL,
+  `id_sede` int(11) NOT NULL,
+  `tipo_dispositivo` enum('Switch','Router','UPS','AP','Firewall') NOT NULL,
+  `marca` varchar(100) DEFAULT NULL,
+  `modelo` varchar(100) DEFAULT NULL,
+  `cantidad` int(11) NOT NULL DEFAULT 1,
+  `ubicacion` varchar(100) DEFAULT NULL,
+  `estado` enum('Activo','De Baja') NOT NULL DEFAULT 'Activo',
+  `observaciones` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `sedes_vigilancia`
+--
+
+CREATE TABLE `sedes_vigilancia` (
+  `id_vigilancia` int(11) NOT NULL,
+  `id_sede` int(11) NOT NULL,
+  `proveedor` varchar(100) NOT NULL,
+  `estado_servicio` enum('Activo','Pendiente','De Baja') NOT NULL DEFAULT 'Activo',
+  `observaciones` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `sedes_vigilancia_dispositivos`
+--
+
+CREATE TABLE `sedes_vigilancia_dispositivos` (
+  `id_vigilancia_dispositivo` int(11) NOT NULL,
+  `id_vigilancia` int(11) NOT NULL,
+  `tipo_dispositivo` enum('DVR','NVR','Cámara','Sensor','Monitor') NOT NULL,
+  `marca` varchar(100) DEFAULT NULL,
+  `modelo` varchar(100) DEFAULT NULL,
+  `cantidad` int(11) NOT NULL DEFAULT 1,
+  `ubicacion` varchar(100) DEFAULT NULL,
+  `estado` enum('Activo','De Baja') NOT NULL DEFAULT 'Activo'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Índices para las nuevas tablas de telecom
+--
+
+ALTER TABLE `sedes_internet`
+  ADD PRIMARY KEY (`id_internet`),
+  ADD KEY `idx_si_sede` (`id_sede`),
+  ADD KEY `idx_si_estado` (`estado_servicio`);
+
+ALTER TABLE `sedes_telefonia_lineas`
+  ADD PRIMARY KEY (`id_linea`),
+  ADD KEY `idx_stl_sede` (`id_sede`),
+  ADD KEY `idx_stl_tipo` (`tipo_linea`);
+
+ALTER TABLE `sedes_red_dispositivos`
+  ADD PRIMARY KEY (`id_dispositivo`),
+  ADD KEY `idx_srd_sede` (`id_sede`),
+  ADD KEY `idx_srd_tipo` (`tipo_dispositivo`);
+
+ALTER TABLE `sedes_vigilancia`
+  ADD PRIMARY KEY (`id_vigilancia`),
+  ADD KEY `idx_svg_sede` (`id_sede`);
+
+ALTER TABLE `sedes_vigilancia_dispositivos`
+  ADD PRIMARY KEY (`id_vigilancia_dispositivo`),
+  ADD KEY `idx_svd_vig` (`id_vigilancia`);
+
+--
+-- AUTO_INCREMENT para nuevas tablas
+--
+
+ALTER TABLE `sedes_internet`
+  MODIFY `id_internet` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `sedes_telefonia_lineas`
+  MODIFY `id_linea` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `sedes_red_dispositivos`
+  MODIFY `id_dispositivo` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `sedes_vigilancia`
+  MODIFY `id_vigilancia` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `sedes_vigilancia_dispositivos`
+  MODIFY `id_vigilancia_dispositivo` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Filtros (FK) para nuevas tablas
+--
+
+ALTER TABLE `sedes_internet`
+  ADD CONSTRAINT `fk_si_sede` FOREIGN KEY (`id_sede`) REFERENCES `sedes` (`id_sede`);
+
+ALTER TABLE `sedes_telefonia_lineas`
+  ADD CONSTRAINT `fk_stl_sede` FOREIGN KEY (`id_sede`) REFERENCES `sedes` (`id_sede`);
+
+ALTER TABLE `sedes_red_dispositivos`
+  ADD CONSTRAINT `fk_srd_sede` FOREIGN KEY (`id_sede`) REFERENCES `sedes` (`id_sede`);
+
+ALTER TABLE `sedes_vigilancia`
+  ADD CONSTRAINT `fk_svg_sede` FOREIGN KEY (`id_sede`) REFERENCES `sedes` (`id_sede`);
+
+ALTER TABLE `sedes_vigilancia_dispositivos`
+  ADD CONSTRAINT `fk_svd_vig` FOREIGN KEY (`id_vigilancia`) REFERENCES `sedes_vigilancia` (`id_vigilancia`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

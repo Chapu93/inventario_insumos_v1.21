@@ -1,0 +1,123 @@
+<?php
+require_once '../../includes/config.php';
+$db = conectarDB();
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  try {
+    $accion = $_POST['accion'] ?? '';
+    if ($accion === 'agregar') {
+      $db->prepare("INSERT INTO sedes_telefonia_lineas (id_sede, tipo_linea, operador, numero, dispositivo_modelo, interno_ext, estado, observaciones) VALUES (?,?,?,?,?,?,?,?)")
+         ->execute([
+           (int)$_POST['id_sede'], trim($_POST['tipo_linea']), trim($_POST['operador'] ?? ''), trim($_POST['numero'] ?? ''), trim($_POST['dispositivo_modelo'] ?? ''), trim($_POST['interno_ext'] ?? ''), trim($_POST['estado']), ($_POST['observaciones'] ?? null) ?: null
+         ]);
+      $_SESSION['mensaje'] = 'Línea creada'; $_SESSION['tipo_mensaje'] = 'success';
+    } elseif ($accion === 'editar') {
+      $db->prepare("UPDATE sedes_telefonia_lineas SET id_sede=?, tipo_linea=?, operador=?, numero=?, dispositivo_modelo=?, interno_ext=?, estado=?, observaciones=? WHERE id_linea=?")
+         ->execute([
+           (int)$_POST['id_sede'], trim($_POST['tipo_linea']), trim($_POST['operador'] ?? ''), trim($_POST['numero'] ?? ''), trim($_POST['dispositivo_modelo'] ?? ''), trim($_POST['interno_ext'] ?? ''), trim($_POST['estado']), ($_POST['observaciones'] ?? null) ?: null, (int)$_POST['id_linea']
+         ]);
+      $_SESSION['mensaje'] = 'Línea actualizada'; $_SESSION['tipo_mensaje'] = 'success';
+    } elseif ($accion === 'eliminar') {
+      $db->prepare("DELETE FROM sedes_telefonia_lineas WHERE id_linea = ?")->execute([(int)$_POST['id_linea']]);
+      $_SESSION['mensaje'] = 'Línea eliminada'; $_SESSION['tipo_mensaje'] = 'success';
+    }
+    header('Location: telecom_telefonia.php'); exit;
+  } catch (Exception $e) {
+    $_SESSION['mensaje'] = 'Error: ' . $e->getMessage(); $_SESSION['tipo_mensaje'] = 'danger';
+    header('Location: telecom_telefonia.php'); exit;
+  }
+}
+
+$rows = $db->query("SELECT t.*, s.nombre_sede, l.nombre_localidad FROM sedes_telefonia_lineas t JOIN sedes s ON s.id_sede=t.id_sede JOIN localidades l ON l.id_localidad=s.id_localidad ORDER BY l.nombre_localidad, s.nombre_sede, t.tipo_linea")->fetchAll();
+$sedes = $db->query("SELECT s.id_sede, s.nombre_sede, l.nombre_localidad FROM sedes s JOIN localidades l ON l.id_localidad=s.id_localidad ORDER BY l.nombre_localidad, s.nombre_sede")->fetchAll();
+include '../../includes/header.php';
+?>
+
+<div class="row">
+  <div class="col-12 d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-phone me-2"></i>Líneas Telefónicas</h1>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTel"><i class="fas fa-plus me-2"></i>Agregar</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header"><h5 class="mb-0"><i class="fas fa-list me-2"></i>Listado (<?php echo count($rows); ?>)</h5></div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table table-striped datatable">
+        <thead><tr><th>Sede</th><th>Localidad</th><th>Tipo</th><th>Operador</th><th>Número</th><th>Dispositivo</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody>
+          <?php foreach ($rows as $r): ?>
+          <tr>
+            <td><strong><?php echo htmlspecialchars($r['nombre_sede']); ?></strong></td>
+            <td><?php echo htmlspecialchars($r['nombre_localidad']); ?></td>
+            <td><span class="badge bg-info"><?php echo htmlspecialchars($r['tipo_linea']); ?></span></td>
+            <td><?php echo htmlspecialchars($r['operador'] ?: '-'); ?></td>
+            <td><?php echo htmlspecialchars($r['numero'] ?: ($r['interno_ext'] ?: '-')); ?></td>
+            <td><?php echo htmlspecialchars($r['dispositivo_modelo'] ?: '-'); ?></td>
+            <td><?php $e=$r['estado']; $cls=$e==='Activa'?'estado-activa':($e==='Pendiente'?'estado-asignado':'estado-baja'); ?><span class="badge <?php echo $cls; ?>"><?php echo $e; ?></span></td>
+            <td>
+              <div class="btn-group" role="group">
+                <button class="btn btn-sm btn-warning" onclick='editTel(<?php echo json_encode($r, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT); ?>)'><i class="fas fa-edit"></i></button>
+                <button class="btn btn-sm btn-danger" onclick="delTel(<?php echo (int)$r['id_linea']; ?>)"><i class="fas fa-trash"></i></button>
+              </div>
+            </td>
+          </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalTel" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+  <div class="modal-header"><h5 class="modal-title" id="modalTelTitle">Agregar Línea</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+  <form method="POST" id="formTel" class="needs-validation" novalidate>
+    <div class="modal-body">
+      <input type="hidden" name="accion" id="accion" value="agregar"><input type="hidden" name="id_linea" id="id_linea">
+      <div class="mb-2"><label class="form-label">Sede *</label>
+        <select name="id_sede" id="id_sede" class="form-select select2" required>
+          <option value="">Seleccione</option>
+          <?php foreach($sedes as $s): ?><option value="<?php echo $s['id_sede']; ?>"><?php echo htmlspecialchars($s['nombre_localidad'].' - '.$s['nombre_sede']); ?></option><?php endforeach; ?>
+        </select><div class="invalid-feedback">Seleccione sede</div>
+      </div>
+      <div class="mb-2"><label class="form-label">Tipo *</label>
+        <select name="tipo_linea" id="tipo_linea" class="form-select" required>
+          <option value="">Seleccione</option>
+          <option>Fija</option><option>Móvil</option>
+        </select>
+      </div>
+      <div class="mb-2"><label class="form-label">Operador</label><input type="text" name="operador" id="operador" class="form-control"></div>
+      <div class="row g-2">
+        <div class="col"><label class="form-label">Número</label><input type="text" name="numero" id="numero" class="form-control"></div>
+        <div class="col"><label class="form-label">Interno/Ext</label><input type="text" name="interno_ext" id="interno_ext" class="form-control"></div>
+      </div>
+      <div class="mb-2"><label class="form-label">Modelo dispositivo</label><input type="text" name="dispositivo_modelo" id="dispositivo_modelo" class="form-control"></div>
+      <div class="mb-2"><label class="form-label">Estado *</label>
+        <select name="estado" id="estado" class="form-select" required><option>Activa</option><option>Pendiente</option><option>De Baja</option></select>
+      </div>
+      <div class="mb-2"><label class="form-label">Observaciones</label><textarea name="observaciones" id="observaciones" class="form-control" rows="2"></textarea></div>
+    </div>
+    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-primary">Guardar</button></div>
+  </form>
+</div></div></div>
+
+<form id="formDel" method="POST" style="display:none"><input type="hidden" name="accion" value="eliminar"><input type="hidden" name="id_linea" id="del_id"></form>
+
+<script>
+function editTel(r){
+  $('#modalTelTitle').text('Editar Línea'); $('#accion').val('editar');
+  $('#id_linea').val(r.id_linea); $('#id_sede').val(r.id_sede).trigger('change');
+  $('#tipo_linea').val(r.tipo_linea); $('#operador').val(r.operador||'');
+  $('#numero').val(r.numero||''); $('#interno_ext').val(r.interno_ext||'');
+  $('#dispositivo_modelo').val(r.dispositivo_modelo||''); $('#estado').val(r.estado);
+  $('#observaciones').val(r.observaciones||''); new bootstrap.Modal(document.getElementById('modalTel')).show();
+}
+function delTel(id){ if(confirm('¿Eliminar línea?')){ $('#del_id').val(id); $('#formDel').submit(); } }
+$('#modalTel').on('hidden.bs.modal', function(){ $('#modalTelTitle').text('Agregar Línea'); $('#accion').val('agregar'); $('#formTel')[0].reset(); $('#id_sede').val('').trigger('change'); $('#formTel').removeClass('was-validated'); });
+$('#formTel').on('submit', function(e){ if(!this.checkValidity()){ e.preventDefault(); e.stopPropagation(); } $(this).addClass('was-validated'); });
+$(function(){ $('.select2').select2({ theme:'bootstrap-5', width:'100%' }); });
+</script>
+
+<?php include '../../includes/footer.php'; ?>
+
