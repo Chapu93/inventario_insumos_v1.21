@@ -91,19 +91,22 @@
                             <a href="<?php echo app_base_url(); ?>/pages/admin/areas.php" class="<?php echo strpos($currentPath, '/pages/admin/areas.php') !== false ? 'active' : ''; ?>">Gestión de Áreas</a>
                         </li>
                         <li>
-                            <a href="<?php echo app_base_url(); ?>/pages/admin/telecom_internet.php" class="<?php echo strpos($currentPath, '/pages/admin/telecom_internet.php') !== false ? 'active' : ''; }">Internet por Sede</a>
+                            <a href="<?php echo app_base_url(); ?>/pages/admin/telecom_internet.php" class="<?php echo strpos($currentPath, '/pages/admin/telecom_internet.php') !== false ? 'active' : ''; ?>">Internet por Sede</a>
                         </li>
                         <li>
-                            <a href="<?php echo app_base_url(); ?>/pages/admin/telecom_telefonia.php" class="<?php echo strpos($currentPath, '/pages/admin/telecom_telefonia.php') !== false ? 'active' : ''; }">Líneas Telefónicas</a>
+                            <a href="<?php echo app_base_url(); ?>/pages/admin/telecom_telefonia.php" class="<?php echo strpos($currentPath, '/pages/admin/telecom_telefonia.php') !== false ? 'active' : ''; ?>">Líneas Telefónicas</a>
                         </li>
                         <li>
-                            <a href="<?php echo app_base_url(); ?>/pages/admin/telecom_red.php" class="<?php echo strpos($currentPath, '/pages/admin/telecom_red.php') !== false ? 'active' : ''; }">Infraestructura de Red</a>
+                            <a href="<?php echo app_base_url(); ?>/pages/admin/telecom_red.php" class="<?php echo strpos($currentPath, '/pages/admin/telecom_red.php') !== false ? 'active' : ''; ?>">Infraestructura de Red</a>
                         </li>
                         <li>
-                            <a href="<?php echo app_base_url(); ?>/pages/admin/telecom_vigilancia.php" class="<?php echo strpos($currentPath, '/pages/admin/telecom_vigilancia.php') !== false ? 'active' : ''; }">Vigilancia</a>
+                            <a href="<?php echo app_base_url(); ?>/pages/admin/telecom_vigilancia.php" class="<?php echo strpos($currentPath, '/pages/admin/telecom_vigilancia.php') !== false ? 'active' : ''; ?>">Vigilancia</a>
                         </li>
                         <li>
-                            <a href="<?php echo app_base_url(); ?>/pages/admin/telecom_resumen.php" class="<?php echo strpos($currentPath, '/pages/admin/telecom_resumen.php') !== false ? 'active' : ''; }">Resumen Telecomunicaciones</a>
+                            <a href="<?php echo app_base_url(); ?>/pages/admin/telecom_resumen.php" class="<?php echo strpos($currentPath, '/pages/admin/telecom_resumen.php') !== false ? 'active' : ''; ?>">Resumen Telecomunicaciones</a>
+                        </li>
+                        <li>
+                            <a href="<?php echo app_base_url(); ?>/pages/admin/telecom_planos.php" class="<?php echo strpos($currentPath, '/pages/admin/telecom_planos.php') !== false ? 'active' : ''; ?>">Planos de Sede</a>
                         </li>
                     </ul>
                 </li>

@@ -892,6 +892,31 @@ ALTER TABLE `sedes_vigilancia`
 
 ALTER TABLE `sedes_vigilancia_dispositivos`
   ADD CONSTRAINT `fk_svd_vig` FOREIGN KEY (`id_vigilancia`) REFERENCES `sedes_vigilancia` (`id_vigilancia`);
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `sedes_planos`
+--
+
+CREATE TABLE `sedes_planos` (
+  `id_plano` int(11) NOT NULL,
+  `id_sede` int(11) NOT NULL,
+  `tipo_plano` enum('Red','Vigilancia') NOT NULL,
+  `archivo` varchar(255) NOT NULL,
+  `descripcion` varchar(255) DEFAULT NULL,
+  `fecha_subida` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+ALTER TABLE `sedes_planos`
+  ADD PRIMARY KEY (`id_plano`),
+  ADD KEY `idx_sp_sede` (`id_sede`),
+  ADD KEY `idx_sp_tipo` (`tipo_plano`);
+
+ALTER TABLE `sedes_planos`
+  MODIFY `id_plano` int(11) NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE `sedes_planos`
+  ADD CONSTRAINT `fk_sp_sede` FOREIGN KEY (`id_sede`) REFERENCES `sedes` (`id_sede`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
