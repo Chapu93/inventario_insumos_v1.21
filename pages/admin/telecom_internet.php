@@ -274,9 +274,16 @@ $('#formInternet').on('submit', function(e){
   $(this).addClass('was-validated');
 });
 $(function(){
-  $('.select2').select2({ theme:'bootstrap-5', width: '100%' });
   cargarLocalidades();
   $('#id_localidad').on('change', function(){ cargarSedesPorLocalidad($(this).val()); });
+  // Asegurar estilo y dropdown dentro del modal
+  $('#modalInternet').on('shown.bs.modal', function(){
+    $('#modalInternet .select2').each(function(){
+      var $el = $(this);
+      try { if ($el.hasClass('select2-hidden-accessible')) { $el.select2('destroy'); } } catch(e) {}
+      $el.select2({ theme:'bootstrap-5', width:'100%', dropdownParent: $('#modalInternet') });
+    });
+  });
 });
 </script>
 

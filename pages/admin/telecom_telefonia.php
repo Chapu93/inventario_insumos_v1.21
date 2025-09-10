@@ -140,6 +140,13 @@ function cargarSedes(localidad){
 $(function(){
   cargarLocalidades();
   $('#id_localidad').on('change', function(){ cargarSedes($(this).val()); });
+  $('#modalTel').on('shown.bs.modal', function(){
+    $('#modalTel .select2').each(function(){
+      var $el = $(this);
+      try { if ($el.hasClass('select2-hidden-accessible')) { $el.select2('destroy'); } } catch(e) {}
+      $el.select2({ theme:'bootstrap-5', width:'100%', dropdownParent: $('#modalTel') });
+    });
+  });
 });
 </script>
 
