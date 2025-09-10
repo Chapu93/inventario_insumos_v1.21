@@ -116,7 +116,7 @@ include '../../includes/header.php';
 const BASE = '<?php echo app_base_url(); ?>';
 function cargarLocalidades(){ $.getJSON(`${BASE}/ajax/localidades_list.php`).done(r=>{ const $l=$('#id_localidad'); $l.html('<option value="">Seleccione</option>'); if(r.success){ r.data.forEach(x=> $l.append(`<option value="${x.id}">${x.nombre}</option>`)); } $l.trigger('change.select2'); }); }
 function cargarSedes(loc){ const $s=$('#id_sede'); $s.html('<option value="">Seleccione</option>'); if(!loc){ $s.trigger('change.select2'); return; } $.getJSON(`${BASE}/ajax/sedes_por_localidad.php`, { localidad_id: loc }).done(r=>{ if(r.success){ r.data.forEach(x=> $s.append(`<option value="${x.id}">${x.nombre}</option>`)); } $s.trigger('change.select2'); }); }
-$(function(){ $('.select2').select2({ theme:'bootstrap-5', width:'100%' }); cargarLocalidades(); $('#id_localidad').on('change', function(){ cargarSedes($(this).val()); }); $('form.needs-validation').on('submit', function(e){ if(!this.checkValidity()){ e.preventDefault(); e.stopPropagation(); } $(this).addClass('was-validated'); }); });
+$(function(){ cargarLocalidades(); $('#id_localidad').on('change', function(){ cargarSedes($(this).val()); }); $('form.needs-validation').on('submit', function(e){ if(!this.checkValidity()){ e.preventDefault(); e.stopPropagation(); } $(this).addClass('was-validated'); }); });
 </script>
 
 <?php include '../../includes/footer.php'; ?>

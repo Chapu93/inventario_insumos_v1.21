@@ -130,7 +130,6 @@ function cargarSedes(localidad){
   });
 }
 $(function(){
-  $('.select2').select2({ theme:'bootstrap-5', width:'100%' });
   cargarLocalidades();
   $('#id_localidad').on('change', function(){ cargarSedes($(this).val()); });
 });
