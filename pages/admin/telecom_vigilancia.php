@@ -115,10 +115,14 @@ include '../../includes/header.php';
   <form method="POST" id="formServ" class="needs-validation" novalidate>
     <div class="modal-body">
       <input type="hidden" name="accion" id="accionServ" value="agregar_serv"><input type="hidden" name="id_vigilancia" id="id_vigilancia">
+      <div class="mb-2"><label class="form-label">Localidad *</label>
+        <select id="id_localidad_serv" class="form-select select2" required>
+          <option value="">Seleccione</option>
+        </select><div class="invalid-feedback">Seleccione localidad</div>
+      </div>
       <div class="mb-2"><label class="form-label">Sede *</label>
         <select name="id_sede" id="id_sede_serv" class="form-select select2" required>
           <option value="">Seleccione</option>
-          <?php foreach($sedes as $s): ?><option value="<?php echo $s['id_sede']; ?>"><?php echo htmlspecialchars($s['nombre_localidad'].' - '.$s['nombre_sede']); ?></option><?php endforeach; ?>
         </select><div class="invalid-feedback">Seleccione sede</div>
       </div>
       <div class="mb-2"><label class="form-label">Proveedor *</label><input type="text" name="proveedor" id="proveedor" class="form-control" required></div>
@@ -160,7 +164,10 @@ function delDisp(id){ if(confirm('¿Eliminar dispositivo?')){ $('#del_disp').val
 $('#modalServ').on('hidden.bs.modal', function(){ $('#modalServTitle').text('Agregar Servicio'); $('#accionServ').val('agregar_serv'); $('#formServ')[0].reset(); $('#id_sede_serv').val('').trigger('change'); $('#formServ').removeClass('was-validated'); });
 $('#modalDisp').on('hidden.bs.modal', function(){ $('#modalDispTitle').text('Agregar Dispositivo'); $('#accionDisp').val('agregar_disp'); $('#formDisp')[0].reset(); $('#id_vigilancia_sel').val(''); $('#formDisp').removeClass('was-validated'); });
 $('#formServ, #formDisp').on('submit', function(e){ if(!this.checkValidity()){ e.preventDefault(); e.stopPropagation(); } $(this).addClass('was-validated'); });
-$(function(){ $('.select2').select2({ theme:'bootstrap-5', width:'100%' }); });
+const BASE = '<?php echo app_base_url(); ?>';
+function cargarLocalidadesServ(){ $.getJSON(`${BASE}/ajax/localidades_list.php`).done(r=>{ const $l=$('#id_localidad_serv'); $l.html('<option value="">Seleccione</option>'); if(r.success){ r.data.forEach(x=> $l.append(`<option value="${x.id}">${x.nombre}</option>`)); } $l.trigger('change.select2'); }); }
+function cargarSedesServ(loc){ const $s=$('#id_sede_serv'); $s.html('<option value="">Seleccione</option>'); if(!loc){ $s.trigger('change.select2'); return; } $.getJSON(`${BASE}/ajax/sedes_por_localidad.php`, { localidad_id: loc }).done(r=>{ if(r.success){ r.data.forEach(x=> $s.append(`<option value="${x.id}">${x.nombre}</option>`)); } $s.trigger('change.select2'); }); }
+$(function(){ $('.select2').select2({ theme:'bootstrap-5', width:'100%' }); cargarLocalidadesServ(); $('#id_localidad_serv').on('change', function(){ cargarSedesServ($(this).val()); }); });
 </script>
 
 <?php include '../../includes/footer.php'; ?>

@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Listado
-$sql = "SELECT si.*, s.nombre_sede, l.nombre_localidad
+$sql = "SELECT si.*, s.nombre_sede, l.nombre_localidad, l.id_localidad
         FROM sedes_internet si
         JOIN sedes s ON s.id_sede = si.id_sede
         JOIN localidades l ON l.id_localidad = s.id_localidad
@@ -142,12 +142,17 @@ include '../../includes/header.php';
           <input type="hidden" name="id_internet" id="id_internet">
 
           <div class="mb-3">
+            <label class="form-label">Localidad *</label>
+            <select id="id_localidad" class="form-select select2" required>
+              <option value="">Seleccione una localidad</option>
+            </select>
+            <div class="invalid-feedback">Seleccione una localidad</div>
+          </div>
+
+          <div class="mb-3">
             <label class="form-label">Sede *</label>
             <select name="id_sede" id="id_sede" class="form-select select2" required>
               <option value="">Seleccione una sede</option>
-              <?php foreach ($sedes as $s): ?>
-                <option value="<?php echo $s['id_sede']; ?>"><?php echo htmlspecialchars($s['nombre_localidad'] . ' - ' . $s['nombre_sede']); ?></option>
-              <?php endforeach; ?>
             </select>
             <div class="invalid-feedback">Seleccione una sede</div>
           </div>
@@ -212,11 +217,35 @@ include '../../includes/header.php';
 </form>
 
 <script>
+const BASE = '<?php echo app_base_url(); ?>';
+function cargarLocalidades(){
+  return $.getJSON(`${BASE}/ajax/localidades_list.php`).done(r => {
+    const $loc = $('#id_localidad');
+    $loc.html('<option value="">Seleccione una localidad</option>');
+    if (r.success) {
+      r.data.forEach(l => { $loc.append(`<option value="${l.id}">${l.nombre}</option>`); });
+    }
+    $loc.trigger('change.select2');
+  });
+}
+function cargarSedesPorLocalidad(localidadId){
+  const $sedes = $('#id_sede');
+  $sedes.html('<option value="">Seleccione una sede</option>');
+  if (!localidadId) { $sedes.trigger('change.select2'); return; }
+  $.getJSON(`${BASE}/ajax/sedes_por_localidad.php`, { localidad_id: localidadId }).done(r => {
+    if (r.success) { r.data.forEach(s => { $sedes.append(`<option value="${s.id}">${s.nombre}</option>`); }); }
+    $sedes.trigger('change.select2');
+  });
+}
 function editarInternet(row){
   $('#modalInternetTitle').text('Editar Servicio');
   $('#accion').val('editar');
   $('#id_internet').val(row.id_internet);
-  $('#id_sede').val(row.id_sede).trigger('change');
+  if (row.id_localidad) {
+    $('#id_localidad').val(row.id_localidad).trigger('change');
+    cargarSedesPorLocalidad(row.id_localidad);
+    setTimeout(function(){ $('#id_sede').val(row.id_sede).trigger('change'); }, 200);
+  }
   $('#proveedor').val(row.proveedor);
   $('#tipo_conexion').val(row.tipo_conexion);
   $('#velocidad_bajada_mbps').val(row.velocidad_bajada_mbps || '');
@@ -236,14 +265,19 @@ $('#modalInternet').on('hidden.bs.modal', function(){
   $('#modalInternetTitle').text('Agregar Servicio');
   $('#accion').val('agregar');
   $('#formInternet')[0].reset();
-  $('#id_sede').val('').trigger('change');
+  $('#id_localidad').val('').trigger('change');
+  $('#id_sede').html('<option value="">Seleccione una sede</option>').trigger('change');
   $('#formInternet').removeClass('was-validated');
 });
 $('#formInternet').on('submit', function(e){
   if(!this.checkValidity()){ e.preventDefault(); e.stopPropagation(); }
   $(this).addClass('was-validated');
 });
-$(function(){ $('.select2').select2({ theme:'bootstrap-5', width: '100%' }); });
+$(function(){
+  $('.select2').select2({ theme:'bootstrap-5', width: '100%' });
+  cargarLocalidades();
+  $('#id_localidad').on('change', function(){ cargarSedesPorLocalidad($(this).val()); });
+});
 </script>
 
 <?php include '../../includes/footer.php'; ?>

@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 }
 
-$rows = $db->query("SELECT d.*, s.nombre_sede, l.nombre_localidad FROM sedes_red_dispositivos d JOIN sedes s ON s.id_sede=d.id_sede JOIN localidades l ON l.id_localidad=s.id_localidad ORDER BY l.nombre_localidad, s.nombre_sede, d.tipo_dispositivo")->fetchAll();
+$rows = $db->query("SELECT d.*, s.nombre_sede, l.nombre_localidad, l.id_localidad FROM sedes_red_dispositivos d JOIN sedes s ON s.id_sede=d.id_sede JOIN localidades l ON l.id_localidad=s.id_localidad ORDER BY l.nombre_localidad, s.nombre_sede, d.tipo_dispositivo")->fetchAll();
 $sedes = $db->query("SELECT s.id_sede, s.nombre_sede, l.nombre_localidad FROM sedes s JOIN localidades l ON l.id_localidad=s.id_localidad ORDER BY l.nombre_localidad, s.nombre_sede")->fetchAll();
 include '../../includes/header.php';
 ?>
@@ -71,10 +71,14 @@ include '../../includes/header.php';
   <form method="POST" id="formRed" class="needs-validation" novalidate>
     <div class="modal-body">
       <input type="hidden" name="accion" id="accion" value="agregar"><input type="hidden" name="id_dispositivo" id="id_dispositivo">
+      <div class="mb-2"><label class="form-label">Localidad *</label>
+        <select id="id_localidad" class="form-select select2" required>
+          <option value="">Seleccione</option>
+        </select><div class="invalid-feedback">Seleccione localidad</div>
+      </div>
       <div class="mb-2"><label class="form-label">Sede *</label>
         <select name="id_sede" id="id_sede" class="form-select select2" required>
           <option value="">Seleccione</option>
-          <?php foreach($sedes as $s): ?><option value="<?php echo $s['id_sede']; ?>"><?php echo htmlspecialchars($s['nombre_localidad'].' - '.$s['nombre_sede']); ?></option><?php endforeach; ?>
         </select><div class="invalid-feedback">Seleccione sede</div>
       </div>
       <div class="mb-2"><label class="form-label">Tipo *</label>
@@ -107,7 +111,29 @@ function editRed(r){ $('#modalRedTitle').text('Editar Dispositivo'); $('#accion'
 function delRed(id){ if(confirm('¿Eliminar dispositivo?')){ $('#del_id').val(id); $('#formDel').submit(); } }
 $('#modalRed').on('hidden.bs.modal', function(){ $('#modalRedTitle').text('Agregar Dispositivo'); $('#accion').val('agregar'); $('#formRed')[0].reset(); $('#id_sede').val('').trigger('change'); $('#formRed').removeClass('was-validated'); });
 $('#formRed').on('submit', function(e){ if(!this.checkValidity()){ e.preventDefault(); e.stopPropagation(); } $(this).addClass('was-validated'); });
-$(function(){ $('.select2').select2({ theme:'bootstrap-5', width:'100%' }); });
+const BASE = '<?php echo app_base_url(); ?>';
+function cargarLocalidades(){
+  $.getJSON(`${BASE}/ajax/localidades_list.php`).done(r=>{
+    const $loc = $('#id_localidad');
+    $loc.html('<option value="">Seleccione</option>');
+    if(r.success){ r.data.forEach(l=> $loc.append(`<option value="${l.id}">${l.nombre}</option>`)); }
+    $loc.trigger('change.select2');
+  });
+}
+function cargarSedes(localidad){
+  const $s = $('#id_sede');
+  $s.html('<option value="">Seleccione</option>');
+  if(!localidad){ $s.trigger('change.select2'); return; }
+  $.getJSON(`${BASE}/ajax/sedes_por_localidad.php`, { localidad_id: localidad }).done(r=>{
+    if(r.success){ r.data.forEach(x=> $s.append(`<option value="${x.id}">${x.nombre}</option>`)); }
+    $s.trigger('change.select2');
+  });
+}
+$(function(){
+  $('.select2').select2({ theme:'bootstrap-5', width:'100%' });
+  cargarLocalidades();
+  $('#id_localidad').on('change', function(){ cargarSedes($(this).val()); });
+});
 </script>
 
 <?php include '../../includes/footer.php'; ?>

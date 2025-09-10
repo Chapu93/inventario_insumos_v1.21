@@ -45,7 +45,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Datos
 $planos = $db->query("SELECT p.*, s.nombre_sede, l.nombre_localidad FROM sedes_planos p JOIN sedes s ON s.id_sede=p.id_sede JOIN localidades l ON l.id_localidad=s.id_localidad ORDER BY l.nombre_localidad, s.nombre_sede, p.tipo_plano, p.fecha_subida DESC")->fetchAll();
-$sedes = $db->query("SELECT s.id_sede, s.nombre_sede, l.nombre_localidad FROM sedes s JOIN localidades l ON l.id_localidad=s.id_localidad ORDER BY l.nombre_localidad, s.nombre_sede")->fetchAll();
 
 include '../../includes/header.php';
 ?>
@@ -92,10 +91,14 @@ include '../../includes/header.php';
   <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
     <div class="modal-body">
       <input type="hidden" name="accion" value="subir">
-      <div class="mb-2"><label class="form-label">Sede *</label>
-        <select name="id_sede" class="form-select select2" required>
+      <div class="mb-2"><label class="form-label">Localidad *</label>
+        <select id="id_localidad" class="form-select select2" required>
           <option value="">Seleccione</option>
-          <?php foreach($sedes as $s): ?><option value="<?php echo $s['id_sede']; ?>"><?php echo htmlspecialchars($s['nombre_localidad'].' - '.$s['nombre_sede']); ?></option><?php endforeach; ?>
+        </select><div class="invalid-feedback">Seleccione localidad</div>
+      </div>
+      <div class="mb-2"><label class="form-label">Sede *</label>
+        <select name="id_sede" id="id_sede" class="form-select select2" required>
+          <option value="">Seleccione</option>
         </select><div class="invalid-feedback">Seleccione sede</div>
       </div>
       <div class="mb-2"><label class="form-label">Tipo *</label>
@@ -110,9 +113,10 @@ include '../../includes/header.php';
 </div></div></div>
 
 <script>
-$(function(){ $('.select2').select2({ theme:'bootstrap-5', width:'100%' });
-  $('form.needs-validation').on('submit', function(e){ if(!this.checkValidity()){ e.preventDefault(); e.stopPropagation(); } $(this).addClass('was-validated'); });
-});
+const BASE = '<?php echo app_base_url(); ?>';
+function cargarLocalidades(){ $.getJSON(`${BASE}/ajax/localidades_list.php`).done(r=>{ const $l=$('#id_localidad'); $l.html('<option value="">Seleccione</option>'); if(r.success){ r.data.forEach(x=> $l.append(`<option value="${x.id}">${x.nombre}</option>`)); } $l.trigger('change.select2'); }); }
+function cargarSedes(loc){ const $s=$('#id_sede'); $s.html('<option value="">Seleccione</option>'); if(!loc){ $s.trigger('change.select2'); return; } $.getJSON(`${BASE}/ajax/sedes_por_localidad.php`, { localidad_id: loc }).done(r=>{ if(r.success){ r.data.forEach(x=> $s.append(`<option value="${x.id}">${x.nombre}</option>`)); } $s.trigger('change.select2'); }); }
+$(function(){ $('.select2').select2({ theme:'bootstrap-5', width:'100%' }); cargarLocalidades(); $('#id_localidad').on('change', function(){ cargarSedes($(this).val()); }); $('form.needs-validation').on('submit', function(e){ if(!this.checkValidity()){ e.preventDefault(); e.stopPropagation(); } $(this).addClass('was-validated'); }); });
 </script>
 
 <?php include '../../includes/footer.php'; ?>
