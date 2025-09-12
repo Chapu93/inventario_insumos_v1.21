@@ -8,17 +8,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     try {
         if (isset($_POST['accion'])) {
             if ($_POST['accion'] == 'agregar') {
-                $sql = "INSERT INTO sedes (nombre_sede, id_localidad) VALUES (?, ?)";
+                $sql = "INSERT INTO sedes (nombre_sede, id_localidad, direccion, delegado_nombre, delegado_apellido, delegado_telefono) VALUES (?, ?, ?, ?, ?, ?)";
                 $stmt = $conexion->prepare($sql);
-                $stmt->execute([$_POST['nombre_sede'], $_POST['id_localidad']]);
+                $stmt->execute([
+                    $_POST['nombre_sede'],
+                    $_POST['id_localidad'],
+                    ($_POST['direccion'] ?? null) ?: null,
+                    ($_POST['delegado_nombre'] ?? null) ?: null,
+                    ($_POST['delegado_apellido'] ?? null) ?: null,
+                    ($_POST['delegado_telefono'] ?? null) ?: null
+                ]);
                 
                 $_SESSION['mensaje'] = "Sede agregada correctamente";
                 $_SESSION['tipo_mensaje'] = "success";
                 
             } elseif ($_POST['accion'] == 'editar') {
-                $sql = "UPDATE sedes SET nombre_sede = ?, id_localidad = ? WHERE id_sede = ?";
+                $sql = "UPDATE sedes SET nombre_sede = ?, id_localidad = ?, direccion = ?, delegado_nombre = ?, delegado_apellido = ?, delegado_telefono = ? WHERE id_sede = ?";
                 $stmt = $conexion->prepare($sql);
-                $stmt->execute([$_POST['nombre_sede'], $_POST['id_localidad'], $_POST['id_sede']]);
+                $stmt->execute([
+                    $_POST['nombre_sede'],
+                    $_POST['id_localidad'],
+                    ($_POST['direccion'] ?? null) ?: null,
+                    ($_POST['delegado_nombre'] ?? null) ?: null,
+                    ($_POST['delegado_apellido'] ?? null) ?: null,
+                    ($_POST['delegado_telefono'] ?? null) ?: null,
+                    $_POST['id_sede']
+                ]);
                 
                 $_SESSION['mensaje'] = "Sede actualizada correctamente";
                 $_SESSION['tipo_mensaje'] = "success";
@@ -89,6 +104,8 @@ $localidades = $stmt->fetchAll();
                             <th>Nombre</th>
                             <th>Localidad</th>
                             <th>Zona</th>
+                            <th>Delegado</th>
+                            <th>Teléfono</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -101,6 +118,8 @@ $localidades = $stmt->fetchAll();
                                 <td>
                                     <span class="badge bg-info"><?php echo $sede['nombre_zona']; ?></span>
                                 </td>
+                                <td><?php echo htmlspecialchars(trim(($sede['delegado_nombre'] ?? '').' '.($sede['delegado_apellido'] ?? '')) ?: '-'); ?></td>
+                                <td><?php echo htmlspecialchars($sede['delegado_telefono'] ?? '-'); ?></td>
                                 <td>
                                     <div class="btn-group" role="group">
                                         <button type="button" 
@@ -110,6 +129,9 @@ $localidades = $stmt->fetchAll();
                                                 title="Editar">
                                             <i class="fas fa-edit"></i>
                                         </button>
+                                        <a class="btn btn-sm btn-info" href="<?php echo app_base_url(); ?>/pages/admin/sede_detalle.php?id_localidad=<?php echo (int)$sede['id_localidad']; ?>&id_sede=<?php echo (int)$sede['id_sede']; ?>" title="Ver Detalles">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
                                         <button type="button" 
                                                 class="btn btn-sm btn-danger" 
                                                 onclick="eliminarItem(<?php echo $sede['id_sede']; ?>, 'sede')"
@@ -146,6 +168,10 @@ $localidades = $stmt->fetchAll();
                         <input type="text" class="form-control" id="nombre_sede" name="nombre_sede" required>
                         <div class="invalid-feedback">El nombre de la sede es obligatorio</div>
                     </div>
+                    <div class="mb-3">
+                        <label for="direccion" class="form-label">Dirección</label>
+                        <input type="text" class="form-control" id="direccion" name="direccion">
+                    </div>
                     
                     <div class="mb-3">
                         <label for="id_localidad" class="form-label">Localidad *</label>
@@ -158,6 +184,21 @@ $localidades = $stmt->fetchAll();
                             <?php endforeach; ?>
                         </select>
                         <div class="invalid-feedback">Debe seleccionar una localidad</div>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <label class="form-label">Nombre Delegado</label>
+                            <input type="text" class="form-control" id="delegado_nombre" name="delegado_nombre">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Apellido Delegado</label>
+                            <input type="text" class="form-control" id="delegado_apellido" name="delegado_apellido">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Teléfono Delegado</label>
+                            <input type="text" class="form-control" id="delegado_telefono" name="delegado_telefono">
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -175,7 +216,11 @@ function editarSede(sede) {
     $('#accion').val('editar');
     $('#id_sede').val(sede.id_sede);
     $('#nombre_sede').val(sede.nombre_sede);
+    $('#direccion').val(sede.direccion || '');
     $('#id_localidad').val(sede.id_localidad);
+    $('#delegado_nombre').val(sede.delegado_nombre || '');
+    $('#delegado_apellido').val(sede.delegado_apellido || '');
+    $('#delegado_telefono').val(sede.delegado_telefono || '');
     $('#modalSede').modal('show');
 }
 

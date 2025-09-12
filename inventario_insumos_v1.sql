@@ -311,7 +311,10 @@ CREATE TABLE `sedes` (
   `id_sede` int(11) NOT NULL,
   `id_localidad` int(11) NOT NULL,
   `nombre_sede` varchar(100) NOT NULL,
-  `direccion` varchar(255) DEFAULT NULL
+  `direccion` varchar(255) DEFAULT NULL,
+  `delegado_nombre` varchar(100) DEFAULT NULL,
+  `delegado_apellido` varchar(100) DEFAULT NULL,
+  `delegado_telefono` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
