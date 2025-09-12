@@ -3,13 +3,22 @@ require_once '../../includes/config.php';
 
 $conexion = conectarDB();
 
+// Detectar si existe la tabla de bajas
+$tieneBajas = false;
+try { $conexion->query("SELECT 1 FROM insumos_bajas LIMIT 1"); $tieneBajas = true; } catch (Exception $e) { $tieneBajas = false; }
+
 // Obtener filtros
 $filtro_tipo = isset($_GET['tipo']) ? $_GET['tipo'] : '';
 $filtro_localidad = isset($_GET['localidad']) ? $_GET['localidad'] : '';
 $filtro_estado = isset($_GET['estado']) ? $_GET['estado'] : '';
 
 // Construir consulta con filtros
-$sql = "SELECT i.*, ps.nombre_punto, ar.nombre_area, s.nombre_sede, l.nombre_localidad, z.nombre_zona 
+$selectBaja = $tieneBajas
+    ? ", (SELECT fecha_baja FROM insumos_bajas ib WHERE ib.id_insumo=i.id_insumo ORDER BY fecha_baja DESC LIMIT 1) AS ultima_baja_fecha,
+         (SELECT observacion FROM insumos_bajas ib2 WHERE ib2.id_insumo=i.id_insumo ORDER BY fecha_baja DESC LIMIT 1) AS ultima_baja_obs"
+    : "";
+
+$sql = "SELECT i.*, ps.nombre_punto, ar.nombre_area, s.nombre_sede, l.nombre_localidad, z.nombre_zona{$selectBaja}
         FROM insumos i 
         LEFT JOIN puntos_stock ps ON i.id_punto_stock_actual = ps.id_punto_stock 
         LEFT JOIN areas ar ON i.id_area_asignacion_actual = ar.id_area 
@@ -138,6 +147,7 @@ $localidades = $stmt->fetchAll();
                             <th>Nombre</th>
                             <th>Estado</th>
                             <th>Cantidad</th>
+                            <th>Última baja</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -156,6 +166,18 @@ $localidades = $stmt->fetchAll();
                                     <span class="badge <?php echo $insumo['cantidad'] > 0 ? 'bg-success' : 'bg-danger'; ?>">
                                         <?php echo $insumo['cantidad']; ?>
                                     </span>
+                                </td>
+                                <td>
+                                    <?php if (!empty($insumo['ultima_baja_fecha'])): ?>
+                                        <div>
+                                            <small class="text-muted"><?php echo date('d/m/Y H:i', strtotime($insumo['ultima_baja_fecha'])); ?></small>
+                                            <?php if (!empty($insumo['ultima_baja_obs'])): ?>
+                                                <br><small class="text-muted"><?php echo htmlspecialchars($insumo['ultima_baja_obs']); ?></small>
+                                            <?php endif; ?>
+                                        </div>
+                                    <?php else: ?>
+                                        -
+                                    <?php endif; ?>
                                 </td>
                                 <td>
                                     <div class="btn-group" role="group">

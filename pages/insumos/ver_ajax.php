@@ -93,6 +93,16 @@ try {
     $stmt_act->execute([$id]);
     $remito_activo = $stmt_act->fetch();
 
+    // Última baja (si existe la tabla)
+    $ultima_baja = null;
+    try {
+        $stmt_b = $conexion->prepare("SELECT fecha_baja, observacion FROM insumos_bajas WHERE id_insumo = ? ORDER BY fecha_baja DESC LIMIT 1");
+        $stmt_b->execute([$id]);
+        $ultima_baja = $stmt_b->fetch();
+    } catch (Exception $e) {
+        $ultima_baja = null;
+    }
+
     // Generar HTML para el modal
     ob_start();
     ?>
@@ -294,6 +304,23 @@ try {
                 </div>
             </div>
             <?php endif; ?>
+
+            <!-- Última Baja -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-ban me-2"></i>Última Baja
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <?php if ($ultima_baja): ?>
+                        <p class="mb-1"><strong>Fecha:</strong> <?php echo date('d/m/Y H:i', strtotime($ultima_baja['fecha_baja'])); ?></p>
+                        <p class="mb-0"><strong>Observación:</strong> <span class="text-muted"><?php echo htmlspecialchars($ultima_baja['observacion']); ?></span></p>
+                    <?php else: ?>
+                        <p class="text-muted mb-0">Sin registros de baja</p>
+                    <?php endif; ?>
+                </div>
+            </div>
 
             <!-- Historial de Asignaciones -->
             <div class="card">
