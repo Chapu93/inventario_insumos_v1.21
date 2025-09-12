@@ -9,15 +9,12 @@ $localidades = $db->query("SELECT id_localidad, nombre_localidad FROM localidade
 $idLocalidad = isset($_GET['id_localidad']) ? (int)$_GET['id_localidad'] : 0;
 $idSede = isset($_GET['id_sede']) ? (int)$_GET['id_sede'] : 0;
 $sede = null;
-$areas = $internet = $telefonia = $vigilancia = $vigilancia_dispositivos = $planos = [];
+$internet = $telefonia = $vigilancia = $vigilancia_dispositivos = $planos = [];
 if ($idSede > 0) {
     // Sede + Localidad + Zona
     $stmt = $db->prepare("SELECT s.*, l.nombre_localidad, z.nombre_zona FROM sedes s JOIN localidades l ON l.id_localidad=s.id_localidad JOIN zonas z ON z.id_zona=l.id_zona WHERE s.id_sede=?");
     $stmt->execute([$idSede]);
     $sede = $stmt->fetch();
-
-    // Áreas asignables (catálogo)
-    $areas = $db->query("SELECT a.id_area, a.nombre_area FROM areas a ORDER BY a.nombre_area")->fetchAll();
 
     // Internet por sede
     $stmt = $db->prepare("SELECT proveedor, tipo_conexion, velocidad_bajada_mbps, velocidad_subida_mbps, estado_servicio FROM sedes_internet WHERE id_sede=? ORDER BY proveedor");
@@ -109,23 +106,7 @@ include '../../includes/header.php';
       </div>
     </div>
   </div>
-  <div class="col-lg-6">
-    <div class="card h-100">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-sitemap me-2"></i>Áreas (catálogo)</h5></div>
-      <div class="card-body">
-        <div class="table-responsive">
-          <table class="table table-sm table-striped">
-            <thead><tr><th>Área</th></tr></thead>
-            <tbody>
-              <?php foreach($areas as $a): ?>
-              <tr><td><?php echo htmlspecialchars($a['nombre_area']); ?></td></tr>
-              <?php endforeach; ?>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
+  
 </div>
 
 <div class="row g-3 mt-1">
