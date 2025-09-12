@@ -92,12 +92,12 @@ include '../../includes/header.php';
     <div class="modal-body">
       <input type="hidden" name="accion" value="subir">
       <div class="mb-2"><label class="form-label">Localidad *</label>
-        <select id="id_localidad" class="form-select select2" required>
+        <select id="id_localidad" class="form-select" required>
           <option value="">Seleccione</option>
         </select><div class="invalid-feedback">Seleccione localidad</div>
       </div>
       <div class="mb-2"><label class="form-label">Sede *</label>
-        <select name="id_sede" id="id_sede" class="form-select select2" required>
+        <select name="id_sede" id="id_sede" class="form-select" required>
           <option value="">Seleccione</option>
         </select><div class="invalid-feedback">Seleccione sede</div>
       </div>
@@ -117,13 +117,7 @@ const BASE = '<?php echo app_base_url(); ?>';
 function cargarLocalidades(){ $.getJSON(`${BASE}/ajax/localidades_list.php`).done(r=>{ const $l=$('#id_localidad'); $l.html('<option value="">Seleccione</option>'); if(r.success){ r.data.forEach(x=> $l.append(`<option value="${x.id}">${x.nombre}</option>`)); } $l.trigger('change.select2'); }); }
 function cargarSedes(loc){ const $s=$('#id_sede'); $s.html('<option value="">Seleccione</option>'); if(!loc){ $s.trigger('change.select2'); return; } $.getJSON(`${BASE}/ajax/sedes_por_localidad.php`, { localidad_id: loc }).done(r=>{ if(r.success){ r.data.forEach(x=> $s.append(`<option value="${x.id}">${x.nombre}</option>`)); } $s.trigger('change.select2'); }); }
 $(function(){ cargarLocalidades(); $('#id_localidad').on('change', function(){ cargarSedes($(this).val()); }); $('form.needs-validation').on('submit', function(e){ if(!this.checkValidity()){ e.preventDefault(); e.stopPropagation(); } $(this).addClass('was-validated'); }); });
-$('#modalPlano').on('shown.bs.modal', function(){
-  $('#modalPlano .select2').each(function(){
-    var $el = $(this);
-    try { if ($el.hasClass('select2-hidden-accessible')) { $el.select2('destroy'); } } catch(e) {}
-    $el.select2({ theme:'bootstrap-5', language:'es', width:'100%', dropdownParent: $('#modalPlano') });
-  });
-});
+// sin select2 en este modal para igualar estilo
 </script>
 
 <?php include '../../includes/footer.php'; ?>

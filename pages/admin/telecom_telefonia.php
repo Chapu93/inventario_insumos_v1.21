@@ -75,12 +75,12 @@ include '../../includes/header.php';
     <div class="modal-body">
       <input type="hidden" name="accion" id="accion" value="agregar"><input type="hidden" name="id_linea" id="id_linea">
       <div class="mb-2"><label class="form-label">Localidad *</label>
-        <select id="id_localidad" class="form-select select2" required>
+        <select id="id_localidad" class="form-select" required>
           <option value="">Seleccione</option>
         </select><div class="invalid-feedback">Seleccione localidad</div>
       </div>
       <div class="mb-2"><label class="form-label">Sede *</label>
-        <select name="id_sede" id="id_sede" class="form-select select2" required>
+        <select name="id_sede" id="id_sede" class="form-select" required>
           <option value="">Seleccione</option>
         </select><div class="invalid-feedback">Seleccione sede</div>
       </div>
@@ -140,13 +140,7 @@ function cargarSedes(localidad){
 $(function(){
   cargarLocalidades();
   $('#id_localidad').on('change', function(){ cargarSedes($(this).val()); });
-  $('#modalTel').on('shown.bs.modal', function(){
-    $('#modalTel .select2').each(function(){
-      var $el = $(this);
-      try { if ($el.hasClass('select2-hidden-accessible')) { $el.select2('destroy'); } } catch(e) {}
-      $el.select2({ theme:'bootstrap-5', language:'es', width:'100%', dropdownParent: $('#modalTel') });
-    });
-  });
+  // sin select2 en este modal para igualar estilo
 });
 </script>
 
