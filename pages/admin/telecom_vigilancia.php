@@ -172,7 +172,7 @@ $('#modalServ').on('shown.bs.modal', function(){
   $('#modalServ .select2').each(function(){
     var $el = $(this);
     try { if ($el.hasClass('select2-hidden-accessible')) { $el.select2('destroy'); } } catch(e) {}
-    $el.select2({ theme:'bootstrap-5', width:'100%', dropdownParent: $('#modalServ') });
+    $el.select2({ theme:'bootstrap-5', language:'es', width:'100%', dropdownParent: $('#modalServ') });
   });
 });
 </script>
