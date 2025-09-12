@@ -106,6 +106,9 @@
                             <a href="<?php echo app_base_url(); ?>/pages/admin/telecom_resumen.php" class="<?php echo strpos($currentPath, '/pages/admin/telecom_resumen.php') !== false ? 'active' : ''; ?>">Resumen Telecomunicaciones</a>
                         </li>
                         <li>
+                            <a href="<?php echo app_base_url(); ?>/pages/admin/sede_detalle.php" class="<?php echo strpos($currentPath, '/pages/admin/sede_detalle.php') !== false ? 'active' : ''; ?>">Detalle de Sede</a>
+                        </li>
+                        <li>
                             <a href="<?php echo app_base_url(); ?>/pages/admin/telecom_planos.php" class="<?php echo strpos($currentPath, '/pages/admin/telecom_planos.php') !== false ? 'active' : ''; ?>">Planos de Sede</a>
                         </li>
                     </ul>
