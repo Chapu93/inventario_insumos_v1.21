@@ -203,9 +203,9 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
                                         </button>
                                         <button type="button"
                                                 class="btn btn-sm btn-success"
-                                                onclick="cambiarEstadoPorRemito('<?php echo $asignacion['numero_remito']; ?>','Devuelta')"
+                                                onclick="abrirDevolucion('<?php echo $asignacion['numero_remito']; ?>')"
                                                 data-bs-toggle="tooltip"
-                                                title="Marcar como Devuelta" <?php echo $esActiva ? '' : 'disabled'; ?>>
+                                                title="Devolver (total o parcial)" <?php echo $esActiva ? '' : 'disabled'; ?>>
                                             <i class="fas fa-check"></i>
                                         </button>
                                     </div>
