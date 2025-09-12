@@ -110,7 +110,7 @@ include '../../includes/header.php';
 </div>
 
 <!-- Modales -->
-<div class="modal fade" id="modalServ" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+<div class="modal fade" id="modalServ" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
   <div class="modal-header"><h5 class="modal-title" id="modalServTitle">Agregar Servicio</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
   <form method="POST" id="formServ" class="needs-validation" novalidate>
     <div class="modal-body">

@@ -86,7 +86,7 @@ include '../../includes/header.php';
   </div>
 </div>
 
-<div class="modal fade" id="modalPlano" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
+<div class="modal fade" id="modalPlano" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
   <div class="modal-header"><h5 class="modal-title">Subir Plano</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
   <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
     <div class="modal-body">
