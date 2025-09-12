@@ -80,6 +80,23 @@ include '../../includes/header.php';
 </div>
 
 <?php if ($sede): ?>
+<div class="row mb-3">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header"><h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Acciones Rápidas</h5></div>
+      <div class="card-body">
+        <div class="row g-2">
+          <div class="col-md-2"><a href="<?php echo app_base_url(); ?>/pages/admin/telecom_internet.php" class="btn btn-sm btn-primary w-100"><i class="fas fa-wifi me-2"></i>Agregar Internet</a></div>
+          <div class="col-md-2"><a href="<?php echo app_base_url(); ?>/pages/admin/telecom_telefonia.php" class="btn btn-sm btn-primary w-100"><i class="fas fa-phone me-2"></i>Agregar Teléfono</a></div>
+          <div class="col-md-2"><a href="<?php echo app_base_url(); ?>/pages/admin/telecom_vigilancia.php" class="btn btn-sm btn-primary w-100"><i class="fas fa-video me-2"></i>Agregar Vigilancia</a></div>
+          <div class="col-md-2"><a href="<?php echo app_base_url(); ?>/pages/admin/telecom_planos.php" class="btn btn-sm btn-primary w-100"><i class="fas fa-file-upload me-2"></i>Subir Plano</a></div>
+          <div class="col-md-2"><a href="<?php echo app_base_url(); ?>/pages/admin/sedes.php" class="btn btn-sm btn-warning w-100"><i class="fas fa-edit me-2"></i>Editar Sede</a></div>
+          <div class="col-md-2"><a href="<?php echo app_base_url(); ?>/pages/reportes/remito.php" class="btn btn-sm btn-info w-100"><i class="fas fa-file-alt me-2"></i>Ver Remitos</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="row g-3">
   <div class="col-lg-6">
     <div class="card h-100">
