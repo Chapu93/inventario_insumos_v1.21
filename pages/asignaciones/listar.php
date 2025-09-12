@@ -342,7 +342,11 @@ document.getElementById('btnConfirmarDevolucion').addEventListener('click', func
   .then(r => r.json())
   .then(data => {
     if (!data.success) { throw new Error(data.error || 'Error en devolución'); }
-    location.reload();
+    const alertBox = document.getElementById('devolucionAlert');
+    alertBox.className = 'alert alert-success';
+    alertBox.textContent = 'Devolución registrada correctamente.';
+    alertBox.style.display = 'block';
+    setTimeout(() => { location.reload(); }, 1200);
   })
   .catch(err => {
     const alertBox = document.getElementById('devolucionAlert');

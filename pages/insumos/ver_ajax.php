@@ -95,12 +95,17 @@ try {
 
     // Última baja (si existe la tabla)
     $ultima_baja = null;
+    $bajas_hist = [];
     try {
         $stmt_b = $conexion->prepare("SELECT fecha_baja, observacion FROM insumos_bajas WHERE id_insumo = ? ORDER BY fecha_baja DESC LIMIT 1");
         $stmt_b->execute([$id]);
         $ultima_baja = $stmt_b->fetch();
+        $stmt_b2 = $conexion->prepare("SELECT fecha_baja, observacion FROM insumos_bajas WHERE id_insumo = ? ORDER BY fecha_baja DESC");
+        $stmt_b2->execute([$id]);
+        $bajas_hist = $stmt_b2->fetchAll();
     } catch (Exception $e) {
         $ultima_baja = null;
+        $bajas_hist = [];
     }
 
     // Generar HTML para el modal
@@ -318,6 +323,39 @@ try {
                         <p class="mb-0"><strong>Observación:</strong> <span class="text-muted"><?php echo htmlspecialchars($ultima_baja['observacion']); ?></span></p>
                     <?php else: ?>
                         <p class="text-muted mb-0">Sin registros de baja</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Historial de Bajas -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-clipboard-list me-2"></i>Historial de Bajas
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <?php if (empty($bajas_hist)): ?>
+                        <p class="text-muted mb-0">Sin registros de baja</p>
+                    <?php else: ?>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 160px;">Fecha</th>
+                                        <th>Observación</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($bajas_hist as $b): ?>
+                                    <tr>
+                                        <td><?php echo date('d/m/Y H:i', strtotime($b['fecha_baja'])); ?></td>
+                                        <td><?php echo htmlspecialchars($b['observacion']); ?></td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
                     <?php endif; ?>
                 </div>
             </div>

@@ -384,7 +384,11 @@ document.getElementById('btnConfirmarBaja').addEventListener('click', function()
     .then(r => r.json())
     .then(data => {
         if (!data.success) { throw new Error(data.error || 'Error al dar de baja'); }
-        location.reload();
+        const box = document.getElementById('bajaAlert');
+        box.className = 'alert alert-success';
+        box.textContent = 'Baja registrada correctamente.';
+        box.style.display = 'block';
+        setTimeout(() => { location.reload(); }, 1200);
     })
     .catch(err => {
         const box = document.getElementById('bajaAlert');
