@@ -201,13 +201,6 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
                                                 title="Devolver insumos" <?php echo $esActiva ? '' : 'disabled'; ?>>
                                             <i class="fas fa-undo"></i>
                                         </button>
-                                        <button type="button"
-                                                class="btn btn-sm btn-success"
-                                                onclick="abrirDevolucion('<?php echo $asignacion['numero_remito']; ?>')"
-                                                data-bs-toggle="tooltip"
-                                                title="Devolver (total o parcial)" <?php echo $esActiva ? '' : 'disabled'; ?>>
-                                            <i class="fas fa-check"></i>
-                                        </button>
                                     </div>
                                 </td>
                             </tr>

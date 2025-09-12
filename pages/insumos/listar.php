@@ -186,9 +186,9 @@ $localidades = $stmt->fetchAll();
 <button type="button" 
         class="btn btn-sm btn-danger" 
         <?php echo $bloquear ? 'disabled' : ''; ?>
-        onclick="<?php echo $bloquear ? 'return false;' : "eliminarInsumo({$insumo['id_insumo']}, '{$insumo['tipo_insumo']}', '".htmlspecialchars($insumo['nombre_insumo'])."', {$insumo['cantidad']})"; ?>"
+        onclick="<?php echo $bloquear ? 'return false;' : "abrirModalBajaInsumo({$insumo['id_insumo']}, '".htmlspecialchars($insumo['nombre_insumo'])."')"; ?>"
         data-bs-toggle="tooltip" 
-        title="<?php echo $bloquear ? 'No se puede eliminar un insumo asignado' : 'Eliminar'; ?>">
+        title="<?php echo $bloquear ? 'No se puede eliminar un insumo asignado' : 'Dar de baja'; ?>">
   <i class="fas fa-trash"></i>
 </button>
                                     </div>
@@ -244,25 +244,30 @@ $localidades = $stmt->fetchAll();
     </div>
 </div>
 
-<!-- Modal para eliminar insumo -->
-<div class="modal fade" id="modalEliminarInsumo" tabindex="-1" aria-labelledby="modalEliminarInsumoLabel" aria-hidden="true">
+<!-- Modal para dar de baja insumo -->
+<div class="modal fade" id="modalBajaInsumo" tabindex="-1" aria-labelledby="modalBajaInsumoLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalEliminarInsumoLabel">
-                    <i class="fas fa-trash me-2"></i>Eliminar Insumo
+                <h5 class="modal-title" id="modalBajaInsumoLabel">
+                    <i class="fas fa-ban me-2"></i>Dar de baja Insumo
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div id="eliminarInsumoContent">
-                    <!-- El contenido se cargará dinámicamente -->
+                <div class="mb-2">
+                    <p class="mb-1"><strong>Insumo:</strong> <span id="bajaNombreInsumo"></span></p>
                 </div>
+                <div class="mb-3">
+                    <label class="form-label">Motivo/Observación</label>
+                    <textarea id="bajaObservacion" class="form-control" rows="3" placeholder="Describa el motivo de la baja" required></textarea>
+                </div>
+                <div id="bajaAlert" style="display:none;"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger" id="btnConfirmarEliminar">
-                    <i class="fas fa-trash me-2"></i>Eliminar
+                <button type="button" class="btn btn-danger" id="btnConfirmarBaja">
+                    <i class="fas fa-check me-2"></i>Confirmar Baja
                 </button>
             </div>
         </div>
@@ -324,6 +329,47 @@ function verInsumo(id) {
 <script>
 $(function(){
   // Orden inicial se define vía data-default-order-col/dir y se aplica en footer
+});
+</script>
+
+<script>
+let BAJA_ID = 0;
+function abrirModalBajaInsumo(id, nombre) {
+    BAJA_ID = parseInt(id, 10) || 0;
+    document.getElementById('bajaNombreInsumo').textContent = nombre || '';
+    document.getElementById('bajaObservacion').value = '';
+    const alertBox = document.getElementById('bajaAlert');
+    alertBox.style.display = 'none';
+    const modal = new bootstrap.Modal(document.getElementById('modalBajaInsumo'));
+    modal.show();
+}
+
+document.getElementById('btnConfirmarBaja').addEventListener('click', function(){
+    const obs = (document.getElementById('bajaObservacion').value || '').trim();
+    if (!BAJA_ID) return;
+    if (obs.length < 3) {
+        const box = document.getElementById('bajaAlert');
+        box.className = 'alert alert-warning';
+        box.textContent = 'Por favor ingrese un motivo válido (mín. 3 caracteres).';
+        box.style.display = 'block';
+        return;
+    }
+    fetch(`${getAppBase()}/ajax/insumo_baja.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id_insumo: BAJA_ID, observacion: obs })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (!data.success) { throw new Error(data.error || 'Error al dar de baja'); }
+        location.reload();
+    })
+    .catch(err => {
+        const box = document.getElementById('bajaAlert');
+        box.className = 'alert alert-danger';
+        box.textContent = err.message;
+        box.style.display = 'block';
+    });
 });
 </script>
 
