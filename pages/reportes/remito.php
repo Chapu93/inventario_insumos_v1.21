@@ -154,7 +154,7 @@ $asignaciones_recientes = $stmt->fetchAll();
                             <tr>
                                 <td><strong><?php echo htmlspecialchars($asignacion['numero_remito']); ?></strong></td>
                                 <td><?php echo htmlspecialchars($asignacion['nombre_persona_asignada'] . ' ' . $asignacion['apellido_persona_asignada']); ?></td>
-                                <td><?php echo date('d/m/Y', strtotime($asignacion['fecha_asignacion'])); ?></td>
+                                <td data-order="<?php echo strtotime($asignacion['fecha_asignacion']); ?>"><?php echo date('d/m/Y', strtotime($asignacion['fecha_asignacion'])); ?></td>
                                 <td><?php echo htmlspecialchars($asignacion['nombre_sede']); ?></td>
                                 <td>
                                     <div class="btn-group" role="group">
