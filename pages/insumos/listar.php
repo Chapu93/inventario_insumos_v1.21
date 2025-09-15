@@ -70,7 +70,7 @@ $localidades = $stmt->fetchAll();
                 <a href="agregar.php" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>Agregar Insumo
                 </a>
-                <a href="agregar_asignado.php" class="btn btn-success">
+                <a href="agregar_asignado.php" class="btn btn-secondary">
                     <i class="fas fa-plus-square me-2"></i>Agregar Insumo Asignado
                 </a>
             </div>

@@ -80,7 +80,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
            ->execute([$id_remito, $id_insumo, $cantidad]);
 
         $db->commit();
-        header('Location: ' . app_base_url() . '/pages/reportes/remito.php?remito=' . urlencode($numero_remito));
+        $_SESSION['mensaje'] = 'Insumo creado y asignado correctamente';
+        $_SESSION['tipo_mensaje'] = 'success';
+        header('Location: ' . app_base_url() . '/pages/insumos/listar.php');
         exit;
     } catch (Exception $e) {
         if ($db->inTransaction()) { $db->rollBack(); }
@@ -320,7 +322,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $_SESSION['mensaje'] = 'Insumo creado y asignado correctamente';
         $_SESSION['tipo_mensaje'] = 'success';
-        header('Location: ' . app_base_url() . '/pages/reportes/remito.php?remito=' . urlencode($numRemito));
+        $_SESSION['mensaje'] = 'Insumo creado y asignado correctamente';
+        $_SESSION['tipo_mensaje'] = 'success';
+        header('Location: ' . app_base_url() . '/pages/insumos/listar.php');
         exit;
     } catch (Exception $e) {
         if ($db->inTransaction()) { $db->rollBack(); }
