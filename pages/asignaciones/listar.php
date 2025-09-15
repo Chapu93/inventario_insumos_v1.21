@@ -415,6 +415,7 @@ function abrirVerAsignacion(remito) {
             <p class="mb-1"><strong>Remito:</strong> ${c.numero_remito}</p>
             <p class="mb-1"><strong>Fecha:</strong> ${c.fecha_asignacion}</p>
             <p class="mb-1"><strong>Estado:</strong> <span class="badge ${c.estado === 'Activa' ? 'bg-warning' : 'bg-success'}">${c.estado}</span></p>
+            ${c.estado === 'Devuelta' && c.fecha_devolucion ? `<p class=\"mb-1\"><strong>Fecha devolución:</strong> ${c.fecha_devolucion}</p>` : ''}
           </div>
           <div class="col-md-6">
             <p class="mb-1"><strong>Persona:</strong> ${c.nombre_persona_asignada} ${c.apellido_persona_asignada}</p>
