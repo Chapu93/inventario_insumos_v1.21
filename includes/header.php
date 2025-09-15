@@ -40,8 +40,9 @@
                 $isDashboard = strpos($currentPath, '/pages/dashboard.php') !== false;
                 $isInsumos = strpos($currentPath, '/pages/insumos/') !== false;
                 $isAsignaciones = strpos($currentPath, '/pages/asignaciones/') !== false;
-                $isAdmin = strpos($currentPath, '/pages/admin/') !== false;
                 $isReportes = strpos($currentPath, '/pages/reportes/') !== false;
+                $isTelecom = (strpos($currentPath, '/pages/admin/telecom_') !== false);
+                $isAdmin = (strpos($currentPath, '/pages/admin/') !== false) && !$isTelecom;
             ?>
 
             <ul class="list-unstyled components">
@@ -92,10 +93,10 @@
                 </li>
 
                 <li>
-                    <a href="#telecomSubmenu" class="nav-link <?php echo (strpos($currentPath, '/pages/admin/telecom_') !== false) ? 'active' : ''; ?>" data-bs-toggle="collapse" role="button" aria-expanded="<?php echo (strpos($currentPath, '/pages/admin/telecom_') !== false) ? 'true' : 'false'; ?>" aria-controls="telecomSubmenu">
+                    <a href="#telecomSubmenu" class="nav-link <?php echo $isTelecom ? 'active' : ''; ?>" data-bs-toggle="collapse" role="button" aria-expanded="<?php echo $isTelecom ? 'true' : 'false'; ?>" aria-controls="telecomSubmenu">
                         <i class="fas fa-network-wired me-2"></i>Telecomunicaciones
                     </a>
-                    <ul class="collapse list-unstyled <?php echo (strpos($currentPath, '/pages/admin/telecom_') !== false) ? 'show' : ''; ?>" id="telecomSubmenu" data-bs-parent="#sidebar">
+                    <ul class="collapse list-unstyled <?php echo $isTelecom ? 'show' : ''; ?>" id="telecomSubmenu" data-bs-parent="#sidebar">
                         <li><a href="<?php echo app_base_url(); ?>/pages/admin/telecom_internet.php" class="<?php echo strpos($currentPath, '/pages/admin/telecom_internet.php') !== false ? 'active' : ''; ?>">Internet por Sede</a></li>
                         <li><a href="<?php echo app_base_url(); ?>/pages/admin/telecom_telefonia.php" class="<?php echo strpos($currentPath, '/pages/admin/telecom_telefonia.php') !== false ? 'active' : ''; ?>">Líneas Telefónicas</a></li>
                         <li><a href="<?php echo app_base_url(); ?>/pages/admin/telecom_red.php" class="<?php echo strpos($currentPath, '/pages/admin/telecom_red.php') !== false ? 'active' : ''; ?>">Infraestructura de Red</a></li>

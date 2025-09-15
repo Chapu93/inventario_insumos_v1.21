@@ -76,10 +76,12 @@ body {
     border-left-color: #fff;
 }
 
-.sidebar .components li a.active {
-    background: transparent !important;
+.sidebar .components li a.active,
+.sidebar .components li a[aria-expanded="true"] {
+    background: rgba(255, 255, 255, 0.1);
 }
-.sidebar .components li a.active::before {
+.sidebar .components li a.active::before,
+.sidebar .components li a[aria-expanded="true"]::before {
     content: '';
     position: absolute;
     left: 0;
@@ -105,7 +107,7 @@ body {
 
 /* Active state para subitems: solo barra izquierda más marcada */
 .sidebar .components li ul li a.active {
-    background: transparent !important;
+    background: rgba(255, 255, 255, 0.06) !important;
 }
 .sidebar .components li ul li a.active::before {
     content: '';
