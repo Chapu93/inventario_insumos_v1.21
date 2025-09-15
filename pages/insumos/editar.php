@@ -98,13 +98,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Actualizar insumo
         $sql = "UPDATE insumos
                 SET nombre_insumo = ?, subcategoria_varios = ?, descripcion_general = ?,
-                    numero_serie = ?, id_fisico = ?, id_patrimonio = ?, cantidad = ?, fecha_adquisicion = ?,
-                    estado = ?, id_punto_stock_actual = ?
+                    numero_serie = ?, id_fisico = ?, id_patrimonio = ?, cantidad = ?, fecha_adquisicion = ?
                 WHERE id_insumo = ?";
         $db->prepare($sql)->execute([
             $nombre, $subcat, $desc,
             $numero_serie, $id_fisico, $id_patrimonio, $cantidad, $fecha,
-            $estado, $punto, $id
+            $id
         ]);
 
         // Actualizar tabla específica
@@ -273,22 +272,13 @@ include '../../includes/header.php';
                             </div>
                             <div class="mb-2">
                                 <label class="form-label">Estado</label>
-                                <select class="form-select form-select-sm" name="estado">
-                                    <option value="Disponible" <?php echo $insumo['estado']==='Disponible'?'selected':''; ?>>Disponible</option>
-                                    <option value="Asignado" <?php echo $insumo['estado']==='Asignado'?'selected':''; ?>>Asignado</option>
-                                    <option value="De Baja" <?php echo $insumo['estado']==='De Baja'?'selected':''; ?>>De Baja</option>
-                                </select>
+                                <input type="text" class="form-control form-control-sm" value="<?php echo htmlspecialchars($insumo['estado']); ?>" disabled>
+                                <small class="text-muted">El estado no se modifica desde esta pantalla.</small>
                             </div>
                             <div class="mb-2">
                                 <label class="form-label">Punto de Stock</label>
-                                <select class="form-select form-select-sm" name="id_punto_stock_actual">
-                                    <option value="">Sin asignar</option>
-                                    <?php foreach ($puntos_stock as $p): ?>
-                                        <option value="<?php echo $p['id_punto_stock']; ?>" <?php echo ($insumo['id_punto_stock_actual']==$p['id_punto_stock'])?'selected':''; ?>>
-                                            <?php echo $p['nombre_punto']; ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
+                                <input type="text" class="form-control form-control-sm" value="<?php echo htmlspecialchars($insumo['id_punto_stock_actual'] ? 'ID '.$insumo['id_punto_stock_actual'] : 'Sin asignar'); ?>" disabled>
+                                <small class="text-muted">El punto de stock no se modifica desde esta pantalla.</small>
                             </div>
                         </div>
                     </div>
