@@ -273,6 +273,43 @@ body {
     font-size: 0.9rem;
 }
 
+/* Stepper (pasos) */
+.stepper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 1rem;
+}
+.stepper .step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #6c757d;
+    font-weight: 600;
+}
+.stepper .step .circle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #e9ecef;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+.stepper .step.active .circle {
+    background: #0d6efd;
+    color: #fff;
+}
+.stepper .step.active { color: #0d6efd; }
+.stepper .divider {
+    flex: 0 0 40px;
+    height: 2px;
+    background: #e9ecef;
+}
+
 .estado-disponible {
     background-color: var(--success-color) !important;
     color: white !important;

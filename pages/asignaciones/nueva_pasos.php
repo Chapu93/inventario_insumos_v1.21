@@ -88,6 +88,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
+<!-- Stepper visual -->
+<div class="stepper">
+    <div class="step step-1 active"><span class="circle">1</span><span>Datos de Asignación</span></div>
+    <div class="divider"></div>
+    <div class="step step-2"><span class="circle">2</span><span>Selección de Insumos</span></div>
+  </div>
+
 <div class="card">
     <div class="card-body">
         <form method="POST" id="formPasos" class="needs-validation" novalidate>
@@ -157,74 +164,92 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- Paso 2: Selección de Insumos -->
             <div id="paso2" style="display:none;">
                 <hr class="my-4 border-2 border-primary">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="mb-0">Selección de Insumos <span class="badge bg-secondary" id="contadorSeleccion">0 seleccionados</span></h6>
-                    <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-outline-secondary btn-sm" id="btnVolver"><i class="fas fa-arrow-left me-1"></i>Volver</button>
-                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="seleccionarFiltrados()"><i class="fas fa-check-double me-1"></i>Seleccionar filtrados</button>
-                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="deseleccionarTodos()"><i class="fas fa-times me-1"></i>Deseleccionar Todo</button>
+                <div class="row g-3">
+                    <!-- Filtros y acciones (sticky) -->
+                    <div class="col-lg-4">
+                        <div class="card position-sticky sticky-top" style="top: 12px;">
+                            <div class="card-header">
+                                <h6 class="mb-0"><i class="fas fa-filter me-2"></i>Filtros</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Filtrar por Tipo</label>
+                                    <select class="form-select" id="filtro_tipo">
+                                        <option value="">Todos los tipos</option>
+                                        <option value="Varios">Varios</option>
+                                        <option value="PC Completa">PC Completa</option>
+                                        <option value="Notebook">Notebook</option>
+                                        <option value="Impresora">Impresora</option>
+                                        <option value="Monitor">Monitor</option>
+                                        <option value="Escaner">Escaner</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Buscar</label>
+                                    <input type="text" class="form-control" id="filtro_busqueda" placeholder="Nombre, S/N, ID...">
+                                </div>
+                                <div class="d-grid gap-2">
+                                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="seleccionarFiltrados()"><i class="fas fa-check-double me-1"></i>Seleccionar filtrados</button>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="deseleccionarTodos()"><i class="fas fa-times me-1"></i>Deseleccionar Todo</button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" id="btnVolver"><i class="fas fa-arrow-left me-1"></i>Volver</button>
+                                </div>
+                                <div class="mt-3 text-muted small">Seleccionados: <span class="badge bg-secondary" id="contadorSeleccion">0</span></div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-3">
-                        <label class="form-label">Filtrar por Tipo</label>
-                        <select class="form-select" id="filtro_tipo">
-                            <option value="">Todos los tipos</option>
-                            <option value="Varios">Varios</option>
-                            <option value="PC Completa">PC Completa</option>
-                            <option value="Notebook">Notebook</option>
-                            <option value="Impresora">Impresora</option>
-                            <option value="Monitor">Monitor</option>
-                            <option value="Escaner">Escaner</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Buscar</label>
-                        <input type="text" class="form-control" id="filtro_busqueda" placeholder="Nombre, S/N, ID...">
-                    </div>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-striped datatable tabla-asignacion" id="tablaInsumos">
-                        <thead>
-                            <tr>
-                                <th>Nombre Insumo</th>
-                                <th>Cantidad</th>
-                                <th>Punto de Stock</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($insumos as $ins): ?>
-                            <tr class="fila-insumo" data-tipo="<?php echo htmlspecialchars($ins['tipo_insumo']); ?>" data-texto="<?php echo strtolower(htmlspecialchars($ins['nombre_insumo'] . ' ' . ($ins['numero_serie'] ?: '') . ' ' . ($ins['id_fisico'] ?: ''))); ?>">
-                                <td>
-                                    <div>
-                                        <strong><?php echo htmlspecialchars($ins['nombre_insumo']); ?></strong>
-                                        <?php if ($ins['numero_serie']): ?><br><small class="text-muted">S/N: <?php echo htmlspecialchars($ins['numero_serie']); ?></small><?php endif; ?>
-                                        <?php if ($ins['id_fisico']): ?><br><small class="text-muted">ID: <?php echo htmlspecialchars($ins['id_fisico']); ?></small><?php endif; ?>
-                                    </div>
-                                </td>
-                                <td><?php echo ($ins['tipo_insumo'] === 'Varios') ? (int)$ins['cantidad'] : 1; ?></td>
-                                <td><?php echo $ins['punto_stock'] ? htmlspecialchars($ins['punto_stock']) : '<span class="text-muted">Sin punto</span>'; ?></td>
-                                <td>
-                                    <div class="d-flex gap-2 align-items-center">
-                                        <input type="hidden" name="id_insumo[]" value="<?php echo $ins['id_insumo']; ?>" class="hidden-insumo-input" data-tipo="<?php echo htmlspecialchars($ins['tipo_insumo']); ?>" data-max="<?php echo ($ins['tipo_insumo'] === 'Varios') ? (int)$ins['cantidad'] : 1; ?>" disabled style="display:none;">
-                                        <button type="button" class="btn btn-sm btn-outline-primary btn-seleccionar" data-insumo-id="<?php echo $ins['id_insumo']; ?>" onclick="toggleSeleccionInsumo(<?php echo $ins['id_insumo']; ?>)"><i class="fas fa-plus"></i><span> Seleccionar</span></button>
-                                        <?php if ($ins['tipo_insumo'] === 'Varios' && $ins['cantidad'] > 1): ?>
-                                        <div class="cantidad-input" style="display:none;">
-                                            <input type="number" class="form-control form-control-sm" name="cantidad_varios[<?php echo $ins['id_insumo']; ?>]" min="1" max="<?php echo (int)$ins['cantidad']; ?>" value="1" style="width:80px;">
-                                        </div>
-                                        <?php endif; ?>
-                                    </div>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
 
-                <div class="d-flex justify-content-end gap-2 mt-3">
-                    <button type="button" class="btn btn-secondary" id="btnVolver2"><i class="fas fa-arrow-left me-1"></i>Volver</button>
-                    <button type="button" class="btn btn-primary" onclick="mostrarModalConfirmacion()"><i class="fas fa-eye me-1"></i>Revisar y Confirmar</button>
+                    <!-- Tabla de insumos -->
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0"><i class="fas fa-boxes me-2"></i>Insumos Disponibles</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped datatable tabla-asignacion" id="tablaInsumos">
+                                        <thead>
+                                            <tr>
+                                                <th>Nombre Insumo</th>
+                                                <th>Cantidad</th>
+                                                <th>Punto de Stock</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php foreach ($insumos as $ins): ?>
+                                            <tr class="fila-insumo" data-tipo="<?php echo htmlspecialchars($ins['tipo_insumo']); ?>" data-texto="<?php echo strtolower(htmlspecialchars($ins['nombre_insumo'] . ' ' . ($ins['numero_serie'] ?: '') . ' ' . ($ins['id_fisico'] ?: ''))); ?>">
+                                                <td>
+                                                    <div>
+                                                        <strong><?php echo htmlspecialchars($ins['nombre_insumo']); ?></strong>
+                                                        <?php if ($ins['numero_serie']): ?><br><small class="text-muted">S/N: <?php echo htmlspecialchars($ins['numero_serie']); ?></small><?php endif; ?>
+                                                        <?php if ($ins['id_fisico']): ?><br><small class="text-muted">ID: <?php echo htmlspecialchars($ins['id_fisico']); ?></small><?php endif; ?>
+                                                    </div>
+                                                </td>
+                                                <td><?php echo ($ins['tipo_insumo'] === 'Varios') ? (int)$ins['cantidad'] : 1; ?></td>
+                                                <td><?php echo $ins['punto_stock'] ? htmlspecialchars($ins['punto_stock']) : '<span class="text-muted">Sin punto</span>'; ?></td>
+                                                <td>
+                                                    <div class="d-flex gap-2 align-items-center">
+                                                        <input type="hidden" name="id_insumo[]" value="<?php echo $ins['id_insumo']; ?>" class="hidden-insumo-input" data-tipo="<?php echo htmlspecialchars($ins['tipo_insumo']); ?>" data-max="<?php echo ($ins['tipo_insumo'] === 'Varios') ? (int)$ins['cantidad'] : 1; }?>" disabled style="display:none;">
+                                                        <button type="button" class="btn btn-sm btn-outline-primary btn-seleccionar" data-insumo-id="<?php echo $ins['id_insumo']; ?>" onclick="toggleSeleccionInsumo(<?php echo $ins['id_insumo']; ?>)"><i class="fas fa-plus"></i><span> Seleccionar</span></button>
+                                                        <?php if ($ins['tipo_insumo'] === 'Varios' && $ins['cantidad'] > 1): ?>
+                                                        <div class="cantidad-input" style="display:none;">
+                                                            <input type="number" class="form-control form-control-sm" name="cantidad_varios[<?php echo $ins['id_insumo']; ?>]" min="1" max="<?php echo (int)$ins['cantidad']; ?>" value="1" style="width:80px;">
+                                                        </div>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="d-flex justify-content-end gap-2 mt-3">
+                                    <button type="button" class="btn btn-secondary" id="btnVolver2"><i class="fas fa-arrow-left me-1"></i>Volver</button>
+                                    <button type="button" class="btn btn-primary" onclick="mostrarModalConfirmacion()"><i class="fas fa-eye me-1"></i>Revisar y Confirmar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </form>
@@ -283,8 +308,16 @@ $('#btnSiguiente').on('click', function(){
   if (!valido) { form.classList.add('was-validated'); return; }
   $('#paso1').hide();
   $('#paso2').show();
+  // Stepper activo
+  $('.stepper .step').removeClass('active');
+  $('.stepper .step-2').addClass('active');
 });
-$('#btnVolver, #btnVolver2').on('click', function(){ $('#paso2').hide(); $('#paso1').show(); });
+$('#btnVolver, #btnVolver2').on('click', function(){
+  $('#paso2').hide();
+  $('#paso1').show();
+  $('.stepper .step').removeClass('active');
+  $('.stepper .step-1').addClass('active');
+});
 
 // Cargar sedes por localidad
 $('#id_localidad').on('change', function(){
