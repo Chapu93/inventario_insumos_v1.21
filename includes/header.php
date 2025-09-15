@@ -52,17 +52,9 @@
                 </li>
                 
                 <li>
-                    <a href="#insumosSubmenu" class="nav-link <?php echo $isInsumos ? 'active' : ''; ?>" data-bs-toggle="collapse" role="button" aria-expanded="<?php echo $isInsumos ? 'true' : 'false'; ?>" aria-controls="insumosSubmenu">
+                    <a href="<?php echo app_base_url(); ?>/pages/insumos/listar.php" class="nav-link <?php echo $isInsumos ? 'active' : ''; ?>">
                         <i class="fas fa-box me-2"></i>Insumos
                     </a>
-                    <ul class="collapse list-unstyled <?php echo $isInsumos ? 'show' : ''; ?>" id="insumosSubmenu" data-bs-parent="#sidebar">
-                        <li>
-                            <a href="<?php echo app_base_url(); ?>/pages/insumos/listar.php" class="<?php echo strpos($currentPath, '/pages/insumos/listar.php') !== false ? 'active' : ''; ?>">Listar Insumos</a>
-                        </li>
-                        <li>
-                            <a href="<?php echo app_base_url(); ?>/pages/insumos/agregar.php" class="<?php echo strpos($currentPath, '/pages/insumos/agregar.php') !== false ? 'active' : ''; ?>">Agregar Insumo</a>
-                        </li>
-                    </ul>
                 </li>
                 
                 <li>
