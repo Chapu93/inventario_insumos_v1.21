@@ -58,9 +58,17 @@
                 </li>
                 
                 <li>
-                    <a href="<?php echo app_base_url(); ?>/pages/asignaciones/listar.php" class="nav-link <?php echo $isAsignaciones ? 'active' : ''; ?>">
+                    <a href="#asigSubmenu" class="nav-link <?php echo $isAsignaciones || $isReportes ? 'active' : ''; ?>" data-bs-toggle="collapse" role="button" aria-expanded="<?php echo ($isAsignaciones || $isReportes) ? 'true' : 'false'; ?>" aria-controls="asigSubmenu">
                         <i class="fas fa-clipboard-list me-2"></i>Asignaciones
                     </a>
+                    <ul class="collapse list-unstyled <?php echo ($isAsignaciones || $isReportes) ? 'show' : ''; ?>" id="asigSubmenu" data-bs-parent="#sidebar">
+                        <li>
+                            <a href="<?php echo app_base_url(); ?>/pages/asignaciones/listar.php" class="<?php echo strpos($currentPath, '/pages/asignaciones/listar.php') !== false ? 'active' : ''; ?>">Listar Asignaciones</a>
+                        </li>
+                        <li>
+                            <a href="<?php echo app_base_url(); ?>/pages/reportes/remito.php" class="<?php echo strpos($currentPath, '/pages/reportes/remito.php') !== false ? 'active' : ''; ?>">Remitos</a>
+                        </li>
+                    </ul>
                 </li>
                 
                 <li>
@@ -69,39 +77,31 @@
                     </a>
                     <ul class="collapse list-unstyled <?php echo $isAdmin ? 'show' : ''; ?>" id="adminSubmenu" data-bs-parent="#sidebar">
                         <li>
+                            <a href="<?php echo app_base_url(); ?>/pages/admin/sede_detalle.php" class="<?php echo strpos($currentPath, '/pages/admin/sede_detalle.php') !== false ? 'active' : ''; ?>">Detalle de Sede</a>
+                        </li>
+                        <li>
                             <a href="<?php echo app_base_url(); ?>/pages/admin/sedes.php" class="<?php echo strpos($currentPath, '/pages/admin/sedes.php') !== false ? 'active' : ''; ?>">Gestión de Sedes</a>
                         </li>
                         <li>
                             <a href="<?php echo app_base_url(); ?>/pages/admin/areas.php" class="<?php echo strpos($currentPath, '/pages/admin/areas.php') !== false ? 'active' : ''; ?>">Gestión de Áreas</a>
                         </li>
                         <li>
-                            <a href="<?php echo app_base_url(); ?>/pages/admin/telecom_internet.php" class="<?php echo strpos($currentPath, '/pages/admin/telecom_internet.php') !== false ? 'active' : ''; ?>">Internet por Sede</a>
-                        </li>
-                        <li>
-                            <a href="<?php echo app_base_url(); ?>/pages/admin/telecom_telefonia.php" class="<?php echo strpos($currentPath, '/pages/admin/telecom_telefonia.php') !== false ? 'active' : ''; ?>">Líneas Telefónicas</a>
-                        </li>
-                        <li>
-                            <a href="<?php echo app_base_url(); ?>/pages/admin/telecom_red.php" class="<?php echo strpos($currentPath, '/pages/admin/telecom_red.php') !== false ? 'active' : ''; ?>">Infraestructura de Red</a>
-                        </li>
-                        <li>
-                            <a href="<?php echo app_base_url(); ?>/pages/admin/telecom_vigilancia.php" class="<?php echo strpos($currentPath, '/pages/admin/telecom_vigilancia.php') !== false ? 'active' : ''; ?>">Vigilancia</a>
-                        </li>
-                        <li>
-                            <a href="<?php echo app_base_url(); ?>/pages/admin/telecom_resumen.php" class="<?php echo strpos($currentPath, '/pages/admin/telecom_resumen.php') !== false ? 'active' : ''; ?>">Resumen Telecomunicaciones</a>
-                        </li>
-                        <li>
-                            <a href="<?php echo app_base_url(); ?>/pages/admin/sede_detalle.php" class="<?php echo strpos($currentPath, '/pages/admin/sede_detalle.php') !== false ? 'active' : ''; ?>">Detalle de Sede</a>
-                        </li>
-                        <li>
                             <a href="<?php echo app_base_url(); ?>/pages/admin/telecom_planos.php" class="<?php echo strpos($currentPath, '/pages/admin/telecom_planos.php') !== false ? 'active' : ''; ?>">Planos de Sede</a>
                         </li>
                     </ul>
                 </li>
-                
+
                 <li>
-                    <a href="<?php echo app_base_url(); ?>/pages/reportes/remito.php" class="nav-link <?php echo $isReportes ? 'active' : ''; ?>">
-                        <i class="fas fa-file-pdf me-2"></i>Remitos
+                    <a href="#telecomSubmenu" class="nav-link <?php echo (strpos($currentPath, '/pages/admin/telecom_') !== false) ? 'active' : ''; ?>" data-bs-toggle="collapse" role="button" aria-expanded="<?php echo (strpos($currentPath, '/pages/admin/telecom_') !== false) ? 'true' : 'false'; ?>" aria-controls="telecomSubmenu">
+                        <i class="fas fa-network-wired me-2"></i>Telecomunicaciones
                     </a>
+                    <ul class="collapse list-unstyled <?php echo (strpos($currentPath, '/pages/admin/telecom_') !== false) ? 'show' : ''; ?>" id="telecomSubmenu" data-bs-parent="#sidebar">
+                        <li><a href="<?php echo app_base_url(); ?>/pages/admin/telecom_internet.php" class="<?php echo strpos($currentPath, '/pages/admin/telecom_internet.php') !== false ? 'active' : ''; ?>">Internet por Sede</a></li>
+                        <li><a href="<?php echo app_base_url(); ?>/pages/admin/telecom_telefonia.php" class="<?php echo strpos($currentPath, '/pages/admin/telecom_telefonia.php') !== false ? 'active' : ''; ?>">Líneas Telefónicas</a></li>
+                        <li><a href="<?php echo app_base_url(); ?>/pages/admin/telecom_red.php" class="<?php echo strpos($currentPath, '/pages/admin/telecom_red.php') !== false ? 'active' : ''; ?>">Infraestructura de Red</a></li>
+                        <li><a href="<?php echo app_base_url(); ?>/pages/admin/telecom_vigilancia.php" class="<?php echo strpos($currentPath, '/pages/admin/telecom_vigilancia.php') !== false ? 'active' : ''; ?>">Vigilancia</a></li>
+                        <li><a href="<?php echo app_base_url(); ?>/pages/admin/telecom_resumen.php" class="<?php echo strpos($currentPath, '/pages/admin/telecom_resumen.php') !== false ? 'active' : ''; ?>">Resumen Telecomunicaciones</a></li>
+                    </ul>
                 </li>
             </ul>
         </nav>
