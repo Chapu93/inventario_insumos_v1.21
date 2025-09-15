@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $punto = $_POST['id_punto_stock_actual'] ?: null;
 
         // Campos específicos según tipo
-        $subcat = $desc = $numero_serie = $id_fisico = null;
+        $subcat = $desc = $numero_serie = $id_fisico = $id_patrimonio = null;
         $cantidad = 1;
 
         if ($tipo_fijo === 'Varios') {
@@ -87,18 +87,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $numero_serie = ($_POST['numero_serie'] ?? '') ?: null;
             $id_fisico = ($_POST['id_fisico'] ?? '') ?: null;
+            $id_patrimonio = ($_POST['id_patrimonio'] ?? '') ?: null;
             $cantidad = 1; // fijo
+
+            if ($id_patrimonio === null || trim($id_patrimonio) === '') {
+                throw new Exception('El ID Patrimonio es obligatorio para este tipo de insumo.');
+            }
         }
 
         // Actualizar insumo
         $sql = "UPDATE insumos
                 SET nombre_insumo = ?, subcategoria_varios = ?, descripcion_general = ?,
-                    numero_serie = ?, id_fisico = ?, cantidad = ?, fecha_adquisicion = ?,
+                    numero_serie = ?, id_fisico = ?, id_patrimonio = ?, cantidad = ?, fecha_adquisicion = ?,
                     estado = ?, id_punto_stock_actual = ?
                 WHERE id_insumo = ?";
         $db->prepare($sql)->execute([
             $nombre, $subcat, $desc,
-            $numero_serie, $id_fisico, $cantidad, $fecha,
+            $numero_serie, $id_fisico, $id_patrimonio, $cantidad, $fecha,
             $estado, $punto, $id
         ]);
 
@@ -240,6 +245,10 @@ include '../../includes/header.php';
                                     <div class="mb-2">
                                         <label class="form-label">ID Físico</label>
                                         <input type="text" class="form-control form-control-sm" name="id_fisico" value="<?php echo htmlspecialchars($insumo['id_fisico'] ?? ''); ?>">
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label">ID Patrimonio</label>
+                                        <input type="text" class="form-control form-control-sm" name="id_patrimonio" value="<?php echo htmlspecialchars($insumo['id_patrimonio'] ?? ''); ?>">
                                     </div>
                                     <div class="mb-2">
                                         <label class="form-label">Cantidad</label>

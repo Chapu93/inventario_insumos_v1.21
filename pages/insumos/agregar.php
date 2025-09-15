@@ -31,12 +31,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         // Configurar cantidad según tipo
         $cantidad = ($tipo_insumo == 'Varios') ? ($_POST['cantidad'] ?: 1) : ($_POST['cantidad_especifica'] ?: 1);
+        // Validación backend: exigir ID Patrimonio para no "Varios"
+        if ($tipo_insumo != 'Varios') {
+            $idPat = isset($_POST['id_patrimonio']) ? trim((string)$_POST['id_patrimonio']) : '';
+            if ($idPat === '') {
+                $_SESSION['mensaje'] = 'Error: El ID Patrimonio es obligatorio para este tipo de insumo.';
+                $_SESSION['tipo_mensaje'] = 'danger';
+                header('Location: agregar.php');
+                exit;
+            }
+        }
         
         // Insertar insumo principal
         $sql = "INSERT INTO insumos (nombre_insumo, tipo_insumo, subcategoria_varios, descripcion_general, 
-                                   numero_serie, id_fisico, cantidad, fecha_adquisicion, estado, 
+                                   numero_serie, id_fisico, id_patrimonio, cantidad, fecha_adquisicion, estado, 
                                    id_punto_stock_actual) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         $stmt = $conexion->prepare($sql);
         $stmt->execute([
@@ -46,6 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             ($tipo_insumo == 'Varios') ? ($_POST['descripcion_general'] ?: null) : null,
             ($tipo_insumo != 'Varios') ? ($_POST['numero_serie'] ?: null) : null,
             ($tipo_insumo != 'Varios') ? ($_POST['id_fisico'] ?: null) : null,
+            ($tipo_insumo != 'Varios') ? ($_POST['id_patrimonio'] ?: null) : null,
             $cantidad,
             $_POST['fecha_adquisicion'] ?: null,
             'Disponible', // Estado inicial siempre disponible
@@ -231,6 +242,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     <label for="id_fisico" class="form-label">ID Físico *</label>
                                     <input type="text" class="form-control form-control-sm w-100" id="id_fisico" name="id_fisico" required>
                                     <div class="invalid-feedback">El ID físico es obligatorio</div>
+                                </div>
+                                <div class="mb-2">
+                                    <label for="id_patrimonio" class="form-label">ID Patrimonio *</label>
+                                    <input type="text" class="form-control form-control-sm w-100" id="id_patrimonio" name="id_patrimonio" required>
+                                    <div class="invalid-feedback">El ID patrimonio es obligatorio</div>
                                 </div>
                                 
                                 <div class="mb-2">
@@ -491,6 +507,7 @@ $(document).ready(function() {
         } else if (tipo !== '') {
             $('#numero_serie').prop('required', true);
             $('#id_fisico').prop('required', true);
+            $('#id_patrimonio').prop('required', true);
             $('#cantidad_especifica').prop('required', true);
             
             // Campos específicos según tipo

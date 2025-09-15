@@ -152,7 +152,7 @@ try {
                         </div>
                     </div>
                     
-                    <?php if ($insumo['numero_serie'] || $insumo['id_fisico']): ?>
+                    <?php if ($insumo['numero_serie'] || $insumo['id_fisico'] || $insumo['id_patrimonio']): ?>
                     <hr>
                     <div class="row">
                         <div class="col-md-6">
@@ -163,6 +163,9 @@ try {
                         <div class="col-md-6">
                             <?php if ($insumo['id_fisico']): ?>
                                 <p><strong>ID Físico:</strong> <?php echo htmlspecialchars($insumo['id_fisico']); ?></p>
+                            <?php endif; ?>
+                            <?php if ($insumo['id_patrimonio']): ?>
+                                <p><strong>ID Patrimonio:</strong> <?php echo htmlspecialchars($insumo['id_patrimonio']); ?></p>
                             <?php endif; ?>
                         </div>
                     </div>

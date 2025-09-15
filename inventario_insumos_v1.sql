@@ -103,6 +103,7 @@ CREATE TABLE `insumos` (
   `descripcion_general` varchar(255) DEFAULT NULL,
   `numero_serie` varchar(50) DEFAULT NULL,
   `id_fisico` varchar(50) DEFAULT NULL,
+  `id_patrimonio` varchar(50) DEFAULT NULL,
   `cantidad` int(11) NOT NULL DEFAULT 1,
   `fecha_adquisicion` date DEFAULT NULL,
   `estado` enum('Disponible','Asignado','De Baja') NOT NULL,
@@ -115,13 +116,13 @@ CREATE TABLE `insumos` (
 -- Volcado de datos para la tabla `insumos`
 --
 
-INSERT INTO `insumos` (`id_insumo`, `nombre_insumo`, `tipo_insumo`, `subcategoria_varios`, `descripcion_general`, `numero_serie`, `id_fisico`, `cantidad`, `fecha_adquisicion`, `estado`, `id_punto_stock_actual`, `id_sede_actual`, `id_area_asignacion_actual`) VALUES
-(1, 'Mouse Genius', 'Varios', 'Periféricos', NULL, NULL, NULL, 15, '2025-08-18', 'Disponible', 2, NULL, NULL),
-(3, 'PC Oficina Coradir', 'PC Completa', NULL, NULL, '456123789', 'D154', 1, '2025-08-18', 'Asignado', 2, 47, 4),
-(5, 'Impresora HP Recuperada', 'Impresora', NULL, NULL, '745312689', 'J456', 1, '2025-08-18', 'Disponible', 2, NULL, NULL),
-(6, 'Monitor recuperado en comision', 'Monitor', NULL, NULL, '32', '84621359', 1, '2025-08-18', 'Asignado', 2, 47, 4),
-(7, 'Escarner Nuevo', 'Escaner', NULL, NULL, '108923', 'E45333', 1, '2025-08-18', 'Asignado', 2, 51, 8),
-(8, 'Teclado GT2', 'Varios', 'Periféricos', NULL, NULL, NULL, 15, '2025-08-19', 'Disponible', 2, NULL, NULL);
+INSERT INTO `insumos` (`id_insumo`, `nombre_insumo`, `tipo_insumo`, `subcategoria_varios`, `descripcion_general`, `numero_serie`, `id_fisico`, `id_patrimonio`, `cantidad`, `fecha_adquisicion`, `estado`, `id_punto_stock_actual`, `id_sede_actual`, `id_area_asignacion_actual`) VALUES
+(1, 'Mouse Genius', 'Varios', 'Periféricos', NULL, NULL, NULL, NULL, 15, '2025-08-18', 'Disponible', 2, NULL, NULL),
+(3, 'PC Oficina Coradir', 'PC Completa', NULL, NULL, '456123789', 'D154', NULL, 1, '2025-08-18', 'Asignado', 2, 47, 4),
+(5, 'Impresora HP Recuperada', 'Impresora', NULL, NULL, '745312689', 'J456', NULL, 1, '2025-08-18', 'Disponible', 2, NULL, NULL),
+(6, 'Monitor recuperado en comision', 'Monitor', NULL, NULL, '32', '84621359', NULL, 1, '2025-08-18', 'Asignado', 2, 47, 4),
+(7, 'Escarner Nuevo', 'Escaner', NULL, NULL, '108923', 'E45333', NULL, 1, '2025-08-18', 'Asignado', 2, 51, 8),
+(8, 'Teclado GT2', 'Varios', 'Periféricos', NULL, NULL, NULL, NULL, 15, '2025-08-19', 'Disponible', 2, NULL, NULL);
 
 -- --------------------------------------------------------
 
