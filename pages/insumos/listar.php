@@ -240,7 +240,7 @@ $localidades = $stmt->fetchAll();
 
 <!-- Modal para ver detalles del insumo -->
 <div class="modal fade" id="modalVerInsumo" tabindex="-1" aria-labelledby="modalVerInsumoLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalVerInsumoLabel">

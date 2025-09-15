@@ -81,6 +81,7 @@ try {
     
     // Buscar remito activo (asignación actual) si existe
     $stmt_act = $conexion->prepare("SELECT r.id_remito, r.numero_remito, r.fecha_asignacion, r.estado,
+                                           r.nombre_persona_asignada, r.apellido_persona_asignada,
                                            s.nombre_sede, l.nombre_localidad, z.nombre_zona, ar.nombre_area
                                     FROM remitos_detalle d
                                     JOIN remitos r ON r.id_remito = d.id_remito
@@ -273,6 +274,18 @@ try {
         </div>
 
         <div class="col-md-4">
+            <?php if ($remito_activo): ?>
+            <div class="card mb-3">
+                <div class="card-header"><h6 class="mb-0"><i class="fas fa-link me-2"></i>Asignación activa</h6></div>
+                <div class="card-body">
+                    <p class="mb-1"><span class="badge bg-warning">Activa</span></p>
+                    <p class="mb-1"><strong>Remito:</strong> <?php echo htmlspecialchars($remito_activo['numero_remito']); ?></p>
+                    <p class="mb-1"><strong>Persona:</strong> <?php echo htmlspecialchars(($remito_activo['nombre_persona_asignada'] ?? '') . ' ' . ($remito_activo['apellido_persona_asignada'] ?? '')); ?></p>
+                    <a class="btn btn-sm btn-outline-primary" href="<?php echo app_base_url(); ?>/pages/reportes/remito.php?remito=<?php echo urlencode($remito_activo['numero_remito']); ?>">Ver remito</a>
+                </div>
+            </div>
+            <?php endif; ?>
+
             <?php if ($remito_activo && $insumo['tipo_insumo'] !== 'Varios'): ?>
             <div class="card mb-3">
                 <div class="card-header"><h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Ubicación Actual</h6></div>
@@ -285,90 +298,67 @@ try {
             </div>
             <?php endif; ?>
 
-            <?php if ($remito_activo): ?>
-            <div class="card mb-3">
-                <div class="card-header"><h6 class="mb-0"><i class="fas fa-link me-2"></i>Asignación activa</h6></div>
-                <div class="card-body">
-                    <p class="mb-1"><span class="badge bg-warning">Activa</span></p>
-                    <p class="mb-1"><strong>Remito:</strong> <?php echo htmlspecialchars($remito_activo['numero_remito']); ?></p>
-                    <a class="btn btn-sm btn-outline-primary" href="<?php echo app_base_url(); ?>/pages/reportes/remito.php?remito=<?php echo urlencode($remito_activo['numero_remito']); ?>">Ver remito</a>
-                </div>
-            </div>
-            <?php endif; ?>
-
-            <div class="card mb-3">
-                <div class="card-header">
-                    <h6 class="mb-0">
-                        <i class="fas fa-history me-2"></i>Últimas Asignaciones
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <?php if (empty($asignaciones)): ?>
-                        <p class="text-muted">No hay asignaciones registradas</p>
-                    <?php else: ?>
-                        <div class="timeline">
-                            <?php foreach ($asignaciones as $asignacion): ?>
-                                <div class="timeline-item mb-3">
-                                    <div class="d-flex justify-content-between">
-                                        <small class="text-muted">
-                                            <?php echo date('d/m/Y H:i', strtotime($asignacion['fecha_asignacion'])); ?>
-                                        </small>
-                                        <?php 
-                                            $estadoEvento = !empty($asignacion['fecha_devolucion']) ? 'Devuelta' : ($asignacion['estado'] ?: 'Activa');
-                                            $badge = 'estado-' . strtolower($estadoEvento);
-                                        ?>
-                                        <span class="badge <?php echo $badge; ?>">
-                                            <?php echo $estadoEvento; ?>
-                                        </span>
-                                    </div>
-                                    <p class="mb-1">
-                                        <strong><?php echo htmlspecialchars($asignacion['nombre_sede']); ?></strong>
-                                        <?php if ($asignacion['nombre_area']): ?>
-                                            - <?php echo htmlspecialchars($asignacion['nombre_area']); ?>
-                                        <?php endif; ?>
-                                    </p>
-                                    <small class="text-muted">
-                                        Asignado a: <?php echo htmlspecialchars($asignacion['nombre_persona_asignada'] . ' ' . $asignacion['apellido_persona_asignada']); ?>
-                                    </small>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                    <?php endif; ?>
-                </div>
-            </div>
-
-            <div class="card mb-3">
-                <div class="card-header"><h6 class="mb-0"><i class="fas fa-ban me-2"></i>Última Baja</h6></div>
-                <div class="card-body">
-                    <?php if ($ultima_baja): ?>
-                        <p class="mb-1"><strong>Fecha:</strong> <?php echo date('d/m/Y H:i', strtotime($ultima_baja['fecha_baja'])); ?></p>
-                        <p class="mb-0"><strong>Observación:</strong> <span class="text-muted"><?php echo htmlspecialchars($ultima_baja['observacion']); ?></span></p>
-                    <?php else: ?>
-                        <p class="text-muted mb-0">Sin registros de baja</p>
-                    <?php endif; ?>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header"><h6 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Historial de Bajas</h6></div>
-                <div class="card-body">
-                    <?php if (empty($bajas_hist)): ?>
-                        <p class="text-muted mb-0">Sin registros de baja</p>
-                    <?php else: ?>
-                        <div class="table-responsive">
-                            <table class="table table-sm">
-                                <thead><tr><th style="width: 160px;">Fecha</th><th>Observación</th></tr></thead>
-                                <tbody>
-                                    <?php foreach ($bajas_hist as $b): ?>
-                                    <tr>
-                                        <td><?php echo date('d/m/Y H:i', strtotime($b['fecha_baja'])); ?></td>
-                                        <td><?php echo htmlspecialchars($b['observacion']); ?></td>
-                                    </tr>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header"><h6 class="mb-0"><i class="fas fa-history me-2"></i>Últimas Asignaciones</h6></div>
+                        <div class="card-body">
+                            <?php if (empty($asignaciones)): ?>
+                                <p class="text-muted">No hay asignaciones registradas</p>
+                            <?php else: ?>
+                                <div class="timeline">
+                                    <?php foreach ($asignaciones as $asignacion): ?>
+                                        <div class="timeline-item mb-3">
+                                            <div class="d-flex justify-content-between">
+                                                <small class="text-muted"><?php echo date('d/m/Y H:i', strtotime($asignacion['fecha_asignacion'])); ?></small>
+                                                <?php $estadoEvento = !empty($asignacion['fecha_devolucion']) ? 'Devuelta' : ($asignacion['estado'] ?: 'Activa'); $badge = 'estado-' . strtolower($estadoEvento); ?>
+                                                <span class="badge <?php echo $badge; ?>"><?php echo $estadoEvento; ?></span>
+                                            </div>
+                                            <p class="mb-1"><strong><?php echo htmlspecialchars($asignacion['nombre_sede']); ?></strong><?php if ($asignacion['nombre_area']): ?> - <?php echo htmlspecialchars($asignacion['nombre_area']); ?><?php endif; ?></p>
+                                            <small class="text-muted">Asignado a: <?php echo htmlspecialchars($asignacion['nombre_persona_asignada'] . ' ' . $asignacion['apellido_persona_asignada']); ?></small>
+                                        </div>
                                     <?php endforeach; ?>
-                                </tbody>
-                            </table>
+                                </div>
+                            <?php endif; ?>
                         </div>
-                    <?php endif; ?>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header"><h6 class="mb-0"><i class="fas fa-ban me-2"></i>Última Baja</h6></div>
+                        <div class="card-body">
+                            <?php if ($ultima_baja): ?>
+                                <p class="mb-1"><strong>Fecha:</strong> <?php echo date('d/m/Y H:i', strtotime($ultima_baja['fecha_baja'])); ?></p>
+                                <p class="mb-0"><strong>Observación:</strong> <span class="text-muted"><?php echo htmlspecialchars($ultima_baja['observacion']); ?></span></p>
+                            <?php else: ?>
+                                <p class="text-muted mb-0">Sin registros de baja</p>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header"><h6 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Historial de Bajas</h6></div>
+                        <div class="card-body">
+                            <?php if (empty($bajas_hist)): ?>
+                                <p class="text-muted mb-0">Sin registros de baja</p>
+                            <?php else: ?>
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead><tr><th style=\"width: 160px;\">Fecha</th><th>Observación</th></tr></thead>
+                                        <tbody>
+                                            <?php foreach ($bajas_hist as $b): ?>
+                                            <tr>
+                                                <td><?php echo date('d/m/Y H:i', strtotime($b['fecha_baja'])); ?></td>
+                                                <td><?php echo htmlspecialchars($b['observacion']); ?></td>
+                                            </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
