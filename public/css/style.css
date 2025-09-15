@@ -300,8 +300,9 @@ body {
 
 /* Estado para "De Baja" (nombre con espacio) */
 .estado-de-baja {
-    background-color: #6c757d !important; /* gris legible */
+    background-color: #343a40 !important; /* gris muy oscuro para alto contraste */
     color: #ffffff !important;
+    border: 1px solid #212529 !important;
 }
 
 .filtros-container {
