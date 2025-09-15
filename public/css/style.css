@@ -298,6 +298,12 @@ body {
     color: var(--dark-color) !important;
 }
 
+/* Estado para "De Baja" (nombre con espacio) */
+.estado-de-baja {
+    background-color: #6c757d !important; /* gris legible */
+    color: #ffffff !important;
+}
+
 .filtros-container {
     background: #fff;
     padding: 1.5rem;
