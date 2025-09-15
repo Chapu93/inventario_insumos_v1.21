@@ -169,7 +169,7 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
                                     <?php echo htmlspecialchars($asignacion['nombre_persona_asignada'] . ' ' . $asignacion['apellido_persona_asignada']); ?>
                                 </td>
                                 <td><?php echo htmlspecialchars($asignacion['nombre_localidad']); ?></td>
-                                <td>
+                                <td data-order="<?php echo strtotime($asignacion['fecha_asignacion']); ?>">
                                     <?php echo date('d/m/Y', strtotime($asignacion['fecha_asignacion'])); ?>
                                 </td>
                                 <td data-order="<?php echo ($estado==='Activa'?0:1); ?>">
