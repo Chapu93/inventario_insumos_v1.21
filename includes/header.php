@@ -41,8 +41,26 @@
                 $isInsumos = strpos($currentPath, '/pages/insumos/') !== false;
                 $isAsignaciones = strpos($currentPath, '/pages/asignaciones/') !== false;
                 $isReportes = strpos($currentPath, '/pages/reportes/') !== false;
-                $isTelecom = (strpos($currentPath, '/pages/admin/telecom_') !== false);
-                $isAdmin = (strpos($currentPath, '/pages/admin/') !== false) && !$isTelecom;
+
+                // Robust section detection using explicit item lists
+                $adminItems = [
+                    '/pages/admin/sede_detalle.php',
+                    '/pages/admin/sedes.php',
+                    '/pages/admin/areas.php',
+                    '/pages/admin/telecom_planos.php' // Planos de Sede pertenece a Administración
+                ];
+                $telecomItems = [
+                    '/pages/admin/telecom_internet.php',
+                    '/pages/admin/telecom_telefonia.php',
+                    '/pages/admin/telecom_red.php',
+                    '/pages/admin/telecom_vigilancia.php',
+                    '/pages/admin/telecom_resumen.php'
+                ];
+
+                $isAdmin = false;
+                foreach ($adminItems as $p) { if (strpos($currentPath, $p) !== false) { $isAdmin = true; break; } }
+                $isTelecom = false;
+                foreach ($telecomItems as $p) { if (strpos($currentPath, $p) !== false) { $isTelecom = true; break; } }
             ?>
 
             <ul class="list-unstyled components">
