@@ -426,8 +426,8 @@ body {
 }
 
 .btn-group .btn:hover {
-    transform: scale(1.1);
-    transition: transform 0.2s ease;
+    transform: none;
+    transition: none;
 }
 
 /* Asegurar que los botones de acción sean clickeables */
