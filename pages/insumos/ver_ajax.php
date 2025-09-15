@@ -123,7 +123,6 @@ try {
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>ID:</strong> <?php echo $insumo['id_insumo']; ?></p>
                             <p><strong>Nombre:</strong> <?php echo htmlspecialchars($insumo['nombre_insumo']); ?></p>
                             <p><strong>Tipo:</strong> 
                                 <span class="badge bg-info"><?php echo $insumo['tipo_insumo']; ?></span>
@@ -274,97 +273,30 @@ try {
         </div>
 
         <div class="col-md-4">
-            <!-- Ubicación Actual -->
             <?php if ($remito_activo && $insumo['tipo_insumo'] !== 'Varios'): ?>
             <div class="card mb-3">
-                <div class="card-header">
-                    <h6 class="mb-0">
-                        <i class="fas fa-map-marker-alt me-2"></i>Ubicación Actual
-                    </h6>
-                </div>
+                <div class="card-header"><h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Ubicación Actual</h6></div>
                 <div class="card-body">
                     <p class="mb-1"><strong>Sede:</strong> <?php echo htmlspecialchars($remito_activo['nombre_sede']); ?></p>
                     <p class="mb-1"><strong>Localidad:</strong> <?php echo htmlspecialchars($remito_activo['nombre_localidad']); ?></p>
                     <p class="mb-1"><strong>Zona:</strong> <?php echo htmlspecialchars($remito_activo['nombre_zona']); ?></p>
-                    <?php if (!empty($remito_activo['nombre_area'])): ?>
-                        <p class="mb-1"><strong>Área:</strong> <?php echo htmlspecialchars($remito_activo['nombre_area']); ?></p>
-                    <?php endif; ?>
+                    <?php if (!empty($remito_activo['nombre_area'])): ?><p class="mb-1"><strong>Área:</strong> <?php echo htmlspecialchars($remito_activo['nombre_area']); ?></p><?php endif; ?>
                 </div>
             </div>
             <?php endif; ?>
 
             <?php if ($remito_activo): ?>
             <div class="card mb-3">
-                <div class="card-header">
-                    <h6 class="mb-0">
-                        <i class="fas fa-link me-2"></i>Asignación activa
-                    </h6>
-                </div>
+                <div class="card-header"><h6 class="mb-0"><i class="fas fa-link me-2"></i>Asignación activa</h6></div>
                 <div class="card-body">
-                    <p class="mb-1">
-                        <span class="badge bg-warning">Activa</span>
-                        <strong>ID:</strong> <?php echo (int)$remito_activo['id_remito']; ?>
-                    </p>
+                    <p class="mb-1"><span class="badge bg-warning">Activa</span></p>
                     <p class="mb-1"><strong>Remito:</strong> <?php echo htmlspecialchars($remito_activo['numero_remito']); ?></p>
-                    <a class="btn btn-sm btn-outline-primary" href="<?php echo app_base_url(); ?>/pages/reportes/remito.php?remito=<?php echo urlencode($remito_activo['numero_remito']); ?>">
-                        Ver remito
-                    </a>
+                    <a class="btn btn-sm btn-outline-primary" href="<?php echo app_base_url(); ?>/pages/reportes/remito.php?remito=<?php echo urlencode($remito_activo['numero_remito']); ?>">Ver remito</a>
                 </div>
             </div>
             <?php endif; ?>
 
-            <!-- Última Baja -->
             <div class="card mb-3">
-                <div class="card-header">
-                    <h6 class="mb-0">
-                        <i class="fas fa-ban me-2"></i>Última Baja
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <?php if ($ultima_baja): ?>
-                        <p class="mb-1"><strong>Fecha:</strong> <?php echo date('d/m/Y H:i', strtotime($ultima_baja['fecha_baja'])); ?></p>
-                        <p class="mb-0"><strong>Observación:</strong> <span class="text-muted"><?php echo htmlspecialchars($ultima_baja['observacion']); ?></span></p>
-                    <?php else: ?>
-                        <p class="text-muted mb-0">Sin registros de baja</p>
-                    <?php endif; ?>
-                </div>
-            </div>
-
-            <!-- Historial de Bajas -->
-            <div class="card mb-3">
-                <div class="card-header">
-                    <h6 class="mb-0">
-                        <i class="fas fa-clipboard-list me-2"></i>Historial de Bajas
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <?php if (empty($bajas_hist)): ?>
-                        <p class="text-muted mb-0">Sin registros de baja</p>
-                    <?php else: ?>
-                        <div class="table-responsive">
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 160px;">Fecha</th>
-                                        <th>Observación</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($bajas_hist as $b): ?>
-                                    <tr>
-                                        <td><?php echo date('d/m/Y H:i', strtotime($b['fecha_baja'])); ?></td>
-                                        <td><?php echo htmlspecialchars($b['observacion']); ?></td>
-                                    </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    <?php endif; ?>
-                </div>
-            </div>
-
-            <!-- Historial de Asignaciones -->
-            <div class="card">
                 <div class="card-header">
                     <h6 class="mb-0">
                         <i class="fas fa-history me-2"></i>Últimas Asignaciones
@@ -400,6 +332,41 @@ try {
                                     </small>
                                 </div>
                             <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header"><h6 class="mb-0"><i class="fas fa-ban me-2"></i>Última Baja</h6></div>
+                <div class="card-body">
+                    <?php if ($ultima_baja): ?>
+                        <p class="mb-1"><strong>Fecha:</strong> <?php echo date('d/m/Y H:i', strtotime($ultima_baja['fecha_baja'])); ?></p>
+                        <p class="mb-0"><strong>Observación:</strong> <span class="text-muted"><?php echo htmlspecialchars($ultima_baja['observacion']); ?></span></p>
+                    <?php else: ?>
+                        <p class="text-muted mb-0">Sin registros de baja</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h6 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Historial de Bajas</h6></div>
+                <div class="card-body">
+                    <?php if (empty($bajas_hist)): ?>
+                        <p class="text-muted mb-0">Sin registros de baja</p>
+                    <?php else: ?>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead><tr><th style="width: 160px;">Fecha</th><th>Observación</th></tr></thead>
+                                <tbody>
+                                    <?php foreach ($bajas_hist as $b): ?>
+                                    <tr>
+                                        <td><?php echo date('d/m/Y H:i', strtotime($b['fecha_baja'])); ?></td>
+                                        <td><?php echo htmlspecialchars($b['observacion']); ?></td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
                         </div>
                     <?php endif; ?>
                 </div>
