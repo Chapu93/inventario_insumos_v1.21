@@ -147,7 +147,6 @@ $localidades = $stmt->fetchAll();
                             <th>Nombre</th>
                             <th>Estado</th>
                             <th>Cantidad</th>
-                            <th>Última baja</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -167,18 +166,7 @@ $localidades = $stmt->fetchAll();
                                         <?php echo $insumo['cantidad']; ?>
                                     </span>
                                 </td>
-                                <td>
-                                    <?php if (!empty($insumo['ultima_baja_fecha'])): ?>
-                                        <div>
-                                            <small class="text-muted"><?php echo date('d/m/Y H:i', strtotime($insumo['ultima_baja_fecha'])); ?></small>
-                                            <?php if (!empty($insumo['ultima_baja_obs'])): ?>
-                                                <br><small class="text-muted"><?php echo htmlspecialchars($insumo['ultima_baja_obs']); ?></small>
-                                            <?php endif; ?>
-                                        </div>
-                                    <?php else: ?>
-                                        -
-                                    <?php endif; ?>
-                                </td>
+                                
                                 <td>
                                     <div class="btn-group" role="group">
                                         <button type="button" 
