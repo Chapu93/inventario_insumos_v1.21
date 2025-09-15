@@ -149,10 +149,9 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
             </div>
         <?php else: ?>
             <div class="table-responsive">
-                <table class="table table-striped datatable" id="tablaAsignaciones" data-default-order-col="3" data-default-order-dir="desc">
+                <table class="table table-striped datatable" id="tablaAsignaciones" data-default-order-col="2" data-default-order-dir="desc">
                     <thead>
                         <tr>
-                            <th>Número Remito</th>
                             <th>Persona Asignada</th>
                             <th>Localidad</th>
                             <th>Fecha Asignación</th>
@@ -166,7 +165,6 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
                                 $estado = ((int)$asignacion['activas'] > 0) ? 'Activa' : 'Devuelta';
                             ?>
                             <tr>
-                                <td><strong><?php echo htmlspecialchars($asignacion['numero_remito']); ?></strong></td>
                                 <td>
                                     <?php echo htmlspecialchars($asignacion['nombre_persona_asignada'] . ' ' . $asignacion['apellido_persona_asignada']); ?>
                                 </td>

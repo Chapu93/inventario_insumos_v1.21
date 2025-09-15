@@ -122,10 +122,13 @@ $asignaciones_recientes = $stmt->fetchAll();
 <?php endif; ?>
 
 <div class="card">
-    <div class="card-header">
+    <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">
             <i class="fas fa-history me-2"></i>Asignaciones Recientes
         </h5>
+        <a class="btn btn-outline-secondary btn-sm" href="<?php echo app_base_url(); ?>/pages/asignaciones/listar.php">
+            <i class="fas fa-arrow-left me-1"></i>Volver a Asignaciones
+        </a>
     </div>
     <div class="card-body">
         <?php if (empty($asignaciones_recientes)): ?>
