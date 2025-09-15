@@ -87,19 +87,6 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
 <div class="filtros-container">
     <form method="GET" class="row g-3">
         <div class="col-md-3">
-            <label for="localidad" class="form-label">Localidad</label>
-            <select name="localidad" id="localidad" class="form-select">
-                <option value="">Todas las localidades</option>
-                <?php foreach ($localidades as $loc): ?>
-                    <option value="<?php echo $loc['id_localidad']; ?>" 
-                            <?php echo $filtro_localidad == $loc['id_localidad'] ? 'selected' : ''; ?>>
-                        <?php echo $loc['nombre_localidad']; ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-        
-        <div class="col-md-3">
             <label for="insumo" class="form-label">Tipo de Insumo</label>
             <select name="insumo" id="insumo" class="form-select">
                 <option value="">Todos los tipos</option>
@@ -107,6 +94,19 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
                     <option value="<?php echo $tipo['tipo_insumo']; ?>" 
                             <?php echo $filtro_insumo == $tipo['tipo_insumo'] ? 'selected' : ''; ?>>
                         <?php echo $tipo['tipo_insumo']; ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        
+        <div class="col-md-3">
+            <label for="localidad" class="form-label">Localidad</label>
+            <select name="localidad" id="localidad" class="form-select">
+                <option value="">Todas las localidades</option>
+                <?php foreach ($localidades as $loc): ?>
+                    <option value="<?php echo $loc['id_localidad']; ?>" 
+                            <?php echo $filtro_localidad == $loc['id_localidad'] ? 'selected' : ''; ?>>
+                        <?php echo $loc['nombre_localidad']; ?>
                     </option>
                 <?php endforeach; ?>
             </select>
