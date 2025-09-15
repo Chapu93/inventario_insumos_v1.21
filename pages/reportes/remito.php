@@ -59,6 +59,9 @@ $asignaciones_recientes = $stmt->fetchAll();
             <i class="fas fa-file-alt me-2"></i>Remito <?php echo htmlspecialchars($cab['numero_remito']); ?>
         </h5>
         <div class="btn-group">
+            <a class="btn btn-outline-secondary btn-sm" href="<?php echo app_base_url(); ?>/pages/asignaciones/listar.php">
+                <i class="fas fa-arrow-left me-1"></i>Volver a Asignaciones
+            </a>
             <a class="btn btn-outline-secondary btn-sm" href="?">
                 <i class="fas fa-list me-1"></i>Ver recientes
             </a>
