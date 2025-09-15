@@ -66,9 +66,14 @@ $localidades = $stmt->fetchAll();
             <h1>
                 <i class="fas fa-boxes me-2"></i>Gestión de Insumos
             </h1>
-            <a href="agregar.php" class="btn btn-primary">
-                <i class="fas fa-plus me-2"></i>Agregar Insumo
-            </a>
+            <div class="btn-group">
+                <a href="agregar.php" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Agregar Insumo
+                </a>
+                <a href="agregar_asignado.php" class="btn btn-success">
+                    <i class="fas fa-plus-square me-2"></i>Agregar Insumo Asignado
+                </a>
+            </div>
         </div>
     </div>
 </div>
