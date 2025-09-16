@@ -95,6 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="step step-2"><span class="circle">2</span><span>Selección de Insumos</span></div>
   </div>
 
+<div id="nueva-pasos">
 <div class="card">
     <div class="card-body">
         <form method="POST" id="formPasos" class="needs-validation" novalidate>
@@ -172,9 +173,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="card mb-3">
                             <div class="card-body">
                                 <div class="row g-2 align-items-end">
-                                    <div class="col-md-3">
-                                        <label class="form-label">Filtrar por Tipo</label>
-                                        <select class="form-select" id="filtro_tipo">
+                                    <div class="col-md-5">
+                                        <label class="form-label">Buscar</label>
+                                        <input type="text" class="form-control" id="filtro_busqueda" placeholder="Nombre, S/N, ID...">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Tipo de Insumo</label>
+                                        <select class="form-select form-select-sm" id="filtro_tipo" style="min-width: 280px;">
                                             <option value="">Todos los tipos</option>
                                             <option value="Varios">Varios</option>
                                             <option value="PC Completa">PC Completa</option>
@@ -184,14 +189,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <option value="Escaner">Escaner</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label">Buscar</label>
-                                        <input type="text" class="form-control" id="filtro_busqueda" placeholder="Nombre, S/N, ID...">
-                                    </div>
-                                    <div class="col-md-5 d-flex justify-content-end gap-2">
-                                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="seleccionarFiltrados()"><i class="fas fa-check-double me-1"></i>Seleccionar filtrados</button>
-                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="deseleccionarTodos()"><i class="fas fa-times me-1"></i>Deseleccionar Todo</button>
-                                        <button type="button" class="btn btn-outline-secondary btn-sm" id="btnVolver"><i class="fas fa-arrow-left me-1"></i>Volver</button>
+                                    <div class="col-md-3 d-flex justify-content-end gap-2">
+                                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="seleccionarFiltrados()" title="Seleccionar filtrados"><i class="fas fa-check-double"></i></button>
+                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="deseleccionarTodos()" title="Deseleccionar todo"><i class="fas fa-times"></i></button>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" id="btnVolver" title="Volver"><i class="fas fa-arrow-left"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -217,9 +218,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                 <td><?php echo ($ins['tipo_insumo'] === 'Varios') ? (int)$ins['cantidad'] : 1; ?></td>
                                                 <td><?php echo $ins['punto_stock'] ? htmlspecialchars($ins['punto_stock']) : '<span class="text-muted">Sin punto</span>'; ?></td>
                                                 <td>
-                                                    <div class="d-flex gap-2 align-items-center flex-wrap">
+                                                    <div class="d-flex gap-2 align-items-center justify-content-end flex-wrap">
                                                         <input type="hidden" name="id_insumo[]" value="<?php echo $ins['id_insumo']; ?>" class="hidden-insumo-input" data-tipo="<?php echo htmlspecialchars($ins['tipo_insumo']); ?>" data-max="<?php echo ($ins['tipo_insumo'] === 'Varios') ? (int)$ins['cantidad'] : 1; ?>" disabled style="display:none;">
-                                                        <button type="button" class="btn btn-sm btn-outline-primary btn-seleccionar" data-insumo-id="<?php echo $ins['id_insumo']; ?>" onclick="toggleSeleccionInsumo(<?php echo $ins['id_insumo']; ?>)"><i class="fas fa-plus"></i><span> Seleccionar</span></button>
+                                                        <button type="button" class="btn btn-sm btn-outline-primary btn-seleccionar" data-insumo-id="<?php echo $ins['id_insumo']; ?>" onclick="toggleSeleccionInsumo(<?php echo $ins['id_insumo']; ?>)" title="Seleccionar"><i class="fas fa-plus"></i><span class="d-none d-sm-inline"> Seleccionar</span></button>
                                                         <?php if ($ins['tipo_insumo'] === 'Varios' && $ins['cantidad'] > 1): ?>
                                                         <div class="cantidad-input" style="display:none;">
                                                             <label class="small text-muted mb-0">Cant.</label>
