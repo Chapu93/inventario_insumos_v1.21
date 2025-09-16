@@ -214,7 +214,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <table class="table table-flat table-hover" id="tablaInsumos">
                                         <tbody>
                                             <?php foreach ($insumos as $ins): ?>
-                                            <tr class="fila-insumo" data-tipo="<?php echo htmlspecialchars($ins['tipo_insumo']); ?>" data-texto="<?php echo strtolower(htmlspecialchars($ins['nombre_insumo'] . ' ' . ($ins['numero_serie'] ?: '') . ' ' . ($ins['id_fisico'] ?: ''))); ?>">
+                                            <tr class="fila-insumo" data-tipo="<?php echo htmlspecialchars($ins['tipo_insumo']); ?>" data-texto="<?php echo strtolower(htmlspecialchars($ins['nombre_insumo'])); ?>">
                                                 <td>
                                                     <div>
                                                         <strong><?php echo htmlspecialchars($ins['nombre_insumo']); ?></strong>
@@ -345,8 +345,13 @@ $('#id_sede').on('change', function(){
     .fail(()=> $('#id_area_asignada').html('<option value="">Seleccione un área</option>'));
 });
 
-// Filtros de insumos
-$('#filtro_tipo, #filtro_busqueda').on('input change', function(){ filtrarInsumos(); actualizarContadorSeleccionados(); });
+// Filtros de insumos (con debounce en búsqueda)
+let filtroTimer = null;
+$('#filtro_busqueda').on('input', function(){
+  if (filtroTimer) { clearTimeout(filtroTimer); }
+  filtroTimer = setTimeout(function(){ filtrarInsumos(); actualizarContadorSeleccionados(); }, 200);
+});
+$('#filtro_tipo').on('input change', function(){ filtrarInsumos(); actualizarContadorSeleccionados(); });
 
 function filtrarInsumos(){
   const tipo = ($('#filtro_tipo').val() || '').toLowerCase();
@@ -363,6 +368,13 @@ function filtrarInsumos(){
     }
     $f.toggle(show);
   });
+  // Mostrar mensaje si no hay resultados visibles (sin contar filas seleccionadas ocultas)
+  const $tbody = $('#tablaInsumos tbody');
+  $tbody.find('tr.no-results').remove();
+  const visibles = $('#tablaInsumos tbody tr.fila-insumo:visible').length;
+  if (visibles === 0) {
+    $tbody.append('<tr class="no-results"><td colspan="4" class="text-center text-muted">Sin resultados</td></tr>');
+  }
 }
 
 function toggleSeleccionInsumo(id){
