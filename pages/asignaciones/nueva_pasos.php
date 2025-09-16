@@ -101,10 +101,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <form method="POST" id="formPasos" class="needs-validation" novalidate>
             <!-- Paso 1: Formulario de cabecera -->
             <div id="paso1">
-                <div class="row justify-content-center">
-                    <div class="col-lg-10 col-xl-8">
-                        <div class="row">
-                            <div class="col-md-6">
+                <div class="row">
+                            <div class="col-lg-6 col-md-12">
                         <h6 class="mb-3 section-title">Ubicación</h6>
                         <div class="mb-3">
                             <label class="form-label">Localidad *</label>
@@ -134,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="invalid-feedback">Seleccione un área</div>
                         </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-lg-6 col-md-12">
                         <h6 class="mb-3 section-title">Agente Asignado</h6>
                         <div class="mb-3">
                             <label class="form-label">Nombre *</label>
@@ -152,11 +150,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="invalid-feedback">Seleccione una fecha</div>
                         </div>
                             </div>
-                        </div>
-                    </div>
                 </div>
-                <div class="row mt-2 justify-content-center">
-                    <div class="col-lg-10 col-xl-8">
+                <div class="row mt-2">
+                    <div class="col-12">
                         <label class="form-label">Observaciones</label>
                         <textarea class="form-control" id="observaciones" name="observaciones" rows="2"></textarea>
                         <div class="d-flex justify-content-end align-items-center mt-3">
