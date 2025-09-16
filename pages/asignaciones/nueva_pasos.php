@@ -191,7 +191,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     </div>
                                     <div class="col-md-3 d-flex justify-content-end gap-2">
                                         <button type="button" class="btn btn-outline-secondary btn-sm" id="btnLimpiarFiltros" title="Limpiar filtros"><i class="fas fa-eraser"></i></button>
-                                        <button type="button" class="btn btn-outline-secondary btn-sm" id="btnVolver" title="Volver"><i class="fas fa-arrow-left"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -201,9 +200,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h6 class="mb-0"><i class="fas fa-boxes me-2"></i>Insumos Disponibles</h6>
                                 <div class="d-flex align-items-center gap-2">
+                                    <span class="badge bg-secondary" id="contadorSeleccion">0</span>
                                     <button type="button" class="btn btn-outline-primary btn-sm" onclick="seleccionarFiltrados()" title="Seleccionar filtrados"><i class="fas fa-check-double"></i></button>
                                     <button type="button" class="btn btn-outline-danger btn-sm" onclick="deseleccionarTodos()" title="Deseleccionar todo"><i class="fas fa-times"></i></button>
-                                    <span class="badge bg-secondary" id="contadorSeleccion">0</span>
                                 </div>
                             </div>
                             <div class="card-body">
@@ -215,8 +214,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                 <td>
                                                     <div>
                                                         <strong><?php echo htmlspecialchars($ins['nombre_insumo']); ?></strong>
-                                                        <?php if ($ins['numero_serie']): ?><br><small class="text-muted">S/N: <?php echo htmlspecialchars($ins['numero_serie']); ?></small><?php endif; ?>
-                                                        <?php if ($ins['id_fisico']): ?><br><small class="text-muted">ID: <?php echo htmlspecialchars($ins['id_fisico']); ?></small><?php endif; ?>
                                                     </div>
                                                 </td>
                                                 <td><?php echo ($ins['tipo_insumo'] === 'Varios') ? (int)$ins['cantidad'] : 1; ?></td>
