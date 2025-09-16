@@ -105,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="col-lg-10 col-xl-8">
                         <div class="row">
                             <div class="col-md-6">
-                        <h6 class="mb-3">Ubicación</h6>
+                        <h6 class="mb-3 section-title">Ubicación</h6>
                         <div class="mb-3">
                             <label class="form-label">Localidad *</label>
                             <select class="form-select" id="id_localidad" required>
@@ -135,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                             </div>
                             <div class="col-md-6">
-                        <h6 class="mb-3">Persona Asignada</h6>
+                        <h6 class="mb-3 section-title">Agente Asignado</h6>
                         <div class="mb-3">
                             <label class="form-label">Nombre *</label>
                             <input type="text" class="form-control" id="nombre_persona_asignada" name="nombre_persona_asignada" required>

@@ -310,6 +310,24 @@ body {
     background: #e9ecef;
 }
 
+/* Título de sección en Paso 1 */
+.section-title {
+    font-weight: 700;
+    font-size: 1.25rem;
+    border-bottom: 2px solid rgba(13,110,253,0.15);
+    padding-bottom: 6px;
+}
+
+/* Escala 30% mayor para labels y selects en Paso 1 */
+#paso1 .form-label {
+    font-size: 1.3em;
+    font-weight: 600;
+}
+#paso1 .form-select, #paso1 .form-control {
+    font-size: 1.3em;
+    padding: 0.6rem 0.75rem;
+}
+
 .estado-disponible {
     background-color: var(--success-color) !important;
     color: white !important;
