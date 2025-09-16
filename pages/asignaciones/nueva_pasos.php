@@ -204,14 +204,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="card-body">
                                 <div class="table-responsive">
                                     <table class="table table-flat table-hover" id="tablaInsumos">
-                                        <thead>
-                                            <tr>
-                                                <th>Nombre Insumo</th>
-                                                <th>Cantidad</th>
-                                                <th>Punto de Stock</th>
-                                                <th>Acciones</th>
-                                            </tr>
-                                        </thead>
                                         <tbody>
                                             <?php foreach ($insumos as $ins): ?>
                                             <tr class="fila-insumo" data-tipo="<?php echo htmlspecialchars($ins['tipo_insumo']); ?>" data-texto="<?php echo strtolower(htmlspecialchars($ins['nombre_insumo'] . ' ' . ($ins['numero_serie'] ?: '') . ' ' . ($ins['id_fisico'] ?: ''))); ?>">
@@ -225,12 +217,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                 <td><?php echo ($ins['tipo_insumo'] === 'Varios') ? (int)$ins['cantidad'] : 1; ?></td>
                                                 <td><?php echo $ins['punto_stock'] ? htmlspecialchars($ins['punto_stock']) : '<span class="text-muted">Sin punto</span>'; ?></td>
                                                 <td>
-                                                    <div class="d-flex gap-2 align-items-center">
+                                                    <div class="d-flex gap-2 align-items-center flex-wrap">
                                                         <input type="hidden" name="id_insumo[]" value="<?php echo $ins['id_insumo']; ?>" class="hidden-insumo-input" data-tipo="<?php echo htmlspecialchars($ins['tipo_insumo']); ?>" data-max="<?php echo ($ins['tipo_insumo'] === 'Varios') ? (int)$ins['cantidad'] : 1; ?>" disabled style="display:none;">
                                                         <button type="button" class="btn btn-sm btn-outline-primary btn-seleccionar" data-insumo-id="<?php echo $ins['id_insumo']; ?>" onclick="toggleSeleccionInsumo(<?php echo $ins['id_insumo']; ?>)"><i class="fas fa-plus"></i><span> Seleccionar</span></button>
                                                         <?php if ($ins['tipo_insumo'] === 'Varios' && $ins['cantidad'] > 1): ?>
                                                         <div class="cantidad-input" style="display:none;">
-                                                            <input type="number" class="form-control form-control-sm" name="cantidad_varios[<?php echo $ins['id_insumo']; ?>]" min="1" max="<?php echo (int)$ins['cantidad']; ?>" value="1" style="width:80px;">
+                                                            <label class="small text-muted mb-0">Cant.</label>
+                                                            <input type="number" class="form-control form-control-sm" name="cantidad_varios[<?php echo $ins['id_insumo']; ?>]" min="1" max="<?php echo (int)$ins['cantidad']; ?>" value="1" style="width:84px;">
                                                         </div>
                                                         <?php endif; ?>
                                                     </div>
