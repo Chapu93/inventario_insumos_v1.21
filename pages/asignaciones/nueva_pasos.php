@@ -190,8 +190,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         </select>
                                     </div>
                                     <div class="col-md-3 d-flex justify-content-end gap-2">
-                                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="seleccionarFiltrados()" title="Seleccionar filtrados"><i class="fas fa-check-double"></i></button>
-                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="deseleccionarTodos()" title="Deseleccionar todo"><i class="fas fa-times"></i></button>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" id="btnLimpiarFiltros" title="Limpiar filtros"><i class="fas fa-eraser"></i></button>
                                         <button type="button" class="btn btn-outline-secondary btn-sm" id="btnVolver" title="Volver"><i class="fas fa-arrow-left"></i></button>
                                     </div>
                                 </div>
@@ -200,7 +199,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
-                                <h6 class="mb-0"><i class="fas fa-boxes me-2"></i>Insumos Disponibles <span class="badge bg-secondary ms-2" id="contadorSeleccion">0</span></h6>
+                                <h6 class="mb-0"><i class="fas fa-boxes me-2"></i>Insumos Disponibles</h6>
+                                <div class="d-flex align-items-center gap-2">
+                                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="seleccionarFiltrados()" title="Seleccionar filtrados"><i class="fas fa-check-double"></i></button>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="deseleccionarTodos()" title="Deseleccionar todo"><i class="fas fa-times"></i></button>
+                                    <span class="badge bg-secondary" id="contadorSeleccion">0</span>
+                                </div>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -220,13 +224,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                 <td>
                                                     <div class="d-flex gap-2 align-items-center justify-content-end flex-wrap">
                                                         <input type="hidden" name="id_insumo[]" value="<?php echo $ins['id_insumo']; ?>" class="hidden-insumo-input" data-tipo="<?php echo htmlspecialchars($ins['tipo_insumo']); ?>" data-max="<?php echo ($ins['tipo_insumo'] === 'Varios') ? (int)$ins['cantidad'] : 1; ?>" disabled style="display:none;">
-                                                        <button type="button" class="btn btn-sm btn-outline-primary btn-seleccionar" data-insumo-id="<?php echo $ins['id_insumo']; ?>" onclick="toggleSeleccionInsumo(<?php echo $ins['id_insumo']; ?>)" title="Seleccionar"><i class="fas fa-plus"></i><span class="d-none d-sm-inline"> Seleccionar</span></button>
                                                         <?php if ($ins['tipo_insumo'] === 'Varios' && $ins['cantidad'] > 1): ?>
                                                         <div class="cantidad-input" style="display:none;">
                                                             <label class="small text-muted mb-0">Cant.</label>
                                                             <input type="number" class="form-control form-control-sm" name="cantidad_varios[<?php echo $ins['id_insumo']; ?>]" min="1" max="<?php echo (int)$ins['cantidad']; ?>" value="1" style="width:84px;">
                                                         </div>
                                                         <?php endif; ?>
+                                                        <button type="button" class="btn btn-sm btn-outline-primary btn-seleccionar" data-insumo-id="<?php echo $ins['id_insumo']; ?>" onclick="toggleSeleccionInsumo(<?php echo $ins['id_insumo']; ?>)" title="Seleccionar"><i class="fas fa-plus"></i><span class="d-none d-sm-inline"> Seleccionar</span></button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -308,6 +312,14 @@ $('#btnVolver, #btnVolver2').on('click', function(){
   $('#paso1').show();
   $('.stepper .step').removeClass('active');
   $('.stepper .step-1').addClass('active');
+});
+
+// Limpiar filtros
+$('#btnLimpiarFiltros').on('click', function(){
+  $('#filtro_busqueda').val('');
+  $('#filtro_tipo').val('');
+  filtrarInsumos();
+  actualizarContadorSeleccionados();
 });
 
 // Cargar sedes por localidad
