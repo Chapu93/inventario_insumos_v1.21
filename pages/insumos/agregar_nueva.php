@@ -191,114 +191,116 @@ include '../../includes/header.php';
             <div id="paso2" style="display:none;">
                 <div class="row justify-content-center">
                     <div class="col-lg-10 col-xl-8">
-                        <div class="row g-2">
+                        <!-- Bloque selección de tipo (igual a agregar.php) -->
+                        <div class="row mb-3">
                             <div class="col-12">
-                                <h6 class="mb-2 section-title">Insumo</h6>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Tipo de Insumo *</label>
-                                <select class="form-select" name="tipo_insumo" id="tipo_insumo" required>
-                                    <option value="">Seleccione</option>
-                                    <option value="Varios">Varios</option>
-                                    <option value="PC Completa">PC Completa</option>
-                                    <option value="Notebook">Notebook</option>
-                                    <option value="Impresora">Impresora</option>
-                                    <option value="Monitor">Monitor</option>
-                                    <option value="Escaner">Escaner</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Nombre *</label>
-                                <input type="text" class="form-control" name="nombre_insumo" required>
-                            </div>
-
-                            <div class="col-12" id="campos-varios" style="display:none;">
-                                <div class="row g-2">
-                                    <div class="col-lg-4 col-md-6">
-                                        <label class="form-label">Subcategoría</label>
-                                        <select class="form-select" name="subcategoria_varios">
-                                            <option value="">Seleccione</option>
-                                            <option value="Hardware">Hardware</option>
-                                            <option value="Periféricos">Periféricos</option>
-                                            <option value="Red">Red</option>
-                                        </select>
+                                <div class="border rounded p-2">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fas fa-tag me-2 text-primary"></i>
+                                        <h6 class="mb-0">Tipo de Insumo *</h6>
                                     </div>
-                                    <div class="col-lg-4 col-md-6">
-                                        <label class="form-label">Cantidad *</label>
-                                        <input type="number" class="form-control" name="cantidad" value="1" min="1" required>
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label">Descripción</label>
-                                        <textarea class="form-control" name="descripcion_general" rows="2"></textarea>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <select class="form-select" id="tipo_insumo" name="tipo_insumo" required>
+                                                <option value="">Seleccione un tipo</option>
+                                                <option value="Varios">Varios</option>
+                                                <option value="PC Completa">PC Completa</option>
+                                                <option value="Notebook">Notebook</option>
+                                                <option value="Impresora">Impresora</option>
+                                                <option value="Monitor">Monitor</option>
+                                                <option value="Escaner">Escaner</option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <div class="col-12" id="campos-especificos" style="display:none;">
-                                <div class="row g-2">
-                                    <div class="col-lg-4 col-md-6"><label class="form-label">N° de Serie *</label><input class="form-control" name="numero_serie"></div>
-                                    <div class="col-lg-4 col-md-6"><label class="form-label">ID Físico *</label><input class="form-control" name="id_fisico"></div>
-                                    <div class="col-lg-4 col-md-6"><label class="form-label">ID Patrimonio *</label><input class="form-control" name="id_patrimonio"></div>
-
-                                    <!-- Especificaciones por tipo -->
-                                    <div class="col-12" id="esp-pc" style="display:none;">
-                                        <div class="row g-2">
-                                            <div class="col-lg-4 col-md-6"><label class="form-label">Procesador *</label><input type="text" class="form-control" name="procesador"></div>
-                                            <div class="col-lg-4 col-md-6"><label class="form-label">RAM (GB) *</label><input type="number" class="form-control" name="ram_gb" min="1"></div>
-                                            <div class="col-lg-4 col-md-6"><label class="form-label">Almacenamiento (GB) *</label><input type="number" class="form-control" name="almacenamiento_gb" min="1"></div>
-                                            <div class="col-lg-4 col-md-6"><label class="form-label">Motherboard *</label><input type="text" class="form-control" name="mother"></div>
-                                        </div>
+                        <!-- Formulario en 3 columnas (copiado de agregar.php) -->
+                        <div class="row g-2" id="formulario-campos" style="display: none;">
+                            <!-- COLUMNA 1: Información Básica -->
+                            <div class="col-md-4">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <div class="card-header bg-light py-2">
+                                        <h6 class="mb-0"><i class="fas fa-info-circle me-2 text-primary"></i>Información Básica</h6>
                                     </div>
-                                    <div class="col-12" id="esp-notebook" style="display:none;">
-                                        <div class="row g-2">
-                                            <div class="col-lg-4 col-md-6"><label class="form-label">Marca *</label><input type="text" class="form-control" name="marca_notebook"></div>
-                                            <div class="col-lg-4 col-md-6"><label class="form-label">Modelo *</label><input type="text" class="form-control" name="modelo_notebook"></div>
-                                            <div class="col-lg-4 col-md-6"><label class="form-label">Procesador *</label><input type="text" class="form-control" name="procesador_notebook"></div>
-                                            <div class="col-lg-4 col-md-6"><label class="form-label">RAM (GB) *</label><input type="number" class="form-control" name="ram_gb_notebook" min="1"></div>
-                                            <div class="col-lg-4 col-md-6"><label class="form-label">Almacenamiento (GB) *</label><input type="number" class="form-control" name="almacenamiento_gb_notebook" min="1"></div>
+                                    <div class="card-body p-3">
+                                        <div class="mb-2">
+                                            <label class="form-label">Nombre del Insumo *</label>
+                                            <input type="text" class="form-control form-control-sm w-100" name="nombre_insumo" required>
                                         </div>
-                                    </div>
-                                    <div class="col-12" id="esp-impresora" style="display:none;">
-                                        <div class="row g-2">
-                                            <div class="col-lg-6 col-md-6"><label class="form-label">Marca *</label><input type="text" class="form-control" name="marca_impresora"></div>
-                                            <div class="col-lg-6 col-md-6"><label class="form-label">Modelo *</label><input type="text" class="form-control" name="modelo_impresora"></div>
-                                        </div>
-                                    </div>
-                                    <div class="col-12" id="esp-monitor" style="display:none;">
-                                        <div class="row g-2">
-                                            <div class="col-lg-4 col-md-6"><label class="form-label">Marca *</label><input type="text" class="form-control" name="marca_monitor"></div>
-                                            <div class="col-lg-4 col-md-6"><label class="form-label">Modelo *</label><input type="text" class="form-control" name="modelo_monitor"></div>
-                                            <div class="col-lg-4 col-md-6"><label class="form-label">Pulgadas *</label><input type="number" class="form-control" name="pulgadas" step="0.1" min="1"></div>
-                                            <div class="col-lg-4 col-md-6"><label class="form-label">Conexión *</label>
-                                                <select class="form-select" name="conexion_monitor">
-                                                    <option value="">Seleccione conexión</option>
-                                                    <option value="VGA">VGA</option>
-                                                    <option value="HDMI">HDMI</option>
+                                        <div id="campos-varios" style="display: none;">
+                                            <div class="mb-2">
+                                                <label class="form-label">Subcategoría</label>
+                                                <select class="form-select form-select-sm w-100" name="subcategoria_varios">
+                                                    <option value="">Seleccione subcategoría</option>
+                                                    <option value="Hardware">Hardware</option>
+                                                    <option value="Periféricos">Periféricos</option>
+                                                    <option value="Red">Red</option>
                                                 </select>
                                             </div>
+                                            <div class="mb-2">
+                                                <label class="form-label">Cantidad *</label>
+                                                <input type="number" class="form-control form-control-sm w-100" name="cantidad" value="1" min="1" required>
+                                            </div>
+                                            <div class="mb-2">
+                                                <label class="form-label">Descripción General</label>
+                                                <textarea class="form-control form-control-sm w-100" name="descripcion_general" rows="2"></textarea>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-12" id="esp-escaner" style="display:none;">
-                                        <div class="row g-2">
-                                            <div class="col-lg-6 col-md-6"><label class="form-label">Marca *</label><input type="text" class="form-control" name="marca_escaner"></div>
-                                            <div class="col-lg-6 col-md-6"><label class="form-label">Modelo *</label><input type="text" class="form-control" name="modelo_escaner"></div>
+                                        <div id="campos-especificos" style="display: none;">
+                                            <div class="mb-2"><label class="form-label">Número de Serie *</label><input type="text" class="form-control form-control-sm w-100" name="numero_serie"></div>
+                                            <div class="mb-2"><label class="form-label">ID Físico *</label><input type="text" class="form-control form-control-sm w-100" name="id_fisico"></div>
+                                            <div class="mb-2"><label class="form-label">ID Patrimonio *</label><input type="text" class="form-control form-control-sm w-100" name="id_patrimonio"></div>
+                                            <div class="mb-2"><label class="form-label">Cantidad</label><input type="number" class="form-control form-control-sm w-100" name="cantidad_especifica" value="1" min="1" readonly><small class="form-text text-muted">Para este tipo de insumo, la cantidad siempre es 1 (carga unitaria)</small></div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label">Fecha de Adquisición</label>
-                                <input type="date" class="form-control" name="fecha_adquisicion" value="<?php echo date('Y-m-d'); ?>">
+                            <!-- COLUMNA 2: Información Común -->
+                            <div class="col-md-4">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <div class="card-header bg-light py-2"><h6 class="mb-0"><i class="fas fa-cog me-2 text-primary"></i>Información Común</h6></div>
+                                    <div class="card-body p-3">
+                                        <div class="mb-2"><label class="form-label">Fecha de Adquisición</label><input type="date" class="form-control form-control-sm w-100" name="fecha_adquisicion" value="<?php echo date('Y-m-d'); ?>"></div>
+                                        <div class="mb-2"><label class="form-label">Punto de Almacenamiento *</label><select class="form-select form-select-sm w-100" name="id_punto_stock_actual" required><option value="">Seleccione punto de almacenamiento</option><?php foreach ($puntos_stock as $p): ?><option value="<?php echo $p['id_punto_stock']; ?>" <?php echo $p['id_punto_stock']==2?'selected':''; ?>><?php echo $p['nombre_punto']; ?></option><?php endforeach; ?></select></div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Punto de Almacenamiento *</label>
-                                <select class="form-select" name="id_punto_stock_actual" required>
-                                    <option value="">Seleccione punto</option>
-                                    <?php foreach ($puntos_stock as $p): ?>
-                                        <option value="<?php echo $p['id_punto_stock']; ?>" <?php echo $p['id_punto_stock']==2?'selected':''; ?>><?php echo $p['nombre_punto']; ?></option>
-                                    <?php endforeach; ?>
-                                </select>
+                            <!-- COLUMNA 3: Especificaciones -->
+                            <div class="col-md-4" id="columna-especificaciones">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <div class="card-header bg-light py-2"><h6 class="mb-0"><i class="fas fa-microchip me-2 text-primary"></i>Especificaciones</h6></div>
+                                    <div class="card-body p-3">
+                                        <div class="campos-especificos" id="campos-pc" style="display: none;">
+                                            <div class="mb-2"><label class="form-label">Procesador *</label><input type="text" class="form-control form-control-sm w-100" name="procesador"></div>
+                                            <div class="mb-2"><label class="form-label">RAM (GB) *</label><input type="number" class="form-control form-control-sm w-100" name="ram_gb" min="1"></div>
+                                            <div class="mb-2"><label class="form-label">Almacenamiento (GB) *</label><input type="number" class="form-control form-control-sm w-100" name="almacenamiento_gb" min="1"></div>
+                                            <div class="mb-2"><label class="form-label">Motherboard *</label><input type="text" class="form-control form-control-sm w-100" name="mother"></div>
+                                        </div>
+                                        <div class="campos-especificos" id="campos-notebook" style="display: none;">
+                                            <div class="mb-2"><label class="form-label">Marca *</label><input type="text" class="form-control form-control-sm w-100" name="marca_notebook"></div>
+                                            <div class="mb-2"><label class="form-label">Modelo *</label><input type="text" class="form-control form-control-sm w-100" name="modelo_notebook"></div>
+                                            <div class="mb-2"><label class="form-label">Procesador *</label><input type="text" class="form-control form-control-sm w-100" name="procesador_notebook"></div>
+                                            <div class="mb-2"><label class="form-label">RAM (GB) *</label><input type="number" class="form-control form-control-sm w-100" name="ram_gb_notebook" min="1"></div>
+                                            <div class="mb-2"><label class="form-label">Almacenamiento (GB) *</label><input type="number" class="form-control form-control-sm w-100" name="almacenamiento_gb_notebook" min="1"></div>
+                                        </div>
+                                        <div class="campos-especificos" id="campos-impresora" style="display: none;">
+                                            <div class="mb-2"><label class="form-label">Marca *</label><input type="text" class="form-control form-control-sm w-100" name="marca_impresora"></div>
+                                            <div class="mb-2"><label class="form-label">Modelo *</label><input type="text" class="form-control form-control-sm w-100" name="modelo_impresora"></div>
+                                        </div>
+                                        <div class="campos-especificos" id="campos-monitor" style="display: none;">
+                                            <div class="mb-2"><label class="form-label">Marca *</label><input type="text" class="form-control form-control-sm w-100" name="marca_monitor"></div>
+                                            <div class="mb-2"><label class="form-label">Modelo *</label><input type="text" class="form-control form-control-sm w-100" name="modelo_monitor"></div>
+                                            <div class="mb-2"><label class="form-label">Pulgadas *</label><input type="number" class="form-control form-control-sm w-100" name="pulgadas" step="0.1" min="1"></div>
+                                            <div class="mb-2"><label class="form-label">Conexión *</label><select class="form-select form-select-sm w-100" name="conexion_monitor" required><option value="">Seleccione conexión</option><option value="VGA">VGA</option><option value="HDMI">HDMI</option></select></div>
+                                        </div>
+                                        <div class="campos-especificos" id="campos-escaner" style="display: none;">
+                                            <div class="mb-2"><label class="form-label">Marca *</label><input type="text" class="form-control form-control-sm w-100" name="marca_escaner"></div>
+                                            <div class="mb-2"><label class="form-label">Modelo *</label><input type="text" class="form-control form-control-sm w-100" name="modelo_escaner"></div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
