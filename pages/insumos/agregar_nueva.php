@@ -355,12 +355,25 @@ $('#id_sede').on('change', function(){
 // Dinámica del tipo de insumo
 function toggleCampos() {
   const t = $('#tipo_insumo').val();
-  if (!t) { $('#campos-varios, #campos-especificos, #esp-pc, #esp-notebook, #esp-impresora, #esp-monitor, #esp-escaner').hide(); return; }
+  if (!t) {
+    // Ocultar todo cuando no hay selección
+    $('#formulario-campos').hide();
+    $('#campos-varios, #campos-especificos, #esp-pc, #esp-notebook, #esp-impresora, #esp-monitor, #esp-escaner').hide();
+    return;
+  }
+  // Mostrar grilla principal cuando hay tipo seleccionado
+  $('#formulario-campos').show();
   if (t === 'Varios') {
-    $('#campos-varios').show(); $('#campos-especificos, #esp-pc, #esp-notebook, #esp-impresora, #esp-monitor, #esp-escaner').hide();
+    $('#campos-varios').show();
+    $('#campos-especificos, #esp-pc, #esp-notebook, #esp-impresora, #esp-monitor, #esp-escaner').hide();
+    // Ocultar columna de especificaciones para Varios
+    $('#columna-especificaciones').hide();
   } else {
-    $('#campos-varios').hide(); $('#campos-especificos').show();
+    $('#campos-varios').hide();
+    $('#campos-especificos').show();
     $('#esp-pc, #esp-notebook, #esp-impresora, #esp-monitor, #esp-escaner').hide();
+    // Mostrar columna de especificaciones para tipos unitarios
+    $('#columna-especificaciones').show();
     if (t === 'PC Completa') $('#esp-pc').show();
     if (t === 'Notebook') $('#esp-notebook').show();
     if (t === 'Impresora') $('#esp-impresora').show();
