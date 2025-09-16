@@ -297,11 +297,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Paso 1 -> Paso 2 y viceversa
 $('#btnSiguiente').on('click', function(){
   const form = document.getElementById('formPasos');
+  const paso1 = document.getElementById('paso1');
   // Validar solo campos del paso 1
   let valido = true;
   ['id_localidad','id_sede','id_area_asignada','nombre_persona_asignada','apellido_persona_asignada','fecha_asignacion']
     .forEach(id => { const el = document.getElementById(id); if (!el || !el.checkValidity()) { valido = false; el && el.classList.add('is-invalid'); }});
-  if (!valido) { form.classList.add('was-validated'); return; }
+  if (!valido) { paso1.classList.add('was-validated'); return; }
+  // Limpiar indicadores de validación globales antes de pasar a Paso 2
+  paso1.classList.remove('was-validated');
+  form.classList.remove('was-validated');
   $('#paso1').hide();
   $('#paso2').show();
   // Stepper activo
@@ -330,6 +334,7 @@ $('#id_localidad').on('change', function(){
   $.getJSON(`${getAppBase()}/ajax/cargar_sedes.php`, { localidad_id: id })
     .done(r => { $('#id_sede').html(r && r.options ? r.options : '<option value="">Seleccione una sede</option>'); })
     .fail(()=> $('#id_sede').html('<option value="">Seleccione una sede</option>'));
+  // Evitar que mover selects empuje Observaciones: no tocar DOM fuera de su contenedor
 });
 // Cargar áreas por sede
 $('#id_sede').on('change', function(){
