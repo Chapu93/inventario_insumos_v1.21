@@ -504,6 +504,24 @@ body {
     cursor: pointer;
 }
 
+/* Tabla plana y limpia para selección de insumos */
+.table-flat {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+.table-flat thead th {
+    background: #f8f9fa;
+    border-bottom: 1px solid #e5e7eb;
+    color: #374151;
+    font-weight: 600;
+}
+.table-flat tbody td {
+    border-top: 1px solid #f1f3f5;
+}
+.table-flat tbody tr:hover {
+    background-color: #f9fbff;
+}
+
 .tabla-asignacion .btn-seleccionar {
     width: 140px;
     min-width: 140px;

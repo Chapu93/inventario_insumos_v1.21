@@ -100,8 +100,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <form method="POST" id="formPasos" class="needs-validation" novalidate>
             <!-- Paso 1: Formulario de cabecera -->
             <div id="paso1">
-                <div class="row">
-                    <div class="col-md-6">
+                <div class="row justify-content-center">
+                    <div class="col-lg-10 col-xl-8">
+                        <div class="row">
+                            <div class="col-md-6">
                         <h6 class="mb-3">Ubicación</h6>
                         <div class="mb-3">
                             <label class="form-label">Localidad *</label>
@@ -130,8 +132,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </select>
                             <div class="invalid-feedback">Seleccione un área</div>
                         </div>
-                    </div>
-                    <div class="col-md-6">
+                            </div>
+                            <div class="col-md-6">
                         <h6 class="mb-3">Persona Asignada</h6>
                         <div class="mb-3">
                             <label class="form-label">Nombre *</label>
@@ -148,65 +150,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="date" class="form-control" id="fecha_asignacion" name="fecha_asignacion" value="<?php echo date('Y-m-d'); ?>" required>
                             <div class="invalid-feedback">Seleccione una fecha</div>
                         </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="row mt-2">
-                    <div class="col-md-6">
+                <div class="row mt-2 justify-content-center">
+                    <div class="col-lg-10 col-xl-8">
                         <label class="form-label">Observaciones</label>
                         <textarea class="form-control" id="observaciones" name="observaciones" rows="2"></textarea>
-                    </div>
-                    <div class="col-md-6 d-flex justify-content-end align-items-end">
-                        <button type="button" class="btn btn-primary" id="btnSiguiente"><i class="fas fa-arrow-right me-2"></i>Siguiente</button>
+                        <div class="d-flex justify-content-end align-items-center mt-3">
+                            <button type="button" class="btn btn-primary" id="btnSiguiente"><i class="fas fa-arrow-right me-2"></i>Siguiente</button>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Paso 2: Selección de Insumos -->
             <div id="paso2" style="display:none;">
-                <hr class="my-4 border-2 border-primary">
-                <div class="row g-3">
-                    <!-- Filtros y acciones (sticky) -->
-                    <div class="col-lg-4">
-                        <div class="card position-sticky sticky-top" style="top: 12px;">
-                            <div class="card-header">
-                                <h6 class="mb-0"><i class="fas fa-filter me-2"></i>Filtros</h6>
-                            </div>
+                <div class="row justify-content-center">
+                    <div class="col-lg-11">
+                        <div class="card mb-3">
                             <div class="card-body">
-                                <div class="mb-3">
-                                    <label class="form-label">Filtrar por Tipo</label>
-                                    <select class="form-select" id="filtro_tipo">
-                                        <option value="">Todos los tipos</option>
-                                        <option value="Varios">Varios</option>
-                                        <option value="PC Completa">PC Completa</option>
-                                        <option value="Notebook">Notebook</option>
-                                        <option value="Impresora">Impresora</option>
-                                        <option value="Monitor">Monitor</option>
-                                        <option value="Escaner">Escaner</option>
-                                    </select>
+                                <div class="row g-2 align-items-end">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Filtrar por Tipo</label>
+                                        <select class="form-select" id="filtro_tipo">
+                                            <option value="">Todos los tipos</option>
+                                            <option value="Varios">Varios</option>
+                                            <option value="PC Completa">PC Completa</option>
+                                            <option value="Notebook">Notebook</option>
+                                            <option value="Impresora">Impresora</option>
+                                            <option value="Monitor">Monitor</option>
+                                            <option value="Escaner">Escaner</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Buscar</label>
+                                        <input type="text" class="form-control" id="filtro_busqueda" placeholder="Nombre, S/N, ID...">
+                                    </div>
+                                    <div class="col-md-5 d-flex justify-content-end gap-2">
+                                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="seleccionarFiltrados()"><i class="fas fa-check-double me-1"></i>Seleccionar filtrados</button>
+                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="deseleccionarTodos()"><i class="fas fa-times me-1"></i>Deseleccionar Todo</button>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" id="btnVolver"><i class="fas fa-arrow-left me-1"></i>Volver</button>
+                                    </div>
                                 </div>
-                                <div class="mb-3">
-                                    <label class="form-label">Buscar</label>
-                                    <input type="text" class="form-control" id="filtro_busqueda" placeholder="Nombre, S/N, ID...">
-                                </div>
-                                <div class="d-grid gap-2">
-                                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="seleccionarFiltrados()"><i class="fas fa-check-double me-1"></i>Seleccionar filtrados</button>
-                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="deseleccionarTodos()"><i class="fas fa-times me-1"></i>Deseleccionar Todo</button>
-                                    <button type="button" class="btn btn-outline-secondary btn-sm" id="btnVolver"><i class="fas fa-arrow-left me-1"></i>Volver</button>
-                                </div>
-                                <div class="mt-3 text-muted small">Seleccionados: <span class="badge bg-secondary" id="contadorSeleccion">0</span></div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Tabla de insumos -->
-                    <div class="col-lg-8">
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
-                                <h6 class="mb-0"><i class="fas fa-boxes me-2"></i>Insumos Disponibles</h6>
+                                <h6 class="mb-0"><i class="fas fa-boxes me-2"></i>Insumos Disponibles <span class="badge bg-secondary ms-2" id="contadorSeleccion">0</span></h6>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
-                                    <table class="table table-striped datatable tabla-asignacion" id="tablaInsumos">
+                                    <table class="table table-flat table-hover" id="tablaInsumos">
                                         <thead>
                                             <tr>
                                                 <th>Nombre Insumo</th>
