@@ -105,6 +105,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="col-lg-10 col-xl-8">
                         <div class="row">
                             <div class="col-md-6">
+                        <h6 class="mb-3 section-title">Agente Asignado</h6>
+                        <div class="mb-3">
+                            <label class="form-label">Nombre *</label>
+                            <input type="text" class="form-control" id="nombre_persona_asignada" name="nombre_persona_asignada" required>
+                            <div class="invalid-feedback">El nombre es obligatorio</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Apellido *</label>
+                            <input type="text" class="form-control" id="apellido_persona_asignada" name="apellido_persona_asignada" required>
+                            <div class="invalid-feedback">El apellido es obligatorio</div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Fecha de Asignación *</label>
+                            <input type="date" class="form-control" id="fecha_asignacion" name="fecha_asignacion" value="<?php echo date('Y-m-d'); ?>" required>
+                            <div class="invalid-feedback">Seleccione una fecha</div>
+                        </div>
+                            </div>
+                            <div class="col-md-6">
                         <h6 class="mb-3 section-title">Ubicación</h6>
                         <div class="mb-3">
                             <label class="form-label">Localidad *</label>
@@ -134,33 +152,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <div class="invalid-feedback">Seleccione un área</div>
                         </div>
                             </div>
-                            <div class="col-md-6">
-                        <h6 class="mb-3 section-title">Agente Asignado</h6>
-                        <div class="mb-3">
-                            <label class="form-label">Nombre *</label>
-                            <input type="text" class="form-control" id="nombre_persona_asignada" name="nombre_persona_asignada" required>
-                            <div class="invalid-feedback">El nombre es obligatorio</div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Apellido *</label>
-                            <input type="text" class="form-control" id="apellido_persona_asignada" name="apellido_persona_asignada" required>
-                            <div class="invalid-feedback">El apellido es obligatorio</div>
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label">Fecha de Asignación *</label>
-                            <input type="date" class="form-control" id="fecha_asignacion" name="fecha_asignacion" value="<?php echo date('Y-m-d'); ?>" required>
-                            <div class="invalid-feedback">Seleccione una fecha</div>
-                        </div>
-                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="row mt-2 justify-content-center">
                     <div class="col-lg-10 col-xl-8">
-                        <label class="form-label">Observaciones</label>
-                        <textarea class="form-control" id="observaciones" name="observaciones" rows="2"></textarea>
-                        <div class="d-flex justify-content-end align-items-center mt-3">
-                            <button type="button" class="btn btn-primary" id="btnSiguiente"><i class="fas fa-arrow-right me-2"></i>Siguiente</button>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label">Observaciones</label>
+                                <textarea class="form-control" id="observaciones" name="observaciones" rows="2"></textarea>
+                            </div>
+                            <div class="col-md-6 d-flex align-items-end justify-content-end">
+                                <button type="button" class="btn btn-primary mt-3 mt-md-0" id="btnSiguiente"><i class="fas fa-arrow-right me-2"></i>Siguiente</button>
+                            </div>
                         </div>
                     </div>
                 </div>
