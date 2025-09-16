@@ -214,7 +214,7 @@ include '../../includes/header.php';
 
                             <div class="col-12" id="campos-varios" style="display:none;">
                                 <div class="row g-2">
-                                    <div class="col-md-4">
+                                    <div class="col-lg-4 col-md-6">
                                         <label class="form-label">Subcategoría</label>
                                         <select class="form-select" name="subcategoria_varios">
                                             <option value="">Seleccione</option>
@@ -223,7 +223,7 @@ include '../../includes/header.php';
                                             <option value="Red">Red</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-4">
+                                    <div class="col-lg-4 col-md-6">
                                         <label class="form-label">Cantidad *</label>
                                         <input type="number" class="form-control" name="cantidad" value="1" min="1" required>
                                     </div>
@@ -236,40 +236,40 @@ include '../../includes/header.php';
 
                             <div class="col-12" id="campos-especificos" style="display:none;">
                                 <div class="row g-2">
-                                    <div class="col-md-4"><label class="form-label">N° de Serie *</label><input class="form-control" name="numero_serie"></div>
-                                    <div class="col-md-4"><label class="form-label">ID Físico *</label><input class="form-control" name="id_fisico"></div>
-                                    <div class="col-md-4"><label class="form-label">ID Patrimonio *</label><input class="form-control" name="id_patrimonio"></div>
+                                    <div class="col-lg-4 col-md-6"><label class="form-label">N° de Serie *</label><input class="form-control" name="numero_serie"></div>
+                                    <div class="col-lg-4 col-md-6"><label class="form-label">ID Físico *</label><input class="form-control" name="id_fisico"></div>
+                                    <div class="col-lg-4 col-md-6"><label class="form-label">ID Patrimonio *</label><input class="form-control" name="id_patrimonio"></div>
 
                                     <!-- Especificaciones por tipo -->
                                     <div class="col-12" id="esp-pc" style="display:none;">
                                         <div class="row g-2">
-                                            <div class="col-md-3"><label class="form-label">Procesador *</label><input type="text" class="form-control" name="procesador"></div>
-                                            <div class="col-md-3"><label class="form-label">RAM (GB) *</label><input type="number" class="form-control" name="ram_gb" min="1"></div>
-                                            <div class="col-md-3"><label class="form-label">Almacenamiento (GB) *</label><input type="number" class="form-control" name="almacenamiento_gb" min="1"></div>
-                                            <div class="col-md-3"><label class="form-label">Motherboard *</label><input type="text" class="form-control" name="mother"></div>
+                                            <div class="col-lg-4 col-md-6"><label class="form-label">Procesador *</label><input type="text" class="form-control" name="procesador"></div>
+                                            <div class="col-lg-4 col-md-6"><label class="form-label">RAM (GB) *</label><input type="number" class="form-control" name="ram_gb" min="1"></div>
+                                            <div class="col-lg-4 col-md-6"><label class="form-label">Almacenamiento (GB) *</label><input type="number" class="form-control" name="almacenamiento_gb" min="1"></div>
+                                            <div class="col-lg-4 col-md-6"><label class="form-label">Motherboard *</label><input type="text" class="form-control" name="mother"></div>
                                         </div>
                                     </div>
                                     <div class="col-12" id="esp-notebook" style="display:none;">
                                         <div class="row g-2">
-                                            <div class="col-md-3"><label class="form-label">Marca *</label><input type="text" class="form-control" name="marca_notebook"></div>
-                                            <div class="col-md-3"><label class="form-label">Modelo *</label><input type="text" class="form-control" name="modelo_notebook"></div>
-                                            <div class="col-md-3"><label class="form-label">Procesador *</label><input type="text" class="form-control" name="procesador_notebook"></div>
-                                            <div class="col-md-3"><label class="form-label">RAM (GB) *</label><input type="number" class="form-control" name="ram_gb_notebook" min="1"></div>
-                                            <div class="col-md-3"><label class="form-label">Almacenamiento (GB) *</label><input type="number" class="form-control" name="almacenamiento_gb_notebook" min="1"></div>
+                                            <div class="col-lg-4 col-md-6"><label class="form-label">Marca *</label><input type="text" class="form-control" name="marca_notebook"></div>
+                                            <div class="col-lg-4 col-md-6"><label class="form-label">Modelo *</label><input type="text" class="form-control" name="modelo_notebook"></div>
+                                            <div class="col-lg-4 col-md-6"><label class="form-label">Procesador *</label><input type="text" class="form-control" name="procesador_notebook"></div>
+                                            <div class="col-lg-4 col-md-6"><label class="form-label">RAM (GB) *</label><input type="number" class="form-control" name="ram_gb_notebook" min="1"></div>
+                                            <div class="col-lg-4 col-md-6"><label class="form-label">Almacenamiento (GB) *</label><input type="number" class="form-control" name="almacenamiento_gb_notebook" min="1"></div>
                                         </div>
                                     </div>
                                     <div class="col-12" id="esp-impresora" style="display:none;">
                                         <div class="row g-2">
-                                            <div class="col-md-6"><label class="form-label">Marca *</label><input type="text" class="form-control" name="marca_impresora"></div>
-                                            <div class="col-md-6"><label class="form-label">Modelo *</label><input type="text" class="form-control" name="modelo_impresora"></div>
+                                            <div class="col-lg-6 col-md-6"><label class="form-label">Marca *</label><input type="text" class="form-control" name="marca_impresora"></div>
+                                            <div class="col-lg-6 col-md-6"><label class="form-label">Modelo *</label><input type="text" class="form-control" name="modelo_impresora"></div>
                                         </div>
                                     </div>
                                     <div class="col-12" id="esp-monitor" style="display:none;">
                                         <div class="row g-2">
-                                            <div class="col-md-3"><label class="form-label">Marca *</label><input type="text" class="form-control" name="marca_monitor"></div>
-                                            <div class="col-md-3"><label class="form-label">Modelo *</label><input type="text" class="form-control" name="modelo_monitor"></div>
-                                            <div class="col-md-3"><label class="form-label">Pulgadas *</label><input type="number" class="form-control" name="pulgadas" step="0.1" min="1"></div>
-                                            <div class="col-md-3"><label class="form-label">Conexión *</label>
+                                            <div class="col-lg-4 col-md-6"><label class="form-label">Marca *</label><input type="text" class="form-control" name="marca_monitor"></div>
+                                            <div class="col-lg-4 col-md-6"><label class="form-label">Modelo *</label><input type="text" class="form-control" name="modelo_monitor"></div>
+                                            <div class="col-lg-4 col-md-6"><label class="form-label">Pulgadas *</label><input type="number" class="form-control" name="pulgadas" step="0.1" min="1"></div>
+                                            <div class="col-lg-4 col-md-6"><label class="form-label">Conexión *</label>
                                                 <select class="form-select" name="conexion_monitor">
                                                     <option value="">Seleccione conexión</option>
                                                     <option value="VGA">VGA</option>
@@ -280,8 +280,8 @@ include '../../includes/header.php';
                                     </div>
                                     <div class="col-12" id="esp-escaner" style="display:none;">
                                         <div class="row g-2">
-                                            <div class="col-md-6"><label class="form-label">Marca *</label><input type="text" class="form-control" name="marca_escaner"></div>
-                                            <div class="col-md-6"><label class="form-label">Modelo *</label><input type="text" class="form-control" name="modelo_escaner"></div>
+                                            <div class="col-lg-6 col-md-6"><label class="form-label">Marca *</label><input type="text" class="form-control" name="marca_escaner"></div>
+                                            <div class="col-lg-6 col-md-6"><label class="form-label">Modelo *</label><input type="text" class="form-control" name="modelo_escaner"></div>
                                         </div>
                                     </div>
                                 </div>
