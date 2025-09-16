@@ -3,27 +3,27 @@ require_once '../../includes/config.php';
 
 $conexion = conectarDB();
 
+// Asegurar columnas de responsable (segundo delegado)
+try {
+    $conexion->query("SELECT responsable_nombre, responsable_apellido, responsable_telefono FROM sedes LIMIT 1");
+} catch (Exception $e) {
+    try {
+        $conexion->exec("ALTER TABLE sedes ADD COLUMN responsable_nombre VARCHAR(100) NULL AFTER delegado_telefono");
+    } catch (Exception $e2) {}
+    try {
+        $conexion->exec("ALTER TABLE sedes ADD COLUMN responsable_apellido VARCHAR(100) NULL AFTER responsable_nombre");
+    } catch (Exception $e3) {}
+    try {
+        $conexion->exec("ALTER TABLE sedes ADD COLUMN responsable_telefono VARCHAR(50) NULL AFTER responsable_apellido");
+    } catch (Exception $e4) {}
+}
+
 // Procesar formulario de agregar/editar sede
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     try {
         if (isset($_POST['accion'])) {
             if ($_POST['accion'] == 'agregar') {
-                $sql = "INSERT INTO sedes (nombre_sede, id_localidad, direccion, delegado_nombre, delegado_apellido, delegado_telefono) VALUES (?, ?, ?, ?, ?, ?)";
-                $stmt = $conexion->prepare($sql);
-                $stmt->execute([
-                    $_POST['nombre_sede'],
-                    $_POST['id_localidad'],
-                    ($_POST['direccion'] ?? null) ?: null,
-                    ($_POST['delegado_nombre'] ?? null) ?: null,
-                    ($_POST['delegado_apellido'] ?? null) ?: null,
-                    ($_POST['delegado_telefono'] ?? null) ?: null
-                ]);
-                
-                $_SESSION['mensaje'] = "Sede agregada correctamente";
-                $_SESSION['tipo_mensaje'] = "success";
-                
-            } elseif ($_POST['accion'] == 'editar') {
-                $sql = "UPDATE sedes SET nombre_sede = ?, id_localidad = ?, direccion = ?, delegado_nombre = ?, delegado_apellido = ?, delegado_telefono = ? WHERE id_sede = ?";
+                $sql = "INSERT INTO sedes (nombre_sede, id_localidad, direccion, delegado_nombre, delegado_apellido, delegado_telefono, responsable_nombre, responsable_apellido, responsable_telefono) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 $stmt = $conexion->prepare($sql);
                 $stmt->execute([
                     $_POST['nombre_sede'],
@@ -32,6 +32,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     ($_POST['delegado_nombre'] ?? null) ?: null,
                     ($_POST['delegado_apellido'] ?? null) ?: null,
                     ($_POST['delegado_telefono'] ?? null) ?: null,
+                    ($_POST['responsable_nombre'] ?? null) ?: null,
+                    ($_POST['responsable_apellido'] ?? null) ?: null,
+                    ($_POST['responsable_telefono'] ?? null) ?: null
+                ]);
+                
+                $_SESSION['mensaje'] = "Sede agregada correctamente";
+                $_SESSION['tipo_mensaje'] = "success";
+                
+            } elseif ($_POST['accion'] == 'editar') {
+                $sql = "UPDATE sedes SET nombre_sede = ?, id_localidad = ?, direccion = ?, delegado_nombre = ?, delegado_apellido = ?, delegado_telefono = ?, responsable_nombre = ?, responsable_apellido = ?, responsable_telefono = ? WHERE id_sede = ?";
+                $stmt = $conexion->prepare($sql);
+                $stmt->execute([
+                    $_POST['nombre_sede'],
+                    $_POST['id_localidad'],
+                    ($_POST['direccion'] ?? null) ?: null,
+                    ($_POST['delegado_nombre'] ?? null) ?: null,
+                    ($_POST['delegado_apellido'] ?? null) ?: null,
+                    ($_POST['delegado_telefono'] ?? null) ?: null,
+                    ($_POST['responsable_nombre'] ?? null) ?: null,
+                    ($_POST['responsable_apellido'] ?? null) ?: null,
+                    ($_POST['responsable_telefono'] ?? null) ?: null,
                     $_POST['id_sede']
                 ]);
                 
@@ -106,6 +127,8 @@ $localidades = $stmt->fetchAll();
                             <th>Zona</th>
                             <th>Delegado</th>
                             <th>Teléfono</th>
+                            <th>Responsable</th>
+                            <th>Teléfono Resp.</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -120,6 +143,8 @@ $localidades = $stmt->fetchAll();
                                 </td>
                                 <td><?php echo htmlspecialchars(trim(($sede['delegado_nombre'] ?? '').' '.($sede['delegado_apellido'] ?? '')) ?: '-'); ?></td>
                                 <td><?php echo htmlspecialchars($sede['delegado_telefono'] ?? '-'); ?></td>
+                                <td><?php echo htmlspecialchars(trim(($sede['responsable_nombre'] ?? '').' '.($sede['responsable_apellido'] ?? '')) ?: '-'); ?></td>
+                                <td><?php echo htmlspecialchars($sede['responsable_telefono'] ?? '-'); ?></td>
                                 <td>
                                     <div class="btn-group" role="group">
                                         <button type="button" 
@@ -200,6 +225,20 @@ $localidades = $stmt->fetchAll();
                             <input type="text" class="form-control" id="delegado_telefono" name="delegado_telefono">
                         </div>
                     </div>
+                    <div class="row g-2 mt-1">
+                        <div class="col-md-4">
+                            <label class="form-label">Nombre Responsable</label>
+                            <input type="text" class="form-control" id="responsable_nombre" name="responsable_nombre">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Apellido Responsable</label>
+                            <input type="text" class="form-control" id="responsable_apellido" name="responsable_apellido">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Teléfono Responsable</label>
+                            <input type="text" class="form-control" id="responsable_telefono" name="responsable_telefono">
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -221,6 +260,9 @@ function editarSede(sede) {
     $('#delegado_nombre').val(sede.delegado_nombre || '');
     $('#delegado_apellido').val(sede.delegado_apellido || '');
     $('#delegado_telefono').val(sede.delegado_telefono || '');
+    $('#responsable_nombre').val(sede.responsable_nombre || '');
+    $('#responsable_apellido').val(sede.responsable_apellido || '');
+    $('#responsable_telefono').val(sede.responsable_telefono || '');
     $('#modalSede').modal('show');
 }
 
