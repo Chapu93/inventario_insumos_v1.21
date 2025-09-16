@@ -19,7 +19,7 @@ $sql = "SELECT
             s.nombre_sede,
             l.nombre_localidad,
             SUM(d.cantidad) AS cantidad_insumos,
-            SUM(CASE WHEN i.estado = 'Asignado' THEN d.cantidad ELSE 0 END) AS activas,
+            SUM(GREATEST(d.cantidad - COALESCE(d.cantidad_devuelta,0), 0)) AS activas,
             GROUP_CONCAT(DISTINCT i.nombre_insumo ORDER BY i.nombre_insumo SEPARATOR ', ') AS insumos
         FROM remitos r 
         JOIN remitos_detalle d ON d.id_remito = r.id_remito
