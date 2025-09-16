@@ -189,8 +189,8 @@ include '../../includes/header.php';
 
             <!-- Paso 2: Alta de Insumo -->
             <div id="paso2" style="display:none;">
-                <div class="row justify-content-center">
-                    <div class="col-lg-10 col-xl-8">
+                <div class="row">
+                    <div class="col-12">
                         <!-- Bloque selección de tipo (igual a agregar.php) -->
                         <div class="row mb-3">
                             <div class="col-12">
