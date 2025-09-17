@@ -55,6 +55,9 @@ $asignaciones_recientes = $stmt->fetchAll();
 <div class="row">
     <div class="col-12 d-flex justify-content-between align-items-center mb-4">
         <h1><i class="fas fa-file-alt me-2"></i>Remitos</h1>
+        <a class="btn btn-outline-secondary" href="<?php echo app_base_url(); ?>/pages/asignaciones/listar.php">
+            <i class="fas fa-arrow-left me-1"></i>Volver a Asignaciones
+        </a>
     </div>
     </div>
 
@@ -65,9 +68,6 @@ $asignaciones_recientes = $stmt->fetchAll();
             <i class="fas fa-file-alt me-2"></i>Remito <?php echo htmlspecialchars($cab['numero_remito']); ?>
         </h5>
         <div class="btn-group">
-            <a class="btn btn-outline-secondary btn-sm" href="<?php echo app_base_url(); ?>/pages/asignaciones/listar.php">
-                <i class="fas fa-arrow-left me-1"></i>Volver a Asignaciones
-            </a>
             <a class="btn btn-outline-secondary btn-sm" href="?">
                 <i class="fas fa-list me-1"></i>Ver recientes
             </a>
@@ -132,9 +132,6 @@ $asignaciones_recientes = $stmt->fetchAll();
         <h5 class="mb-0">
             <i class="fas fa-history me-2"></i>Asignaciones Recientes
         </h5>
-        <a class="btn btn-outline-secondary btn-sm" href="<?php echo app_base_url(); ?>/pages/asignaciones/listar.php">
-            <i class="fas fa-arrow-left me-1"></i>Volver a Asignaciones
-        </a>
     </div>
     <div class="card-body">
         <?php if (empty($asignaciones_recientes)): ?>
