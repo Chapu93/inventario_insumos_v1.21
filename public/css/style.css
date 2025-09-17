@@ -233,6 +233,16 @@ body {
     max-width: 75% !important;
 }
 
+/* Modal Sedes: ampliar ligeramente solo los 3 campos de Delegado y los 3 de Responsable */
+#modalSede #delegado_nombre,
+#modalSede #delegado_apellido,
+#modalSede #delegado_telefono,
+#modalSede #responsable_nombre,
+#modalSede #responsable_apellido,
+#modalSede #responsable_telefono {
+    max-width: 80% !important;
+}
+
 /* Campos con ancho completo */
 .form-control.w-100, .form-select.w-100 {
     max-width: 100%;
