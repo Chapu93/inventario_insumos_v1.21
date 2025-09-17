@@ -172,13 +172,22 @@ $(function(){
   const qLoc = url.searchParams.get('id_localidad');
   const qSede = url.searchParams.get('id_sede');
   const qOpen = url.searchParams.get('open');
+  // Cargar localidades y luego, si corresponde, preseleccionar y abrir
   cargarLocalidadesServ();
   $('#id_localidad_serv').on('change', function(){ cargarSedesServ($(this).val()); });
   if (qOpen === 'add') {
     if (qLoc) {
-      $('#id_localidad_serv').val(qLoc);
-      cargarSedesServ(qLoc);
-      setTimeout(function(){ if(qSede){ $('#id_sede_serv').val(String(qSede)); } new bootstrap.Modal(document.getElementById('modalServ')).show(); }, 250);
+      const interval = setInterval(function(){
+        // Esperar a que las opciones de localidad estén cargadas
+        const $loc = $('#id_localidad_serv');
+        if ($loc.find('option').length > 1) {
+          clearInterval(interval);
+          $loc.val(qLoc);
+          $.when(cargarSedesServ(qLoc)).done(function(){
+            setTimeout(function(){ if(qSede){ $('#id_sede_serv').val(String(qSede)); } new bootstrap.Modal(document.getElementById('modalServ')).show(); }, 150);
+          });
+        }
+      }, 50);
     } else {
       new bootstrap.Modal(document.getElementById('modalServ')).show();
     }

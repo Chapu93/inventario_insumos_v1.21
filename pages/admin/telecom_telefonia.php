@@ -124,20 +124,18 @@ $('#modalTel').on('hidden.bs.modal', function(){ $('#modalTelTitle').text('Agreg
 $('#formTel').on('submit', function(e){ if(!this.checkValidity()){ e.preventDefault(); e.stopPropagation(); } $(this).addClass('was-validated'); });
 const BASE = '<?php echo app_base_url(); ?>';
 function cargarLocalidades(){
-  $.getJSON(`${BASE}/ajax/localidades_list.php`).done(r=>{
+  return $.getJSON(`${BASE}/ajax/localidades_list.php`).done(r=>{
     const $loc = $('#id_localidad');
     $loc.html('<option value="">Seleccione</option>');
     if(r.success){ r.data.forEach(l=> $loc.append(`<option value="${l.id}">${l.nombre}</option>`)); }
-    $loc.trigger('change.select2');
   });
 }
 function cargarSedes(localidad){
   const $s = $('#id_sede');
   $s.html('<option value="">Seleccione</option>');
-  if(!localidad){ $s.trigger('change.select2'); return; }
-  $.getJSON(`${BASE}/ajax/sedes_por_localidad.php`, { localidad_id: localidad }).done(r=>{
+  if(!localidad){ return $.Deferred().resolve().promise(); }
+  return $.getJSON(`${BASE}/ajax/sedes_por_localidad.php`, { localidad_id: localidad }).done(r=>{
     if(r.success){ r.data.forEach(x=> $s.append(`<option value="${x.id}">${x.nombre}</option>`)); }
-    $s.trigger('change.select2');
   });
 }
 $(function(){
@@ -145,17 +143,17 @@ $(function(){
   const qLoc = url.searchParams.get('id_localidad');
   const qSede = url.searchParams.get('id_sede');
   const qOpen = url.searchParams.get('open');
-  cargarLocalidades();
-  $('#id_localidad').on('change', function(){ cargarSedes($(this).val()); });
-  if (qOpen === 'add') {
-    if (qLoc) {
-      $('#id_localidad').val(qLoc);
-      cargarSedes(qLoc);
-      setTimeout(function(){ if(qSede){ $('#id_sede').val(String(qSede)); } new bootstrap.Modal(document.getElementById('modalTel')).show(); }, 250);
-    } else {
-      new bootstrap.Modal(document.getElementById('modalTel')).show();
+  cargarLocalidades().done(function(){
+    if (qOpen === 'add') {
+      if (qLoc) {
+        $('#id_localidad').val(qLoc);
+        cargarSedes(qLoc).done(function(){ if(qSede){ $('#id_sede').val(String(qSede)); } new bootstrap.Modal(document.getElementById('modalTel')).show(); });
+      } else {
+        new bootstrap.Modal(document.getElementById('modalTel')).show();
+      }
     }
-  }
+  });
+  $('#id_localidad').on('change', function(){ cargarSedes($(this).val()); });
   // sin select2 en este modal para igualar estilo
 });
 </script>
