@@ -102,6 +102,7 @@ include '../../includes/header.php';
                             <th>Proveedor</th>
                             <th>Tipo</th>
                             <th>Vel. (↓/↑ Mbps)</th>
+                            <th>Simétrico</th>
                             <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
@@ -117,6 +118,10 @@ include '../../includes/header.php';
                                     <span class="badge bg-primary"><?php echo (int)($row['velocidad_bajada_mbps'] ?? 0); ?></span>
                                     /
                                     <span class="badge bg-success"><?php echo (int)($row['velocidad_subida_mbps'] ?? 0); ?></span>
+                                </td>
+                                <td>
+                                    <?php $sim = (int)($row['simetrico'] ?? 0); ?>
+                                    <span class="badge <?php echo $sim ? 'bg-success' : 'bg-secondary'; ?>"><?php echo $sim ? 'Sí' : 'No'; ?></span>
                                 </td>
                                 <td>
                                     <?php $est = $row['estado_servicio']; $cls = ($est==='Activo'?'estado-activa':($est==='Pendiente'?'estado-asignado':'estado-baja')); ?>
