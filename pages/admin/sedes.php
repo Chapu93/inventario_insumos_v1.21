@@ -177,7 +177,7 @@ $localidades = $stmt->fetchAll();
 
 <!-- Modal para agregar/editar sede -->
 <div class="modal fade" id="modalSede" tabindex="-1">
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalSedeTitle">Agregar Sede</h5>
