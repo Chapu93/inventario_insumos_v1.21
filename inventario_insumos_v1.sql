@@ -716,6 +716,7 @@ CREATE TABLE `sedes_internet` (
   `tipo_conexion` enum('ADSL','Fibra óptica','4G','5G','Satelital','Radioenlace') NOT NULL,
   `velocidad_bajada_mbps` int(11) DEFAULT NULL,
   `velocidad_subida_mbps` int(11) DEFAULT NULL,
+  `simetrico` tinyint(1) NOT NULL DEFAULT 0,
   `estado_servicio` enum('Activo','Pendiente','De Baja') NOT NULL DEFAULT 'Activo',
   `observaciones` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

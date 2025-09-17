@@ -3,31 +3,40 @@ require_once '../../includes/config.php';
 
 $db = conectarDB();
 
+// Migración tolerante: agregar columna simetrico si no existe
+try {
+    $db->query("SELECT simetrico FROM sedes_internet LIMIT 1");
+} catch (Exception $e) {
+    try { $db->exec("ALTER TABLE sedes_internet ADD COLUMN simetrico TINYINT(1) NOT NULL DEFAULT 0 AFTER velocidad_subida_mbps"); } catch (Exception $e2) {}
+}
+
 // Procesar POST (agregar/editar/eliminar)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $accion = $_POST['accion'] ?? '';
         if ($accion === 'agregar') {
-            $stmt = $db->prepare("INSERT INTO sedes_internet (id_sede, proveedor, tipo_conexion, velocidad_bajada_mbps, velocidad_subida_mbps, estado_servicio, observaciones) VALUES (?,?,?,?,?,?,?)");
+            $stmt = $db->prepare("INSERT INTO sedes_internet (id_sede, proveedor, tipo_conexion, velocidad_bajada_mbps, velocidad_subida_mbps, simetrico, estado_servicio, observaciones) VALUES (?,?,?,?,?,?,?,?)");
             $stmt->execute([
                 (int)$_POST['id_sede'],
                 trim($_POST['proveedor']),
                 trim($_POST['tipo_conexion']),
                 ($_POST['velocidad_bajada_mbps'] !== '' ? (int)$_POST['velocidad_bajada_mbps'] : null),
                 ($_POST['velocidad_subida_mbps'] !== '' ? (int)$_POST['velocidad_subida_mbps'] : null),
+                (isset($_POST['simetrico']) ? 1 : 0),
                 trim($_POST['estado_servicio']),
                 ($_POST['observaciones'] ?? null) ?: null,
             ]);
             $_SESSION['mensaje'] = 'Servicio de Internet agregado.';
             $_SESSION['tipo_mensaje'] = 'success';
         } elseif ($accion === 'editar') {
-            $stmt = $db->prepare("UPDATE sedes_internet SET id_sede=?, proveedor=?, tipo_conexion=?, velocidad_bajada_mbps=?, velocidad_subida_mbps=?, estado_servicio=?, observaciones=? WHERE id_internet=?");
+            $stmt = $db->prepare("UPDATE sedes_internet SET id_sede=?, proveedor=?, tipo_conexion=?, velocidad_bajada_mbps=?, velocidad_subida_mbps=?, simetrico=?, estado_servicio=?, observaciones=? WHERE id_internet=?");
             $stmt->execute([
                 (int)$_POST['id_sede'],
                 trim($_POST['proveedor']),
                 trim($_POST['tipo_conexion']),
                 ($_POST['velocidad_bajada_mbps'] !== '' ? (int)$_POST['velocidad_bajada_mbps'] : null),
                 ($_POST['velocidad_subida_mbps'] !== '' ? (int)$_POST['velocidad_subida_mbps'] : null),
+                (isset($_POST['simetrico']) ? 1 : 0),
                 trim($_POST['estado_servicio']),
                 ($_POST['observaciones'] ?? null) ?: null,
                 (int)$_POST['id_internet']
@@ -188,6 +197,11 @@ include '../../includes/header.php';
             </div>
           </div>
 
+          <div class="form-check form-switch my-2">
+            <input class="form-check-input" type="checkbox" id="simetrico" name="simetrico" value="1">
+            <label class="form-check-label" for="simetrico">Simétrico</label>
+          </div>
+
           <div class="mb-3 mt-2">
             <label class="form-label">Estado *</label>
             <select name="estado_servicio" id="estado_servicio" class="form-select" required>
@@ -230,10 +244,14 @@ function cargarLocalidades(){
 }
 function cargarSedesPorLocalidad(localidadId, selectedSedeId){
   const $sedes = $('#id_sede');
-  $sedes.html('<option value="">Seleccione una sede</option>');
+  $sedes.prop('disabled', true).html('<option value="">Cargando...</option>');
   if (!localidadId) { return; }
   $.getJSON(`${BASE}/ajax/sedes_por_localidad.php`, { localidad_id: localidadId }).done(r => {
+    $sedes.html('<option value="">Seleccione una sede</option>');
     if (r.success) { r.data.forEach(s => { $sedes.append(`<option value="${s.id}">${s.nombre}</option>`); }); if (selectedSedeId) { $sedes.val(String(selectedSedeId)); } }
+    $sedes.prop('disabled', false);
+  }).fail(() => {
+    $sedes.html('<option value="">Error al cargar</option>').prop('disabled', false);
   });
 }
 function editarInternet(row){
@@ -248,6 +266,7 @@ function editarInternet(row){
   $('#tipo_conexion').val(row.tipo_conexion);
   $('#velocidad_bajada_mbps').val(row.velocidad_bajada_mbps || '');
   $('#velocidad_subida_mbps').val(row.velocidad_subida_mbps || '');
+  $('#simetrico').prop('checked', (String(row.simetrico) === '1'));
   $('#estado_servicio').val(row.estado_servicio);
   $('#observaciones').val(row.observaciones || '');
   var m = new bootstrap.Modal(document.getElementById('modalInternet'));
