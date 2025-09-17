@@ -17,7 +17,7 @@ if ($idSede > 0) {
     $sede = $stmt->fetch();
 
     // Internet por sede
-    $stmt = $db->prepare("SELECT proveedor, tipo_conexion, velocidad_bajada_mbps, velocidad_subida_mbps, estado_servicio FROM sedes_internet WHERE id_sede=? ORDER BY proveedor");
+    $stmt = $db->prepare("SELECT proveedor, tipo_conexion, velocidad_bajada_mbps, velocidad_subida_mbps, estado_servicio, simetrico FROM sedes_internet WHERE id_sede=? ORDER BY proveedor");
     $stmt->execute([$idSede]);
     $internet = $stmt->fetchAll();
 
@@ -83,18 +83,42 @@ include '../../includes/header.php';
       <div class="card-header"><h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Acciones Rápidas</h5></div>
       <div class="card-body">
         <div class="row g-2">
-          <div class="col-md-2"><a href="<?php echo app_base_url(); ?>/pages/admin/telecom_internet.php" class="btn btn-sm btn-primary w-100"><i class="fas fa-wifi me-2"></i>Agregar Internet</a></div>
-          <div class="col-md-2"><a href="<?php echo app_base_url(); ?>/pages/admin/telecom_telefonia.php" class="btn btn-sm btn-primary w-100"><i class="fas fa-phone me-2"></i>Agregar Teléfono</a></div>
-          <div class="col-md-2"><a href="<?php echo app_base_url(); ?>/pages/admin/telecom_vigilancia.php" class="btn btn-sm btn-primary w-100"><i class="fas fa-video me-2"></i>Agregar Vigilancia</a></div>
-          <div class="col-md-2"><a href="<?php echo app_base_url(); ?>/pages/admin/telecom_planos.php" class="btn btn-sm btn-primary w-100"><i class="fas fa-file-upload me-2"></i>Subir Plano</a></div>
-          <div class="col-md-2"><a href="<?php echo app_base_url(); ?>/pages/admin/sedes.php" class="btn btn-sm btn-warning w-100"><i class="fas fa-edit me-2"></i>Editar Sede</a></div>
+          <div class="col-md-2"><a href="<?php echo app_base_url(); ?>/pages/admin/telecom_internet.php?id_localidad=<?php echo (int)$idLocalidad; ?>&id_sede=<?php echo (int)$idSede; ?>" class="btn btn-sm btn-primary w-100"><i class="fas fa-wifi me-2"></i>Agregar Internet</a></div>
+          <div class="col-md-2"><a href="<?php echo app_base_url(); ?>/pages/admin/telecom_telefonia.php?id_localidad=<?php echo (int)$idLocalidad; ?>&id_sede=<?php echo (int)$idSede; ?>" class="btn btn-sm btn-primary w-100"><i class="fas fa-phone me-2"></i>Agregar Teléfono</a></div>
+          <div class="col-md-2"><a href="<?php echo app_base_url(); ?>/pages/admin/telecom_vigilancia.php?id_localidad=<?php echo (int)$idLocalidad; ?>&id_sede=<?php echo (int)$idSede; ?>" class="btn btn-sm btn-primary w-100"><i class="fas fa-video me-2"></i>Agregar Vigilancia</a></div>
+          <div class="col-md-2"><a href="<?php echo app_base_url(); ?>/pages/admin/telecom_planos.php?id_localidad=<?php echo (int)$idLocalidad; ?>&id_sede=<?php echo (int)$idSede; ?>" class="btn btn-sm btn-primary w-100"><i class="fas fa-file-upload me-2"></i>Subir Plano</a></div>
+          <div class="col-md-2"><a href="<?php echo app_base_url(); ?>/pages/admin/sedes.php?id_sede=<?php echo (int)$idSede; ?>" class="btn btn-sm btn-warning w-100"><i class="fas fa-edit me-2"></i>Editar Sede</a></div>
           <div class="col-md-2"><a href="<?php echo app_base_url(); ?>/pages/reportes/remito.php" class="btn btn-sm btn-info w-100"><i class="fas fa-file-alt me-2"></i>Ver Remitos</a></div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
 <div class="row g-3">
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header"><h5 class="mb-0"><i class="fas fa-user-tie me-2"></i>Delegado de la Sede</h5></div>
+      <div class="card-body">
+        <p class="mb-1"><strong>Nombre:</strong> <?php echo htmlspecialchars($sede['delegado_nombre'] ?: '-'); ?></p>
+        <p class="mb-1"><strong>Apellido:</strong> <?php echo htmlspecialchars($sede['delegado_apellido'] ?: '-'); ?></p>
+        <p class="mb-0"><strong>Teléfono:</strong> <?php echo htmlspecialchars($sede['delegado_telefono'] ?: '-'); ?></p>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header"><h5 class="mb-0"><i class="fas fa-user-shield me-2"></i>Responsable (Segundo Delegado)</h5></div>
+      <div class="card-body">
+        <p class="mb-1"><strong>Nombre:</strong> <?php echo htmlspecialchars($sede['responsable_nombre'] ?? '-'); ?></p>
+        <p class="mb-1"><strong>Apellido:</strong> <?php echo htmlspecialchars($sede['responsable_apellido'] ?? '-'); ?></p>
+        <p class="mb-0"><strong>Teléfono:</strong> <?php echo htmlspecialchars($sede['responsable_telefono'] ?? '-'); ?></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mt-1">
   <div class="col-lg-6">
     <div class="card h-100">
       <div class="card-header"><h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Información General</h5></div>
@@ -108,31 +132,6 @@ include '../../includes/header.php';
   </div>
   <div class="col-lg-6">
     <div class="card h-100">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-user-tie me-2"></i>Delegado de la Sede</h5></div>
-      <div class="card-body">
-        <p class="mb-1"><strong>Nombre:</strong> <?php echo htmlspecialchars($sede['delegado_nombre'] ?: '-'); ?></p>
-        <p class="mb-1"><strong>Apellido:</strong> <?php echo htmlspecialchars($sede['delegado_apellido'] ?: '-'); ?></p>
-        <p class="mb-0"><strong>Teléfono:</strong> <?php echo htmlspecialchars($sede['delegado_telefono'] ?: '-'); ?></p>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-lg-6">
-    <div class="card h-100">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-user-shield me-2"></i>Responsable (Segundo Delegado)</h5></div>
-      <div class="card-body">
-        <p class="mb-1"><strong>Nombre:</strong> <?php echo htmlspecialchars($sede['responsable_nombre'] ?? '-'); ?></p>
-        <p class="mb-1"><strong>Apellido:</strong> <?php echo htmlspecialchars($sede['responsable_apellido'] ?? '-'); ?></p>
-        <p class="mb-0"><strong>Teléfono:</strong> <?php echo htmlspecialchars($sede['responsable_telefono'] ?? '-'); ?></p>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<div class="row g-3 mt-1">
-  <div class="col-lg-6">
-    <div class="card h-100">
       <div class="card-header"><h5 class="mb-0"><i class="fas fa-wifi me-2"></i>Internet</h5></div>
       <div class="card-body">
         <?php if (empty($internet)): ?>
@@ -140,13 +139,14 @@ include '../../includes/header.php';
         <?php else: ?>
         <div class="table-responsive">
           <table class="table table-sm table-striped">
-            <thead><tr><th>Proveedor</th><th>Tipo</th><th>Vel. (↓/↑)</th><th>Estado</th></tr></thead>
+            <thead><tr><th>Proveedor</th><th>Tipo</th><th>Vel. (↓/↑)</th><th>Simétrico</th><th>Estado</th></tr></thead>
             <tbody>
               <?php foreach($internet as $i): ?>
               <tr>
                 <td><?php echo htmlspecialchars($i['proveedor']); ?></td>
                 <td><?php echo htmlspecialchars($i['tipo_conexion']); ?></td>
                 <td><span class="badge bg-primary"><?php echo (int)($i['velocidad_bajada_mbps'] ?? 0); ?></span> / <span class="badge bg-success"><?php echo (int)($i['velocidad_subida_mbps'] ?? 0); ?></span></td>
+                <td><?php $sim = (int)($i['simetrico'] ?? 0); ?><span class="badge <?php echo $sim ? 'bg-success' : 'bg-secondary'; ?>"><?php echo $sim ? 'Sí' : 'No'; ?></span></td>
                 <td><?php echo htmlspecialchars($i['estado_servicio']); ?></td>
               </tr>
               <?php endforeach; ?>
@@ -157,6 +157,9 @@ include '../../includes/header.php';
       </div>
     </div>
   </div>
+</div>
+
+<div class="row g-3 mt-1">
   <div class="col-lg-6">
     <div class="card h-100">
       <div class="card-header"><h5 class="mb-0"><i class="fas fa-phone me-2"></i>Telefonía</h5></div>
@@ -185,6 +188,7 @@ include '../../includes/header.php';
       </div>
     </div>
   </div>
+  <div class="col-lg-6"></div>
 </div>
 
 <div class="row g-3 mt-1">
@@ -244,8 +248,8 @@ include '../../includes/header.php';
 </div>
 
 <div class="row g-3 mt-1">
-  <div class="col-12">
-    <div class="card">
+  <div class="col-lg-6">
+    <div class="card h-100">
       <div class="card-header"><h5 class="mb-0"><i class="fas fa-file me-2"></i>Planos</h5></div>
       <div class="card-body">
         <?php if (empty($planos)): ?>
@@ -270,6 +274,7 @@ include '../../includes/header.php';
       </div>
     </div>
   </div>
+  <div class="col-lg-6"></div>
 </div>
 <?php endif; ?>
 
