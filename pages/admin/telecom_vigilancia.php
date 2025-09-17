@@ -168,6 +168,19 @@ const BASE = '<?php echo app_base_url(); ?>';
 function cargarLocalidadesServ(){ $.getJSON(`${BASE}/ajax/localidades_list.php`).done(r=>{ const $l=$('#id_localidad_serv'); $l.html('<option value="">Seleccione</option>'); if(r.success){ r.data.forEach(x=> $l.append(`<option value="${x.id}">${x.nombre}</option>`)); } $l.trigger('change.select2'); }); }
 function cargarSedesServ(loc){ const $s=$('#id_sede_serv'); $s.html('<option value="">Seleccione</option>'); if(!loc){ $s.trigger('change.select2'); return; } $.getJSON(`${BASE}/ajax/sedes_por_localidad.php`, { localidad_id: loc }).done(r=>{ if(r.success){ r.data.forEach(x=> $s.append(`<option value="${x.id}">${x.nombre}</option>`)); } $s.trigger('change.select2'); }); }
 $(function(){ cargarLocalidadesServ(); $('#id_localidad_serv').on('change', function(){ cargarSedesServ($(this).val()); }); });
+$(function(){
+  const url = new URL(window.location.href);
+  const qLoc = url.searchParams.get('id_localidad');
+  const qSede = url.searchParams.get('id_sede');
+  const qOpen = url.searchParams.get('open');
+  if (qLoc) {
+    $('#id_localidad_serv').val(qLoc);
+    cargarSedesServ(qLoc);
+    setTimeout(function(){ if(qSede){ $('#id_sede_serv').val(String(qSede)); } if(qOpen==='add'){ new bootstrap.Modal(document.getElementById('modalServ')).show(); } }, 250);
+  } else if (qOpen==='add') {
+    new bootstrap.Modal(document.getElementById('modalServ')).show();
+  }
+});
 $('#modalServ').on('shown.bs.modal', function(){
   $('#modalServ .select2').each(function(){
     var $el = $(this);

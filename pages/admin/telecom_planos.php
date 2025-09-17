@@ -137,6 +137,19 @@ function cargarLocalidades(){ $.getJSON(`${BASE}/ajax/localidades_list.php`).don
 function cargarSedes(loc){ const $s=$('#id_sede'); $s.html('<option value="">Seleccione</option>'); if(!loc){ $s.trigger('change.select2'); return; } $.getJSON(`${BASE}/ajax/sedes_por_localidad.php`, { localidad_id: loc }).done(r=>{ if(r.success){ r.data.forEach(x=> $s.append(`<option value="${x.id}">${x.nombre}</option>`)); } $s.trigger('change.select2'); }); }
 $(function(){ cargarLocalidades(); $('#id_localidad').on('change', function(){ cargarSedes($(this).val()); }); $('form.needs-validation').on('submit', function(e){ if(!this.checkValidity()){ e.preventDefault(); e.stopPropagation(); } $(this).addClass('was-validated'); }); });
 // sin select2 en este modal para igualar estilo
+$(function(){
+  const url = new URL(window.location.href);
+  const qLoc = url.searchParams.get('id_localidad');
+  const qSede = url.searchParams.get('id_sede');
+  const qOpen = url.searchParams.get('open');
+  if (qLoc) {
+    $('#id_localidad').val(qLoc);
+    cargarSedes(qLoc);
+    setTimeout(function(){ if(qSede){ $('#id_sede').val(String(qSede)); } if(qOpen==='add'){ new bootstrap.Modal(document.getElementById('modalPlano')).show(); } }, 250);
+  } else if (qOpen==='add') {
+    new bootstrap.Modal(document.getElementById('modalPlano')).show();
+  }
+});
 </script>
 
 <?php include '../../includes/footer.php'; ?>
