@@ -21,9 +21,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
       $allowed = ['pdf','png','jpg','jpeg','svg'];
       if (!in_array($ext, $allowed, true)) { throw new Exception('Formato no permitido'); }
-      $safeName = 'plano_' . $idSede . '_' . $tipo . '_' . time() . '.' . $ext;
+      // Asegurar directorio y permisos
+      if (!is_dir($uploadDir)) {
+        if (!@mkdir($uploadDir, 0775, true)) { throw new Exception('No se pudo crear el directorio de destino'); }
+      }
+      if (!is_writable($uploadDir)) { @chmod($uploadDir, 0775); }
+      if (!is_writable($uploadDir)) { @chmod($uploadDir, 0777); }
+      if (!is_writable($uploadDir)) { throw new Exception('Directorio de destino no escribible'); }
+
+      // Nombre seguro
+      $tipoSafe = preg_replace('/[^a-z0-9_-]+/i', '_', $tipo);
+      $safeName = 'plano_' . $idSede . '_' . $tipoSafe . '_' . time() . '.' . $ext;
       $dest = $uploadDir . '/' . $safeName;
-      if (!move_uploaded_file($file['tmp_name'], $dest)) { throw new Exception('No se pudo guardar el archivo'); }
+
+      // Movimiento con fallback
+      $moved = @move_uploaded_file($file['tmp_name'], $dest);
+      if (!$moved) {
+        if (is_uploaded_file($file['tmp_name'])) {
+          $moved = @copy($file['tmp_name'], $dest);
+          if ($moved) { @unlink($file['tmp_name']); }
+        }
+      }
+      if (!$moved) { throw new Exception('No se pudo guardar el archivo'); }
       $db->prepare("INSERT INTO sedes_planos (id_sede, tipo_plano, archivo, descripcion) VALUES (?,?,?,?)")
          ->execute([$idSede, $tipo, 'public/uploads/planos/' . $safeName, $desc ?: null]);
       $_SESSION['mensaje'] = 'Plano subido correctamente'; $_SESSION['tipo_mensaje'] = 'success';
