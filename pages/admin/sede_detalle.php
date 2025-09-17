@@ -117,6 +117,17 @@ include '../../includes/header.php';
     </div>
   </div>
 
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header"><h5 class="mb-0"><i class="fas fa-user-shield me-2"></i>Responsable (Segundo Delegado)</h5></div>
+      <div class="card-body">
+        <p class="mb-1"><strong>Nombre:</strong> <?php echo htmlspecialchars($sede['responsable_nombre'] ?? '-'); ?></p>
+        <p class="mb-1"><strong>Apellido:</strong> <?php echo htmlspecialchars($sede['responsable_apellido'] ?? '-'); ?></p>
+        <p class="mb-0"><strong>Teléfono:</strong> <?php echo htmlspecialchars($sede['responsable_telefono'] ?? '-'); ?></p>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <div class="row g-3 mt-1">
