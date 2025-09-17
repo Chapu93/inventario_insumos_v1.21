@@ -110,7 +110,10 @@ include '../../includes/header.php';
 <script>
 function editTel(r){
   $('#modalTelTitle').text('Editar Línea'); $('#accion').val('editar');
-  $('#id_linea').val(r.id_linea); $('#id_sede').val(r.id_sede).trigger('change');
+  $('#id_linea').val(r.id_linea);
+  if (r.id_localidad) { $('#id_localidad').val(r.id_localidad); }
+  cargarSedes(r.id_localidad);
+  setTimeout(function(){ $('#id_sede').val(r.id_sede).trigger('change'); }, 200);
   $('#tipo_linea').val(r.tipo_linea); $('#operador').val(r.operador||'');
   $('#numero').val(r.numero||''); $('#interno_ext').val(r.interno_ext||'');
   $('#dispositivo_modelo').val(r.dispositivo_modelo||''); $('#estado').val(r.estado);

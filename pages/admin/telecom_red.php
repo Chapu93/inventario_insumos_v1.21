@@ -107,7 +107,16 @@ include '../../includes/header.php';
 <form id="formDel" method="POST" style="display:none"><input type="hidden" name="accion" value="eliminar"><input type="hidden" name="id_dispositivo" id="del_id"></form>
 
 <script>
-function editRed(r){ $('#modalRedTitle').text('Editar Dispositivo'); $('#accion').val('editar'); $('#id_dispositivo').val(r.id_dispositivo); $('#id_sede').val(r.id_sede).trigger('change'); $('#tipo_dispositivo').val(r.tipo_dispositivo); $('#marca').val(r.marca||''); $('#modelo').val(r.modelo||''); $('#cantidad').val(r.cantidad||1); $('#ubicacion').val(r.ubicacion||''); $('#estado').val(r.estado); $('#observaciones').val(r.observaciones||''); new bootstrap.Modal(document.getElementById('modalRed')).show(); }
+function editRed(r){
+  $('#modalRedTitle').text('Editar Dispositivo'); $('#accion').val('editar');
+  $('#id_dispositivo').val(r.id_dispositivo);
+  if (r.id_localidad) { $('#id_localidad').val(r.id_localidad); }
+  cargarSedes(r.id_localidad);
+  setTimeout(function(){ $('#id_sede').val(r.id_sede).trigger('change'); }, 200);
+  $('#tipo_dispositivo').val(r.tipo_dispositivo); $('#marca').val(r.marca||''); $('#modelo').val(r.modelo||'');
+  $('#cantidad').val(r.cantidad||1); $('#ubicacion').val(r.ubicacion||''); $('#estado').val(r.estado); $('#observaciones').val(r.observaciones||'');
+  new bootstrap.Modal(document.getElementById('modalRed')).show();
+}
 function delRed(id){ if(confirm('¿Eliminar dispositivo?')){ $('#del_id').val(id); $('#formDel').submit(); } }
 $('#modalRed').on('hidden.bs.modal', function(){ $('#modalRedTitle').text('Agregar Dispositivo'); $('#accion').val('agregar'); $('#formRed')[0].reset(); $('#id_sede').val('').trigger('change'); $('#formRed').removeClass('was-validated'); });
 $('#formRed').on('submit', function(e){ if(!this.checkValidity()){ e.preventDefault(); e.stopPropagation(); } $(this).addClass('was-validated'); });
