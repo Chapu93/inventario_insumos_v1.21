@@ -228,6 +228,11 @@ body {
     max-width: 60%;
 }
 
+/* Modal Sedes: +10% de ancho para inputs dentro del modal */
+#modalSede .form-control, #modalSede .form-select {
+    max-width: 70%;
+}
+
 /* Campos con ancho completo */
 .form-control.w-100, .form-select.w-100 {
     max-width: 100%;
@@ -432,6 +437,9 @@ body {
     
     /* En móviles, los campos ocupan todo el ancho */
     .form-control, .form-select {
+        max-width: 100%;
+    }
+    #modalSede .form-control, #modalSede .form-select {
         max-width: 100%;
     }
 }
