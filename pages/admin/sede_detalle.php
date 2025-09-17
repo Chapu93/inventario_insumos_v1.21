@@ -188,7 +188,32 @@ include '../../includes/header.php';
       </div>
     </div>
   </div>
-  <div class="col-lg-6"></div>
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header"><h5 class="mb-0"><i class="fas fa-file me-2"></i>Planos</h5></div>
+      <div class="card-body">
+        <?php if (empty($planos)): ?>
+          <p class="text-muted mb-0">Sin planos cargados</p>
+        <?php else: ?>
+        <div class="table-responsive">
+          <table class="table table-sm table-striped">
+            <thead><tr><th>Tipo</th><th>Descripción</th><th>Fecha</th><th>Archivo</th></tr></thead>
+            <tbody>
+              <?php foreach($planos as $p): ?>
+              <tr>
+                <td><?php echo htmlspecialchars($p['tipo_plano']); ?></td>
+                <td><?php echo htmlspecialchars($p['descripcion'] ?: '-'); ?></td>
+                <td><?php echo date('d/m/Y H:i', strtotime($p['fecha_subida'])); ?></td>
+                <td><a class="btn btn-sm btn-outline-primary" href="<?php echo app_base_url() . '/' . $p['archivo']; ?>" target="_blank"><i class="fas fa-download"></i> Descargar</a></td>
+              </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
+        <?php endif; ?>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="row g-3 mt-1">
@@ -247,35 +272,7 @@ include '../../includes/header.php';
   </div>
 </div>
 
-<div class="row g-3 mt-1">
-  <div class="col-lg-6">
-    <div class="card h-100">
-      <div class="card-header"><h5 class="mb-0"><i class="fas fa-file me-2"></i>Planos</h5></div>
-      <div class="card-body">
-        <?php if (empty($planos)): ?>
-          <p class="text-muted mb-0">Sin planos cargados</p>
-        <?php else: ?>
-        <div class="table-responsive">
-          <table class="table table-sm table-striped">
-            <thead><tr><th>Tipo</th><th>Descripción</th><th>Fecha</th><th>Archivo</th></tr></thead>
-            <tbody>
-              <?php foreach($planos as $p): ?>
-              <tr>
-                <td><?php echo htmlspecialchars($p['tipo_plano']); ?></td>
-                <td><?php echo htmlspecialchars($p['descripcion'] ?: '-'); ?></td>
-                <td><?php echo date('d/m/Y H:i', strtotime($p['fecha_subida'])); ?></td>
-                <td><a class="btn btn-sm btn-outline-primary" href="<?php echo app_base_url() . '/' . $p['archivo']; ?>" target="_blank"><i class="fas fa-download"></i> Descargar</a></td>
-              </tr>
-              <?php endforeach; ?>
-            </tbody>
-          </table>
-        </div>
-        <?php endif; ?>
-      </div>
-    </div>
-  </div>
-  <div class="col-lg-6"></div>
-</div>
+<!-- Planos movido al lado derecho de Telefonía -->
 <?php endif; ?>
 
 <script>
