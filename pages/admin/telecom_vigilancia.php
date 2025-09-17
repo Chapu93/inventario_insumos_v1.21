@@ -116,12 +116,12 @@ include '../../includes/header.php';
     <div class="modal-body">
       <input type="hidden" name="accion" id="accionServ" value="agregar_serv"><input type="hidden" name="id_vigilancia" id="id_vigilancia">
       <div class="mb-2"><label class="form-label">Localidad *</label>
-        <select id="id_localidad_serv" class="form-select select2" required>
+        <select id="id_localidad_serv" class="form-select" required>
           <option value="">Seleccione</option>
         </select><div class="invalid-feedback">Seleccione localidad</div>
       </div>
       <div class="mb-2"><label class="form-label">Sede *</label>
-        <select name="id_sede" id="id_sede_serv" class="form-select select2" required>
+        <select name="id_sede" id="id_sede_serv" class="form-select" required>
           <option value="">Seleccione</option>
         </select><div class="invalid-feedback">Seleccione sede</div>
       </div>
@@ -165,8 +165,8 @@ $('#modalServ').on('hidden.bs.modal', function(){ $('#modalServTitle').text('Agr
 $('#modalDisp').on('hidden.bs.modal', function(){ $('#modalDispTitle').text('Agregar Dispositivo'); $('#accionDisp').val('agregar_disp'); $('#formDisp')[0].reset(); $('#id_vigilancia_sel').val(''); $('#formDisp').removeClass('was-validated'); });
 $('#formServ, #formDisp').on('submit', function(e){ if(!this.checkValidity()){ e.preventDefault(); e.stopPropagation(); } $(this).addClass('was-validated'); });
 const BASE = '<?php echo app_base_url(); ?>';
-function cargarLocalidadesServ(){ $.getJSON(`${BASE}/ajax/localidades_list.php`).done(r=>{ const $l=$('#id_localidad_serv'); $l.html('<option value="">Seleccione</option>'); if(r.success){ r.data.forEach(x=> $l.append(`<option value="${x.id}">${x.nombre}</option>`)); } $l.trigger('change.select2'); }); }
-function cargarSedesServ(loc){ const $s=$('#id_sede_serv'); $s.html('<option value="">Seleccione</option>'); if(!loc){ $s.trigger('change.select2'); return; } $.getJSON(`${BASE}/ajax/sedes_por_localidad.php`, { localidad_id: loc }).done(r=>{ if(r.success){ r.data.forEach(x=> $s.append(`<option value="${x.id}">${x.nombre}</option>`)); } $s.trigger('change.select2'); }); }
+function cargarLocalidadesServ(){ $.getJSON(`${BASE}/ajax/localidades_list.php`).done(r=>{ const $l=$('#id_localidad_serv'); $l.html('<option value="">Seleccione</option>'); if(r.success){ r.data.forEach(x=> $l.append(`<option value="${x.id}">${x.nombre}</option>`)); } }); }
+function cargarSedesServ(loc){ const $s=$('#id_sede_serv'); $s.html('<option value="">Seleccione</option>'); if(!loc){ return; } $.getJSON(`${BASE}/ajax/sedes_por_localidad.php`, { localidad_id: loc }).done(r=>{ if(r.success){ r.data.forEach(x=> $s.append(`<option value="${x.id}">${x.nombre}</option>`)); } }); }
 $(function(){ cargarLocalidadesServ(); $('#id_localidad_serv').on('change', function(){ cargarSedesServ($(this).val()); }); });
 $(function(){
   const url = new URL(window.location.href);
@@ -181,13 +181,7 @@ $(function(){
     new bootstrap.Modal(document.getElementById('modalServ')).show();
   }
 });
-$('#modalServ').on('shown.bs.modal', function(){
-  $('#modalServ .select2').each(function(){
-    var $el = $(this);
-    try { if ($el.hasClass('select2-hidden-accessible')) { $el.select2('destroy'); } } catch(e) {}
-    $el.select2({ theme:'bootstrap-5', language:'es', width:'100%', dropdownParent: $('#modalServ') });
-  });
-});
+// No select2 para igualar estilo de otros modales
 </script>
 
 <?php include '../../includes/footer.php'; ?>
