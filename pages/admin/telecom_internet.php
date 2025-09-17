@@ -233,26 +233,22 @@ include '../../includes/header.php';
 <script>
 const BASE = '<?php echo app_base_url(); ?>';
 function cargarLocalidades(){
-  return $.getJSON(`${BASE}/ajax/localidades_list.php`).done(r => {
-    const $loc = $('#id_localidad');
-    $loc.html('<option value="">Seleccione una localidad</option>');
-    if (r.success) {
-      r.data.forEach(l => { $loc.append(`<option value="${l.id}">${l.nombre}</option>`); });
-    }
-    // no select2 en este modal
+  return $.getJSON(`${BASE}/ajax/localidades_list.php`).done(r=>{
+    const $l=$('#id_localidad');
+    $l.html('<option value="">Seleccione una localidad</option>');
+    if(r.success){ r.data.forEach(x=> $l.append(`<option value="${x.id}">${x.nombre}</option>`)); }
   });
 }
-function cargarSedesPorLocalidad(localidadId, selectedSedeId){
-  const $sedes = $('#id_sede');
-  $sedes.prop('disabled', true).html('<option value="">Cargando...</option>');
-  if (!localidadId) { return; }
-  $.getJSON(`${BASE}/ajax/sedes_por_localidad.php`, { localidad_id: localidadId }).done(r => {
-    $sedes.html('<option value="">Seleccione una sede</option>');
-    if (r.success) { r.data.forEach(s => { $sedes.append(`<option value="${s.id}">${s.nombre}</option>`); }); if (selectedSedeId) { $sedes.val(String(selectedSedeId)); } }
-    $sedes.prop('disabled', false);
-  }).fail(() => {
-    $sedes.html('<option value="">Error al cargar</option>').prop('disabled', false);
-  });
+function cargarSedes(localidadId, afterLoad){
+  const $s=$('#id_sede');
+  $s.prop('disabled', true).html('<option value="">Cargando...</option>');
+  if(!localidadId){ $s.html('<option value="">Seleccione una sede</option>').prop('disabled', false); return; }
+  $.getJSON(`${BASE}/ajax/sedes_por_localidad.php`, { localidad_id: localidadId }).done(r=>{
+    $s.html('<option value="">Seleccione una sede</option>');
+    if(r.success){ r.data.forEach(x=> $s.append(`<option value="${x.id}">${x.nombre}</option>`)); }
+    if(typeof afterLoad === 'function'){ afterLoad($s); }
+    $s.prop('disabled', false);
+  }).fail(()=>{ $s.html('<option value="">Error al cargar</option>').prop('disabled', false); });
 }
 function editarInternet(row){
   $('#modalInternetTitle').text('Editar Servicio');
@@ -260,7 +256,7 @@ function editarInternet(row){
   $('#id_internet').val(row.id_internet);
   if (row.id_localidad) {
     $('#id_localidad').val(row.id_localidad);
-    cargarSedesPorLocalidad(row.id_localidad, row.id_sede);
+    cargarSedes(row.id_localidad, function($s){ $s.val(String(row.id_sede)); });
   }
   $('#proveedor').val(row.proveedor);
   $('#tipo_conexion').val(row.tipo_conexion);
@@ -292,7 +288,7 @@ $('#formInternet').on('submit', function(e){
 });
 $(function(){
   cargarLocalidades();
-  $('#id_localidad').on('change', function(){ cargarSedesPorLocalidad($(this).val(), null); });
+  $('#id_localidad').on('change', function(){ cargarSedes($(this).val(), null); });
   // sin select2 en este modal para igualar estilo
 });
 </script>
