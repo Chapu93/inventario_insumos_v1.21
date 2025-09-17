@@ -283,6 +283,21 @@ $('#formSede').on('submit', function(e) {
     }
     $(this).addClass('was-validated');
 });
+
+// Abrir modal con datos si llegan parámetros
+document.addEventListener('DOMContentLoaded', function(){
+  const url = new URL(window.location.href);
+  const qId = url.searchParams.get('id_sede');
+  const qLoc = url.searchParams.get('id_localidad');
+  if (qId) {
+    try {
+      const filas = <?php echo json_encode($sedes, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT); ?>;
+      const encontrada = filas.find(s => String(s.id_sede) === String(qId));
+      if (encontrada) { editarSede(encontrada); }
+      else { new bootstrap.Modal(document.getElementById('modalSede')).show(); if(qLoc){ $('#id_localidad').val(qLoc); } }
+    } catch(e) { new bootstrap.Modal(document.getElementById('modalSede')).show(); if(qLoc){ $('#id_localidad').val(qLoc); } }
+  }
+});
 </script>
 
 <?php include '../../includes/footer.php'; ?> 
