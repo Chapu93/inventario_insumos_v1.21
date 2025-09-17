@@ -228,12 +228,12 @@ function cargarLocalidades(){
     // no select2 en este modal
   });
 }
-function cargarSedesPorLocalidad(localidadId){
+function cargarSedesPorLocalidad(localidadId, selectedSedeId){
   const $sedes = $('#id_sede');
   $sedes.html('<option value="">Seleccione una sede</option>');
   if (!localidadId) { return; }
   $.getJSON(`${BASE}/ajax/sedes_por_localidad.php`, { localidad_id: localidadId }).done(r => {
-    if (r.success) { r.data.forEach(s => { $sedes.append(`<option value="${s.id}">${s.nombre}</option>`); }); }
+    if (r.success) { r.data.forEach(s => { $sedes.append(`<option value="${s.id}">${s.nombre}</option>`); }); if (selectedSedeId) { $sedes.val(String(selectedSedeId)); } }
   });
 }
 function editarInternet(row){
@@ -242,8 +242,7 @@ function editarInternet(row){
   $('#id_internet').val(row.id_internet);
   if (row.id_localidad) {
     $('#id_localidad').val(row.id_localidad);
-    cargarSedesPorLocalidad(row.id_localidad);
-    setTimeout(function(){ $('#id_sede').val(row.id_sede); }, 200);
+    cargarSedesPorLocalidad(row.id_localidad, row.id_sede);
   }
   $('#proveedor').val(row.proveedor);
   $('#tipo_conexion').val(row.tipo_conexion);
@@ -274,7 +273,7 @@ $('#formInternet').on('submit', function(e){
 });
 $(function(){
   cargarLocalidades();
-  $('#id_localidad').on('change', function(){ cargarSedesPorLocalidad($(this).val()); });
+  $('#id_localidad').on('change', function(){ cargarSedesPorLocalidad($(this).val(), null); });
   // sin select2 en este modal para igualar estilo
 });
 </script>
