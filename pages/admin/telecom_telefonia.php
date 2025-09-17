@@ -141,20 +141,22 @@ function cargarSedes(localidad){
   });
 }
 $(function(){
-  cargarLocalidades();
-  $('#id_localidad').on('change', function(){ cargarSedes($(this).val()); });
-  // sin select2 en este modal para igualar estilo
   const url = new URL(window.location.href);
   const qLoc = url.searchParams.get('id_localidad');
   const qSede = url.searchParams.get('id_sede');
   const qOpen = url.searchParams.get('open');
-  if (qLoc) {
-    $('#id_localidad').val(qLoc);
-    cargarSedes(qLoc);
-    setTimeout(function(){ if(qSede){ $('#id_sede').val(String(qSede)); } if(qOpen==='add'){ new bootstrap.Modal(document.getElementById('modalTel')).show(); } }, 250);
-  } else if (qOpen==='add') {
-    new bootstrap.Modal(document.getElementById('modalTel')).show();
+  cargarLocalidades();
+  $('#id_localidad').on('change', function(){ cargarSedes($(this).val()); });
+  if (qOpen === 'add') {
+    if (qLoc) {
+      $('#id_localidad').val(qLoc);
+      cargarSedes(qLoc);
+      setTimeout(function(){ if(qSede){ $('#id_sede').val(String(qSede)); } new bootstrap.Modal(document.getElementById('modalTel')).show(); }, 250);
+    } else {
+      new bootstrap.Modal(document.getElementById('modalTel')).show();
+    }
   }
+  // sin select2 en este modal para igualar estilo
 });
 </script>
 

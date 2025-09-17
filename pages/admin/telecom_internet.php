@@ -292,19 +292,23 @@ $('#formInternet').on('submit', function(e){
   $(this).addClass('was-validated');
 });
 $(function(){
-  cargarLocalidades();
-  $('#id_localidad').on('change', function(){ cargarSedes($(this).val(), null); });
-  // sin select2 en este modal para igualar estilo
   const url = new URL(window.location.href);
   const qLoc = url.searchParams.get('id_localidad');
   const qSede = url.searchParams.get('id_sede');
   const qOpen = url.searchParams.get('open');
-  if (qLoc) {
-    $('#id_localidad').val(qLoc);
-    cargarSedes(qLoc, function($s){ if(qSede){ $s.val(String(qSede)); } if(qOpen==='add'){ new bootstrap.Modal(document.getElementById('modalInternet')).show(); } });
-  } else if (qOpen==='add') {
-    new bootstrap.Modal(document.getElementById('modalInternet')).show();
-  }
+  cargarLocalidades().done(function(){
+    if (qLoc) {
+      $('#id_localidad').val(qLoc);
+      cargarSedes(qLoc, function($s){
+        if(qSede){ $s.val(String(qSede)); }
+        if(qOpen==='add'){ new bootstrap.Modal(document.getElementById('modalInternet')).show(); }
+      });
+    } else if (qOpen==='add') {
+      new bootstrap.Modal(document.getElementById('modalInternet')).show();
+    }
+  });
+  $('#id_localidad').on('change', function(){ cargarSedes($(this).val(), null); });
+  // sin select2 en este modal para igualar estilo
 });
 </script>
 
