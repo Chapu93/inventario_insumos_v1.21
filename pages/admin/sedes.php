@@ -214,29 +214,29 @@ $localidades = $stmt->fetchAll();
                     <div class="row g-2">
                         <div class="col-md-4">
                             <label class="form-label">Nombre Delegado</label>
-                            <input type="text" class="form-control" id="delegado_nombre" name="delegado_nombre">
+                            <input type="text" class="form-control form-control-sm w-auto" style="max-width: 240px;" id="delegado_nombre" name="delegado_nombre">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Apellido Delegado</label>
-                            <input type="text" class="form-control" id="delegado_apellido" name="delegado_apellido">
+                            <input type="text" class="form-control form-control-sm w-auto" style="max-width: 240px;" id="delegado_apellido" name="delegado_apellido">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Teléfono Delegado</label>
-                            <input type="text" class="form-control" id="delegado_telefono" name="delegado_telefono">
+                            <input type="text" class="form-control form-control-sm w-auto" style="max-width: 240px;" id="delegado_telefono" name="delegado_telefono">
                         </div>
                     </div>
                     <div class="row g-2 mt-1">
                         <div class="col-md-4">
                             <label class="form-label">Nombre Responsable</label>
-                            <input type="text" class="form-control" id="responsable_nombre" name="responsable_nombre">
+                            <input type="text" class="form-control form-control-sm w-auto" style="max-width: 240px;" id="responsable_nombre" name="responsable_nombre">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Apellido Responsable</label>
-                            <input type="text" class="form-control" id="responsable_apellido" name="responsable_apellido">
+                            <input type="text" class="form-control form-control-sm w-auto" style="max-width: 240px;" id="responsable_apellido" name="responsable_apellido">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Teléfono Responsable</label>
-                            <input type="text" class="form-control" id="responsable_telefono" name="responsable_telefono">
+                            <input type="text" class="form-control form-control-sm w-auto" style="max-width: 240px;" id="responsable_telefono" name="responsable_telefono">
                         </div>
                     </div>
                 </div>
