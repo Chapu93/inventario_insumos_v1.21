@@ -54,6 +54,7 @@
                     '/pages/admin/telecom_telefonia.php',
                     '/pages/admin/telecom_red.php',
                     '/pages/admin/telecom_vigilancia.php',
+                    '/pages/admin/telecom_vigilancia_servicio.php',
                     '/pages/admin/telecom_resumen.php'
                 ];
 
