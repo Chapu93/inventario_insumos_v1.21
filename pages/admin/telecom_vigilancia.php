@@ -39,8 +39,11 @@ $servicios = $db->query("SELECT v.*, s.nombre_sede, l.nombre_localidad FROM sede
 $sedes = $db->query("SELECT s.id_sede, s.nombre_sede, l.nombre_localidad FROM sedes s JOIN localidades l ON l.id_localidad=s.id_localidad ORDER BY l.nombre_localidad, s.nombre_sede")->fetchAll();
 // Conteo de dispositivos por servicio para mostrar en la lista maestra
 $rowsDispCount = $db->query("SELECT id_vigilancia, COALESCE(SUM(cantidad),0) AS total_dispositivos FROM sedes_vigilancia_dispositivos GROUP BY id_vigilancia")->fetchAll();
+$rowsCamsAct = $db->query("SELECT id_vigilancia, COALESCE(SUM(cantidad),0) AS cam_activas FROM sedes_vigilancia_dispositivos WHERE tipo_dispositivo='Cámara' AND estado='Activo' GROUP BY id_vigilancia")->fetchAll();
 $dispCount = [];
+$camActivas = [];
 foreach ($rowsDispCount as $r) { $dispCount[(int)$r['id_vigilancia']] = (int)$r['total_dispositivos']; }
+foreach ($rowsCamsAct as $r) { $camActivas[(int)$r['id_vigilancia']] = (int)$r['cam_activas']; }
 include '../../includes/header.php';
 ?>
 
@@ -56,10 +59,10 @@ include '../../includes/header.php';
 <div class="row g-3">
   <div class="col-12">
     <div class="card">
-      <div class="card-header d-flex justify-content-between align-items-center"><h5 class="mb-0"><i class="fas fa-building-shield me-2"></i>Servicios (<?php echo count($servicios); ?>)</h5><div class="small text-muted">Total dispositivos: <strong><?php echo array_sum($dispCount ?: []); ?></strong></div></div>
+      <div class="card-header d-flex justify-content-between align-items-center"><h5 class="mb-0"><i class="fas fa-building-shield me-2"></i>Servicios (<?php echo count($servicios); ?>)</h5><div class="small text-muted">Total dispositivos: <strong><?php echo array_sum($dispCount ?: []); ?></strong> · Cámaras activas: <strong><?php echo array_sum($camActivas ?: []); ?></strong></div></div>
       <div class="card-body">
         <div class="table-responsive">
-          <table class="table table-striped datatable"><thead><tr><th>Sede</th><th>Localidad</th><th>Proveedor</th><th>Estado</th><th>Dispositivos</th><th>Acciones</th></tr></thead><tbody>
+          <table class="table table-striped datatable"><thead><tr><th>Sede</th><th>Localidad</th><th>Proveedor</th><th>Estado</th><th>Dispositivos</th><th>Cámaras activas</th><th>Acciones</th></tr></thead><tbody>
             <?php foreach($servicios as $v): ?>
             <tr>
               <td><strong><?php echo htmlspecialchars($v['nombre_sede']); ?></strong></td>
@@ -67,6 +70,7 @@ include '../../includes/header.php';
               <td><?php echo htmlspecialchars($v['proveedor']); ?></td>
               <td><?php $e=$v['estado_servicio']; $cls=$e==='Activo'?'estado-activa':($e==='Pendiente'?'estado-asignado':'estado-baja'); ?><span class="badge <?php echo $cls; ?>"><?php echo $e; ?></span></td>
               <td><span class="badge bg-secondary"><?php echo (int)($dispCount[(int)$v['id_vigilancia']] ?? 0); ?></span></td>
+              <td><span class="badge bg-success"><?php echo (int)($camActivas[(int)$v['id_vigilancia']] ?? 0); ?></span></td>
               <td>
                 <div class="btn-group" role="group">
                   <a class="btn btn-sm btn-info" href="<?php echo app_base_url(); ?>/pages/admin/telecom_vigilancia_servicio.php?id_vigilancia=<?php echo (int)$v['id_vigilancia']; ?>" title="Ver detalle"><i class="fas fa-eye"></i></a>

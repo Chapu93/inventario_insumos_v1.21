@@ -40,6 +40,12 @@ $dispositivos = $disps->fetchAll();
 
 // KPI simples
 $totalDispositivos = (int)$db->prepare("SELECT COALESCE(SUM(cantidad),0) FROM sedes_vigilancia_dispositivos WHERE id_vigilancia=?")->execute([$idVig]) ? (int)$db->query("SELECT COALESCE(SUM(cantidad),0) AS t FROM sedes_vigilancia_dispositivos WHERE id_vigilancia=".(int)$idVig)->fetchColumn() : 0;
+$camarasActivas = (int)$db->query("SELECT COALESCE(SUM(cantidad),0) FROM sedes_vigilancia_dispositivos WHERE id_vigilancia=".(int)$idVig." AND tipo_dispositivo='Cámara' AND estado='Activo'")->fetchColumn();
+
+// Tipos disponibles para filtros
+$tiposDisponibles = [];
+foreach ($dispositivos as $d) { $t = trim((string)$d['tipo_dispositivo']); if ($t !== '' && !in_array($t, $tiposDisponibles, true)) { $tiposDisponibles[] = $t; } }
+sort($tiposDisponibles);
 
 include '../../includes/header.php';
 ?>
@@ -72,8 +78,9 @@ include '../../includes/header.php';
         <p class="mb-1"><strong>Estado:</strong> <?php $e=$servicio['estado_servicio']; $cls=$e==='Activo'?'estado-activa':($e==='Pendiente'?'estado-asignado':'estado-baja'); ?><span class="badge <?php echo $cls; ?>"><?php echo $e; ?></span></p>
         <p class="mb-1"><strong>Observaciones:</strong> <?php echo htmlspecialchars($servicio['observaciones'] ?: '-'); ?></p>
         <hr>
-        <div class="d-flex gap-3">
+        <div class="d-flex gap-4">
           <div><div class="small text-muted">Dispositivos</div><div class="h4 mb-0"><?php echo $totalDispositivos; ?></div></div>
+          <div><div class="small text-muted">Cámaras activas</div><div class="h4 mb-0"><?php echo (int)$camarasActivas; ?></div></div>
         </div>
         <div class="mt-3">
           <button class="btn btn-sm btn-warning" onclick='editServ(<?php echo json_encode($servicio, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT); ?>)'><i class="fas fa-edit me-1"></i>Editar Servicio</button>
@@ -84,11 +91,32 @@ include '../../includes/header.php';
   </div>
   <div class="col-md-8">
     <div class="card h-100">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0"><i class="fas fa-cctv me-2"></i>Dispositivos</h5>
-        <div class="d-flex gap-2">
-          <button class="btn btn-sm btn-outline-secondary" id="btnExport"><i class="fas fa-file-export me-1"></i>Exportar CSV</button>
-          <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalDisp"><i class="fas fa-plus me-1"></i>Agregar</button>
+      <div class="card-header">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+          <h5 class="mb-0"><i class="fas fa-cctv me-2"></i>Dispositivos</h5>
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-outline-secondary" id="btnExport"><i class="fas fa-file-export me-1"></i>Exportar CSV</button>
+            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalDisp"><i class="fas fa-plus me-1"></i>Agregar</button>
+          </div>
+        </div>
+        <div class="row g-2 mt-2">
+          <div class="col-md-4">
+            <label class="form-label small mb-1">Tipo</label>
+            <select class="form-select form-select-sm" id="filterTipo">
+              <option value="">Todos</option>
+              <?php foreach($tiposDisponibles as $t): ?>
+              <option value="<?php echo htmlspecialchars($t); ?>"><?php echo htmlspecialchars($t); ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small mb-1">Estado</label>
+            <select class="form-select form-select-sm" id="filterEstado">
+              <option value="">Todos</option>
+              <option value="Activo">Activo</option>
+              <option value="De Baja">De Baja</option>
+            </select>
+          </div>
         </div>
       </div>
       <div class="card-body">
@@ -156,6 +184,21 @@ function editDisp(d){ $('#modalDispTitle').text('Editar Dispositivo'); $('#accio
 function delDisp(id){ if(confirm('¿Eliminar dispositivo?')){ $('#del_disp').val(id); $('#formDelDisp').submit(); } }
 $('#modalDisp').on('hidden.bs.modal', function(){ $('#modalDispTitle').text('Agregar Dispositivo'); $('#accionDisp').val('agregar_disp'); $('#formDisp')[0].reset(); $('#formDisp').removeClass('was-validated'); });
 $('#formServ, #formDisp').on('submit', function(e){ if(!this.checkValidity()){ e.preventDefault(); e.stopPropagation(); } $(this).addClass('was-validated'); });
+
+// Filtros con DataTables
+window.addEventListener('load', function(){
+  try {
+    var dt = $('#tblDisps').DataTable();
+    function applyFilters(){
+      var tipo = $('#filterTipo').val() || '';
+      var estado = $('#filterEstado').val() || '';
+      if (tipo) { dt.column(0).search('^'+tipo+'$', true, false); } else { dt.column(0).search(''); }
+      if (estado) { dt.column(5).search('^'+estado+'$', true, false); } else { dt.column(5).search(''); }
+      dt.draw();
+    }
+    $('#filterTipo, #filterEstado').on('change', applyFilters);
+  } catch(e) {}
+});
 
 // Exportar CSV simple desde la tabla
 document.getElementById('btnExport').addEventListener('click', function(){
