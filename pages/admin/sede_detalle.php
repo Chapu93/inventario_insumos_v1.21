@@ -227,13 +227,16 @@ include '../../includes/header.php';
         <?php else: ?>
         <div class="table-responsive">
           <table class="table table-sm table-striped">
-            <thead><tr><th>Proveedor</th><th>Estado</th><th>Obs.</th></tr></thead>
+            <thead><tr><th>Proveedor</th><th>Estado</th><th>Obs.</th><th>Acciones</th></tr></thead>
             <tbody>
               <?php foreach($vigilancia as $v): ?>
               <tr>
                 <td><?php echo htmlspecialchars($v['proveedor']); ?></td>
                 <td><?php echo htmlspecialchars($v['estado_servicio']); ?></td>
                 <td><?php echo htmlspecialchars($v['observaciones'] ?: '-'); ?></td>
+                <td>
+                  <a class="btn btn-sm btn-info" href="<?php echo app_base_url(); ?>/pages/admin/telecom_vigilancia_servicio.php?id_vigilancia=<?php echo (int)$v['id_vigilancia']; ?>"><i class="fas fa-eye"></i></a>
+                </td>
               </tr>
               <?php endforeach; ?>
             </tbody>
@@ -252,7 +255,7 @@ include '../../includes/header.php';
         <?php else: ?>
         <div class="table-responsive">
           <table class="table table-sm table-striped">
-            <thead><tr><th>Proveedor</th><th>Tipo</th><th>Marca/Modelo</th><th>Cant.</th><th>Ubicación</th><th>Estado</th></tr></thead>
+            <thead><tr><th>Proveedor</th><th>Tipo</th><th>Marca/Modelo</th><th>Cant.</th><th>Ubicación</th><th>Estado</th><th>Acciones</th></tr></thead>
             <tbody>
               <?php foreach($vigilancia_dispositivos as $d): ?>
               <tr>
@@ -262,6 +265,9 @@ include '../../includes/header.php';
                 <td><span class="badge bg-dark"><?php echo (int)$d['cantidad']; ?></span></td>
                 <td><?php echo htmlspecialchars($d['ubicacion'] ?: '-'); ?></td>
                 <td><?php echo htmlspecialchars($d['estado']); ?></td>
+                <td>
+                  <a class="btn btn-sm btn-info" href="<?php echo app_base_url(); ?>/pages/admin/telecom_vigilancia_servicio.php?id_vigilancia=<?php echo (int)$d['id_vigilancia']; ?>" title="Ver servicio"><i class="fas fa-eye"></i></a>
+                </td>
               </tr>
               <?php endforeach; ?>
             </tbody>
