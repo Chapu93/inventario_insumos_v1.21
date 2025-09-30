@@ -29,9 +29,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $obs = $_POST['observaciones'] ?: null;
         if (!$idSede || !$idArea || $nombre === '' || $apellido === '') { throw new Exception('Complete ubicación y datos de persona'); }
 
-        $numero = generarNumeroRemito();
-        $db->prepare("INSERT INTO remitos (numero_remito, id_sede, id_area, nombre_persona_asignada, apellido_persona_asignada, fecha_asignacion, observaciones) VALUES (?,?,?,?,?,?,?)")
-           ->execute([$numero, $idSede, $idArea, $nombre, $apellido, $fecha, $obs]);
+        // Generación robusta con retry (igual que nueva.php)
+        $maxRetries = 50; $numero = null; $ok = false; $lastErr = '';
+        for ($i = 0; $i < $maxRetries; $i++) {
+            $numero = generarNumeroRemito($db);
+            try {
+                $stmtR = $db->prepare("INSERT INTO remitos (numero_remito, id_sede, id_area, nombre_persona_asignada, apellido_persona_asignada, fecha_asignacion, observaciones) VALUES (?,?,?,?,?,?,?)");
+                $stmtR->execute([$numero, $idSede, $idArea, $nombre, $apellido, $fecha, $obs]);
+                $ok = true; break;
+            } catch (Exception $e) {
+                $lastErr = $e->getMessage();
+                if (strpos($lastErr, '1062') === false) { throw $e; }
+                try {
+                    $anioNow = (int)date('Y');
+                    $m = $db->prepare("SELECT MAX(CAST(SUBSTRING_INDEX(numero_remito, '_', 1) AS UNSIGNED)) AS maxseq FROM remitos WHERE RIGHT(numero_remito, 4) = ?");
+                    $m->execute([strval($anioNow)]);
+                    $max = (int)($m->fetch()['maxseq'] ?? 0);
+                    $db->prepare("UPDATE remito_secuencia SET ultimo = GREATEST(ultimo, ?) WHERE anio = ?")->execute([$max, $anioNow]);
+                } catch (Exception $syncE) {}
+            }
+        }
+        if (!$ok) { throw new Exception('No se pudo asignar número de remito único: ' . $lastErr); }
         $idRemito = (int)$db->lastInsertId();
         $stmtDet = $db->prepare("INSERT INTO remitos_detalle (id_remito, id_insumo, cantidad) VALUES (?,?,?)");
 
@@ -332,7 +350,13 @@ $('#id_localidad').on('change', function(){
   const id = $(this).val();
   setLoading($('#id_sede'), 'Cargando sedes...');
   $.getJSON(`${getAppBase()}/ajax/cargar_sedes.php`, { localidad_id: id })
-    .done(r => { $('#id_sede').html(r && r.options ? r.options : '<option value="">Seleccione una sede</option>'); })
+    .done(r => {
+      const data = r && r.data ? r.data : r;
+      const lista = data && data.sedes ? data.sedes : [];
+      let opts = '<option value="">Seleccione una sede</option>';
+      lista.forEach(s => { opts += `<option value="${parseInt(s.id,10)}">${$('<div>').text(s.nombre || '').html()}</option>`; });
+      $('#id_sede').html(opts);
+    })
     .fail(()=> $('#id_sede').html('<option value="">Seleccione una sede</option>'));
   // Evitar que mover selects empuje Observaciones: no tocar DOM fuera de su contenedor
 });
@@ -341,7 +365,13 @@ $('#id_sede').on('change', function(){
   const id = $(this).val();
   setLoading($('#id_area_asignada'), 'Cargando áreas...');
   $.getJSON(`${getAppBase()}/ajax/cargar_areas.php`, { sede_id: id })
-    .done(r => { $('#id_area_asignada').html(r && r.options ? r.options : '<option value="">Seleccione un área</option>'); })
+    .done(r => {
+      const data = r && r.data ? r.data : r;
+      const lista = data && data.areas ? data.areas : [];
+      let opts = '<option value="">Seleccione un área</option>';
+      lista.forEach(a => { opts += `<option value="${parseInt(a.id_area || a.id,10)}">${$('<div>').text(a.nombre_area || a.nombre || '').html()}</option>`; });
+      $('#id_area_asignada').html(opts);
+    })
     .fail(()=> $('#id_area_asignada').html('<option value="">Seleccione un área</option>'));
 });
 
