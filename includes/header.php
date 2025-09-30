@@ -90,6 +90,9 @@
                         <li>
                             <a href="<?php echo app_base_url(); ?>/pages/reportes/remito.php" class="<?php echo strpos($currentPath, '/pages/reportes/remito.php') !== false ? 'active' : ''; ?>" role="menuitem">Remitos</a>
                         </li>
+                        <li>
+                            <a href="<?php echo app_base_url(); ?>/pages/reportes/historial.php" class="<?php echo strpos($currentPath, '/pages/reportes/historial.php') !== false ? 'active' : ''; ?>" role="menuitem">Historial</a>
+                        </li>
                     </ul>
                 </li>
                 
