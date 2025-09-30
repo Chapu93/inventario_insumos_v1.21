@@ -146,7 +146,7 @@ $localidades = $stmt->fetchAll();
             </div>
         <?php else: ?>
             <div class="table-responsive">
-                <table class="table table-striped datatable" id="tablaInsumos" data-default-order-col="1" data-default-order-dir="asc">
+                <table class="table table-striped datatable" id="tablaInsumos" data-default-order-col="1" data-default-order-dir="asc" data-ssp="1">
                     <thead>
                         <tr>
                             <th>Nombre</th>
@@ -155,62 +155,7 @@ $localidades = $stmt->fetchAll();
                             <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <?php foreach ($insumos as $insumo): ?>
-                            <tr>
-                                <td>
-                                    <strong><?php echo htmlspecialchars($insumo['nombre_insumo']); ?></strong>
-                                </td>
-                                <td data-order="<?php echo ($insumo['estado']==='Disponible'?0:($insumo['estado']==='Asignado'?1:2)); ?>">
-                                    <span class="badge estado-<?php echo strtolower(str_replace(' ', '-', $insumo['estado'])); ?>">
-                                        <?php echo $insumo['estado']; ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="badge <?php echo $insumo['cantidad'] > 0 ? 'bg-success' : 'bg-danger'; ?>">
-                                        <?php echo $insumo['cantidad']; ?>
-                                    </span>
-                                </td>
-                                
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <button type="button" 
-                                                class="btn btn-sm btn-info" 
-                                                onclick="verInsumo(<?php echo $insumo['id_insumo']; ?>)"
-                                                data-bs-toggle="tooltip" 
-                                                title="Ver detalles">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-<?php $bloquearEdit = ($insumo['estado'] === 'Asignado'); ?>
-<?php if ($bloquearEdit): ?>
-                                        <button type="button"
-                                                class="btn btn-sm btn-warning" 
-                                                data-bs-toggle="tooltip" 
-                                                title="No se puede editar un insumo asignado" disabled>
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-<?php else: ?>
-                                        <a href="editar.php?id=<?php echo $insumo['id_insumo']; ?>" 
-                                           class="btn btn-sm btn-warning" 
-                                           data-bs-toggle="tooltip" 
-                                           title="Editar">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-<?php endif; ?>
-<?php $bloquear = ($insumo['estado'] === 'Asignado'); ?>
-<button type="button" 
-        class="btn btn-sm btn-danger" 
-        <?php echo $bloquear ? 'disabled' : ''; ?>
-        onclick="<?php echo $bloquear ? 'return false;' : "abrirModalBajaInsumo({$insumo['id_insumo']}, '".htmlspecialchars($insumo['nombre_insumo'])."')"; ?>"
-        data-bs-toggle="tooltip" 
-        title="<?php echo $bloquear ? 'No se puede eliminar un insumo asignado' : 'Dar de baja'; ?>">
-  <i class="fas fa-trash"></i>
-</button>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
+                    <tbody></tbody>
                 </table>
             </div>
         <?php endif; ?>
@@ -393,3 +338,36 @@ document.getElementById('btnConfirmarBaja').addEventListener('click', function()
 </script>
 
 <?php include '../../includes/footer.php'; ?>
+
+<script>
+$(function(){
+  var $t = $('#tablaInsumos');
+  if ($.fn && $.fn.DataTable && $t.length) {
+    $t.DataTable({
+      processing: true,
+      serverSide: true,
+      ajax: {
+        url: getAppBase() + '/ajax/insumos_list_ssp.php',
+        type: 'GET',
+        data: function(d){
+          // Enviar filtros actuales
+          d.tipo = $('#tipo').val() || '';
+          d.localidad = $('#localidad').val() || '';
+          d.estado = $('#estado').val() || '';
+        }
+      },
+      order: [[$t.data('default-order-col') || 1, $t.data('default-order-dir') || 'asc']],
+      pageLength: 25,
+      columns: [
+        { data: 0 },
+        { data: 1, orderable: true },
+        { data: 2, orderable: true },
+        { data: 3, orderable: false, searchable: false }
+      ],
+      drawCallback: function(){ inicializarTooltips(); }
+    });
+  }
+  // Reaplicar con filtros
+  $('form').on('submit', function(e){ e.preventDefault(); $('#tablaInsumos').DataTable().ajax.reload(); });
+});
+</script>

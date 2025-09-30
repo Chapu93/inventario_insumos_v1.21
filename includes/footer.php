@@ -58,6 +58,8 @@
             $('.datatable').each(function() {
                 var $t = $(this);
                 if ($.fn.DataTable.isDataTable($t)) { return; }
+                // Omitir tablas marcadas para server-side (se inicializan manualmente)
+                if ($t.data('ssp') === 1 || String($t.data('ssp')) === '1') { return; }
                 var defaultCol = parseInt($t.data('default-order-col')) || 0;
                 var defaultDir = String($t.data('default-order-dir') || 'asc');
                 var dt = $t.DataTable({
