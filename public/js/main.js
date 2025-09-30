@@ -102,10 +102,17 @@ function cargarAreasPorSede(sedeId, selectId) {
         dataType: 'json',
         success: function(response) {
             console.log('[DEBUG] cargar_areas response', response);
-            if (response.success) {
-                $(sel).html(response.options).trigger('change');
+            const data = response && response.data ? response.data : response;
+            const lista = data && data.areas ? data.areas : [];
+            if (response && response.success && Array.isArray(lista)) {
+                let options = '<option value="">Seleccione un área</option>';
+                lista.forEach(function(a){
+                    const nombre = a.nombre_area || '';
+                    options += `<option value="${parseInt(a.id_area,10)}">${$('<div>').text(nombre).html()}</option>`;
+                });
+                $(sel).html(options).trigger('change');
             } else {
-                console.error('Error al cargar áreas:', response.error);
+                console.error('Error al cargar áreas:', response && response.error);
                 $(sel).html('<option value="">Error al cargar áreas</option>');
             }
         },

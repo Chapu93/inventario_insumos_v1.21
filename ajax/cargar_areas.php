@@ -3,10 +3,7 @@ require_once '../includes/config.php';
 
 header('Content-Type: application/json');
 
-if (!isset($_GET['sede_id'])) {
-    echo json_encode(['error' => 'ID de sede no proporcionado']);
-    exit;
-}
+if (!isset($_GET['sede_id'])) { json_error('ID de sede no proporcionado', 400); exit; }
 
 $conexion = conectarDB();
 $sede_id = $_GET['sede_id'];
@@ -31,14 +28,9 @@ try {
         $areas = $stmt->fetchAll();
     }
     
-    $options = '<option value="">Seleccione un área</option>';
-    foreach ($areas as $area) {
-        $options .= '<option value="' . $area['id_area'] . '">' . htmlspecialchars($area['nombre_area']) . '</option>';
-    }
-    
-    echo json_encode(['success' => true, 'options' => $options]);
+    json_success(['areas' => $areas]);
     
 } catch (Exception $e) {
-    echo json_encode(['error' => 'Error al cargar áreas: ' . $e->getMessage()]);
+    json_error('Error al cargar áreas: ' . $e->getMessage(), 500);
 }
 ?> 
