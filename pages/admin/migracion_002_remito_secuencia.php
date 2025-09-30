@@ -16,7 +16,16 @@ try {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
     echo '<p>Tabla <strong>remito_secuencia</strong> verificada/creada.</p>';
 
-    // 2) Verificar duplicados en remitos.numero_remito
+    // 2) Inicializar secuencia con el máximo existente del año
+    $anio = (int)date('Y');
+    $maxStmt = $db->prepare("SELECT MAX(CAST(SUBSTRING_INDEX(numero_remito, '_', 1) AS UNSIGNED)) AS maxseq FROM remitos WHERE numero_remito LIKE ?");
+    $maxStmt->execute(["%_{$anio}"]);
+    $max = (int)($maxStmt->fetch()['maxseq'] ?? 0);
+    $db->prepare("INSERT INTO remito_secuencia (anio, ultimo) VALUES (?, ?) ON DUPLICATE KEY UPDATE ultimo = GREATEST(ultimo, VALUES(ultimo))")
+       ->execute([$anio, $max]);
+    echo '<p>Secuencia ' . htmlspecialchars((string)$anio) . ' inicializada a ' . (int)$max . '.</p>';
+
+    // 3) Verificar duplicados en remitos.numero_remito
     $dups = $db->query("SELECT numero_remito, COUNT(*) c FROM remitos GROUP BY numero_remito HAVING c > 1 LIMIT 5")->fetchAll();
     if (!empty($dups)) {
         echo '<p style="color:#d9534f">Se detectaron números de remito duplicados. No se creará el índice único.</p>';
@@ -26,7 +35,7 @@ try {
         }
         echo '</ul>';
     } else {
-        // 3) Crear índice único si no existe
+        // 4) Crear índice único si no existe
         $idxExistsStmt = $db->prepare("SELECT COUNT(*) FROM information_schema.statistics WHERE table_schema = DATABASE() AND table_name = 'remitos' AND index_name = 'uniq_numero_remito'");
         $idxExistsStmt->execute();
         $idxExists = (int)$idxExistsStmt->fetchColumn() > 0;

@@ -32,19 +32,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $idsInsumo = isset($_POST['id_insumo']) ? (array)$_POST['id_insumo'] : [];
         if (empty($idsInsumo)) { throw new Exception('Debe seleccionar al menos un insumo'); }
 
-        $numero_remito = generarNumeroRemito();
-
-        // Cabecera
-        $stmtRemito = $conexion->prepare("INSERT INTO remitos (numero_remito, id_sede, id_area, nombre_persona_asignada, apellido_persona_asignada, fecha_asignacion, observaciones) VALUES (?,?,?,?,?,?,?)");
-        $stmtRemito->execute([
-            $numero_remito,
-            $_POST['id_sede'],
-            $_POST['id_area_asignada'],
-            $_POST['nombre_persona_asignada'],
-            $_POST['apellido_persona_asignada'],
-            $_POST['fecha_asignacion'],
-            $_POST['observaciones'] ?: null
-        ]);
+        // Generar número y robustecer ante posibles colisiones (retry)
+        $maxRetries = 3; $numero_remito = null; $ok = false; $lastErr = '';
+        for ($i = 0; $i < $maxRetries; $i++) {
+            $numero_remito = generarNumeroRemito();
+            try {
+                $stmtRemito = $conexion->prepare("INSERT INTO remitos (numero_remito, id_sede, id_area, nombre_persona_asignada, apellido_persona_asignada, fecha_asignacion, observaciones) VALUES (?,?,?,?,?,?,?)");
+                $stmtRemito->execute([
+                    $numero_remito,
+                    $_POST['id_sede'],
+                    $_POST['id_area_asignada'],
+                    $_POST['nombre_persona_asignada'],
+                    $_POST['apellido_persona_asignada'],
+                    $_POST['fecha_asignacion'],
+                    $_POST['observaciones'] ?: null
+                ]);
+                $ok = true; break;
+            } catch (Exception $e) {
+                $lastErr = $e->getMessage();
+                if (strpos($lastErr, '1062') === false) { throw $e; }
+                // Si fue duplicado, reintentar en la próxima iteración (otro número)
+            }
+        }
+        if (!$ok) { throw new Exception('No se pudo asignar número de remito único: ' . $lastErr); }
         $idRemito = (int)$conexion->lastInsertId();
         $stmtInsertDet = $conexion->prepare("INSERT INTO remitos_detalle (id_remito, id_insumo, cantidad) VALUES (?,?,?)");
 
