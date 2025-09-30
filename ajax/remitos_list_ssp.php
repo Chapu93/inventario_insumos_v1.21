@@ -52,8 +52,8 @@ try {
 
     $data = array_map(function($r){
         $acciones = '<div class="btn-group" role="group">'
-                  . '<button type="button" class="btn btn-sm btn-primary" onclick="generarRemitoPDF(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Imprimir remito"><i class="fas fa-print"></i></button>'
-                  . ' <a href="?remito=' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Ver detalles"><i class="fas fa-eye"></i></a>'
+                  . '<button type="button" class="btn btn-sm btn-primary" aria-label="Imprimir remito" onclick="generarRemitoPDF(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Imprimir remito"><i class="fas fa-print" aria-hidden="true"></i></button>'
+                  . ' <a href="?remito=' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '" class="btn btn-sm btn-info" aria-label="Ver detalles del remito" data-bs-toggle="tooltip" title="Ver detalles"><i class="fas fa-eye" aria-hidden="true"></i></a>'
                   . '</div>';
         return [
             '<strong>' . htmlspecialchars($r['numero_remito']) . '</strong>',

@@ -85,9 +85,9 @@ try {
         $estado = ((int)$r['activas'] > 0) ? 'Activa' : 'Devuelta';
         $estadoBadge = '<span class="badge estado-' . strtolower($estado) . '">' . $estado . '</span>';
         $acciones = '<div class="btn-group" role="group">'
-                  . '<button type="button" class="btn btn-sm btn-info" onclick="abrirVerAsignacion(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Ver asignación"><i class="fas fa-eye"></i></button>'
-                  . ' <button type="button" class="btn btn-sm btn-primary" onclick="generarRemitoPDF(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Imprimir remito"><i class="fas fa-print"></i></button>'
-                  . ' <button type="button" class="btn btn-sm btn-warning" onclick="abrirDevolucion(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Devolver insumos"><i class="fas fa-undo"></i></button>'
+                  . '<button type="button" class="btn btn-sm btn-info" aria-label="Ver asignación" onclick="abrirVerAsignacion(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Ver asignación"><i class="fas fa-eye" aria-hidden="true"></i></button>'
+                  . ' <button type="button" class="btn btn-sm btn-primary" aria-label="Imprimir remito" onclick="generarRemitoPDF(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Imprimir remito"><i class="fas fa-print" aria-hidden="true"></i></button>'
+                  . ' <button type="button" class="btn btn-sm btn-warning" aria-label="Devolver insumos" onclick="abrirDevolucion(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Devolver insumos"><i class="fas fa-undo" aria-hidden="true"></i></button>'
                   . '</div>';
         return [
             htmlspecialchars($r['nombre_persona_asignada'] . ' ' . $r['apellido_persona_asignada']),
