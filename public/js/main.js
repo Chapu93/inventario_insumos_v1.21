@@ -41,8 +41,9 @@ $(function() {
 
 // Función para cargar insumos por sede
 function cargarInsumosPorSede(sedeId, selectId) {
+    const sel = (selectId && String(selectId).charAt(0) === '#') ? String(selectId) : `#${selectId}`;
     if (!sedeId) {
-        $(`#${selectId}`).html('<option value="">Seleccione un insumo</option>');
+        $(sel).html('<option value="">Seleccione un insumo</option>');
         return;
     }
     const url = `${getAppBase()}/ajax/cargar_insumos.php`;
@@ -54,24 +55,42 @@ function cargarInsumosPorSede(sedeId, selectId) {
         dataType: 'json',
         success: function(response) {
             console.log('[DEBUG] cargar_insumos response', response);
-            if (response.success) {
-                $(`#${selectId}`).html(response.options).trigger('change');
+            const data = response && response.data ? response.data : response;
+            const lista = data && data.insumos ? data.insumos : [];
+            if (response && response.success && Array.isArray(lista)) {
+                let options = '<option value="">Seleccione un insumo</option>';
+                lista.forEach(function(it){
+                    const tipo = it.tipo_insumo || '';
+                    const max = (tipo === 'Varios') ? parseInt(it.cantidad || 0, 10) : 1;
+                    let texto = String(it.nombre_insumo || '');
+                    if (tipo === 'Varios') {
+                        texto += ` (Cantidad: ${max})`;
+                    } else {
+                        if (it.numero_serie) { texto += ` (S/N: ${it.numero_serie})`; }
+                        if (it.id_fisico) { texto += ` (ID: ${it.id_fisico})`; }
+                    }
+                    texto += ` - ${tipo}`;
+                    const safeTipo = tipo.replace(/"/g, '&quot;');
+                    options += `<option value="${parseInt(it.id_insumo,10)}" data-tipo="${safeTipo}" data-max="${max}">${$('<div>').text(texto).html()}</option>`;
+                });
+                $(sel).html(options).trigger('change');
             } else {
-                console.error('Error al cargar insumos:', response.error);
-                $(`#${selectId}`).html('<option value="">Error al cargar insumos</option>');
+                console.error('Error al cargar insumos:', response && response.error);
+                $(sel).html('<option value="">Error al cargar insumos</option>');
             }
         },
         error: function(xhr) {
             console.error('Error en la petición AJAX', xhr.status, xhr.responseText);
-            $(`#${selectId}`).html('<option value="">Error al cargar insumos</option>');
+            $(sel).html('<option value="">Error al cargar insumos</option>');
         }
     });
 }
 
 // Función para cargar áreas por sede
 function cargarAreasPorSede(sedeId, selectId) {
+    const sel = (selectId && String(selectId).charAt(0) === '#') ? String(selectId) : `#${selectId}`;
     if (!sedeId) {
-        $(`#${selectId}`).html('<option value="">Seleccione un área</option>');
+        $(sel).html('<option value="">Seleccione un área</option>');
         return;
     }
     const url = `${getAppBase()}/ajax/cargar_areas.php`;
@@ -84,15 +103,15 @@ function cargarAreasPorSede(sedeId, selectId) {
         success: function(response) {
             console.log('[DEBUG] cargar_areas response', response);
             if (response.success) {
-                $(`#${selectId}`).html(response.options).trigger('change');
+                $(sel).html(response.options).trigger('change');
             } else {
                 console.error('Error al cargar áreas:', response.error);
-                $(`#${selectId}`).html('<option value="">Error al cargar áreas</option>');
+                $(sel).html('<option value="">Error al cargar áreas</option>');
             }
         },
         error: function(xhr) {
             console.error('Error en la petición AJAX', xhr.status, xhr.responseText);
-            $(`#${selectId}`).html('<option value="">Error al cargar áreas</option>');
+            $(sel).html('<option value="">Error al cargar áreas</option>');
         }
     });
 }
