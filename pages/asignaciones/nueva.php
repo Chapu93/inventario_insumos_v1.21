@@ -506,6 +506,9 @@ function filtrarInsumos() {
 
         $fila.toggle(mostrar);
     });
+
+    // Mantener seleccionados primero
+    reorderSelectedFirst();
 }
 
 // Función para alternar la selección de un insumo
@@ -545,6 +548,8 @@ function toggleSeleccionInsumo(idInsumo) {
     }
     
     actualizarContadorSeleccionados();
+    // Mantener seleccionados primero tras el cambio
+    reorderSelectedFirst();
 }
 
 // Función para actualizar cantidades de insumos tipo "Varios"
@@ -592,6 +597,7 @@ function seleccionarFiltrados() {
         }
     });
     actualizarContadorSeleccionados();
+    reorderSelectedFirst();
 }
 
 // Función para limpiar filtros
@@ -611,6 +617,20 @@ function deseleccionarTodos() {
     $('.cantidad-input input').prop('disabled', true);
     $('.fila-insumo').removeClass('highlight');
     actualizarContadorSeleccionados();
+    reorderSelectedFirst();
+}
+
+// Reordenar: filas seleccionadas al inicio del tbody
+function reorderSelectedFirst() {
+    const $tbody = $('#tablaInsumos').find('tbody');
+    if (!$tbody.length) { return; }
+    const $rows = $tbody.find('tr.fila-insumo');
+    const $selected = $rows.filter(function(){ return !$(this).find('.hidden-insumo-input').prop('disabled'); });
+    const $others = $rows.not($selected);
+    // Conservar visibilidad actual; solo reubicar
+    $selected.each(function(){ $tbody.prepend(this); });
+    // Otros mantienen su orden relativo debajo
+    $others.each(function(){ $tbody.append(this); });
 }
 
 // Función para mostrar el modal de confirmación

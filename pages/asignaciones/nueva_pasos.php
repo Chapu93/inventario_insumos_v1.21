@@ -408,6 +408,7 @@ function filtrarInsumos(){
   if (visibles === 0) {
     $tbody.append('<tr class="no-results"><td colspan="4" class="text-center text-muted">Sin resultados</td></tr>');
   }
+  reorderSelectedFirst();
 }
 
 function toggleSeleccionInsumo(id){
@@ -427,6 +428,7 @@ function toggleSeleccionInsumo(id){
     if (tipo === 'Varios' && max > 1) { $fila.find('.cantidad-input').show().find('input').prop('disabled', false); }
   }
   actualizarContadorSeleccionados();
+  reorderSelectedFirst();
 }
 
 function seleccionarFiltrados(){
@@ -443,6 +445,7 @@ function seleccionarFiltrados(){
     }
   });
   actualizarContadorSeleccionados();
+  reorderSelectedFirst();
 }
 
 function deseleccionarTodos(){
@@ -450,6 +453,17 @@ function deseleccionarTodos(){
   $('.btn-seleccionar').removeClass('btn-primary').addClass('btn-outline-primary').html('<i class="fas fa-plus"></i> Seleccionar');
   $('.cantidad-input').hide().find('input').prop('disabled', true);
   actualizarContadorSeleccionados();
+  reorderSelectedFirst();
+}
+
+function reorderSelectedFirst(){
+  const $tbody = $('#tablaInsumos').find('tbody');
+  if (!$tbody.length) return;
+  const $rows = $tbody.find('tr.fila-insumo');
+  const $selected = $rows.filter(function(){ return !$(this).find('.hidden-insumo-input').prop('disabled'); });
+  const $others = $rows.not($selected);
+  $selected.each(function(){ $tbody.prepend(this); });
+  $others.each(function(){ $tbody.append(this); });
 }
 
 function actualizarContadorSeleccionados(){
