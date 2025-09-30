@@ -149,7 +149,7 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
             </div>
         <?php else: ?>
             <div class="table-responsive">
-                <table class="table table-striped datatable" id="tablaAsignaciones" data-default-order-col="2" data-default-order-dir="desc">
+                <table class="table table-striped datatable" id="tablaAsignaciones" data-default-order-col="2" data-default-order-dir="desc" data-ssp="1">
                     <thead>
                         <tr>
                             <th>Persona Asignada</th>
@@ -159,53 +159,7 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
                             <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <?php foreach ($asignaciones as $asignacion): ?>
-                            <?php 
-                                $estado = ((int)$asignacion['activas'] > 0) ? 'Activa' : 'Devuelta';
-                            ?>
-                            <tr>
-                                <td>
-                                    <?php echo htmlspecialchars($asignacion['nombre_persona_asignada'] . ' ' . $asignacion['apellido_persona_asignada']); ?>
-                                </td>
-                                <td><?php echo htmlspecialchars($asignacion['nombre_localidad']); ?></td>
-                                <td data-order="<?php echo strtotime($asignacion['fecha_asignacion']); ?>">
-                                    <?php echo date('d/m/Y', strtotime($asignacion['fecha_asignacion'])); ?>
-                                </td>
-                                <td data-order="<?php echo ($estado==='Activa'?0:1); ?>">
-                                    <span class="badge estado-<?php echo strtolower($estado); ?>">
-                                        <?php echo $estado; ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <button type="button" 
-                                                class="btn btn-sm btn-info" 
-                                                onclick="abrirVerAsignacion('<?php echo $asignacion['numero_remito']; ?>')"
-                                                data-bs-toggle="tooltip" 
-                                                title="Ver asignación">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                        <button type="button" 
-                                                class="btn btn-sm btn-primary" 
-                                                onclick="generarRemitoPDF('<?php echo $asignacion['numero_remito']; ?>')"
-                                                data-bs-toggle="tooltip" 
-                                                title="Imprimir remito">
-                                            <i class="fas fa-print"></i>
-                                        </button>
-<?php $esActiva = ($estado === 'Activa'); ?>
-                                        <button type="button"
-                                                class="btn btn-sm btn-warning"
-                                                onclick="abrirDevolucion('<?php echo $asignacion['numero_remito']; ?>')"
-                                                data-bs-toggle="tooltip"
-                                                title="Devolver insumos" <?php echo $esActiva ? '' : 'disabled'; ?>>
-                                            <i class="fas fa-undo"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
+                    <tbody></tbody>
                 </table>
             </div>
         <?php endif; ?>
@@ -452,3 +406,37 @@ function abrirVerAsignacion(remito) {
 </script>
 
 <?php include '../../includes/footer.php'; ?>
+
+<script>
+$(function(){
+  var $t = $('#tablaAsignaciones');
+  if ($.fn && $.fn.DataTable && $t.length) {
+    $t.DataTable({
+      processing: true,
+      serverSide: true,
+      ajax: {
+        url: getAppBase() + '/ajax/asignaciones_list_ssp.php',
+        type: 'GET',
+        data: function(d){
+          d.localidad = $('#localidad').val() || '';
+          d.insumo = $('#insumo').val() || '';
+          d.estado = $('#estado').val() || '';
+          d.area = $('#area').val() || '';
+        }
+      },
+      order: [[$t.data('default-order-col') || 2, $t.data('default-order-dir') || 'desc']],
+      pageLength: 25,
+      columns: [
+        { data: 0 },
+        { data: 1 },
+        { data: 2 },
+        { data: 3, orderable: true },
+        { data: 4, orderable: false, searchable: false }
+      ],
+      drawCallback: function(){ inicializarTooltips(); }
+    });
+  }
+  // Reaplicar con filtros
+  $('form').on('submit', function(e){ e.preventDefault(); $('#tablaAsignaciones').DataTable().ajax.reload(); });
+});
+</script>

@@ -142,7 +142,7 @@ $asignaciones_recientes = $stmt->fetchAll();
             </div>
         <?php else: ?>
             <div class="table-responsive">
-                <table class="table table-striped datatable" id="tablaRemitos" data-default-order-col="2" data-default-order-dir="desc">
+                <table class="table table-striped datatable" id="tablaRemitos" data-default-order-col="2" data-default-order-dir="desc" data-ssp="1">
                     <thead>
                         <tr>
                             <th>Número de Remito</th>
@@ -152,26 +152,7 @@ $asignaciones_recientes = $stmt->fetchAll();
                             <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <?php foreach ($asignaciones_recientes as $asignacion): ?>
-                            <tr>
-                                <td><strong><?php echo htmlspecialchars($asignacion['numero_remito']); ?></strong></td>
-                                <td><?php echo htmlspecialchars($asignacion['nombre_persona_asignada'] . ' ' . $asignacion['apellido_persona_asignada']); ?></td>
-                                <td data-order="<?php echo strtotime($asignacion['fecha_asignacion']); ?>"><?php echo date('d/m/Y', strtotime($asignacion['fecha_asignacion'])); ?></td>
-                                <td><?php echo htmlspecialchars($asignacion['nombre_sede']); ?></td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <button type="button" class="btn btn-sm btn-primary" onclick="generarRemitoPDF('<?php echo $asignacion['numero_remito']; ?>')" data-bs-toggle="tooltip" title="Imprimir remito">
-                                            <i class="fas fa-print"></i>
-                                        </button>
-                                        <a href="?remito=<?php echo $asignacion['numero_remito']; ?>" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Ver detalles">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
+                    <tbody></tbody>
                 </table>
             </div>
         <?php endif; ?>
@@ -179,3 +160,28 @@ $asignaciones_recientes = $stmt->fetchAll();
 </div>
 
 <?php include '../../includes/footer.php'; ?>
+<script>
+$(function(){
+  var $t = $('#tablaRemitos');
+  if ($.fn && $.fn.DataTable && $t.length) {
+    $t.DataTable({
+      processing: true,
+      serverSide: true,
+      ajax: {
+        url: getAppBase() + '/ajax/remitos_list_ssp.php',
+        type: 'GET'
+      },
+      order: [[$t.data('default-order-col') || 2, $t.data('default-order-dir') || 'desc']],
+      pageLength: 25,
+      columns: [
+        { data: 0 },
+        { data: 1 },
+        { data: 2 },
+        { data: 3 },
+        { data: 4, orderable: false, searchable: false }
+      ],
+      drawCallback: function(){ inicializarTooltips(); }
+    });
+  }
+});
+</script>
