@@ -69,11 +69,12 @@ function conectarDB() {
 }
 
 // Función para generar números de remito únicos con formato nnnn_yyyy
-function generarNumeroRemito() {
-    $db = conectarDB();
+function generarNumeroRemito($dbParam = null) {
+    $db = $dbParam instanceof PDO ? $dbParam : conectarDB();
     $anio = (int)date('Y');
     try {
-        $db->beginTransaction();
+        $ownTxn = !$db->inTransaction();
+        if ($ownTxn) { $db->beginTransaction(); }
         // Crear fila si no existe (sin modificar valores)
         $stmtIns = $db->prepare("INSERT INTO remito_secuencia (anio, ultimo) VALUES (?, 0) ON DUPLICATE KEY UPDATE ultimo = ultimo");
         $stmtIns->execute([$anio]);
@@ -88,10 +89,10 @@ function generarNumeroRemito() {
         $stmtUpd = $db->prepare("UPDATE remito_secuencia SET ultimo = ? WHERE anio = ?");
         $stmtUpd->execute([$nuevo, $anio]);
 
-        $db->commit();
+        if ($ownTxn) { $db->commit(); }
         return sprintf('%04d_%d', $nuevo, $anio);
     } catch (Throwable $e) {
-        if ($db->inTransaction()) { $db->rollBack(); }
+        if (isset($ownTxn) && $ownTxn && $db->inTransaction()) { $db->rollBack(); }
         // Fallback defensivo al método previo (evitar bloqueo por completo)
         $stmt = $db->prepare("SELECT numero_remito FROM remitos WHERE numero_remito LIKE ? ORDER BY numero_remito DESC LIMIT 1");
         $stmt->execute(["%_{$anio}"]);

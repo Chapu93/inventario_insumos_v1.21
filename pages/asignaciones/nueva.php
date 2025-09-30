@@ -33,9 +33,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (empty($idsInsumo)) { throw new Exception('Debe seleccionar al menos un insumo'); }
 
         // Generar número y robustecer ante posibles colisiones (retry)
-        $maxRetries = 3; $numero_remito = null; $ok = false; $lastErr = '';
+        $maxRetries = 5; $numero_remito = null; $ok = false; $lastErr = '';
         for ($i = 0; $i < $maxRetries; $i++) {
-            $numero_remito = generarNumeroRemito();
+            $numero_remito = generarNumeroRemito($conexion);
             try {
                 $stmtRemito = $conexion->prepare("INSERT INTO remitos (numero_remito, id_sede, id_area, nombre_persona_asignada, apellido_persona_asignada, fecha_asignacion, observaciones) VALUES (?,?,?,?,?,?,?)");
                 $stmtRemito->execute([

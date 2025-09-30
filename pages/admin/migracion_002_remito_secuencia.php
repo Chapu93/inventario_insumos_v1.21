@@ -18,8 +18,8 @@ try {
 
     // 2) Inicializar secuencia con el máximo existente del año
     $anio = (int)date('Y');
-    $maxStmt = $db->prepare("SELECT MAX(CAST(SUBSTRING_INDEX(numero_remito, '_', 1) AS UNSIGNED)) AS maxseq FROM remitos WHERE numero_remito LIKE ?");
-    $maxStmt->execute(["%_{$anio}"]);
+    $maxStmt = $db->prepare("SELECT MAX(CAST(SUBSTRING_INDEX(numero_remito, '_', 1) AS UNSIGNED)) AS maxseq FROM remitos WHERE RIGHT(numero_remito, 4) = ?");
+    $maxStmt->execute([strval($anio)]);
     $max = (int)($maxStmt->fetch()['maxseq'] ?? 0);
     $db->prepare("INSERT INTO remito_secuencia (anio, ultimo) VALUES (?, ?) ON DUPLICATE KEY UPDATE ultimo = GREATEST(ultimo, VALUES(ultimo))")
        ->execute([$anio, $max]);
