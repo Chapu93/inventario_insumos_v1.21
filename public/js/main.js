@@ -1,6 +1,37 @@
 console.log('main.js cargado correctamente');
 
 // Funciones de utilidad
+function showToast(message, type) {
+  try {
+    const container = document.getElementById('toastContainer');
+    if (!container) { alert(message); return; }
+    const id = 't' + Date.now();
+    const bg = type === 'error' ? 'bg-danger text-white' : (type === 'warning' ? 'bg-warning' : (type === 'success' ? 'bg-success text-white' : 'bg-secondary text-white'));
+    const el = document.createElement('div');
+    el.className = `toast align-items-center ${bg}`;
+    el.id = id;
+    el.setAttribute('role', 'alert');
+    el.setAttribute('aria-live', 'assertive');
+    el.setAttribute('aria-atomic', 'true');
+    el.innerHTML = `<div class="d-flex"><div class="toast-body">${$('<div>').text(message || '').html()}</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div>`;
+    container.appendChild(el);
+    const t = new bootstrap.Toast(el, { delay: 3500 });
+    t.show();
+    el.addEventListener('hidden.bs.toast', function(){ el.remove(); });
+  } catch(e) {
+    try { alert(message); } catch(_) {}
+  }
+}
+
+function disableSelect(sel, txt) {
+  const $s = (typeof sel === 'string') ? $(sel) : $(sel);
+  $s.prop('disabled', true);
+  if (txt) { $s.html(`<option>${txt}</option>`); }
+}
+function enableSelect(sel) {
+  const $s = (typeof sel === 'string') ? $(sel) : $(sel);
+  $s.prop('disabled', false);
+}
 function confirmarAccion(mensaje, url) {
     if (confirm(mensaje)) {
         window.location.href = url;
@@ -53,6 +84,7 @@ function cargarInsumosPorSede(sedeId, selectId) {
         type: 'GET',
         data: { sede_id: sedeId },
         dataType: 'json',
+      beforeSend: function(){ disableSelect(sel, 'Cargando...'); },
         success: function(response) {
             console.log('[DEBUG] cargar_insumos response', response);
             const data = response && response.data ? response.data : response;
@@ -74,14 +106,19 @@ function cargarInsumosPorSede(sedeId, selectId) {
                     options += `<option value="${parseInt(it.id_insumo,10)}" data-tipo="${safeTipo}" data-max="${max}">${$('<div>').text(texto).html()}</option>`;
                 });
                 $(sel).html(options).trigger('change');
+                enableSelect(sel);
             } else {
                 console.error('Error al cargar insumos:', response && response.error);
                 $(sel).html('<option value="">Error al cargar insumos</option>');
+                enableSelect(sel);
+                showToast('Error al cargar insumos', 'error');
             }
         },
         error: function(xhr) {
             console.error('Error en la petición AJAX', xhr.status, xhr.responseText);
             $(sel).html('<option value="">Error al cargar insumos</option>');
+          enableSelect(sel);
+          showToast('Error de red al cargar insumos', 'error');
         }
     });
 }
@@ -100,6 +137,7 @@ function cargarAreasPorSede(sedeId, selectId) {
         type: 'GET',
         data: { sede_id: sedeId },
         dataType: 'json',
+      beforeSend: function(){ disableSelect(sel, 'Cargando...'); },
         success: function(response) {
             console.log('[DEBUG] cargar_areas response', response);
             const data = response && response.data ? response.data : response;
@@ -111,14 +149,19 @@ function cargarAreasPorSede(sedeId, selectId) {
                     options += `<option value="${parseInt(a.id_area,10)}">${$('<div>').text(nombre).html()}</option>`;
                 });
                 $(sel).html(options).trigger('change');
+                enableSelect(sel);
             } else {
                 console.error('Error al cargar áreas:', response && response.error);
                 $(sel).html('<option value="">Error al cargar áreas</option>');
+                enableSelect(sel);
+                showToast('Error al cargar áreas', 'error');
             }
         },
         error: function(xhr) {
             console.error('Error en la petición AJAX', xhr.status, xhr.responseText);
             $(sel).html('<option value="">Error al cargar áreas</option>');
+          enableSelect(sel);
+          showToast('Error de red al cargar áreas', 'error');
         }
     });
 }
@@ -137,6 +180,7 @@ function cargarSedesPorLocalidad(localidadId, selectId) {
     type: 'GET',
     data: { localidad_id: localidadId },
     dataType: 'json',
+    beforeSend: function(){ disableSelect(sel, 'Cargando...'); },
     success: function(response) {
       console.log('[DEBUG] cargar_sedes response', response);
       const data = response && response.data ? response.data : response;
@@ -147,14 +191,19 @@ function cargarSedesPorLocalidad(localidadId, selectId) {
           options += `<option value="${parseInt(s.id,10)}">${$('<div>').text(s.nombre || '').html()}</option>`;
         });
         $(sel).html(options).trigger('change');
+        enableSelect(sel);
       } else {
         console.error('Error al cargar sedes:', response && response.error);
         $(sel).html('<option value="">Error al cargar sedes</option>');
+        enableSelect(sel);
+        showToast('Error al cargar sedes', 'error');
       }
     },
     error: function(xhr) {
       console.error('Error en la petición AJAX', xhr.status, xhr.responseText);
       $(sel).html('<option value="">Error al cargar sedes</option>');
+      enableSelect(sel);
+      showToast('Error de red al cargar sedes', 'error');
     }
   });
 }

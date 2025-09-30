@@ -127,5 +127,8 @@
             }, 5000);
         });
     </script>
+    
+    <!-- Toast container (Bootstrap 5) -->
+    <div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1080;"></div>
 </body>
 </html> 
