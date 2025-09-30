@@ -32,8 +32,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $idsInsumo = isset($_POST['id_insumo']) ? (array)$_POST['id_insumo'] : [];
         if (empty($idsInsumo)) { throw new Exception('Debe seleccionar al menos un insumo'); }
 
-        // Generar número y robustecer ante posibles colisiones (retry)
-        $maxRetries = 5; $numero_remito = null; $ok = false; $lastErr = '';
+        // Generar número y robustecer ante posibles colisiones: reintentar hasta éxito (límite alto por seguridad)
+        $maxRetries = 50; $numero_remito = null; $ok = false; $lastErr = '';
+        $anioNow = (int)date('Y');
         for ($i = 0; $i < $maxRetries; $i++) {
             $numero_remito = generarNumeroRemito($conexion);
             try {
@@ -51,10 +52,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             } catch (Exception $e) {
                 $lastErr = $e->getMessage();
                 if (strpos($lastErr, '1062') === false) { throw $e; }
-                // Si fue duplicado, reintentar en la próxima iteración (otro número)
+                // Sincronizar secuencia con el máximo real del año y reintentar
+                try {
+                    $maxStmt = $conexion->prepare("SELECT MAX(CAST(SUBSTRING_INDEX(numero_remito, '_', 1) AS UNSIGNED)) AS maxseq FROM remitos WHERE RIGHT(numero_remito, 4) = ?");
+                    $maxStmt->execute([strval($anioNow)]);
+                    $max = (int)($maxStmt->fetch()['maxseq'] ?? 0);
+                    $conexion->prepare("UPDATE remito_secuencia SET ultimo = GREATEST(ultimo, ?) WHERE anio = ?")
+                             ->execute([$max, $anioNow]);
+                } catch (Exception $syncE) {
+                    // Ignorar, se volverá a intentar en el siguiente ciclo
+                }
             }
         }
-        if (!$ok) { throw new Exception('No se pudo asignar número de remito único: ' . $lastErr); }
+        if (!$ok) { throw new Exception('No se pudo asignar número de remito único tras múltiples intentos: ' . $lastErr); }
         $idRemito = (int)$conexion->lastInsertId();
         $stmtInsertDet = $conexion->prepare("INSERT INTO remitos_detalle (id_remito, id_insumo, cantidad) VALUES (?,?,?)");
 
