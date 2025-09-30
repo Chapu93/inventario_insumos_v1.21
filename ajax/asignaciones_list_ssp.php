@@ -76,7 +76,8 @@ try {
     if ($filtro_estado === 'Devuelta') { $having = ' HAVING activas = 0'; }
 
     // Page data
-    $pageSql = $sqlGroup . $having . " ORDER BY $orderBy $orderDir LIMIT $start, $length";
+    // Orden por fecha más reciente como primario; agrega desempate por id_remito DESC
+    $pageSql = $sqlGroup . $having . " ORDER BY $orderBy $orderDir, r.id_remito DESC LIMIT $start, $length";
     $stmt = $db->prepare($pageSql);
     $stmt->execute($extParams);
     $rows = $stmt->fetchAll();

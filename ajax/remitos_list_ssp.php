@@ -44,7 +44,7 @@ try {
                 FROM remitos r
                 JOIN sedes s ON r.id_sede = s.id_sede
                 $whereSql
-                ORDER BY $orderBy $orderDir
+                ORDER BY $orderBy $orderDir, r.id_remito DESC
                 LIMIT $start, $length";
     $stmt = $db->prepare($dataSql);
     $stmt->execute($params);

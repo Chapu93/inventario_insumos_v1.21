@@ -424,7 +424,7 @@ $(function(){
           d.area = $('#area').val() || '';
         }
       },
-      order: [[$t.data('default-order-col') || 2, $t.data('default-order-dir') || 'desc']],
+      order: [[$t.data('default-order-col') || 2, 'desc']],
       pageLength: 25,
       columns: [
         { data: 0 },

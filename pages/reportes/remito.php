@@ -171,7 +171,7 @@ $(function(){
         url: getAppBase() + '/ajax/remitos_list_ssp.php',
         type: 'GET'
       },
-      order: [[$t.data('default-order-col') || 2, $t.data('default-order-dir') || 'desc']],
+      order: [[$t.data('default-order-col') || 2, 'desc']],
       pageLength: 25,
       columns: [
         { data: 0 },
