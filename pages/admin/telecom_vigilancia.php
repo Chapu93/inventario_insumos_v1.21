@@ -4,6 +4,7 @@ $db = conectarDB();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   try {
+    if (!verify_csrf()) { throw new Exception('CSRF inválido'); }
     $accion = $_POST['accion'] ?? '';
     if ($accion === 'agregar_serv') {
       $db->prepare("INSERT INTO sedes_vigilancia (id_sede, proveedor, estado_servicio, observaciones) VALUES (?,?,?,?)")
@@ -73,9 +74,9 @@ include '../../includes/header.php';
               <td><span class="badge bg-success"><?php echo (int)($camActivas[(int)$v['id_vigilancia']] ?? 0); ?></span></td>
               <td>
                 <div class="btn-group" role="group">
-                  <a class="btn btn-sm btn-info" href="<?php echo app_base_url(); ?>/pages/admin/telecom_vigilancia_servicio.php?id_vigilancia=<?php echo (int)$v['id_vigilancia']; ?>" title="Ver detalle"><i class="fas fa-eye"></i></a>
-                  <button class="btn btn-sm btn-warning" onclick='editServ(<?php echo json_encode($v, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT); ?>)'><i class="fas fa-edit"></i></button>
-                  <button class="btn btn-sm btn-danger" onclick="delServ(<?php echo (int)$v['id_vigilancia']; ?>)"><i class="fas fa-trash"></i></button>
+                  <a class="btn btn-sm btn-info" href="<?php echo app_base_url(); ?>/pages/admin/telecom_vigilancia_servicio.php?id_vigilancia=<?php echo (int)$v['id_vigilancia']; ?>" title="Ver detalle" aria-label="Ver detalle"><i class="fas fa-eye" aria-hidden="true"></i></a>
+                  <button class="btn btn-sm btn-warning" aria-label="Editar servicio" onclick='editServ(<?php echo json_encode($v, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT); ?>)'><i class="fas fa-edit" aria-hidden="true"></i></button>
+                  <button class="btn btn-sm btn-danger" aria-label="Eliminar servicio" onclick="delServ(<?php echo (int)$v['id_vigilancia']; ?>)"><i class="fas fa-trash" aria-hidden="true"></i></button>
                 </div>
               </td>
             </tr>
@@ -92,6 +93,7 @@ include '../../includes/header.php';
   <div class="modal-header"><h5 class="modal-title" id="modalServTitle">Agregar Servicio</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
   <form method="POST" id="formServ" class="needs-validation" novalidate>
     <div class="modal-body">
+      <input type="hidden" name="_csrf" value="<?php echo htmlspecialchars(csrf_token()); ?>">
       <input type="hidden" name="accion" id="accionServ" value="agregar_serv"><input type="hidden" name="id_vigilancia" id="id_vigilancia">
       <div class="mb-2"><label class="form-label">Localidad *</label>
         <select id="id_localidad_serv" class="form-select" required>
@@ -120,7 +122,7 @@ $('#modalServ').on('hidden.bs.modal', function(){ $('#modalServTitle').text('Agr
 $('#formServ').on('submit', function(e){ if(!this.checkValidity()){ e.preventDefault(); e.stopPropagation(); } $(this).addClass('was-validated'); });
 const BASE = '<?php echo app_base_url(); ?>';
 function cargarLocalidadesServ(){ $.getJSON(`${BASE}/ajax/localidades_list.php`).done(r=>{ const $l=$('#id_localidad_serv'); $l.html('<option value="">Seleccione</option>'); if(r.success){ r.data.forEach(x=> $l.append(`<option value="${x.id}">${x.nombre}</option>`)); } }); }
-function cargarSedesServ(loc){ const $s=$('#id_sede_serv'); $s.html('<option value="">Seleccione</option>'); if(!loc){ return; } $.getJSON(`${BASE}/ajax/sedes_por_localidad.php`, { localidad_id: loc }).done(r=>{ if(r.success){ r.data.forEach(x=> $s.append(`<option value="${x.id}">${x.nombre}</option>`)); } }); }
+function cargarSedesServ(loc){ const $s=$('#id_sede_serv'); $s.html('<option value="">Seleccione</option>'); if(!loc){ return; } $.getJSON(`${BASE}/ajax/cargar_sedes.php`, { localidad_id: loc }).done(r=>{ const data=r&&r.data?r.data:r; const lista=data&&data.sedes?data.sedes:[]; lista.forEach(x=> $s.append(`<option value="${parseInt(x.id,10)}">${x.nombre}</option>`)); }); }
 $(function(){
   const url = new URL(window.location.href);
   const qLoc = url.searchParams.get('id_localidad');

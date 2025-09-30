@@ -9,6 +9,7 @@ if (!is_dir($uploadDir)) { @mkdir($uploadDir, 0775, true); }
 // Procesamiento
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   try {
+    if (!verify_csrf()) { throw new Exception('CSRF inválido'); }
     $accion = $_POST['accion'] ?? '';
     if ($accion === 'subir') {
       if (!isset($_POST['id_sede']) || !$_POST['id_sede']) { throw new Exception('Sede requerida'); }
@@ -109,6 +110,7 @@ include '../../includes/header.php';
   <div class="modal-header"><h5 class="modal-title">Subir Plano</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
   <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
     <div class="modal-body">
+      <input type="hidden" name="_csrf" value="<?php echo htmlspecialchars(csrf_token()); ?>">
       <input type="hidden" name="accion" value="subir">
       <div class="mb-2"><label class="form-label">Localidad *</label>
         <select id="id_localidad" class="form-select" required>
@@ -134,7 +136,7 @@ include '../../includes/header.php';
 <script>
 const BASE = '<?php echo app_base_url(); ?>';
 function cargarLocalidades(){ return $.getJSON(`${BASE}/ajax/localidades_list.php`).done(r=>{ const $l=$('#id_localidad'); $l.html('<option value="">Seleccione</option>'); if(r.success){ r.data.forEach(x=> $l.append(`<option value="${x.id}">${x.nombre}</option>`)); } }); }
-function cargarSedes(loc){ const $s=$('#id_sede'); $s.html('<option value="">Seleccione</option>'); if(!loc){ return $.Deferred().resolve().promise(); } return $.getJSON(`${BASE}/ajax/sedes_por_localidad.php`, { localidad_id: loc }).done(r=>{ if(r.success){ r.data.forEach(x=> $s.append(`<option value="${x.id}">${x.nombre}</option>`)); } }); }
+function cargarSedes(loc){ const $s=$('#id_sede'); $s.html('<option value="">Seleccione</option>'); if(!loc){ return $.Deferred().resolve().promise(); } return $.getJSON(`${BASE}/ajax/cargar_sedes.php`, { localidad_id: loc }).done(r=>{ const data=r&&r.data?r.data:r; const lista=data&&data.sedes?data.sedes:[]; lista.forEach(x=> $s.append(`<option value="${parseInt(x.id,10)}">${x.nombre}</option>`)); }); }
 $(function(){
   // Inicial
   cargarLocalidades();

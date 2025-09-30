@@ -13,6 +13,7 @@ try {
 // Procesar POST (agregar/editar/eliminar)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
+        if (!verify_csrf()) { throw new Exception('CSRF inválido'); }
         $accion = $_POST['accion'] ?? '';
         if ($accion === 'agregar') {
             $stmt = $db->prepare("INSERT INTO sedes_internet (id_sede, proveedor, tipo_conexion, velocidad_bajada_mbps, velocidad_subida_mbps, simetrico, estado_servicio, observaciones) VALUES (?,?,?,?,?,?,?,?)");
@@ -129,8 +130,8 @@ include '../../includes/header.php';
                                 </td>
                                 <td>
                                     <div class="btn-group" role="group">
-                                        <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Editar" onclick='editarInternet(<?php echo json_encode($row, JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT); ?>)'><i class="fas fa-edit"></i></button>
-                                        <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Eliminar" onclick="eliminarInternet(<?php echo (int)$row['id_internet']; ?>)"><i class="fas fa-trash"></i></button>
+                                        <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Editar" aria-label="Editar servicio" onclick='editarInternet(<?php echo json_encode($row, JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT); ?>)'><i class="fas fa-edit" aria-hidden="true"></i></button>
+                                        <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Eliminar" aria-label="Eliminar servicio" onclick="eliminarInternet(<?php echo (int)$row['id_internet']; ?>)"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </div>
                                 </td>
                             </tr>
@@ -152,6 +153,7 @@ include '../../includes/header.php';
       </div>
       <form method="POST" id="formInternet" class="needs-validation" novalidate>
         <div class="modal-body">
+          <input type="hidden" name="_csrf" value="<?php echo htmlspecialchars(csrf_token()); ?>">
           <input type="hidden" name="accion" id="accion" value="agregar">
           <input type="hidden" name="id_internet" id="id_internet">
 
@@ -248,9 +250,10 @@ function cargarSedes(localidadId, afterLoad){
   const $s=$('#id_sede');
   $s.prop('disabled', true).html('<option value="">Cargando...</option>');
   if(!localidadId){ $s.html('<option value="">Seleccione una sede</option>').prop('disabled', false); return; }
-  $.getJSON(`${BASE}/ajax/sedes_por_localidad.php`, { localidad_id: localidadId }).done(r=>{
+  $.getJSON(`${BASE}/ajax/cargar_sedes.php`, { localidad_id: localidadId }).done(r=>{
+    const data = r && r.data ? r.data : r; const lista = data && data.sedes ? data.sedes : [];
     $s.html('<option value="">Seleccione una sede</option>');
-    if(r.success){ r.data.forEach(x=> $s.append(`<option value="${x.id}">${x.nombre}</option>`)); }
+    lista.forEach(x=> $s.append(`<option value="${parseInt(x.id,10)}">${x.nombre}</option>`));
     if(typeof afterLoad === 'function'){ afterLoad($s); }
     $s.prop('disabled', false);
   }).fail(()=>{ $s.html('<option value="">Error al cargar</option>').prop('disabled', false); });

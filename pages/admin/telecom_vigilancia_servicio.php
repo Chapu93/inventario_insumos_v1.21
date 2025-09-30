@@ -8,6 +8,7 @@ if ($idVig <= 0) { header('Location: telecom_vigilancia.php'); exit; }
 // CRUD solo de dispositivos desde esta vista de detalle
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   try {
+    if (!verify_csrf()) { throw new Exception('CSRF inválido'); }
     $accion = $_POST['accion'] ?? '';
     if ($accion === 'agregar_disp') {
       $db->prepare("INSERT INTO sedes_vigilancia_dispositivos (id_vigilancia, tipo_dispositivo, marca, modelo, cantidad, ubicacion, estado) VALUES (?,?,?,?,?,?,?)")
@@ -63,8 +64,8 @@ include '../../includes/header.php';
       <div class="text-muted small">Localidad: <?php echo htmlspecialchars($servicio['nombre_localidad']); ?></div>
     </div>
     <div class="d-flex gap-2">
-      <a class="btn btn-outline-secondary" href="<?php echo app_base_url(); ?>/pages/admin/sede_detalle.php?id_localidad=<?php echo (int)$servicio['id_localidad']; ?>&id_sede=<?php echo (int)$servicio['id_sede']; ?>"><i class="fas fa-building me-2"></i>Ver Sede</a>
-      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalDisp"><i class="fas fa-plus me-2"></i>Agregar Dispositivo</button>
+      <a class="btn btn-outline-secondary" href="<?php echo app_base_url(); ?>/pages/admin/sede_detalle.php?id_localidad=<?php echo (int)$servicio['id_localidad']; ?>&id_sede=<?php echo (int)$servicio['id_sede']; ?>" aria-label="Ver Sede"><i class="fas fa-building me-2" aria-hidden="true"></i>Ver Sede</a>
+      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalDisp" aria-label="Agregar Dispositivo"><i class="fas fa-plus me-2" aria-hidden="true"></i>Agregar Dispositivo</button>
     </div>
   </div>
 </div>
@@ -95,8 +96,8 @@ include '../../includes/header.php';
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
           <h5 class="mb-0"><i class="fas fa-cctv me-2"></i>Dispositivos</h5>
           <div class="d-flex gap-2">
-            <button class="btn btn-sm btn-outline-secondary" id="btnExport"><i class="fas fa-file-export me-1"></i>Exportar CSV</button>
-            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalDisp"><i class="fas fa-plus me-1"></i>Agregar</button>
+            <button class="btn btn-sm btn-outline-secondary" id="btnExport" aria-label="Exportar CSV"><i class="fas fa-file-export me-1" aria-hidden="true"></i>Exportar CSV</button>
+            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalDisp" aria-label="Agregar dispositivo"><i class="fas fa-plus me-1" aria-hidden="true"></i>Agregar</button>
           </div>
         </div>
         <div class="row g-2 mt-2">
@@ -132,8 +133,8 @@ include '../../includes/header.php';
               <td><?php $e=$d['estado']; $cls=$e==='Activo'?'estado-activa':'estado-baja'; ?><span class="badge <?php echo $cls; ?>"><?php echo $e; ?></span></td>
               <td>
                 <div class="btn-group" role="group">
-                  <button class="btn btn-sm btn-warning" onclick='editDisp(<?php echo json_encode($d, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT); ?>)'><i class="fas fa-edit"></i></button>
-                  <button class="btn btn-sm btn-danger" onclick="delDisp(<?php echo (int)$d['id_vigilancia_dispositivo']; ?>)"><i class="fas fa-trash"></i></button>
+                  <button class="btn btn-sm btn-warning" aria-label="Editar dispositivo" onclick='editDisp(<?php echo json_encode($d, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT); ?>)'><i class="fas fa-edit" aria-hidden="true"></i></button>
+                  <button class="btn btn-sm btn-danger" aria-label="Eliminar dispositivo" onclick="delDisp(<?php echo (int)$d['id_vigilancia_dispositivo']; ?>)"><i class="fas fa-trash" aria-hidden="true"></i></button>
                 </div>
               </td>
             </tr>
@@ -150,6 +151,7 @@ include '../../includes/header.php';
   <div class="modal-header"><h5 class="modal-title" id="modalServTitle">Editar Servicio</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
   <form method="POST" id="formServ" class="needs-validation" novalidate action="<?php echo app_base_url(); ?>/pages/admin/telecom_vigilancia.php">
     <div class="modal-body">
+      <input type="hidden" name="_csrf" value="<?php echo htmlspecialchars(csrf_token()); ?>">
       <input type="hidden" name="accion" id="accionServ" value="editar_serv"><input type="hidden" name="id_vigilancia" id="id_vigilancia">
       <div class="mb-2"><label class="form-label">Proveedor *</label><input type="text" name="proveedor" id="proveedor" class="form-control" required></div>
       <div class="mb-2"><label class="form-label">Estado *</label><select class="form-select" name="estado_servicio" id="estado_servicio" required><option>Activo</option><option>Pendiente</option><option>De Baja</option></select></div>
@@ -164,6 +166,7 @@ include '../../includes/header.php';
   <div class="modal-header"><h5 class="modal-title" id="modalDispTitle">Agregar Dispositivo</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
   <form method="POST" id="formDisp" class="needs-validation" novalidate>
     <div class="modal-body">
+      <input type="hidden" name="_csrf" value="<?php echo htmlspecialchars(csrf_token()); ?>">
       <input type="hidden" name="accion" id="accionDisp" value="agregar_disp"><input type="hidden" name="id_vigilancia_dispositivo" id="id_vigilancia_dispositivo">
       <div class="mb-2"><label class="form-label">Tipo *</label><select name="tipo_dispositivo" id="tipo_dispositivo" class="form-select" required><option value="">Seleccione</option><option>DVR</option><option>NVR</option><option>Cámara</option><option>Sensor</option><option>Monitor</option></select></div>
       <div class="row g-2"><div class="col"><label class="form-label">Marca</label><input type="text" name="marca" id="marca" class="form-control"></div><div class="col"><label class="form-label">Modelo</label><input type="text" name="modelo" id="modelo" class="form-control"></div></div>

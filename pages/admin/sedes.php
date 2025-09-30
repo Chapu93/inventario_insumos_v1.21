@@ -21,6 +21,7 @@ try {
 // Procesar formulario de agregar/editar sede
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     try {
+        if (!verify_csrf()) { throw new Exception('CSRF inválido'); }
         if (isset($_POST['accion'])) {
             if ($_POST['accion'] == 'agregar') {
                 $sql = "INSERT INTO sedes (nombre_sede, id_localidad, direccion, delegado_nombre, delegado_apellido, delegado_telefono, responsable_nombre, responsable_apellido, responsable_telefono) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -183,8 +184,9 @@ $localidades = $stmt->fetchAll();
                 <h5 class="modal-title" id="modalSedeTitle">Agregar Sede</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form method="POST" id="formSede">
+            <form method="POST" id="formSede" class="needs-validation" novalidate>
                 <div class="modal-body">
+                    <input type="hidden" name="_csrf" value="<?php echo htmlspecialchars(csrf_token()); ?>">
                     <input type="hidden" name="accion" id="accion" value="agregar">
                     <input type="hidden" name="id_sede" id="id_sede">
                     
@@ -202,11 +204,6 @@ $localidades = $stmt->fetchAll();
                         <label for="id_localidad" class="form-label">Localidad *</label>
                         <select class="form-select" id="id_localidad" name="id_localidad" required>
                             <option value="">Seleccione una localidad</option>
-                            <?php foreach ($localidades as $localidad): ?>
-                                <option value="<?php echo $localidad['id_localidad']; ?>">
-                                    <?php echo htmlspecialchars($localidad['nombre_localidad'] . ' (' . $localidad['nombre_zona'] . ')'); ?>
-                                </option>
-                            <?php endforeach; ?>
                         </select>
                         <div class="invalid-feedback">Debe seleccionar una localidad</div>
                     </div>
@@ -284,8 +281,18 @@ $('#formSede').on('submit', function(e) {
     $(this).addClass('was-validated');
 });
 
+const BASE = '<?php echo app_base_url(); ?>';
+function cargarLocalidades(){
+  return $.getJSON(`${BASE}/ajax/localidades_list.php`).done(r=>{
+    const $loc = $('#id_localidad');
+    $loc.html('<option value="">Seleccione una localidad</option>');
+    if(r.success){ r.data.forEach(l=> $loc.append(`<option value="${l.id}">${l.nombre}</option>`)); }
+  });
+}
+
 // Abrir modal con datos si llegan parámetros
 document.addEventListener('DOMContentLoaded', function(){
+  cargarLocalidades();
   const url = new URL(window.location.href);
   const qId = url.searchParams.get('id_sede');
   const qLoc = url.searchParams.get('id_localidad');

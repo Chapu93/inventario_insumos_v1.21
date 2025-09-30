@@ -4,6 +4,7 @@ $db = conectarDB();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   try {
+    if (!verify_csrf()) { throw new Exception('CSRF inválido'); }
     $accion = $_POST['accion'] ?? '';
     if ($accion === 'agregar') {
       $db->prepare("INSERT INTO sedes_telefonia_lineas (id_sede, tipo_linea, operador, numero, dispositivo_modelo, interno_ext, estado, observaciones) VALUES (?,?,?,?,?,?,?,?)")
@@ -57,8 +58,8 @@ include '../../includes/header.php';
             <td><?php $e=$r['estado']; $cls=$e==='Activa'?'estado-activa':($e==='Pendiente'?'estado-asignado':'estado-baja'); ?><span class="badge <?php echo $cls; ?>"><?php echo $e; ?></span></td>
             <td>
               <div class="btn-group" role="group">
-                <button class="btn btn-sm btn-warning" onclick='editTel(<?php echo json_encode($r, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT); ?>)'><i class="fas fa-edit"></i></button>
-                <button class="btn btn-sm btn-danger" onclick="delTel(<?php echo (int)$r['id_linea']; ?>)"><i class="fas fa-trash"></i></button>
+                <button class="btn btn-sm btn-warning" aria-label="Editar línea" onclick='editTel(<?php echo json_encode($r, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT); ?>)'><i class="fas fa-edit" aria-hidden="true"></i></button>
+                <button class="btn btn-sm btn-danger" aria-label="Eliminar línea" onclick="delTel(<?php echo (int)$r['id_linea']; ?>)"><i class="fas fa-trash" aria-hidden="true"></i></button>
               </div>
             </td>
           </tr>
@@ -73,6 +74,7 @@ include '../../includes/header.php';
   <div class="modal-header"><h5 class="modal-title" id="modalTelTitle">Agregar Línea</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
   <form method="POST" id="formTel" class="needs-validation" novalidate>
     <div class="modal-body">
+      <input type="hidden" name="_csrf" value="<?php echo htmlspecialchars(csrf_token()); ?>">
       <input type="hidden" name="accion" id="accion" value="agregar"><input type="hidden" name="id_linea" id="id_linea">
       <div class="mb-2"><label class="form-label">Localidad *</label>
         <select id="id_localidad" class="form-select" required>
@@ -134,8 +136,9 @@ function cargarSedes(localidad){
   const $s = $('#id_sede');
   $s.html('<option value="">Seleccione</option>');
   if(!localidad){ return $.Deferred().resolve().promise(); }
-  return $.getJSON(`${BASE}/ajax/sedes_por_localidad.php`, { localidad_id: localidad }).done(r=>{
-    if(r.success){ r.data.forEach(x=> $s.append(`<option value="${x.id}">${x.nombre}</option>`)); }
+  return $.getJSON(`${BASE}/ajax/cargar_sedes.php`, { localidad_id: localidad }).done(r=>{
+    const data = r && r.data ? r.data : r; const lista = data && data.sedes ? data.sedes : [];
+    lista.forEach(x=> $s.append(`<option value="${parseInt(x.id,10)}">${x.nombre}</option>`));
   });
 }
 $(function(){
