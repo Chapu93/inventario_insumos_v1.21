@@ -70,26 +70,49 @@ function conectarDB() {
 
 // Función para generar números de remito únicos con formato nnnn_yyyy
 function generarNumeroRemito() {
-    $conexion = conectarDB();
-    $anio = date('Y');
-    // Buscar el último remito del año con formato nnnn_yyyy
-    $stmt = $conexion->prepare("SELECT numero_remito FROM remitos WHERE numero_remito LIKE ? ORDER BY numero_remito DESC LIMIT 1");
-    $stmt->execute(["%_{$anio}"]);
-    $ultimo = $stmt->fetch();
-    $secuencia = 0;
-    if ($ultimo && isset($ultimo['numero_remito'])) {
-        // Esperado: nnnn_yyyy
-        $partes = explode('_', $ultimo['numero_remito']);
-        if (!empty($partes[0]) && ctype_digit($partes[0])) {
-            $secuencia = (int)$partes[0];
+    $db = conectarDB();
+    $anio = (int)date('Y');
+    $maxRetries = 3;
+    for ($i = 0; $i < $maxRetries; $i++) {
+        try {
+            $db->beginTransaction();
+
+            // Asegurar fila del año usando upsert y obtener nuevo valor atómico
+            // Estrategia compatible MySQL 5.7+: ON DUPLICATE KEY UPDATE con LAST_INSERT_ID
+            $db->exec("INSERT INTO remito_secuencia (anio, ultimo) VALUES ($anio, 0) ON DUPLICATE KEY UPDATE ultimo = LAST_INSERT_ID(ultimo + 1)");
+            $nuevo = (int)$db->query("SELECT LAST_INSERT_ID() AS id")->fetch()['id'];
+            $numero = sprintf('%04d_%d', $nuevo, $anio);
+
+            // Validación defensiva con índice único (debería ser suficiente por sí solo)
+            // No insertamos aquí porque esta función solo genera; la inserción se hace en flujo de remito
+
+            $db->commit();
+            return $numero;
+        } catch (Throwable $e) {
+            if ($db->inTransaction()) { $db->rollBack(); }
+            if ($i === $maxRetries - 1) {
+                // Fallback a método anterior (muy improbable llegar aquí)
+                $stmt = $db->prepare("SELECT numero_remito FROM remitos WHERE numero_remito LIKE ? ORDER BY numero_remito DESC LIMIT 1");
+                $stmt->execute(["%_{$anio}"]);
+                $ultimo = $stmt->fetch();
+                $secuencia = 0;
+                if ($ultimo && isset($ultimo['numero_remito'])) {
+                    $partes = explode('_', $ultimo['numero_remito']);
+                    if (!empty($partes[0]) && ctype_digit($partes[0])) {
+                        $secuencia = (int)$partes[0];
+                    }
+                }
+                do {
+                    $secuencia++;
+                    $numero = sprintf('%04d_%d', $secuencia, $anio);
+                } while (remitoExiste($numero));
+                return $numero;
+            }
+            // retry
         }
     }
-    // Incrementar y asegurar unicidad en caso de colisiones
-    do {
-        $secuencia++;
-        $numero = sprintf('%04d_%s', $secuencia, $anio);
-    } while (remitoExiste($numero));
-    return $numero;
+    // Control no alcanzable
+    return sprintf('%04d_%d', 1, $anio);
 }
 
 // Función para validar si un número de remito existe
