@@ -3,10 +3,7 @@ require_once '../includes/config.php';
 
 header('Content-Type: application/json');
 
-if (!isset($_GET['sede_id'])) {
-    echo json_encode(['error' => 'ID de sede no proporcionado']);
-    exit;
-}
+if (!isset($_GET['sede_id'])) { json_error('ID de sede no proporcionado', 400); exit; }
 
 $conexion = conectarDB();
 $sede_id = $_GET['sede_id'];
@@ -24,32 +21,10 @@ try {
     $stmt->execute([$sede_id]);
     $insumos = $stmt->fetchAll();
     
-    $options = '<option value="">Seleccione un insumo</option>';
-    foreach ($insumos as $insumo) {
-        $display_text = $insumo['nombre_insumo'];
-        
-        // Agregar información específica según el tipo
-        if ($insumo['tipo_insumo'] == 'Varios') {
-            $display_text .= ' (Cantidad: ' . $insumo['cantidad'] . ')';
-        } else {
-            if ($insumo['numero_serie']) {
-                $display_text .= ' (S/N: ' . $insumo['numero_serie'] . ')';
-            }
-            if ($insumo['id_fisico']) {
-                $display_text .= ' (ID: ' . $insumo['id_fisico'] . ')';
-            }
-        }
-        
-        $display_text .= ' - ' . $insumo['tipo_insumo'];
-        
-        $dataTipo = htmlspecialchars($insumo['tipo_insumo']);
-        $dataMax = ($insumo['tipo_insumo'] === 'Varios') ? (int)$insumo['cantidad'] : 1;
-        $options .= '<option value="' . (int)$insumo['id_insumo'] . '" data-tipo="' . $dataTipo . '" data-max="' . $dataMax . '">' . htmlspecialchars($display_text) . '</option>';
-    }
-    
-    echo json_encode(['success' => true, 'options' => $options]);
+    // Responder JSON con datos crudos; el cliente construirá opciones
+    json_success(['insumos' => $insumos]);
     
 } catch (Exception $e) {
-    echo json_encode(['error' => 'Error al cargar insumos: ' . $e->getMessage()]);
+    json_error('Error al cargar insumos: ' . $e->getMessage(), 500);
 }
 ?> 

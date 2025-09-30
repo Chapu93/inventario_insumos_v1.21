@@ -3,11 +3,16 @@ require_once '../includes/config.php';
 
 header('Content-Type: application/json');
 
+if (!verify_csrf()) {
+    json_error('CSRF inválido', 403);
+    exit;
+}
+
 try {
     $raw = file_get_contents('php://input');
     $data = json_decode($raw, true);
     if (!$data || !isset($data['remito']) || !is_array($data['items'])) {
-        echo json_encode(['success' => false, 'error' => 'Datos inválidos']);
+        json_error('Datos inválidos', 400);
         exit;
     }
 
@@ -27,7 +32,7 @@ try {
     $stmt->execute([$numero]);
     $cab = $stmt->fetch();
     if (!$cab) {
-        echo json_encode(['success' => false, 'error' => 'Remito no encontrado']);
+        json_error('Remito no encontrado', 404);
         exit;
     }
     $idRemito = (int)$cab['id_remito'];
@@ -79,10 +84,10 @@ try {
     }
 
     $db->commit();
-    echo json_encode(['success' => true]);
+    json_success();
 } catch (Exception $e) {
     if (isset($db) && $db->inTransaction()) { $db->rollBack(); }
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    json_error($e->getMessage(), 500);
 }
 ?>
 

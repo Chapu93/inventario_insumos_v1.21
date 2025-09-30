@@ -26,6 +26,28 @@ if (file_exists($autoloadPath)) {
     require_once $autoloadPath;
 }
 
+// Cargar .env (simple) si existe
+function load_env_simple() {
+    $envPath = __DIR__ . '/../.env';
+    if (!file_exists($envPath)) { return; }
+    $lines = @file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    if ($lines === false) { return; }
+    foreach ($lines as $line) {
+        if (strpos(ltrim($line), '#') === 0) { continue; }
+        $pos = strpos($line, '=');
+        if ($pos === false) { continue; }
+        $key = trim(substr($line, 0, $pos));
+        $val = trim(substr($line, $pos + 1));
+        $val = trim($val, "'\"");
+        if ($key !== '' && getenv($key) === false) {
+            putenv($key . '=' . $val);
+            $_ENV[$key] = $val;
+            $_SERVER[$key] = $val;
+        }
+    }
+}
+load_env_simple();
+
 function app_base_url(): string {
     $env = getenv('APP_BASE_URL');
     if ($env && $env !== '/') {
@@ -46,6 +68,42 @@ function app_base_url(): string {
     }
     // Fallback: BASE_URL si está definido
     return defined('BASE_URL') ? BASE_URL : '';
+}
+
+// Helpers JSON
+function json_response($payload, int $status = 200): void {
+    if (!headers_sent()) {
+        http_response_code($status);
+        header('Content-Type: application/json');
+    }
+    echo json_encode($payload);
+}
+function json_success($data = [], int $status = 200): void {
+    json_response(['success' => true, 'data' => $data], $status);
+}
+function json_error(string $message, int $status = 400): void {
+    json_response(['success' => false, 'error' => $message], $status);
+}
+
+// CSRF
+function csrf_token(): string {
+    if (empty($_SESSION['csrf_token'])) {
+        try {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        } catch (Throwable $e) {
+            $_SESSION['csrf_token'] = md5(uniqid((string)mt_rand(), true));
+        }
+    }
+    return $_SESSION['csrf_token'];
+}
+function verify_csrf(): bool {
+    $session = isset($_SESSION['csrf_token']) ? (string)$_SESSION['csrf_token'] : '';
+    $header = isset($_SERVER['HTTP_X_CSRF_TOKEN']) ? (string)$_SERVER['HTTP_X_CSRF_TOKEN'] : '';
+    $post = isset($_POST['_csrf']) ? (string)$_POST['_csrf'] : '';
+    if ($session === '') { return false; }
+    if ($header && hash_equals($session, $header)) { return true; }
+    if ($post && hash_equals($session, $post)) { return true; }
+    return false;
 }
 
 // Función para conectar a la base de datos

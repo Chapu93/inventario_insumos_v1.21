@@ -27,6 +27,18 @@ function generarRemitoPDF(numeroRemito) {
   window.open(`${base}/pages/reportes/remito_pdf.php?remito=${encodeURIComponent(numeroRemito)}`, '_blank');
 }
 
+// Configurar CSRF en AJAX por defecto
+$(function() {
+  try {
+    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    if (token && $.ajaxSetup) {
+      $.ajaxSetup({
+        beforeSend: function(xhr) { xhr.setRequestHeader('X-CSRF-Token', token); }
+      });
+    }
+  } catch(e) { console.warn('CSRF meta no encontrado'); }
+});
+
 // Función para cargar insumos por sede
 function cargarInsumosPorSede(sedeId, selectId) {
     if (!sedeId) {
