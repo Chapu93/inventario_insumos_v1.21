@@ -29,23 +29,17 @@ try {
         exit;
     }
 
-    // Bloque: no eliminar si está asignado
+    // No permitir acciones si está asignado
     if ($insumo['estado'] === 'Asignado') {
-        $_SESSION['mensaje'] = "No se puede eliminar: el insumo '{$insumo['nombre_insumo']}' está asignado actualmente.";
+        $_SESSION['mensaje'] = "No se puede eliminar/dar de baja: el insumo '{$insumo['nombre_insumo']}' está asignado actualmente.";
         $_SESSION['tipo_mensaje'] = 'warning';
         header('Location: listar.php');
         exit;
     }
 
-    // Soportar reducción de cantidad para tipo "Varios"
+    // Soportar reducción de cantidad para tipo "Varios" (mantener comportamiento) y registrar baja si queda en 0
     $accion = isset($_GET['accion']) ? trim($_GET['accion']) : '';
-    if ($accion === 'reducir') {
-        if ($insumo['tipo_insumo'] !== 'Varios') {
-            $_SESSION['mensaje'] = 'Solo se puede reducir cantidad en insumos de tipo "Varios".';
-            $_SESSION['tipo_mensaje'] = 'warning';
-            header('Location: listar.php');
-            exit;
-        }
+    if ($accion === 'reducir' && $insumo['tipo_insumo'] === 'Varios') {
         $cantidadReducir = isset($_GET['cantidad']) ? (int)$_GET['cantidad'] : 0;
         if ($cantidadReducir < 1) {
             $_SESSION['mensaje'] = 'Cantidad a reducir inválida.';
@@ -53,85 +47,59 @@ try {
             header('Location: listar.php');
             exit;
         }
-        if ($cantidadReducir >= (int)$insumo['cantidad']) {
-            // Si reduce igual o más que el stock, eliminar completamente
-            $db->beginTransaction();
-            switch ($insumo['tipo_insumo']) {
-                case 'PC Completa':
-                    $db->prepare("DELETE FROM pcs_completas WHERE id_insumo = ?")->execute([$id]);
-                    break;
-                case 'Notebook':
-                    $db->prepare("DELETE FROM notebooks WHERE id_insumo = ?")->execute([$id]);
-                    break;
-                case 'Impresora':
-                    $db->prepare("DELETE FROM impresoras WHERE id_insumo = ?")->execute([$id]);
-                    break;
-                case 'Monitor':
-                    $db->prepare("DELETE FROM monitores WHERE id_insumo = ?")->execute([$id]);
-                    break;
-                case 'Escaner':
-                    $db->prepare("DELETE FROM escaneres WHERE id_insumo = ?")->execute([$id]);
-                    break;
+        $nuevo = max(0, ((int)$insumo['cantidad']) - $cantidadReducir);
+        $db->beginTransaction();
+        $db->prepare("UPDATE insumos SET cantidad = ?, estado = CASE WHEN ? > 0 THEN 'Disponible' ELSE 'De Baja' END WHERE id_insumo = ?")
+           ->execute([$nuevo, $nuevo, $id]);
+        if ($nuevo === 0) {
+            // Asegurar tabla historial
+            try { $db->query("SELECT 1 FROM insumos_bajas LIMIT 1"); }
+            catch (Exception $e) {
+                $db->exec("CREATE TABLE IF NOT EXISTS insumos_bajas (
+                    id_baja INT NOT NULL AUTO_INCREMENT,
+                    id_insumo INT NOT NULL,
+                    fecha_baja DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    observacion VARCHAR(255) NOT NULL,
+                    PRIMARY KEY (id_baja),
+                    KEY idx_ib_insumo (id_insumo),
+                    CONSTRAINT fk_ib_insumo FOREIGN KEY (id_insumo) REFERENCES insumos(id_insumo)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
             }
-            // Eliminar referencias de remitos si existe la tabla detalle
-            $existeRemitosDetalle = (bool)$db->query("SELECT 1 FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'remitos_detalle'")->fetchColumn();
-            if ($existeRemitosDetalle) {
-                $db->prepare("DELETE FROM remitos_detalle WHERE id_insumo = ?")->execute([$id]);
-            }
-            $db->prepare("DELETE FROM insumos WHERE id_insumo = ?")->execute([$id]);
-            $db->commit();
-            $_SESSION['mensaje'] = "Insumo '{$insumo['nombre_insumo']}' eliminado correctamente (reducción total).";
-            $_SESSION['tipo_mensaje'] = 'success';
-            header('Location: listar.php');
-            exit;
-        } else {
-            // Reducir stock y mantener registro
-            $nuevo = ((int)$insumo['cantidad']) - $cantidadReducir;
-            $db->beginTransaction();
-            $db->prepare("UPDATE insumos SET cantidad = ?, estado = 'Disponible' WHERE id_insumo = ?")
-               ->execute([$nuevo, $id]);
-            $db->commit();
-            $_SESSION['mensaje'] = "Cantidad reducida en '{$insumo['nombre_insumo']}'. Nuevo stock: {$nuevo}.";
-            $_SESSION['tipo_mensaje'] = 'success';
-            header('Location: listar.php');
-            exit;
+            $db->prepare("INSERT INTO insumos_bajas (id_insumo, observacion) VALUES (?, ?)")
+               ->execute([$id, 'Baja automática por reducción total de stock']);
         }
+        $db->commit();
+        $_SESSION['mensaje'] = ($nuevo > 0)
+            ? "Cantidad reducida en '{$insumo['nombre_insumo']}'. Nuevo stock: {$nuevo}."
+            : "Insumo '{$insumo['nombre_insumo']}' dado de baja (stock agotado).";
+        $_SESSION['tipo_mensaje'] = 'success';
+        header('Location: listar.php');
+        exit;
     }
 
-    // Eliminación completa (default)
+    // Reemplazar eliminación total por BAJA con historial
     $db->beginTransaction();
-
-    // Eliminar tablas específicas
-    switch ($insumo['tipo_insumo']) {
-        case 'PC Completa':
-            $db->prepare("DELETE FROM pcs_completas WHERE id_insumo = ?")->execute([$id]);
-            break;
-        case 'Notebook':
-            $db->prepare("DELETE FROM notebooks WHERE id_insumo = ?")->execute([$id]);
-            break;
-        case 'Impresora':
-            $db->prepare("DELETE FROM impresoras WHERE id_insumo = ?")->execute([$id]);
-            break;
-        case 'Monitor':
-            $db->prepare("DELETE FROM monitores WHERE id_insumo = ?")->execute([$id]);
-            break;
-        case 'Escaner':
-            $db->prepare("DELETE FROM escaneres WHERE id_insumo = ?")->execute([$id]);
-            break;
+    // Asegurar tabla historial
+    try { $db->query("SELECT 1 FROM insumos_bajas LIMIT 1"); }
+    catch (Exception $e) {
+        $db->exec("CREATE TABLE IF NOT EXISTS insumos_bajas (
+            id_baja INT NOT NULL AUTO_INCREMENT,
+            id_insumo INT NOT NULL,
+            fecha_baja DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            observacion VARCHAR(255) NOT NULL,
+            PRIMARY KEY (id_baja),
+            KEY idx_ib_insumo (id_insumo),
+            CONSTRAINT fk_ib_insumo FOREIGN KEY (id_insumo) REFERENCES insumos(id_insumo)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
     }
-
-    // Limpieza esquema nuevo: detalle de remitos si existe la tabla
-    $existeRemitosDetalle = (bool)$db->query("SELECT 1 FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = 'remitos_detalle'")->fetchColumn();
-    if ($existeRemitosDetalle) {
-        $db->prepare("DELETE FROM remitos_detalle WHERE id_insumo = ?")->execute([$id]);
-    }
-
-    // Eliminar insumo
-    $db->prepare("DELETE FROM insumos WHERE id_insumo = ?")->execute([$id]);
-
+    // Marcar insumo de baja, limpiar ubicaciones
+    $db->prepare("UPDATE insumos SET estado = 'De Baja', cantidad = 0, id_sede_actual = NULL, id_area_asignacion_actual = NULL WHERE id_insumo = ?")
+       ->execute([$id]);
+    $db->prepare("INSERT INTO insumos_bajas (id_insumo, observacion) VALUES (?, ?)")
+       ->execute([$id, 'Baja registrada desde eliminar.php']);
     $db->commit();
 
-    $_SESSION['mensaje'] = "Insumo '{$insumo['nombre_insumo']}' eliminado correctamente.";
+    $_SESSION['mensaje'] = "Insumo '{$insumo['nombre_insumo']}' dado de baja correctamente.";
     $_SESSION['tipo_mensaje'] = 'success';
     header('Location: listar.php');
     exit;

@@ -15,6 +15,11 @@ define('BASE_URL', rtrim(getenv('APP_BASE_URL') ?: '/inventario_app', '/'));
 // Configuración de sesión
 session_start();
 
+// Marca de inicialización para impedir acceso directo a includes
+if (!defined('APP_INIT')) {
+    define('APP_INIT', true);
+}
+
 // Autoload de Composer si existe
 $autoloadPath = __DIR__ . '/../vendor/autoload.php';
 if (file_exists($autoloadPath)) {
