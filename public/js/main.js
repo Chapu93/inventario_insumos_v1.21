@@ -125,8 +125,9 @@ function cargarAreasPorSede(sedeId, selectId) {
 
 // Función para cargar sedes por localidad
 function cargarSedesPorLocalidad(localidadId, selectId) {
+  const sel = (selectId && String(selectId).charAt(0) === '#') ? String(selectId) : `#${selectId}`;
   if (!localidadId) {
-    $(`#${selectId}`).html('<option value="">Seleccione una sede</option>');
+    $(sel).html('<option value="">Seleccione una sede</option>');
     return;
   }
   const url = `${getAppBase()}/ajax/cargar_sedes.php`;
@@ -138,16 +139,22 @@ function cargarSedesPorLocalidad(localidadId, selectId) {
     dataType: 'json',
     success: function(response) {
       console.log('[DEBUG] cargar_sedes response', response);
-      if (response.success) {
-        $(`#${selectId}`).html(response.options).trigger('change');
+      const data = response && response.data ? response.data : response;
+      const lista = data && data.sedes ? data.sedes : [];
+      if (response && response.success && Array.isArray(lista)) {
+        let options = '<option value="">Seleccione una sede</option>';
+        lista.forEach(function(s){
+          options += `<option value="${parseInt(s.id,10)}">${$('<div>').text(s.nombre || '').html()}</option>`;
+        });
+        $(sel).html(options).trigger('change');
       } else {
-        console.error('Error al cargar sedes:', response.error);
-        $(`#${selectId}`).html('<option value="">Error al cargar sedes</option>');
+        console.error('Error al cargar sedes:', response && response.error);
+        $(sel).html('<option value="">Error al cargar sedes</option>');
       }
     },
     error: function(xhr) {
       console.error('Error en la petición AJAX', xhr.status, xhr.responseText);
-      $(`#${selectId}`).html('<option value="">Error al cargar sedes</option>');
+      $(sel).html('<option value="">Error al cargar sedes</option>');
     }
   });
 }
