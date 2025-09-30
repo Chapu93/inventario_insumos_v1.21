@@ -18,6 +18,7 @@ $insumos = $stmt->fetchAll();
 // POST para crear la asignación
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
+        if (!verify_csrf()) { throw new Exception('CSRF inválido'); }
         $db->beginTransaction();
         $ids = isset($_POST['id_insumo']) ? (array)$_POST['id_insumo'] : [];
         if (empty($ids)) { throw new Exception('Debe seleccionar al menos un insumo'); }
@@ -117,6 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="card">
     <div class="card-body">
         <form method="POST" id="formPasos" class="needs-validation" novalidate>
+            <input type="hidden" name="_csrf" value="<?php echo htmlspecialchars(csrf_token()); ?>">
             <!-- Paso 1: Formulario de cabecera -->
             <div id="paso1">
                 <div class="row justify-content-center">
@@ -212,7 +214,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         </select>
                                     </div>
                                     <div class="col-md-3 d-flex justify-content-end gap-2">
-                                        <button type="button" class="btn btn-outline-secondary btn-sm" id="btnLimpiarFiltros" title="Limpiar filtros"><i class="fas fa-eraser"></i></button>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" id="btnLimpiarFiltros" title="Limpiar filtros" aria-label="Limpiar filtros"><i class="fas fa-eraser" aria-hidden="true"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -223,8 +225,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <h6 class="mb-0"><i class="fas fa-boxes me-2"></i>Insumos Disponibles</h6>
                                 <div class="d-flex align-items-center gap-2">
                                     <span class="badge bg-secondary" id="contadorSeleccion">0</span>
-                                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="seleccionarFiltrados()" title="Seleccionar filtrados"><i class="fas fa-check-double"></i></button>
-                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="deseleccionarTodos()" title="Deseleccionar todo"><i class="fas fa-times"></i></button>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="seleccionarFiltrados()" title="Seleccionar filtrados" aria-label="Seleccionar filtrados"><i class="fas fa-check-double" aria-hidden="true"></i></button>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="deseleccionarTodos()" title="Deseleccionar todo" aria-label="Deseleccionar todo"><i class="fas fa-times" aria-hidden="true"></i></button>
                                 </div>
                             </div>
                             <div class="card-body">
@@ -245,11 +247,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                         <input type="hidden" name="id_insumo[]" value="<?php echo $ins['id_insumo']; ?>" class="hidden-insumo-input" data-tipo="<?php echo htmlspecialchars($ins['tipo_insumo']); ?>" data-max="<?php echo ($ins['tipo_insumo'] === 'Varios') ? (int)$ins['cantidad'] : 1; ?>" disabled style="display:none;">
                                                         <?php if ($ins['tipo_insumo'] === 'Varios' && $ins['cantidad'] > 1): ?>
                                                         <div class="cantidad-input" style="display:none;">
-                                                            <label class="small text-muted mb-0">Cant.</label>
-                                                            <input type="number" class="form-control form-control-sm" name="cantidad_varios[<?php echo $ins['id_insumo']; ?>]" min="1" max="<?php echo (int)$ins['cantidad']; ?>" value="1" style="width:84px;">
+                                                            <?php $cid = 'cantidad_varios_' . (int)$ins['id_insumo']; ?>
+                                                            <label for="<?php echo $cid; ?>" class="small text-muted mb-0">Cant.</label>
+                                                            <input id="<?php echo $cid; ?>" type="number" class="form-control form-control-sm" name="cantidad_varios[<?php echo $ins['id_insumo']; ?>]" min="1" max="<?php echo (int)$ins['cantidad']; ?>" value="1" style="width:84px;">
                                                         </div>
                                                         <?php endif; ?>
-                                                        <button type="button" class="btn btn-sm btn-outline-primary btn-seleccionar" data-insumo-id="<?php echo $ins['id_insumo']; ?>" onclick="toggleSeleccionInsumo(<?php echo $ins['id_insumo']; ?>)" title="Seleccionar"><i class="fas fa-plus"></i><span class="d-none d-sm-inline"> Seleccionar</span></button>
+                                                        <button type="button" class="btn btn-sm btn-outline-primary btn-seleccionar" data-insumo-id="<?php echo $ins['id_insumo']; ?>" onclick="toggleSeleccionInsumo(<?php echo $ins['id_insumo']; ?>)" title="Seleccionar" aria-label="Seleccionar insumo <?php echo htmlspecialchars($ins['nombre_insumo']); ?>"><i class="fas fa-plus" aria-hidden="true"></i><span class="d-none d-sm-inline"> Seleccionar</span></button>
                                                     </div>
                                                 </td>
                                             </tr>
