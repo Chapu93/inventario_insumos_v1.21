@@ -287,12 +287,21 @@ const BASE = '<?php echo app_base_url(); ?>';
 function cargarSedesLocalidad(locId){
   const $s = document.getElementById('sel_sede');
   if (!$s) return;
-  $s.innerHTML = '<option value="">Seleccione</option>';
-  if (!locId) { $s.setAttribute('disabled', 'disabled'); return; }
-  fetch(`${BASE}/ajax/sedes_por_localidad.php?localidad_id=${encodeURIComponent(locId)}`)
+  $s.innerHTML = '<option value="">Cargando sedes...</option>';
+  $s.setAttribute('disabled', 'disabled');
+  if (!locId) { $s.innerHTML = '<option value="">Seleccione</option>'; return; }
+  fetch(`${BASE}/ajax/cargar_sedes.php?localidad_id=${encodeURIComponent(locId)}`)
     .then(r => r.json())
-    .then(d => { if (!d.success) return; d.data.forEach(x => { const opt = document.createElement('option'); opt.value = x.id; opt.textContent = x.nombre; $s.appendChild(opt); }); $s.removeAttribute('disabled'); <?php if ($idSede>0): ?> $s.value = '<?php echo $idSede; ?>'; <?php endif; ?> })
-    .catch(() => {});
+    .then(d => {
+      const data = d && d.data ? d.data : d;
+      const lista = data && data.sedes ? data.sedes : [];
+      let opts = '<option value="">Seleccione</option>';
+      lista.forEach(x => { opts += `<option value="${parseInt(x.id,10)}">${x.nombre ? String(x.nombre) : ''}</option>`; });
+      $s.innerHTML = opts;
+      $s.removeAttribute('disabled');
+      <?php if ($idSede>0): ?> $s.value = '<?php echo $idSede; ?>'; <?php endif; ?>
+    })
+    .catch(() => { $s.innerHTML = '<option value="">Seleccione</option>'; });
 }
 document.addEventListener('DOMContentLoaded', function(){
   const selLoc = document.getElementById('sel_localidad');
