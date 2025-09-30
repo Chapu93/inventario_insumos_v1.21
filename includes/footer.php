@@ -131,6 +131,26 @@
     </script>
     
     <!-- Toast container (Bootstrap 5) -->
-    <div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1080;"></div>
+    <div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1080;" aria-live="polite" aria-atomic="true"></div>
+
+    <script>
+    (function(){
+      var lastFocus = null;
+      // Restaurar foco al cerrar modales y enfocar el primero al abrir
+      document.addEventListener('show.bs.modal', function(ev){
+        try { lastFocus = document.activeElement; } catch(e) { lastFocus = null; }
+        var modal = ev.target;
+        setTimeout(function(){
+          try {
+            var first = modal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            if (first) { first.focus(); }
+          } catch(e) {}
+        }, 0);
+      });
+      document.addEventListener('hidden.bs.modal', function(){
+        try { if (lastFocus && typeof lastFocus.focus === 'function') { lastFocus.focus(); } } catch(e) {}
+      });
+    })();
+    </script>
 </body>
 </html> 
