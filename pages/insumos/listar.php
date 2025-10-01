@@ -222,6 +222,11 @@ $localidades = $stmt->fetchAll();
                     <label class="form-label">Motivo/Observación</label>
                     <textarea id="bajaObservacion" class="form-control" rows="3" placeholder="Describa el motivo de la baja" required></textarea>
                 </div>
+                <div class="mb-3">
+                    <label class="form-label">Cantidad (solo para tipo "Varios")</label>
+                    <input type="number" id="bajaCantidad" class="form-control" min="1" step="1" placeholder="1">
+                    <div class="form-text">Si el insumo es de tipo "Varios" puede indicar cuántas unidades dar de baja.</div>
+                </div>
                 <div id="bajaAlert" style="display:none;"></div>
             </div>
             <div class="modal-footer">
@@ -314,13 +319,14 @@ document.getElementById('btnConfirmarBaja').addEventListener('click', function()
         box.style.display = 'block';
         return;
     }
+    const cantidad = parseInt((document.getElementById('bajaCantidad').value || '1'), 10) || 1;
     fetch(`${getAppBase()}/ajax/insumo_baja.php`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRF-Token': (document.querySelector('meta[name="csrf-token"]')||{}).content || ''
         },
-        body: JSON.stringify({ id_insumo: BAJA_ID, observacion: obs })
+        body: JSON.stringify({ id_insumo: BAJA_ID, observacion: obs, cantidad })
     })
     .then(r => r.json())
     .then(data => {

@@ -18,6 +18,7 @@ try {
 
     $idInsumo = (int)$data['id_insumo'];
     $observacion = trim((string)$data['observacion']);
+    $cantidadSolicitada = isset($data['cantidad']) ? max(1, (int)$data['cantidad']) : 1;
     if ($idInsumo <= 0 || strlen($observacion) < 3) {
         echo json_encode(['success' => false, 'error' => 'Parámetros insuficientes']);
         exit;
@@ -25,8 +26,8 @@ try {
 
     $db = conectarDB();
 
-    // Verificar que no esté asignado
-    $stmt = $db->prepare("SELECT estado FROM insumos WHERE id_insumo = ? FOR UPDATE");
+    // Verificar estado y tipo
+    $stmt = $db->prepare("SELECT estado, tipo_insumo, cantidad FROM insumos WHERE id_insumo = ? FOR UPDATE");
     $stmt->execute([$idInsumo]);
     $ins = $stmt->fetch();
     if (!$ins) {
@@ -40,9 +41,20 @@ try {
 
     $db->beginTransaction();
 
-    // Cambiar estado a De Baja y limpiar ubicaciones actuales
-    $db->prepare("UPDATE insumos SET estado = 'De Baja', id_sede_actual = NULL, id_area_asignacion_actual = NULL WHERE id_insumo = ?")
-       ->execute([$idInsumo]);
+    // Para tipo Varios permitir baja parcial por cantidad
+    if (trim($ins['tipo_insumo']) === 'Varios') {
+        $stockActual = (int)$ins['cantidad'];
+        $aBajar = min(max(1, (int)$cantidadSolicitada), $stockActual);
+        $nuevoStock = max(0, $stockActual - $aBajar);
+        $nuevoEstado = $nuevoStock > 0 ? 'Disponible' : 'De Baja';
+        $db->prepare("UPDATE insumos SET cantidad = ?, estado = ?, id_sede_actual = NULL, id_area_asignacion_actual = NULL WHERE id_insumo = ?")
+           ->execute([$nuevoStock, $nuevoEstado, $idInsumo]);
+    } else {
+        // Unitarios: baja total
+        $db->prepare("UPDATE insumos SET estado = 'De Baja', id_sede_actual = NULL, id_area_asignacion_actual = NULL WHERE id_insumo = ?")
+           ->execute([$idInsumo]);
+        $cantidadSolicitada = 1;
+    }
 
     // Asegurar tabla de historial de bajas
     try {
@@ -53,15 +65,26 @@ try {
             id_insumo INT NOT NULL,
             fecha_baja DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
             observacion VARCHAR(255) NOT NULL,
+            cantidad INT NOT NULL DEFAULT 1,
             PRIMARY KEY (id_baja),
             KEY idx_ib_insumo (id_insumo),
             CONSTRAINT fk_ib_insumo FOREIGN KEY (id_insumo) REFERENCES insumos(id_insumo)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
     }
 
-    // Registrar observación de baja
-    $db->prepare("INSERT INTO insumos_bajas (id_insumo, observacion) VALUES (?, ?)")
-       ->execute([$idInsumo, $observacion]);
+    // Tolerante: agregar columna cantidad si no existe
+    try { $db->query("SELECT cantidad FROM insumos_bajas LIMIT 1"); }
+    catch (Exception $e) { try { $db->exec("ALTER TABLE insumos_bajas ADD COLUMN cantidad INT NOT NULL DEFAULT 1 AFTER observacion"); } catch (Exception $e2) {} }
+
+    // Registrar observación y cantidad de baja
+    try {
+        $db->prepare("INSERT INTO insumos_bajas (id_insumo, observacion, cantidad) VALUES (?, ?, ?)")
+           ->execute([$idInsumo, $observacion, (int)$cantidadSolicitada]);
+    } catch (Exception $e) {
+        // Fallback si no existe columna cantidad
+        $db->prepare("INSERT INTO insumos_bajas (id_insumo, observacion) VALUES (?, ?)")
+           ->execute([$idInsumo, $observacion]);
+    }
 
     $db->commit();
     echo json_encode(['success' => true]);
