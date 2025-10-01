@@ -34,6 +34,7 @@ require_once '../../includes/config.php';
                 <th>Fecha Baja</th>
                 <th>Insumo</th>
                 <th>Tipo</th>
+                <th>Cantidad</th>
                 <th>Observación</th>
               </tr>
             </thead>
@@ -84,7 +85,8 @@ $(function(){
         { data: 0 },
         { data: 1 },
         { data: 2 },
-        { data: 3 }
+        { data: 3 },
+        { data: 4 }
       ],
       drawCallback: function(){ inicializarTooltips(); }
     });

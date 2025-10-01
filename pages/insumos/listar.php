@@ -280,23 +280,9 @@ function verInsumo(id) {
                     btn.className = 'btn btn-warning';
                     btn.innerHTML = '<i class="fas fa-undo me-2"></i>Devolver y dar de baja';
                     btn.addEventListener('click', function(){
-                      modal.hide();
-                      // Abrir devolución
-                      if (typeof abrirDevolucion === 'function') {
-                        abrirDevolucion(rem);
-                        // Suscribir a confirmación para mostrar luego el modal de baja
-                        setTimeout(function(){
-                          const btnConf = document.getElementById('btnConfirmarDevolucion');
-                          if (btnConf) {
-                            const original = btnConf.onclick;
-                            btnConf.addEventListener('click', function onDone(){
-                              // Esperar a recarga/feedback y luego abrir baja
-                              setTimeout(function(){ abrirModalBajaInsumo(id, (data && data.nombre_insumo) ? data.nombre_insumo : ''); }, 1500);
-                              btnConf.removeEventListener('click', onDone);
-                            });
-                          }
-                        }, 300);
-                      }
+                      // Abrir página de asignaciones con modal de devolución directo
+                      const base = getAppBase();
+                      window.location.href = `${base}/pages/asignaciones/listar.php?devolver=${encodeURIComponent(rem)}`;
                     });
                     footer.insertBefore(btn, footer.firstChild);
                   }

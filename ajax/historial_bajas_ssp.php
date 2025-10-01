@@ -29,7 +29,7 @@ try {
     $stmt->execute($params);
     $filtered = (int)$stmt->fetchColumn();
 
-    $sql = "SELECT b.fecha_baja, i.nombre_insumo, i.tipo_insumo, b.observacion
+    $sql = "SELECT b.fecha_baja, i.nombre_insumo, i.tipo_insumo, b.cantidad, b.observacion
             FROM insumos_bajas b
             JOIN insumos i ON i.id_insumo = b.id_insumo
             $whereSql
@@ -44,6 +44,7 @@ try {
             date('d/m/Y H:i', strtotime($r['fecha_baja'])),
             htmlspecialchars($r['nombre_insumo']),
             htmlspecialchars($r['tipo_insumo']),
+            (isset($r['cantidad']) ? (int)$r['cantidad'] : 1),
             htmlspecialchars($r['observacion'] ?? ''),
         ];
     }, $rows);
