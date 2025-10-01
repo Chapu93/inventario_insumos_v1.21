@@ -47,7 +47,7 @@ try {
         }
     }
 
-    echo '<p><a href="' . htmlspecialchars(app_base_url() . '/pages/asignaciones/nueva.php') . '">Ir a Nueva Asignación</a></p>';
+    echo '<p><a href="' . htmlspecialchars(app_base_url() . '/pages/asignaciones/nueva_pasos.php') . '">Ir a Nueva Asignación</a></p>';
     echo '<p style="margin-top:8px"><a href="' . htmlspecialchars(app_base_url() . '/pages/reportes/remito.php') . '">Ver Remitos</a></p>';
 } catch (Exception $e) {
     http_response_code(500);

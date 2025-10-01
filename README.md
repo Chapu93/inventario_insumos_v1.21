@@ -66,7 +66,8 @@ inventario_app/
 │   │   └── ver_ajax.php
 │   ├── asignaciones/
 │   │   ├── listar.php
-│   │   ├── nueva.php         # Flujo Localidad→Sede→Área→Insumo
+│   │   ├── nueva.php         # Redirige a nueva_pasos.php (reemplazado)
+│   │   ├── nueva_pasos.php   # Flujo Localidad→Sede→Área→Insumo (activo)
 │   │   ├── nueva_simple.php
 │   │   └── cambiar_estado.php
 │   └── reportes/

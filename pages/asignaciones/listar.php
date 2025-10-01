@@ -77,7 +77,7 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
             <h1>
                 <i class="fas fa-handshake me-2"></i>Gestión de Asignaciones
             </h1>
-            <a href="nueva.php" class="btn btn-primary">
+            <a href="nueva_pasos.php" class="btn btn-primary">
                 <i class="fas fa-plus me-2"></i>Nueva Asignación
             </a>
         </div>

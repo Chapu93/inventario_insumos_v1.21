@@ -1,7 +1,7 @@
 <?php
 require_once '../../includes/config.php';
-
-$conexion = conectarDB();
+header('Location: ' . app_base_url() . '/pages/asignaciones/nueva_pasos.php', true, 301);
+exit;
 
 // Obtener datos base para los select
 $stmt = $conexion->query("SELECT id_localidad, nombre_localidad FROM localidades ORDER BY nombre_localidad");

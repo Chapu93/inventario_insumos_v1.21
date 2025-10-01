@@ -85,7 +85,7 @@ $total_localidades = $stmt->fetch()['total'];
                 
                 <hr>
                 
-                <a href="asignaciones/nueva.php" class="btn btn-primary">
+                <a href="asignaciones/nueva_pasos.php" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>Probar Nueva Asignación
                 </a>
                 

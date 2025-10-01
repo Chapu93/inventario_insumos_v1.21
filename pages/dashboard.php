@@ -203,7 +203,7 @@ foreach ($rowsV as $row) {
                         </a>
                     </div>
                     <div class="col-md-3 mb-3">
-                        <a href="asignaciones/nueva.php" class="btn btn-success w-100">
+                        <a href="asignaciones/nueva_pasos.php" class="btn btn-success w-100">
                             <i class="fas fa-clipboard-check me-2"></i>Nueva Asignación
                         </a>
                     </div>

@@ -112,7 +112,7 @@ echo "<hr>";
 
 // Enlaces de prueba
 echo "<h3>🔗 Enlaces de Prueba</h3>";
-echo "<p><a href='asignaciones/nueva.php' class='btn btn-primary'>🧪 Probar Nueva Asignación</a></p>";
+echo "<p><a href='asignaciones/nueva_pasos.php' class='btn btn-primary'>🧪 Probar Nueva Asignación</a></p>";
 echo "<p><a href='test_modal_confirmacion.php' class='btn btn-info'>🧪 Probar Modal de Confirmación</a></p>";
 
 echo "<hr>";
