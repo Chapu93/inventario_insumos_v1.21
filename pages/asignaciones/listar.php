@@ -425,6 +425,12 @@ $(function(){
           d.insumo = $('#insumo').val() || '';
           d.estado = $('#estado').val() || '';
           d.area = $('#area').val() || '';
+          // Si hay filtro por remito en la URL, aplicarlo
+          try {
+            const url = new URL(window.location.href);
+            const rem = url.searchParams.get('remito');
+            if (rem) { d.remito = rem; }
+          } catch(e) {}
         }
       },
       order: [[$t.data('default-order-col') || 2, 'desc']],

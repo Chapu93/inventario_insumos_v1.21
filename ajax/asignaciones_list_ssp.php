@@ -24,6 +24,7 @@ try {
     $filtro_insumo = $_GET['insumo'] ?? '';
     $filtro_estado = $_GET['estado'] ?? '';
     $filtro_area = $_GET['area'] ?? '';
+    $filtro_remito = isset($_GET['remito']) ? trim($_GET['remito']) : '';
 
     // Base subconsulta para contar activas
     $baseFrom = " FROM remitos r 
@@ -44,6 +45,7 @@ try {
         $like = '%' . $search . '%';
         array_push($params, $like, $like, $like);
     }
+    if ($filtro_remito !== '') { $where[] = 'r.numero_remito = ?'; $params[] = $filtro_remito; }
     $whereSql = count($where) ? (' WHERE ' . implode(' AND ', $where)) : '';
 
     // Total (por remito)

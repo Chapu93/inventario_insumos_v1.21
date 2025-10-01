@@ -337,11 +337,23 @@ function abrirModalBajaInsumo(id, nombre) {
           grp.style.display = 'none';
           inp.value = '';
         }
-        // Si está asignado, mostrar aviso y bloquear confirmación
-        if (data && data.remito_activo_numero) {
+        // Si está asignado (y NO es Varios), mostrar aviso y bloquear confirmación
+        if (data && data.remito_activo_numero && data.insumo_tipo !== 'Varios') {
           if (confirmBtn) { confirmBtn.disabled = true; }
           alertBox.className = 'alert alert-warning';
-          alertBox.innerHTML = `Este insumo está asignado (Remito <strong>${data.remito_activo_numero}</strong>). Debe devolverlo desde el menú <a href="${getAppBase()}/pages/asignaciones/listar.php" class="alert-link">Asignaciones</a> antes de darlo de baja.`;
+          alertBox.innerHTML = `Este insumo está asignado (Remito <strong>${data.remito_activo_numero}</strong>). Debe devolverlo desde Asignaciones.`;
+          // Botón para ir a Asignaciones filtrado por remito
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'btn btn-sm btn-primary ms-2';
+          btn.textContent = 'Ir a Devoluciones';
+          btn.addEventListener('click', function(){
+            window.location.href = `${getAppBase()}/pages/asignaciones/listar.php?remito=${encodeURIComponent(data.remito_activo_numero)}`;
+          });
+          const wrapper = document.createElement('div');
+          wrapper.className = 'mt-2';
+          wrapper.appendChild(btn);
+          alertBox.appendChild(wrapper);
           alertBox.style.display = 'block';
         }
       })
