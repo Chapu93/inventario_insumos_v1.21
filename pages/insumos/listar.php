@@ -222,10 +222,10 @@ $localidades = $stmt->fetchAll();
                     <label class="form-label">Motivo/Observación</label>
                     <textarea id="bajaObservacion" class="form-control" rows="3" placeholder="Describa el motivo de la baja" required></textarea>
                 </div>
-                <div class="mb-3">
+                <div class="mb-3" id="bajaCantidadGroup" style="display:none;">
                     <label class="form-label">Cantidad (solo para tipo "Varios")</label>
                     <input type="number" id="bajaCantidad" class="form-control" min="1" step="1" placeholder="1">
-                    <div class="form-text">Si el insumo es de tipo "Varios" puede indicar cuántas unidades dar de baja.</div>
+                    <div class="form-text" id="bajaCantidadHelp">Si el insumo es de tipo "Varios" puede indicar cuántas unidades dar de baja.</div>
                 </div>
                 <div id="bajaAlert" style="display:none;"></div>
             </div>
@@ -276,7 +276,7 @@ function verInsumo(id) {
                   const alerta = document.getElementById('bajaAlert');
                   if (alerta) {
                     alerta.className = 'alert alert-warning';
-                    alerta.innerHTML = `Este insumo está asignado (Remito <strong>${data.remito_activo_numero}</strong>). Debe devolverlo desde <a href="${getAppBase()}/pages/asignaciones/listar.php" class="alert-link">Asignaciones</a> antes de darlo de baja.`;
+                    alerta.innerHTML = `Este insumo está asignado (Remito <strong>${data.remito_activo_numero}</strong>). Debe devolverlo desde el menú <a href="${getAppBase()}/pages/asignaciones/listar.php" class="alert-link">Asignaciones</a> antes de darlo de baja.`;
                     alerta.style.display = 'block';
                   }
                 }
@@ -316,6 +316,29 @@ function abrirModalBajaInsumo(id, nombre) {
     document.getElementById('bajaObservacion').value = '';
     const alertBox = document.getElementById('bajaAlert');
     alertBox.style.display = 'none';
+    // Consultar detalles para configurar límite de cantidad si es tipo "Varios"
+    fetch(`ver_ajax.php?id=${BAJA_ID}`)
+      .then(r => r.json())
+      .then(data => {
+        const grp = document.getElementById('bajaCantidadGroup');
+        const inp = document.getElementById('bajaCantidad');
+        const help = document.getElementById('bajaCantidadHelp');
+        if (data && data.insumo_tipo === 'Varios') {
+          const max = parseInt(data.insumo_cantidad || 1, 10) || 1;
+          grp.style.display = '';
+          inp.value = Math.min(1, max);
+          inp.min = 1;
+          inp.max = Math.max(1, max);
+          help.textContent = `Disponible: ${max}. Ingrese una cantidad entre 1 y ${max}.`;
+        } else {
+          grp.style.display = 'none';
+          inp.value = '';
+        }
+      })
+      .catch(()=>{
+        const grp = document.getElementById('bajaCantidadGroup');
+        grp.style.display = 'none';
+      });
     const modal = new bootstrap.Modal(document.getElementById('modalBajaInsumo'));
     modal.show();
 }
@@ -330,7 +353,12 @@ document.getElementById('btnConfirmarBaja').addEventListener('click', function()
         box.style.display = 'block';
         return;
     }
-    const cantidad = parseInt((document.getElementById('bajaCantidad').value || '1'), 10) || 1;
+    const qtyInput = document.getElementById('bajaCantidad');
+    let cantidad = parseInt((qtyInput && qtyInput.value ? qtyInput.value : '1'), 10) || 1;
+    if (qtyInput && qtyInput.max) {
+        const max = parseInt(qtyInput.max, 10) || 1;
+        cantidad = Math.min(Math.max(1, cantidad), max);
+    }
     fetch(`${getAppBase()}/ajax/insumo_baja.php`, {
         method: 'POST',
         headers: {
