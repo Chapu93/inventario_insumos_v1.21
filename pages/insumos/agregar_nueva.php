@@ -341,7 +341,14 @@ $('#id_localidad').on('change', function(){
   const id = $(this).val();
   setLoading($('#id_sede'), 'Cargando sedes...');
   $.getJSON(`${getAppBase()}/ajax/cargar_sedes.php`, { localidad_id: id })
-    .done(r => { $('#id_sede').html(r && r.options ? r.options : '<option value="">Seleccione una sede</option>'); $('#id_area_asignada').html('<option value="">Seleccione un área</option>'); })
+    .done(r => {
+      const data = r && r.data ? r.data : r;
+      const lista = data && data.sedes ? data.sedes : [];
+      let html = '<option value="">Seleccione una sede</option>';
+      lista.forEach(s => { html += `<option value="${parseInt(s.id,10)}">${$('<div>').text(s.nombre||'').html()}</option>`; });
+      $('#id_sede').html(html);
+      $('#id_area_asignada').html('<option value="">Seleccione un área</option>');
+    })
     .fail(()=> $('#id_sede').html('<option value="">Seleccione una sede</option>'));
 });
 $('#id_sede').on('change', function(){
