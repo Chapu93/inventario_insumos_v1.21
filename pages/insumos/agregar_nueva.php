@@ -355,7 +355,13 @@ $('#id_sede').on('change', function(){
   const id = $(this).val();
   setLoading($('#id_area_asignada'), 'Cargando áreas...');
   $.getJSON(`${getAppBase()}/ajax/cargar_areas.php`, { sede_id: id })
-    .done(r => { $('#id_area_asignada').html(r && r.options ? r.options : '<option value="">Seleccione un área</option>'); })
+    .done(r => {
+      const data = r && r.data ? r.data : r;
+      const lista = data && data.areas ? data.areas : [];
+      let html = '<option value="">Seleccione un área</option>';
+      lista.forEach(a => { html += `<option value="${parseInt(a.id_area || a.id,10)}">${$('<div>').text(a.nombre_area || a.nombre || '').html()}</option>`; });
+      $('#id_area_asignada').html(html);
+    })
     .fail(()=> $('#id_area_asignada').html('<option value="">Seleccione un área</option>'));
 });
 
