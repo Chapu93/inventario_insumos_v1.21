@@ -442,11 +442,6 @@ $(function(){
   // Reaplicar con filtros
   $('form').on('submit', function(e){ e.preventDefault(); $('#tablaAsignaciones').DataTable().ajax.reload(); });
 
-  // Si viene query devolver=<remito>, abrir modal de devolución automáticamente
-  try {
-    const url = new URL(window.location.href);
-    const rem = url.searchParams.get('devolver');
-    if (rem) { abrirDevolucion(rem); }
-  } catch(e) {}
+  // Se deshabilita auto-apertura por parámetros (flujo solo desde menú Asignaciones)
 });
 </script>

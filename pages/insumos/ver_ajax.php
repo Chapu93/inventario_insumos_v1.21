@@ -281,13 +281,7 @@ try {
                     <p class="mb-1"><span class="badge bg-warning">Activa</span></p>
                     <p class="mb-1"><strong>Remito:</strong> <?php echo htmlspecialchars($remito_activo['numero_remito']); ?></p>
                     <p class="mb-1"><strong>Persona:</strong> <?php echo htmlspecialchars(($remito_activo['nombre_persona_asignada'] ?? '') . ' ' . ($remito_activo['apellido_persona_asignada'] ?? '')); ?></p>
-                    <div class="d-flex gap-2">
-                        <a class="btn btn-sm btn-outline-primary" href="<?php echo app_base_url(); ?>/pages/reportes/remito.php?remito=<?php echo urlencode($remito_activo['numero_remito']); ?>">Ver remito</a>
-                        <button type="button" class="btn btn-sm btn-warning" onclick="abrirDevolucion('<?php echo htmlspecialchars($remito_activo['numero_remito'], ENT_QUOTES); ?>')">
-                            <i class="fas fa-undo me-1"></i>Devolver y luego dar de baja
-                        </button>
-                    </div>
-                    <div class="form-text mt-1">Para dar de baja este insumo primero debe devolverlo de la asignación activa.</div>
+                    <a class="btn btn-sm btn-outline-primary" href="<?php echo app_base_url(); ?>/pages/reportes/remito.php?remito=<?php echo urlencode($remito_activo['numero_remito']); ?>">Ver remito</a>
                 </div>
             </div>
             <?php endif; ?>
@@ -305,28 +299,6 @@ try {
             <?php endif; ?>
 
             <div class="col-12">
-                <div class="card mb-3">
-                    <div class="card-header"><h6 class="mb-0"><i class="fas fa-history me-2"></i>Últimas Asignaciones</h6></div>
-                    <div class="card-body">
-                        <?php if (empty($asignaciones)): ?>
-                            <p class="text-muted">No hay asignaciones registradas</p>
-                        <?php else: ?>
-                            <div class="timeline">
-                                <?php foreach ($asignaciones as $asignacion): ?>
-                                    <div class="timeline-item mb-3">
-                                        <div class="d-flex justify-content-between">
-                                            <small class="text-muted"><?php echo date('d/m/Y H:i', strtotime($asignacion['fecha_asignacion'])); ?></small>
-                                            <?php $estadoEvento = !empty($asignacion['fecha_devolucion']) ? 'Devuelta' : ($asignacion['estado'] ?: 'Activa'); $badge = 'estado-' . strtolower($estadoEvento); ?>
-                                            <span class="badge <?php echo $badge; ?>"><?php echo $estadoEvento; ?></span>
-                                        </div>
-                                        <p class="mb-1"><strong><?php echo htmlspecialchars($asignacion['nombre_sede']); ?></strong><?php if ($asignacion['nombre_area']): ?> - <?php echo htmlspecialchars($asignacion['nombre_area']); ?><?php endif; ?></p>
-                                        <small class="text-muted">Asignado a: <?php echo htmlspecialchars($asignacion['nombre_persona_asignada'] . ' ' . $asignacion['apellido_persona_asignada']); ?></small>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
                 <div class="card mb-3">
                     <div class="card-header"><h6 class="mb-0"><i class="fas fa-ban me-2"></i>Última Baja</h6></div>
                     <div class="card-body">

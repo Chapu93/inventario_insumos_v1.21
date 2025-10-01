@@ -269,22 +269,15 @@ function verInsumo(id) {
                     window.location.href = `editar.php?id=${id}`;
                 };
                 btnEditar.style.display = 'inline-block';
-                // Si el insumo está asignado, ofrecer flujo asistido: devolver y luego baja
+                // Si está asignado, deshabilitar baja y guiar al menú de Devoluciones
                 if (data.remito_activo_numero) {
-                  const rem = data.remito_activo_numero;
-                  const footer = modal._element.querySelector('.modal-footer');
-                  if (footer && !footer.querySelector('#btnDevolverYBaja')) {
-                    const btn = document.createElement('button');
-                    btn.id = 'btnDevolverYBaja';
-                    btn.type = 'button';
-                    btn.className = 'btn btn-warning';
-                    btn.innerHTML = '<i class="fas fa-undo me-2"></i>Devolver y dar de baja';
-                    btn.addEventListener('click', function(){
-                      // Abrir página de asignaciones con modal de devolución directo
-                      const base = getAppBase();
-                      window.location.href = `${base}/pages/asignaciones/listar.php?devolver=${encodeURIComponent(rem)}`;
-                    });
-                    footer.insertBefore(btn, footer.firstChild);
+                  const bajaBtn = document.getElementById('btnConfirmarBaja');
+                  if (bajaBtn) { bajaBtn.disabled = true; }
+                  const alerta = document.getElementById('bajaAlert');
+                  if (alerta) {
+                    alerta.className = 'alert alert-warning';
+                    alerta.innerHTML = `Este insumo está asignado (Remito <strong>${data.remito_activo_numero}</strong>). Debe devolverlo desde <a href="${getAppBase()}/pages/asignaciones/listar.php" class="alert-link">Asignaciones</a> antes de darlo de baja.`;
+                    alerta.style.display = 'block';
                   }
                 }
             } else {
