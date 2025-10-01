@@ -316,6 +316,9 @@ function abrirModalBajaInsumo(id, nombre) {
     document.getElementById('bajaObservacion').value = '';
     const alertBox = document.getElementById('bajaAlert');
     alertBox.style.display = 'none';
+    // Reset botón confirmar por si fue deshabilitado en otra apertura
+    const confirmBtn = document.getElementById('btnConfirmarBaja');
+    if (confirmBtn) { confirmBtn.disabled = false; }
     // Consultar detalles para configurar límite de cantidad si es tipo "Varios"
     fetch(`ver_ajax.php?id=${BAJA_ID}`)
       .then(r => r.json())
@@ -333,6 +336,13 @@ function abrirModalBajaInsumo(id, nombre) {
         } else {
           grp.style.display = 'none';
           inp.value = '';
+        }
+        // Si está asignado, mostrar aviso y bloquear confirmación
+        if (data && data.remito_activo_numero) {
+          if (confirmBtn) { confirmBtn.disabled = true; }
+          alertBox.className = 'alert alert-warning';
+          alertBox.innerHTML = `Este insumo está asignado (Remito <strong>${data.remito_activo_numero}</strong>). Debe devolverlo desde el menú <a href="${getAppBase()}/pages/asignaciones/listar.php" class="alert-link">Asignaciones</a> antes de darlo de baja.`;
+          alertBox.style.display = 'block';
         }
       })
       .catch(()=>{

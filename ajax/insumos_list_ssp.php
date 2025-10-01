@@ -70,10 +70,11 @@ try {
         $estadoBadge = '<span class="badge estado-' . strtolower(str_replace(' ', '-', $r['estado'])) . '">' . $r['estado'] . '</span>';
         $cantBadge = '<span class="badge ' . ((int)$r['cantidad'] > 0 ? 'bg-success' : 'bg-danger') . '">' . (int)$r['cantidad'] . '</span>';
         $nombreJs = json_encode((string)$r['nombre_insumo']);
+        $isDeBaja = (string)$r['estado'] === 'De Baja';
         $acciones = '<div class="btn-group" role="group">'
                   . '<button type="button" class="btn btn-sm btn-info" aria-label="Ver detalles del insumo" onclick="verInsumo(' . (int)$r['id_insumo'] . ')" data-bs-toggle="tooltip" title="Ver detalles"><i class="fas fa-eye" aria-hidden="true"></i></button>'
                   . ' <a href="editar.php?id=' . (int)$r['id_insumo'] . '" class="btn btn-sm btn-warning" aria-label="Editar insumo" data-bs-toggle="tooltip" title="Editar"><i class="fas fa-edit" aria-hidden="true"></i></a>'
-                  . ' <button type="button" class="btn btn-sm btn-danger" aria-label="Dar de baja insumo" onclick=\'abrirModalBajaInsumo(' . (int)$r['id_insumo'] . ', ' . $nombreJs . ')\' data-bs-toggle="tooltip" title="Dar de baja"><i class="fas fa-trash" aria-hidden="true"></i></button>'
+                  . ' <button type="button" class="btn btn-sm btn-danger" aria-label="Dar de baja insumo" ' . ($isDeBaja ? 'disabled ' : 'onclick=\'abrirModalBajaInsumo(' . (int)$r['id_insumo'] . ', ' . $nombreJs . ')\' ') . 'data-bs-toggle="tooltip" title="Dar de baja"><i class="fas fa-trash" aria-hidden="true"></i></button>'
                   . '</div>';
         return [
             '<strong>' . htmlspecialchars($r['nombre_insumo']) . '</strong>',
