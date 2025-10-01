@@ -343,8 +343,16 @@ try {
     </div>
     <?php
     $html = ob_get_clean();
-    
-    echo json_encode(['success' => true, 'html' => $html]);
+    $remitoNum = $remito_activo ? (string)$remito_activo['numero_remito'] : null;
+    $tipoInsumo = isset($insumo['tipo_insumo']) ? (string)$insumo['tipo_insumo'] : null;
+    $cantInsumo = isset($insumo['cantidad']) ? (int)$insumo['cantidad'] : null;
+    echo json_encode([
+        'success' => true,
+        'html' => $html,
+        'remito_activo_numero' => $remitoNum,
+        'insumo_tipo' => $tipoInsumo,
+        'insumo_cantidad' => $cantInsumo
+    ]);
     
 } catch (Exception $e) {
     echo json_encode(['success' => false, 'error' => 'Error al cargar los datos del insumo: ' . $e->getMessage()]);

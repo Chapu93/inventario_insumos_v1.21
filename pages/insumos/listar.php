@@ -269,6 +269,38 @@ function verInsumo(id) {
                     window.location.href = `editar.php?id=${id}`;
                 };
                 btnEditar.style.display = 'inline-block';
+                // Si el insumo está asignado, ofrecer flujo asistido: devolver y luego baja
+                if (data.remito_activo_numero) {
+                  const rem = data.remito_activo_numero;
+                  const footer = modal._element.querySelector('.modal-footer');
+                  if (footer && !footer.querySelector('#btnDevolverYBaja')) {
+                    const btn = document.createElement('button');
+                    btn.id = 'btnDevolverYBaja';
+                    btn.type = 'button';
+                    btn.className = 'btn btn-warning';
+                    btn.innerHTML = '<i class="fas fa-undo me-2"></i>Devolver y dar de baja';
+                    btn.addEventListener('click', function(){
+                      modal.hide();
+                      // Abrir devolución
+                      if (typeof abrirDevolucion === 'function') {
+                        abrirDevolucion(rem);
+                        // Suscribir a confirmación para mostrar luego el modal de baja
+                        setTimeout(function(){
+                          const btnConf = document.getElementById('btnConfirmarDevolucion');
+                          if (btnConf) {
+                            const original = btnConf.onclick;
+                            btnConf.addEventListener('click', function onDone(){
+                              // Esperar a recarga/feedback y luego abrir baja
+                              setTimeout(function(){ abrirModalBajaInsumo(id, (data && data.nombre_insumo) ? data.nombre_insumo : ''); }, 1500);
+                              btnConf.removeEventListener('click', onDone);
+                            });
+                          }
+                        }, 300);
+                      }
+                    });
+                    footer.insertBefore(btn, footer.firstChild);
+                  }
+                }
             } else {
                 modalBody.innerHTML = `
                     <div class="alert alert-danger">
