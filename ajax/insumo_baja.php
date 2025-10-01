@@ -3,6 +3,11 @@ require_once '../includes/config.php';
 
 header('Content-Type: application/json');
 
+if (!verify_csrf()) {
+    echo json_encode(['success' => false, 'error' => 'CSRF inválido']);
+    exit;
+}
+
 try {
     $raw = file_get_contents('php://input');
     $data = json_decode($raw, true);

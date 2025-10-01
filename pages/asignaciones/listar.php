@@ -290,7 +290,10 @@ document.getElementById('btnConfirmarDevolucion').addEventListener('click', func
   }
   fetch(`${getAppBase()}/ajax/devolver_insumos.php`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': (document.querySelector('meta[name="csrf-token"]')||{}).content || ''
+    },
     body: JSON.stringify({ remito: DEVOLUCION_REM, items: seleccion })
   })
   .then(r => r.json())

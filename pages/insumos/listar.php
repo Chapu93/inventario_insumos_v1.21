@@ -316,7 +316,10 @@ document.getElementById('btnConfirmarBaja').addEventListener('click', function()
     }
     fetch(`${getAppBase()}/ajax/insumo_baja.php`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': (document.querySelector('meta[name="csrf-token"]')||{}).content || ''
+        },
         body: JSON.stringify({ id_insumo: BAJA_ID, observacion: obs })
     })
     .then(r => r.json())
