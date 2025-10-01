@@ -281,7 +281,13 @@ try {
                     <p class="mb-1"><span class="badge bg-warning">Activa</span></p>
                     <p class="mb-1"><strong>Remito:</strong> <?php echo htmlspecialchars($remito_activo['numero_remito']); ?></p>
                     <p class="mb-1"><strong>Persona:</strong> <?php echo htmlspecialchars(($remito_activo['nombre_persona_asignada'] ?? '') . ' ' . ($remito_activo['apellido_persona_asignada'] ?? '')); ?></p>
-                    <a class="btn btn-sm btn-outline-primary" href="<?php echo app_base_url(); ?>/pages/reportes/remito.php?remito=<?php echo urlencode($remito_activo['numero_remito']); ?>">Ver remito</a>
+                    <div class="d-flex gap-2">
+                        <a class="btn btn-sm btn-outline-primary" href="<?php echo app_base_url(); ?>/pages/reportes/remito.php?remito=<?php echo urlencode($remito_activo['numero_remito']); ?>">Ver remito</a>
+                        <button type="button" class="btn btn-sm btn-warning" onclick="abrirDevolucion('<?php echo htmlspecialchars($remito_activo['numero_remito'], ENT_QUOTES); ?>')">
+                            <i class="fas fa-undo me-1"></i>Devolver y luego dar de baja
+                        </button>
+                    </div>
+                    <div class="form-text mt-1">Para dar de baja este insumo primero debe devolverlo de la asignación activa.</div>
                 </div>
             </div>
             <?php endif; ?>
