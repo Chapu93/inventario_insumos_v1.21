@@ -54,8 +54,7 @@ $insumos = $stmt->fetchAll();
 $stmt = $conexion->query("SELECT DISTINCT tipo_insumo FROM insumos ORDER BY tipo_insumo");
 $tipos_insumo = $stmt->fetchAll();
 
-$stmt = $conexion->query("SELECT id_localidad, nombre_localidad FROM localidades ORDER BY nombre_localidad");
-$localidades = $stmt->fetchAll();
+// (Se quitó filtro de localidades en la UI)
 ?>
 
 <?php include '../../includes/header.php'; ?>
@@ -94,18 +93,7 @@ $localidades = $stmt->fetchAll();
             </select>
         </div>
         
-        <div class="col-md-3">
-            <label for="localidad" class="form-label">Localidad</label>
-            <select name="localidad" id="localidad" class="form-select">
-                <option value="">Todas las localidades</option>
-                <?php foreach ($localidades as $localidad): ?>
-                    <option value="<?php echo $localidad['id_localidad']; ?>" 
-                            <?php echo $filtro_localidad == $localidad['id_localidad'] ? 'selected' : ''; ?>>
-                        <?php echo $localidad['nombre_localidad']; ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
+        
         
         <div class="col-md-3">
             <label for="estado" class="form-label">Estado</label>
@@ -422,7 +410,6 @@ $(function(){
         data: function(d){
           // Enviar filtros actuales
           d.tipo = $('#tipo').val() || '';
-          d.localidad = $('#localidad').val() || '';
           d.estado = $('#estado').val() || '';
         }
       },

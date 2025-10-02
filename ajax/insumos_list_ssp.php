@@ -24,7 +24,8 @@ try {
 
     // Filtros opcionales (tipo/localidad/estado) compatibles con UI actual
     $filtroTipo = isset($_GET['tipo']) ? trim($_GET['tipo']) : '';
-    $filtroLocalidad = isset($_GET['localidad']) ? trim($_GET['localidad']) : '';
+    // Se removió filtro de localidad desde la UI
+    $filtroLocalidad = '';
     $filtroEstado = isset($_GET['estado']) ? trim($_GET['estado']) : '';
 
     // Total sin filtros
@@ -34,7 +35,7 @@ try {
     $where = [];
     $params = [];
     if ($filtroTipo !== '') { $where[] = 'i.tipo_insumo = ?'; $params[] = $filtroTipo; }
-    if ($filtroLocalidad !== '') { $where[] = 'l.id_localidad = ?'; $params[] = $filtroLocalidad; }
+    // Sin filtro de localidad
     if ($filtroEstado !== '') { $where[] = 'i.estado = ?'; $params[] = $filtroEstado; }
     if ($search !== '') {
         $where[] = '(i.nombre_insumo LIKE ? OR i.numero_serie LIKE ? OR i.id_fisico LIKE ? OR i.id_patrimonio LIKE ?)';
