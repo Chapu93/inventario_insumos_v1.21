@@ -106,7 +106,7 @@ $tipos_insumo = $stmt->fetchAll();
         </div>
         
         <div class="col-md-3 d-flex align-items-end">
-            <div class="d-grid gap-1 w-100">
+            <div class="d-flex justify-content-end gap-2 w-100">
                 <button type="submit" class="btn btn-primary btn-sm">
                     <i class="fas fa-search me-1"></i>Filtrar
                 </button>
