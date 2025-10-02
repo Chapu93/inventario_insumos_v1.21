@@ -107,10 +107,10 @@ $tipos_insumo = $stmt->fetchAll();
         
         <div class="col-md-3 d-flex align-items-end">
             <div class="d-flex justify-content-end gap-2 w-100">
-                <button type="submit" class="btn btn-primary btn-sm">
+                <button type="submit" class="btn btn-primary">
                     <i class="fas fa-search me-1"></i>Filtrar
                 </button>
-                <a href="listar.php" class="btn btn-secondary btn-sm">
+                <a href="listar.php" class="btn btn-secondary">
                     <i class="fas fa-times me-1"></i>Limpiar
                 </a>
             </div>
