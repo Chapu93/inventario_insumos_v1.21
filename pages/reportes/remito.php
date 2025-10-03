@@ -148,7 +148,7 @@ $asignaciones_recientes = $stmt->fetchAll();
                             <th>Número de Remito</th>
                             <th>Persona</th>
                             <th>Fecha</th>
-                            <th>Localidad</th>
+                            <th>Sede/Localidad</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>

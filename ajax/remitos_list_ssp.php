@@ -26,23 +26,25 @@ try {
     $where = [];
     $params = [];
     if ($search !== '') {
-        $where[] = '(r.numero_remito LIKE ? OR r.nombre_persona_asignada LIKE ? OR r.apellido_persona_asignada LIKE ? OR s.nombre_sede LIKE ?)';
+        $where[] = '(r.numero_remito LIKE ? OR r.nombre_persona_asignada LIKE ? OR r.apellido_persona_asignada LIKE ? OR s.nombre_sede LIKE ? OR l.nombre_localidad LIKE ?)';
         $like = '%' . $search . '%';
-        array_push($params, $like, $like, $like, $like);
+        array_push($params, $like, $like, $like, $like, $like);
     }
     $whereSql = count($where) ? (' WHERE ' . implode(' AND ', $where)) : '';
 
     $countSql = "SELECT COUNT(*)
                  FROM remitos r
                  JOIN sedes s ON r.id_sede = s.id_sede
+                 JOIN localidades l ON s.id_localidad = l.id_localidad
                  $whereSql";
     $stmt = $db->prepare($countSql);
     $stmt->execute($params);
     $filtered = (int)$stmt->fetchColumn();
 
-    $dataSql = "SELECT r.numero_remito, r.fecha_asignacion, r.nombre_persona_asignada, r.apellido_persona_asignada, s.nombre_sede
+    $dataSql = "SELECT r.numero_remito, r.fecha_asignacion, r.nombre_persona_asignada, r.apellido_persona_asignada, s.nombre_sede, l.nombre_localidad
                 FROM remitos r
                 JOIN sedes s ON r.id_sede = s.id_sede
+                JOIN localidades l ON s.id_localidad = l.id_localidad
                 $whereSql
                 ORDER BY $orderBy $orderDir, r.id_remito DESC
                 LIMIT $start, $length";
@@ -59,7 +61,7 @@ try {
             '<strong>' . htmlspecialchars($r['numero_remito']) . '</strong>',
             htmlspecialchars($r['nombre_persona_asignada'] . ' ' . $r['apellido_persona_asignada']),
             date('d/m/Y', strtotime($r['fecha_asignacion'])),
-            htmlspecialchars($r['nombre_sede']),
+            htmlspecialchars($r['nombre_sede'] . ' - ' . $r['nombre_localidad']),
             $acciones,
         ];
     }, $rows);
