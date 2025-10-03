@@ -488,13 +488,10 @@ function mostrarModalConfirmacion(){
   $('#m_apellido').text($('#apellido_persona_asignada').val());
   $('#m_fecha').text($('#fecha_asignacion').val());
   const obs = ($('#observaciones').val() || '').trim();
-  if (obs) {
-    const safe = $('<div>').text(obs).html().replace(/\n/g, '<br>');
-    $('#m_obs').html(safe);
-    $('#m_obs_container').show();
-  } else {
-    $('#m_obs_container').hide();
-  }
+  let safe = $('<div>').text(obs).html().replace(/\n/g, '<br>');
+  if (!safe) { safe = '<span class="text-muted">Sin observaciones</span>'; }
+  $('#m_obs').html(safe);
+  $('#m_obs_container').show();
 
   let rows = `<table class="table table-sm table-striped"><thead class="table-light"><tr><th>Insumo</th><th>Tipo</th><th>Cantidad</th></tr></thead><tbody>`;
   $('.hidden-insumo-input:not(:disabled)').each(function(){
