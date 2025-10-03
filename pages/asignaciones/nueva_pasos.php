@@ -494,11 +494,11 @@ function mostrarModalConfirmacion(){
     : '';
   if (!safe) { safe = '<span class="text-muted">Sin observaciones</span>'; }
   var mObs = document.getElementById('m_obs');
-  if (mObs) { mObs.innerHTML = safe; }
+  if (mObs) { mObs.innerHTML = safe; mObs.style.display = 'block'; }
   var mWrap = document.getElementById('m_obs_container');
   if (mWrap) {
     try { mWrap.style.removeProperty('display'); } catch(_) {}
-    if (getComputedStyle(mWrap).display === 'none') { mWrap.style.display = 'block'; }
+    mWrap.style.display = 'block';
     mWrap.classList.remove('d-none');
   }
 
