@@ -80,10 +80,15 @@
                 </li>
                 
                 <li>
-                    <a href="<?php echo app_base_url(); ?>/pages/asignaciones/listar.php" class="nav-link <?php echo $isAsignaciones || $isReportes ? 'active' : ''; ?>" role="menuitem">
-                        <i class="fas fa-clipboard-list me-2"></i>Asignaciones
-                    </a>
-                    <ul class="collapse list-unstyled <?php echo ($isAsignaciones || $isReportes) ? 'show' : ''; ?>" id="asigSubmenu" data-bs-parent="#sidebar" role="menu" style="display:none;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="<?php echo app_base_url(); ?>/pages/asignaciones/listar.php" class="nav-link <?php echo $isAsignaciones || $isReportes ? 'active' : ''; ?>" role="menuitem">
+                            <i class="fas fa-clipboard-list me-2"></i>Asignaciones
+                        </a>
+                        <button type="button" class="btn btn-sm btn-link text-decoration-none" data-bs-toggle="collapse" data-bs-target="#asigSubmenu" aria-expanded="<?php echo $isReportes ? 'true' : 'false'; ?>" aria-controls="asigSubmenu">
+                            <i class="fas fa-chevron-<?php echo $isReportes ? 'up' : 'down'; ?>"></i>
+                        </button>
+                    </div>
+                    <ul class="collapse list-unstyled <?php echo $isReportes ? 'show' : ''; ?>" id="asigSubmenu" data-bs-parent="#sidebar" role="menu">
                         <li>
                             <a href="<?php echo app_base_url(); ?>/pages/reportes/remito.php" class="<?php echo strpos($currentPath, '/pages/reportes/remito.php') !== false ? 'active' : ''; ?>" role="menuitem">Remitos</a>
                         </li>
