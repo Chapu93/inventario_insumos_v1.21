@@ -455,9 +455,9 @@ $(function(){
       const base = (typeof getAppBase === 'function') ? getAppBase() : '';
       const win = window.open('', 'remitoPrint');
       if (win) {
-        win.location = `${base}/pages/reportes/remito.php?remito=${encodeURIComponent(imp)}&pdf=1`;
+        win.location = `${base}/pages/reportes/remito_pdf.php?remito=${encodeURIComponent(imp)}`;
       } else {
-        window.open(`${base}/pages/reportes/remito.php?remito=${encodeURIComponent(imp)}&pdf=1`, '_blank');
+        window.open(`${base}/pages/reportes/remito_pdf.php?remito=${encodeURIComponent(imp)}`, '_blank');
       }
       url.searchParams.delete('imprimir');
       window.history.replaceState({}, document.title, url.toString());
