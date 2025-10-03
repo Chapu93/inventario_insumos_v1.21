@@ -85,9 +85,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $db->commit();
-        $_SESSION['mensaje'] = 'Asignación creada correctamente';
+        $_SESSION['mensaje'] = 'Asignación creado correctamente';
         $_SESSION['tipo_mensaje'] = 'success';
-        header('Location: ' . app_base_url() . '/pages/asignaciones/listar.php');
+        if (!empty($_POST['imprimir_remito'])) {
+            header('Location: ' . app_base_url() . '/pages/reportes/remito.php?remito=' . urlencode($numero));
+        } else {
+            header('Location: ' . app_base_url() . '/pages/asignaciones/listar.php');
+        }
         exit;
     } catch (Exception $e) {
         if ($db->inTransaction()) { $db->rollBack(); }
@@ -307,6 +311,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i>Cancelar</button>
         <button type="button" class="btn btn-success" onclick="confirmarAsignacion()"><i class="fas fa-check me-1"></i>Confirmar</button>
+        <button type="button" class="btn btn-primary" onclick="confirmarEImprimir()"><i class="fas fa-print me-1"></i>Confirmar e Imprimir</button>
       </div>
     </div>
   </div>
@@ -504,5 +509,14 @@ function mostrarModalConfirmacion(){
 }
 
 function confirmarAsignacion(){ $('#formPasos').submit(); }
+function confirmarEImprimir(){
+  // Agregar flag temporal al form para indicar que debe imprimir tras confirmar
+  const form = document.getElementById('formPasos');
+  if (!form) return;
+  const flag = document.createElement('input');
+  flag.type = 'hidden'; flag.name = 'imprimir_remito'; flag.value = '1';
+  form.appendChild(flag);
+  form.submit();
+}
 </script>
 
