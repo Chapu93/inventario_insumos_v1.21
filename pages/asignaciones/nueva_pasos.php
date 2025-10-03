@@ -305,7 +305,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div id="m_insumos" class="table-responsive"></div>
         <div id="m_obs_container" class="mt-3" style="display:none;">
           <h6 class="text-primary mb-2"><i class="fas fa-comment me-2"></i>Observaciones</h6>
-          <div class="alert alert-light" id="m_obs"></div>
+          <div class="alert alert-light" id="m_obs" style="white-space: normal;"></div>
         </div>
       </div>
       <div class="modal-footer">
