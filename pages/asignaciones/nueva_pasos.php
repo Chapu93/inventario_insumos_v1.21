@@ -305,7 +305,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div id="m_insumos" class="table-responsive"></div>
         <div id="m_obs_container" class="mt-3" style="display:none;">
           <h6 class="text-primary mb-2"><i class="fas fa-comment me-2"></i>Observaciones</h6>
-          <div class="alert alert-light" id="m_obs" style="white-space: normal;"></div>
+          <div class="alert alert-light mb-0" id="m_obs" style="white-space: pre-wrap;"></div>
         </div>
       </div>
       <div class="modal-footer">
@@ -495,8 +495,13 @@ function mostrarModalConfirmacion(){
     return div.innerHTML.replace(/\n/g, '<br>');
   })(obs);
   if (!safe) { safe = '<span class="text-muted">Sin observaciones</span>'; }
-  $('#m_obs').html(safe);
-  $('#m_obs_container').show();
+  var mObs = document.getElementById('m_obs');
+  if (mObs) { mObs.innerHTML = safe; }
+  var mWrap = document.getElementById('m_obs_container');
+  if (mWrap) {
+    try { mWrap.style.removeProperty('display'); } catch(_) { mWrap.style.display = 'block'; }
+    mWrap.classList.remove('d-none');
+  }
 
   let rows = `<table class="table table-sm table-striped"><thead class="table-light"><tr><th>Insumo</th><th>Tipo</th><th>Cantidad</th></tr></thead><tbody>`;
   $('.hidden-insumo-input:not(:disabled)').each(function(){
