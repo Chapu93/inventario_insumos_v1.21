@@ -80,10 +80,10 @@
                 </li>
                 
                 <li>
-                    <a href="<?php echo app_base_url(); ?>/pages/asignaciones/listar.php" class="nav-link <?php echo $isAsignaciones ? 'active' : ''; ?>" role="menuitem">
+                    <a href="#asigSubmenu" class="nav-link <?php echo ($isAsignaciones || $isReportes) ? 'active' : ''; ?>" data-bs-toggle="collapse" role="button" aria-expanded="<?php echo ($isAsignaciones || $isReportes) ? 'true' : 'false'; ?>" aria-controls="asigSubmenu">
                         <i class="fas fa-clipboard-list me-2"></i>Asignaciones
                     </a>
-                    <ul class="list-unstyled" role="menu">
+                    <ul class="collapse list-unstyled <?php echo ($isReportes) ? 'show' : ''; ?>" id="asigSubmenu" data-bs-parent="#sidebar" role="menu">
                         <li>
                             <a href="<?php echo app_base_url(); ?>/pages/reportes/remito.php" class="<?php echo strpos($currentPath, '/pages/reportes/remito.php') !== false ? 'active' : ''; ?>" role="menuitem">Remitos</a>
                         </li>
