@@ -513,6 +513,8 @@ function confirmarEImprimir(){
   // Agregar flag temporal al form para indicar que debe imprimir tras confirmar
   const form = document.getElementById('formPasos');
   if (!form) return;
+  // Abrir/crear ventana nombrada para evitar bloqueadores de popup
+  try { window.open('', 'remitoPrint'); } catch(e) {}
   const flag = document.createElement('input');
   flag.type = 'hidden'; flag.name = 'imprimir_remito'; flag.value = '1';
   form.appendChild(flag);

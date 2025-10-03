@@ -453,7 +453,12 @@ $(function(){
     const imp = url.searchParams.get('imprimir');
     if (imp) {
       const base = (typeof getAppBase === 'function') ? getAppBase() : '';
-      window.open(`${base}/pages/reportes/remito.php?remito=${encodeURIComponent(imp)}&pdf=1`, '_blank');
+      const win = window.open('', 'remitoPrint');
+      if (win) {
+        win.location = `${base}/pages/reportes/remito.php?remito=${encodeURIComponent(imp)}&pdf=1`;
+      } else {
+        window.open(`${base}/pages/reportes/remito.php?remito=${encodeURIComponent(imp)}&pdf=1`, '_blank');
+      }
       url.searchParams.delete('imprimir');
       window.history.replaceState({}, document.title, url.toString());
     }
