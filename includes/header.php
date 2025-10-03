@@ -83,7 +83,7 @@
                     <a href="<?php echo app_base_url(); ?>/pages/asignaciones/listar.php" class="nav-link <?php echo $isAsignaciones ? 'active' : ''; ?>" role="menuitem">
                         <i class="fas fa-clipboard-list me-2"></i>Asignaciones
                     </a>
-                    <ul class="list-unstyled <?php echo $isReportes ? 'show' : 'collapse'; ?>" id="asigSubmenu" role="menu">
+                    <ul class="list-unstyled" role="menu">
                         <li>
                             <a href="<?php echo app_base_url(); ?>/pages/reportes/remito.php" class="<?php echo strpos($currentPath, '/pages/reportes/remito.php') !== false ? 'active' : ''; ?>" role="menuitem">Remitos</a>
                         </li>
