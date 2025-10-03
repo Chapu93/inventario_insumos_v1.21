@@ -447,7 +447,16 @@ $(function(){
   }
   // Reaplicar con filtros
   $('form').on('submit', function(e){ e.preventDefault(); $('#tablaAsignaciones').DataTable().ajax.reload(); });
-
-  // Se deshabilita auto-apertura por parámetros (flujo solo desde menú Asignaciones)
+  // Abrir PDF si viene imprimir=<remito>
+  try {
+    const url = new URL(window.location.href);
+    const imp = url.searchParams.get('imprimir');
+    if (imp) {
+      const base = (typeof getAppBase === 'function') ? getAppBase() : '';
+      window.open(`${base}/pages/reportes/remito.php?remito=${encodeURIComponent(imp)}&pdf=1`, '_blank');
+      url.searchParams.delete('imprimir');
+      window.history.replaceState({}, document.title, url.toString());
+    }
+  } catch(e) {}
 });
 </script>

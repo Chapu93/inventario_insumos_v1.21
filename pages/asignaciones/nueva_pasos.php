@@ -85,10 +85,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $db->commit();
-        $_SESSION['mensaje'] = 'Asignación creado correctamente';
+        $_SESSION['mensaje'] = 'Asignación creada correctamente';
         $_SESSION['tipo_mensaje'] = 'success';
         if (!empty($_POST['imprimir_remito'])) {
-            header('Location: ' . app_base_url() . '/pages/reportes/remito.php?remito=' . urlencode($numero));
+            header('Location: ' . app_base_url() . '/pages/asignaciones/listar.php?imprimir=' . urlencode($numero));
         } else {
             header('Location: ' . app_base_url() . '/pages/asignaciones/listar.php');
         }
