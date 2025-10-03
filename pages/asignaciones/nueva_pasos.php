@@ -303,7 +303,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <hr>
         <h6 class="text-primary mb-2"><i class="fas fa-boxes me-2"></i>Insumos</h6>
         <div id="m_insumos" class="table-responsive"></div>
-        <div id="m_obs_container" class="mt-3" style="display:none;">
+        <div id="m_obs_container" class="mt-3">
           <h6 class="text-primary mb-2"><i class="fas fa-comment me-2"></i>Observaciones</h6>
           <div class="alert alert-light mb-0" id="m_obs" style="white-space: pre-wrap;"></div>
         </div>
@@ -489,17 +489,16 @@ function mostrarModalConfirmacion(){
   $('#m_fecha').text($('#fecha_asignacion').val());
   const obsEl = document.getElementById('observaciones') || document.querySelector('textarea[name="observaciones"]');
   const obs = (obsEl && typeof obsEl.value === 'string') ? obsEl.value.trim() : '';
-  let safe = (function(txt){
-    var div = document.createElement('div');
-    div.textContent = txt || '';
-    return div.innerHTML.replace(/\n/g, '<br>');
-  })(obs);
+  let safe = obs
+    ? (function(txt){ var d=document.createElement('div'); d.textContent = txt; return d.innerHTML.replace(/\n/g,'<br>'); })(obs)
+    : '';
   if (!safe) { safe = '<span class="text-muted">Sin observaciones</span>'; }
   var mObs = document.getElementById('m_obs');
   if (mObs) { mObs.innerHTML = safe; }
   var mWrap = document.getElementById('m_obs_container');
   if (mWrap) {
-    try { mWrap.style.removeProperty('display'); } catch(_) { mWrap.style.display = 'block'; }
+    try { mWrap.style.removeProperty('display'); } catch(_) {}
+    if (getComputedStyle(mWrap).display === 'none') { mWrap.style.display = 'block'; }
     mWrap.classList.remove('d-none');
   }
 
