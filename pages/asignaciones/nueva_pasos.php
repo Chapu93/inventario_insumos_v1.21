@@ -487,8 +487,13 @@ function mostrarModalConfirmacion(){
   $('#m_nombre').text($('#nombre_persona_asignada').val());
   $('#m_apellido').text($('#apellido_persona_asignada').val());
   $('#m_fecha').text($('#fecha_asignacion').val());
-  const obs = ($('#observaciones').val() || '').trim();
-  let safe = $('<div>').text(obs).html().replace(/\n/g, '<br>');
+  const obsEl = document.getElementById('observaciones') || document.querySelector('textarea[name="observaciones"]');
+  const obs = (obsEl && typeof obsEl.value === 'string') ? obsEl.value.trim() : '';
+  let safe = (function(txt){
+    var div = document.createElement('div');
+    div.textContent = txt || '';
+    return div.innerHTML.replace(/\n/g, '<br>');
+  })(obs);
   if (!safe) { safe = '<span class="text-muted">Sin observaciones</span>'; }
   $('#m_obs').html(safe);
   $('#m_obs_container').show();
