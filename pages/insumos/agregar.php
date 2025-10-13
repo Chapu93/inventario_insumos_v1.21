@@ -163,6 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <div class="card">
     <div class="card-body p-3">
         <form method="POST" id="formInsumo" class="needs-validation" novalidate action="agregar.php">
+            <?php echo csrf_input(); ?>
             <!-- Selección de tipo de insumo -->
             <div class="row mb-3">
                 <div class="col-12">

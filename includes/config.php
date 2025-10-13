@@ -48,27 +48,29 @@ function load_env_simple() {
 }
 load_env_simple();
 
-function app_base_url(): string {
-    $env = getenv('APP_BASE_URL');
-    if ($env && $env !== '/') {
-        return rtrim($env, '/');
+// Definir APP_BASE_URL como constante a partir de .env o BASE_URL
+if (!defined('APP_BASE_URL')) {
+    $envBase = getenv('APP_BASE_URL');
+    if ($envBase && $envBase !== '/') {
+        define('APP_BASE_URL', rtrim($envBase, '/'));
+    } elseif (defined('BASE_URL') && BASE_URL !== '') {
+        define('APP_BASE_URL', rtrim(BASE_URL, '/'));
+    } else {
+        // Fallback deducido desde SCRIPT_NAME (menos recomendado)
+        $script = isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '';
+        if (strpos($script, '/pages/') !== false) {
+            define('APP_BASE_URL', substr($script, 0, strpos($script, '/pages/')));
+        } elseif (strpos($script, '/ajax/') !== false) {
+            define('APP_BASE_URL', substr($script, 0, strpos($script, '/ajax/')));
+        } elseif (preg_match('#^(.*)/index\.php$#', $script, $m)) {
+            define('APP_BASE_URL', rtrim($m[1], '/'));
+        } else {
+            define('APP_BASE_URL', '');
+        }
     }
-    $script = isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '';
-    // Intentar deducir base por carpeta antes de /pages/
-    if (strpos($script, '/pages/') !== false) {
-        return substr($script, 0, strpos($script, '/pages/'));
-    }
-    // Intentar antes de /ajax/
-    if (strpos($script, '/ajax/') !== false) {
-        return substr($script, 0, strpos($script, '/ajax/'));
-    }
-    // Si estamos en index.php dentro de una carpeta, usar ese directorio como base
-    if (preg_match('#^(.*)/index\.php$#', $script, $m)) {
-        return rtrim($m[1], '/');
-    }
-    // Fallback: BASE_URL si está definido
-    return defined('BASE_URL') ? BASE_URL : '';
 }
+
+function app_base_url(): string { return APP_BASE_URL; }
 
 // Helpers JSON
 function json_response($payload, int $status = 200): void {
@@ -95,6 +97,11 @@ function csrf_token(): string {
         }
     }
     return $_SESSION['csrf_token'];
+}
+// Helper para insertar input hidden CSRF en formularios server-rendered
+function csrf_input(): string {
+    $t = htmlspecialchars(csrf_token(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    return "<input type=\"hidden\" name=\"_csrf\" value=\"$t\">";
 }
 function verify_csrf(): bool {
     $session = isset($_SESSION['csrf_token']) ? (string)$_SESSION['csrf_token'] : '';
@@ -162,17 +169,24 @@ function generarNumeroRemito($dbParam = null) {
                 $secuencia = (int)$partes[0];
             }
         }
+        // Use the same connection for existence checks to avoid extra connections and reduce race windows
         do {
             $secuencia++;
             $numero = sprintf('%04d_%d', $secuencia, $anio);
-        } while (remitoExiste($numero));
+        } while (remitoExiste($numero, $db));
         return $numero;
     }
 }
 
 // Función para validar si un número de remito existe
-function remitoExiste($numero_remito) {
-    $conexion = conectarDB();
+/**
+ * Verifica existencia de remito. Acepta PDO opcional para reusar conexión.
+ * @param string $numero_remito
+ * @param PDO|null $pdo
+ * @return bool
+ */
+function remitoExiste($numero_remito, $pdo = null) {
+    $conexion = $pdo instanceof PDO ? $pdo : conectarDB();
     $stmt = $conexion->prepare("SELECT COUNT(*) as total FROM remitos WHERE numero_remito = ?");
     $stmt->execute([$numero_remito]);
     $resultado = $stmt->fetch();
