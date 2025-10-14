@@ -16,32 +16,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!verify_csrf()) { throw new Exception('CSRF inválido'); }
         $accion = $_POST['accion'] ?? '';
         if ($accion === 'agregar') {
-            $stmt = $db->prepare("INSERT INTO sedes_internet (id_sede, proveedor, tipo_conexion, velocidad_bajada_mbps, velocidad_subida_mbps, simetrico, estado_servicio, observaciones) VALUES (?,?,?,?,?,?,?,?)");
-            $stmt->execute([
-                (int)$_POST['id_sede'],
-                trim($_POST['proveedor']),
-                trim($_POST['tipo_conexion']),
-                ($_POST['velocidad_bajada_mbps'] !== '' ? (int)$_POST['velocidad_bajada_mbps'] : null),
-                ($_POST['velocidad_subida_mbps'] !== '' ? (int)$_POST['velocidad_subida_mbps'] : null),
-                (isset($_POST['simetrico']) ? 1 : 0),
-                trim($_POST['estado_servicio']),
-                ($_POST['observaciones'] ?? null) ?: null,
-            ]);
+      $stmt = $db->prepare("INSERT INTO sedes_internet (id_sede, proveedor, tipo_conexion, velocidad_bajada_mbps, velocidad_subida_mbps, simetrico, tiene_wifi, estado_servicio, observaciones) VALUES (?,?,?,?,?,?,?,?,?)");
+      $stmt->execute([
+        (int)$_POST['id_sede'],
+        trim($_POST['proveedor']),
+        trim($_POST['tipo_conexion']),
+        ($_POST['velocidad_bajada_mbps'] !== '' ? (int)$_POST['velocidad_bajada_mbps'] : null),
+        ($_POST['velocidad_subida_mbps'] !== '' ? (int)$_POST['velocidad_subida_mbps'] : null),
+        (isset($_POST['simetrico']) ? 1 : 0),
+        (isset($_POST['tiene_wifi']) ? 1 : 0),
+        trim($_POST['estado_servicio']),
+        ($_POST['observaciones'] ?? null) ?: null,
+      ]);
             $_SESSION['mensaje'] = 'Servicio de Internet agregado.';
             $_SESSION['tipo_mensaje'] = 'success';
         } elseif ($accion === 'editar') {
-            $stmt = $db->prepare("UPDATE sedes_internet SET id_sede=?, proveedor=?, tipo_conexion=?, velocidad_bajada_mbps=?, velocidad_subida_mbps=?, simetrico=?, estado_servicio=?, observaciones=? WHERE id_internet=?");
-            $stmt->execute([
-                (int)$_POST['id_sede'],
-                trim($_POST['proveedor']),
-                trim($_POST['tipo_conexion']),
-                ($_POST['velocidad_bajada_mbps'] !== '' ? (int)$_POST['velocidad_bajada_mbps'] : null),
-                ($_POST['velocidad_subida_mbps'] !== '' ? (int)$_POST['velocidad_subida_mbps'] : null),
-                (isset($_POST['simetrico']) ? 1 : 0),
-                trim($_POST['estado_servicio']),
-                ($_POST['observaciones'] ?? null) ?: null,
-                (int)$_POST['id_internet']
-            ]);
+      $stmt = $db->prepare("UPDATE sedes_internet SET id_sede=?, proveedor=?, tipo_conexion=?, velocidad_bajada_mbps=?, velocidad_subida_mbps=?, simetrico=?, tiene_wifi=?, estado_servicio=?, observaciones=? WHERE id_internet=?");
+      $stmt->execute([
+        (int)$_POST['id_sede'],
+        trim($_POST['proveedor']),
+        trim($_POST['tipo_conexion']),
+        ($_POST['velocidad_bajada_mbps'] !== '' ? (int)$_POST['velocidad_bajada_mbps'] : null),
+        ($_POST['velocidad_subida_mbps'] !== '' ? (int)$_POST['velocidad_subida_mbps'] : null),
+        (isset($_POST['simetrico']) ? 1 : 0),
+        (isset($_POST['tiene_wifi']) ? 1 : 0),
+        trim($_POST['estado_servicio']),
+        ($_POST['observaciones'] ?? null) ?: null,
+        (int)$_POST['id_internet']
+      ]);
             $_SESSION['mensaje'] = 'Servicio de Internet actualizado.';
             $_SESSION['tipo_mensaje'] = 'success';
         } elseif ($accion === 'eliminar') {
@@ -104,6 +106,7 @@ include '../../includes/header.php';
                             <th>Tipo</th>
                             <th>Vel. (↓/↑ Mbps)</th>
                             <th>Simétrico</th>
+                            <th>WiFi</th>
                             <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
@@ -120,10 +123,14 @@ include '../../includes/header.php';
                                     /
                                     <span class="badge bg-success"><?php echo (int)($row['velocidad_subida_mbps'] ?? 0); ?></span>
                                 </td>
-                                <td>
-                                    <?php $sim = (int)($row['simetrico'] ?? 0); ?>
-                                    <span class="badge <?php echo $sim ? 'bg-success' : 'bg-secondary'; ?>"><?php echo $sim ? 'Sí' : 'No'; ?></span>
-                                </td>
+                <td>
+                  <?php $sim = (int)($row['simetrico'] ?? 0); ?>
+                  <span class="badge <?php echo $sim ? 'bg-success' : 'bg-secondary'; ?>"><?php echo $sim ? 'Sí' : 'No'; ?></span>
+                </td>
+                <td>
+                  <?php $wifi = (int)($row['tiene_wifi'] ?? 0); ?>
+                  <span class="badge <?php echo $wifi ? 'bg-success' : 'bg-secondary'; ?>"><?php echo $wifi ? 'Sí' : 'No'; ?></span>
+                </td>
                                 <td>
                                     <?php $est = $row['estado_servicio']; $cls = ($est==='Activo'?'estado-activa':($est==='Pendiente'?'estado-asignado':'estado-baja')); ?>
                                     <span class="badge <?php echo $cls; ?>"><?php echo $est; ?></span>
@@ -208,6 +215,10 @@ include '../../includes/header.php';
             <input class="form-check-input" type="checkbox" id="simetrico" name="simetrico" value="1">
             <label class="form-check-label" for="simetrico">Simétrico</label>
           </div>
+          <div class="form-check form-switch my-2">
+            <input class="form-check-input" type="checkbox" id="tiene_wifi" name="tiene_wifi" value="1">
+            <label class="form-check-label" for="tiene_wifi">¿Tiene WiFi?</label>
+          </div>
 
           <div class="mb-3 mt-2">
             <label class="form-label">Estado *</label>
@@ -271,6 +282,7 @@ function editarInternet(row){
   $('#velocidad_bajada_mbps').val(row.velocidad_bajada_mbps || '');
   $('#velocidad_subida_mbps').val(row.velocidad_subida_mbps || '');
   $('#simetrico').prop('checked', (String(row.simetrico) === '1'));
+  $('#tiene_wifi').prop('checked', (String(row.tiene_wifi) === '1'));
   $('#estado_servicio').val(row.estado_servicio);
   $('#observaciones').val(row.observaciones || '');
   var m = new bootstrap.Modal(document.getElementById('modalInternet'));

@@ -44,6 +44,10 @@ try {
     $rows = $stmt->fetchAll();
 
     $data = array_map(function($r){
+        $btn = '';
+        if (!empty($r['numero_remito'])) {
+            $btn = '<button type="button" class="btn btn-sm btn-outline-primary" onclick="mostrarRemitoResumen(\'' . htmlspecialchars($r['numero_remito']) . '\')">Ver Remito</button>';
+        }
         return [
             '<strong>' . htmlspecialchars($r['numero_remito']) . '</strong>',
             date('d/m/Y', strtotime($r['fecha_asignacion'])),
@@ -51,6 +55,7 @@ try {
             '<span class="badge bg-dark">' . (int)$r['cantidad'] . '</span>',
             '<span class="badge bg-success">' . (int)$r['dev'] . '</span>',
             '<span class="badge ' . ((int)$r['pend']>0 ? 'bg-warning' : 'bg-secondary') . '">' . (int)$r['pend'] . '</span>',
+            $btn
         ];
     }, $rows);
 

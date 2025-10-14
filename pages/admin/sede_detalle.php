@@ -125,7 +125,8 @@ include '../../includes/header.php';
       <div class="card-header"><h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Información General</h5></div>
       <div class="card-body">
         <p class="mb-1"><strong>Sede:</strong> <?php echo htmlspecialchars($sede['nombre_sede']); ?></p>
-        <p class="mb-1"><strong>Dirección:</strong> <?php echo htmlspecialchars($sede['direccion'] ?: '-'); ?></p>
+  <p class="mb-1"><strong>Dirección:</strong> <?php echo htmlspecialchars($sede['direccion'] ?: '-'); ?></p>
+  <p class="mb-1"><strong>Observaciones:</strong> <?php echo htmlspecialchars($sede['observaciones'] ?? '-'); ?></p>
         <p class="mb-1"><strong>Localidad:</strong> <?php echo htmlspecialchars($sede['nombre_localidad']); ?></p>
         <p class="mb-1"><strong>Zona:</strong> <?php echo htmlspecialchars($sede['nombre_zona']); ?></p>
       </div>

@@ -36,6 +36,7 @@ require_once '../../includes/config.php';
                 <th>Tipo</th>
                 <th>Cantidad</th>
                 <th>Observación</th>
+                <th>Remito</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -60,6 +61,7 @@ require_once '../../includes/config.php';
                 <th>Asignados</th>
                 <th>Devueltos</th>
                 <th>Pendientes</th>
+                <th>Ver Remito</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -86,7 +88,8 @@ $(function(){
         { data: 1 },
         { data: 2 },
         { data: 3 },
-        { data: 4 }
+        { data: 4 },
+        { data: 5, orderable: false, searchable: false }
       ],
       drawCallback: function(){ inicializarTooltips(); }
     });
@@ -103,11 +106,49 @@ $(function(){
         { data: 2 },
         { data: 3 },
         { data: 4 },
-        { data: 5 }
+        { data: 5 },
+        { data: 6, orderable: false, searchable: false }
       ],
       drawCallback: function(){ inicializarTooltips(); }
     });
   }
 });
+</script>
+
+<!-- Modal Remito -->
+<div class="modal fade" id="modalRemitoResumen" tabindex="-1" aria-labelledby="modalRemitoResumenLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalRemitoResumenLabel"><i class="fas fa-file-alt me-2"></i>Resumen de Remito</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body" id="remitoResumenBody">
+        <div class="text-center text-muted"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function mostrarRemitoResumen(numeroRemito) {
+  $('#modalRemitoResumen').modal('show');
+  $('#remitoResumenBody').html('<div class="text-center text-muted"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>');
+  $.get(getAppBase() + '/ajax/remito_detalle.php', { remito: numeroRemito }, function(resp) {
+    if (!resp || !resp.success) {
+      $('#remitoResumenBody').html('<div class="alert alert-warning">No se pudo cargar el remito.</div>');
+      return;
+    }
+    var c = resp.cab;
+    var html = '<div class="mb-2"><strong>Número:</strong> ' + c.numero_remito + '</div>';
+    html += '<div class="mb-2"><strong>Fecha:</strong> ' + (c.fecha_asignacion ? c.fecha_asignacion.substr(0,10) : '-') + '</div>';
+    html += '<div class="mb-2"><strong>Persona:</strong> ' + (c.nombre_persona_asignada || '') + ' ' + (c.apellido_persona_asignada || '') + '</div>';
+    html += '<div class="mb-2"><strong>Sede:</strong> ' + (c.nombre_sede || '-') + '</div>';
+    html += '<div class="mb-2"><strong>Área:</strong> ' + (c.nombre_area || '-') + '</div>';
+    html += '<div class="mb-2"><strong>Estado:</strong> ' + (c.estado || '-') + '</div>';
+    html += '<div class="mb-2"><strong>Observaciones:</strong> ' + (c.observaciones || '-') + '</div>';
+    $('#remitoResumenBody').html(html);
+  }, 'json');
+}
 </script>
 

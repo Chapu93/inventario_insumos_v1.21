@@ -202,9 +202,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                         <div class="card-body p-3">
                             <div class="mb-2">
-                                <label for="nombre_insumo" class="form-label">Nombre del Insumo *</label>
+                                <label id="label-nombre-insumo" for="nombre_insumo" class="form-label">Nombre del Insumo *</label>
                                 <input type="text" class="form-control form-control-sm w-100" id="nombre_insumo" name="nombre_insumo" required>
-                                <div class="invalid-feedback">El nombre del insumo es obligatorio</div>
+                                <div id="invalid-nombre-insumo" class="invalid-feedback">El nombre del insumo es obligatorio</div>
                             </div>
                             
                             <!-- Campos específicos para tipo "Varios" -->
@@ -502,6 +502,15 @@ $(document).ready(function() {
         // Campos básicos siempre requeridos
         $('#nombre_insumo').prop('required', true);
         $('#tipo_insumo').prop('required', true);
+
+        // Ajustar label y mensaje para nombre_insumo según tipo
+        if (tipo === 'Varios') {
+            $('#label-nombre-insumo').text('Nombre del Insumo *');
+            $('#invalid-nombre-insumo').text('El nombre del insumo es obligatorio');
+        } else if (tipo !== '') {
+            $('#label-nombre-insumo').text('Descripción *');
+            $('#invalid-nombre-insumo').text('La descripción es obligatoria');
+        }
         
         if (tipo === 'Varios') {
             $('#cantidad').prop('required', true);

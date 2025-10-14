@@ -22,14 +22,16 @@ try {
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     try {
         if (!verify_csrf()) { throw new Exception('CSRF inválido'); }
-        if (isset($_POST['accion'])) {
+                if (isset($_POST['accion'])) {
             if ($_POST['accion'] == 'agregar') {
-                $sql = "INSERT INTO sedes (nombre_sede, id_localidad, direccion, delegado_nombre, delegado_apellido, delegado_telefono, responsable_nombre, responsable_apellido, responsable_telefono) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                // Añadimos el campo observaciones (puede ser NULL)
+                $sql = "INSERT INTO sedes (nombre_sede, id_localidad, direccion, observaciones, delegado_nombre, delegado_apellido, delegado_telefono, responsable_nombre, responsable_apellido, responsable_telefono) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 $stmt = $conexion->prepare($sql);
                 $stmt->execute([
                     $_POST['nombre_sede'],
                     $_POST['id_localidad'],
                     ($_POST['direccion'] ?? null) ?: null,
+                    ($_POST['observaciones'] ?? null) ?: null,
                     ($_POST['delegado_nombre'] ?? null) ?: null,
                     ($_POST['delegado_apellido'] ?? null) ?: null,
                     ($_POST['delegado_telefono'] ?? null) ?: null,
@@ -42,12 +44,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['tipo_mensaje'] = "success";
                 
             } elseif ($_POST['accion'] == 'editar') {
-                $sql = "UPDATE sedes SET nombre_sede = ?, id_localidad = ?, direccion = ?, delegado_nombre = ?, delegado_apellido = ?, delegado_telefono = ?, responsable_nombre = ?, responsable_apellido = ?, responsable_telefono = ? WHERE id_sede = ?";
+                // Actualizar incluyendo observaciones
+                $sql = "UPDATE sedes SET nombre_sede = ?, id_localidad = ?, direccion = ?, observaciones = ?, delegado_nombre = ?, delegado_apellido = ?, delegado_telefono = ?, responsable_nombre = ?, responsable_apellido = ?, responsable_telefono = ? WHERE id_sede = ?";
                 $stmt = $conexion->prepare($sql);
                 $stmt->execute([
                     $_POST['nombre_sede'],
                     $_POST['id_localidad'],
                     ($_POST['direccion'] ?? null) ?: null,
+                    ($_POST['observaciones'] ?? null) ?: null,
                     ($_POST['delegado_nombre'] ?? null) ?: null,
                     ($_POST['delegado_apellido'] ?? null) ?: null,
                     ($_POST['delegado_telefono'] ?? null) ?: null,
@@ -125,7 +129,6 @@ $localidades = $stmt->fetchAll();
                             <th>ID</th>
                             <th>Nombre</th>
                             <th>Localidad</th>
-                            <th>Zona</th>
                             <th>Delegado</th>
                             <th>Teléfono</th>
                             <th>Responsable</th>
@@ -139,9 +142,7 @@ $localidades = $stmt->fetchAll();
                                 <td><?php echo $sede['id_sede']; ?></td>
                                 <td><strong><?php echo htmlspecialchars($sede['nombre_sede']); ?></strong></td>
                                 <td><?php echo htmlspecialchars($sede['nombre_localidad']); ?></td>
-                                <td>
-                                    <span class="badge bg-info"><?php echo $sede['nombre_zona']; ?></span>
-                                </td>
+                                <!--< Zona column removed -->
                                 <td><?php echo htmlspecialchars(trim(($sede['delegado_nombre'] ?? '').' '.($sede['delegado_apellido'] ?? '')) ?: '-'); ?></td>
                                 <td><?php echo htmlspecialchars($sede['delegado_telefono'] ?? '-'); ?></td>
                                 <td><?php echo htmlspecialchars(trim(($sede['responsable_nombre'] ?? '').' '.($sede['responsable_apellido'] ?? '')) ?: '-'); ?></td>
@@ -185,7 +186,7 @@ $localidades = $stmt->fetchAll();
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <form method="POST" id="formSede" class="needs-validation" novalidate>
-                <div class="modal-body">
+                <div class="modal-body" style="max-height:60vh; overflow-y:auto;">
                     <input type="hidden" name="_csrf" value="<?php echo htmlspecialchars(csrf_token()); ?>">
                     <input type="hidden" name="accion" id="accion" value="agregar">
                     <input type="hidden" name="id_sede" id="id_sede">
@@ -198,6 +199,10 @@ $localidades = $stmt->fetchAll();
                     <div class="mb-3">
                         <label for="direccion" class="form-label">Dirección</label>
                         <input type="text" class="form-control" id="direccion" name="direccion">
+                    </div>
+                    <div class="mb-3">
+                        <label for="observaciones" class="form-label">Observaciones</label>
+                        <textarea class="form-control" id="observaciones" name="observaciones" rows="3"></textarea>
                     </div>
                     
                     <div class="mb-3">
@@ -237,7 +242,7 @@ $localidades = $stmt->fetchAll();
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer" style="background: #fff;">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </div>
@@ -253,6 +258,7 @@ function editarSede(sede) {
     $('#id_sede').val(sede.id_sede);
     $('#nombre_sede').val(sede.nombre_sede);
     $('#direccion').val(sede.direccion || '');
+    $('#observaciones').val(sede.observaciones || '');
     $('#id_localidad').val(sede.id_localidad);
     $('#delegado_nombre').val(sede.delegado_nombre || '');
     $('#delegado_apellido').val(sede.delegado_apellido || '');
@@ -270,6 +276,7 @@ $('#modalSede').on('hidden.bs.modal', function () {
     $('#id_sede').val('');
     $('#formSede')[0].reset();
     $('#formSede').removeClass('was-validated');
+    $('#observaciones').val('');
 });
 
 // Validación del formulario
@@ -307,4 +314,14 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 </script>
 
+<style>
+/* Fix para botones del modal-footer: separación y evitar corte */
+.modal-footer {
+    padding: 1rem 1.5rem;
+    gap: 0.5rem;
+}
+.modal-footer .btn {
+    min-width: 110px;
+}
+</style>
 <?php include '../../includes/footer.php'; ?> 

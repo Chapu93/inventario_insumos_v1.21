@@ -124,7 +124,7 @@ try {
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>Nombre:</strong> <?php echo htmlspecialchars($insumo['nombre_insumo']); ?></p>
+                            <p><strong><?php echo ($insumo['tipo_insumo'] !== 'Varios') ? 'Descripción' : 'Nombre'; ?>:</strong> <?php echo htmlspecialchars($insumo['nombre_insumo']); ?></p>
                             <p><strong>Tipo:</strong> 
                                 <span class="badge bg-info"><?php echo $insumo['tipo_insumo']; ?></span>
                                 <?php if ($insumo['subcategoria_varios']): ?>
@@ -274,7 +274,7 @@ try {
         </div>
 
         <div class="col-md-4">
-            <?php if ($remito_activo): ?>
+            <?php if ($remito_activo && $insumo['tipo_insumo'] !== 'Varios'): ?>
             <div class="card mb-3">
                 <div class="card-header"><h6 class="mb-0"><i class="fas fa-link me-2"></i>Asignación activa</h6></div>
                 <div class="card-body">
@@ -284,9 +284,6 @@ try {
                     <a class="btn btn-sm btn-outline-primary" href="<?php echo app_base_url(); ?>/pages/reportes/remito.php?remito=<?php echo urlencode($remito_activo['numero_remito']); ?>">Ver remito</a>
                 </div>
             </div>
-            <?php endif; ?>
-
-            <?php if ($remito_activo && $insumo['tipo_insumo'] !== 'Varios'): ?>
             <div class="card mb-3">
                 <div class="card-header"><h6 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Ubicación Actual</h6></div>
                 <div class="card-body">
@@ -311,6 +308,36 @@ try {
                     </div>
                 </div>
             </div>
+
+            <?php if ($insumo['tipo_insumo'] !== 'Varios'): ?>
+            <!-- Historial de asignaciones -->
+            <div class="col-12">
+                <div class="card mb-3">
+                    <div class="card-header"><h6 class="mb-0"><i class="fas fa-history me-2"></i>Historial de Asignaciones</h6></div>
+                    <div class="card-body">
+                        <?php if ($asignaciones && count($asignaciones) > 0): ?>
+                            <ul class="list-group list-group-flush">
+                                <?php foreach ($asignaciones as $asig): ?>
+                                    <li class="list-group-item">
+                                        <strong>Remito:</strong> <?php echo htmlspecialchars($asig['numero_remito']); ?>
+                                        <br><strong>Persona:</strong> <?php echo htmlspecialchars(($asig['nombre_persona_asignada'] ?? '') . ' ' . ($asig['apellido_persona_asignada'] ?? '')); ?>
+                                        <br><strong>Sede:</strong> <?php echo htmlspecialchars($asig['nombre_sede']); ?>
+                                        <br><strong>Área:</strong> <?php echo htmlspecialchars($asig['nombre_area']); ?>
+                                        <br><strong>Fecha Asignación:</strong> <?php echo date('d/m/Y', strtotime($asig['fecha_asignacion'])); ?>
+                                        <?php if ($asig['fecha_devolucion']): ?>
+                                            <br><strong>Fecha Devolución:</strong> <?php echo date('d/m/Y', strtotime($asig['fecha_devolucion'])); ?>
+                                        <?php endif; ?>
+                                        <br><span class="badge bg-secondary"><?php echo $asig['estado']; ?></span>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php else: ?>
+                            <p class="text-muted mb-0">Sin historial de asignaciones</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
         </div>
     </div>
     <?php

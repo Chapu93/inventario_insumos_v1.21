@@ -29,7 +29,8 @@ try {
     $stmt->execute($params);
     $filtered = (int)$stmt->fetchColumn();
 
-    $sql = "SELECT b.fecha_baja, i.nombre_insumo, i.tipo_insumo, b.cantidad, b.observacion
+
+    $sql = "SELECT b.fecha_baja, i.nombre_insumo, i.tipo_insumo, b.cantidad, b.observacion, b.id_insumo
             FROM insumos_bajas b
             JOIN insumos i ON i.id_insumo = b.id_insumo
             $whereSql
@@ -39,13 +40,24 @@ try {
     $stmt->execute($params);
     $rows = $stmt->fetchAll();
 
-    $data = array_map(function($r){
+    $data = array_map(function($r) use ($db) {
+        // Buscar remito asociado a la baja (último remito activo o devuelto para ese insumo)
+        $remitoBtn = '';
+        if ($r['tipo_insumo'] !== 'Varios') {
+            $stmtRem = $db->prepare("SELECT r.numero_remito FROM remitos_detalle d JOIN remitos r ON r.id_remito = d.id_remito WHERE d.id_insumo = ? ORDER BY r.fecha_asignacion DESC LIMIT 1");
+            $stmtRem->execute([$r['id_insumo']]);
+            $rem = $stmtRem->fetch();
+            if ($rem && $rem['numero_remito']) {
+                $remitoBtn = '<button type=\'button\' class=\'btn btn-sm btn-outline-primary\' onclick=\'mostrarRemitoResumen("'.htmlspecialchars($rem['numero_remito']).'")\'>Ver Remito</button>';
+            }
+        }
         return [
             date('d/m/Y H:i', strtotime($r['fecha_baja'])),
             htmlspecialchars($r['nombre_insumo']),
             htmlspecialchars($r['tipo_insumo']),
             (isset($r['cantidad']) ? (int)$r['cantidad'] : 1),
             htmlspecialchars($r['observacion'] ?? ''),
+            $remitoBtn
         ];
     }, $rows);
 
