@@ -63,15 +63,6 @@ CREATE TABLE `escaneres` (
   `modelo` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `escaneres`
---
-
-INSERT INTO `escaneres` (`id_escaner`, `id_insumo`, `marca`, `modelo`) VALUES
-(8, 9, 'HP', '402dn'),
-(9, 7, 'Epsonnn', 'V3923'),
-(10, 11, 'Epson', 'V39'),
-(11, 23, 'Ficha', 'a la entrada');
 
 -- --------------------------------------------------------
 
@@ -86,13 +77,6 @@ CREATE TABLE `impresoras` (
   `modelo` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `impresoras`
---
-
-INSERT INTO `impresoras` (`id_impresora`, `id_insumo`, `marca`, `modelo`) VALUES
-(2, 5, 'HP', '400 dn'),
-(3, 12, 'HP', '420dbn');
 
 -- --------------------------------------------------------
 
@@ -118,32 +102,6 @@ CREATE TABLE `insumos` (
   `id_patrimonio_idx` varchar(50) GENERATED ALWAYS AS (case when `tipo_insumo` <> 'Varios' then `id_patrimonio` else NULL end) VIRTUAL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `insumos`
---
-
-INSERT INTO `insumos` (`id_insumo`, `nombre_insumo`, `tipo_insumo`, `subcategoria_varios`, `descripcion_general`, `numero_serie`, `id_fisico`, `id_patrimonio`, `cantidad`, `fecha_adquisicion`, `estado`, `id_punto_stock_actual`, `id_sede_actual`, `id_area_asignacion_actual`) VALUES
-(1, 'Mouse Genius', 'Varios', 'Periféricos', NULL, NULL, NULL, NULL, 1, '2025-08-18', 'Disponible', 2, 45, 3),
-(3, 'PC Oficina Coradir', 'PC Completa', NULL, NULL, '456123789', 'D154', 'sd122', 1, '2025-08-18', 'Asignado', NULL, 1, 1),
-(5, 'Impresora HP Recuperada', 'Impresora', NULL, NULL, '745312689', 'J456', NULL, 1, '2025-08-18', 'Asignado', NULL, 43, 1),
-(6, 'Monitor recuperado en comision', 'Monitor', NULL, NULL, '32', '84621359', '646546gg', 1, '2025-08-18', 'Asignado', NULL, 27, 3),
-(7, 'Escarner Nuevo', 'Escaner', NULL, NULL, '108923', 'E45333', 'asfd123', 1, '2025-08-18', 'De Baja', 2, NULL, NULL),
-(8, 'Teclado GT2', 'Varios', 'Periféricos', NULL, NULL, NULL, NULL, 5, '2025-08-19', 'Disponible', 2, NULL, NULL),
-(9, 'Escaner', 'Escaner', NULL, NULL, '25556584', 'a-2444585', '2qwe5', 1, '2025-09-12', 'De Baja', NULL, NULL, NULL),
-(10, 'Notebook 3ra licitacion', 'Notebook', NULL, NULL, '415787663', 'D252', NULL, 1, '2025-09-15', 'Asignado', NULL, 50, 7),
-(11, 'Escaner Nuevo', 'Escaner', NULL, NULL, '6547687', 'D78', 'D789', 1, '2025-09-16', 'Asignado', NULL, 47, 6),
-(12, 'Impresora nueva hp', 'Impresora', NULL, NULL, '12313', 'D435', 'Af123', 1, '2025-09-16', 'Asignado', NULL, 51, 2),
-(13, 'Cable HDMI', 'Varios', 'Periféricos', 'Demo seed', NULL, NULL, NULL, 4, '2025-09-16', 'Disponible', 2, 38, 8),
-(14, 'Patch cord CAT6', 'Varios', 'Red', 'Demo seed', NULL, NULL, NULL, 3, '2025-09-16', 'Disponible', 2, 38, 8),
-(15, 'Mouse óptico', 'Varios', 'Periféricos', 'Demo seed', NULL, NULL, NULL, 3, '2025-09-16', 'Disponible', 2, NULL, NULL),
-(16, 'PC Escritorio Oficina', 'PC Completa', NULL, NULL, 'PC COMPLETA-SN0004', 'PC COMPLETA-ID0004', 'PAT00004', 1, '2025-09-16', 'De Baja', 2, NULL, NULL),
-(17, 'Notebook 14\"', 'Notebook', NULL, NULL, 'NOTEBOOK-SN0005', 'NOTEBOOK-ID0005', 'PAT00005', 1, '2025-09-16', 'De Baja', NULL, NULL, NULL),
-(18, 'Impresora Láser', 'Impresora', NULL, NULL, 'IMPRESORA-SN0006', 'IMPRESORA-ID0006', 'PAT00006', 1, '2025-09-16', 'Asignado', NULL, 43, 8),
-(19, 'Monitor 24\"', 'Monitor', NULL, NULL, 'MONITOR-SN0007', 'MONITOR-ID0007', 'PAT00007', 1, '2025-09-16', 'De Baja', 2, NULL, NULL),
-(20, 'Escáner Documental', 'Escaner', NULL, NULL, 'ESCANER-SN0008', 'ESCANER-ID0008', 'PAT00008', 1, '2025-09-16', 'Asignado', NULL, 43, 8),
-(21, 'Teclado USB', 'Varios', 'Periféricos', 'Demo seed', NULL, NULL, NULL, 8, '2025-09-16', 'Disponible', 2, NULL, NULL),
-(22, 'Regleta 6 tomas', 'Varios', 'Hardware', 'Demo seed', NULL, NULL, NULL, 8, '2025-09-16', 'Disponible', 2, 38, 8),
-(23, 'Fichero', 'Escaner', NULL, NULL, '65468614', 'D466', 'D466', 1, '2025-10-14', 'Asignado', NULL, 43, 11);
 
 -- --------------------------------------------------------
 
@@ -158,23 +116,6 @@ CREATE TABLE `insumos_bajas` (
   `observacion` varchar(255) NOT NULL,
   `cantidad` int(11) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `insumos_bajas`
---
-
-INSERT INTO `insumos_bajas` (`id_baja`, `id_insumo`, `fecha_baja`, `observacion`, `cantidad`) VALUES
-(1, 9, '2025-09-12 13:39:54', 'Se lo robaron', 1),
-(2, 9, '2025-09-12 13:40:08', 'robado', 1),
-(3, 7, '2025-09-12 13:44:03', 'Se rompio', 1),
-(4, 16, '2025-09-30 08:41:14', 'Se inundo por la lluvia y se quemo.', 1),
-(5, 1, '2025-10-01 09:42:35', 'Error de carga.', 3),
-(6, 1, '2025-10-01 09:42:42', 'Error de carga.', 3),
-(7, 1, '2025-10-01 09:45:07', 'Mal cargado', 3),
-(8, 13, '2025-10-01 09:54:28', 'Rotos', 3),
-(9, 1, '2025-10-01 10:11:06', 'Rotos por humedad', 2),
-(10, 17, '2025-10-01 10:23:32', 'Se la robaron', 1),
-(11, 19, '2025-10-03 09:04:51', 'Se quemo en una subida de tension, no tenia estabilizador.', 1);
 
 -- --------------------------------------------------------
 
@@ -237,13 +178,6 @@ CREATE TABLE `monitores` (
   `conexion` enum('VGA','HDMI') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `monitores`
---
-
-INSERT INTO `monitores` (`id_monitor`, `id_insumo`, `marca`, `modelo`, `pulgadas`, `conexion`) VALUES
-(5, 6, 'LG', 'Jk152', 19.0, 'VGA');
-
 -- --------------------------------------------------------
 
 --
@@ -260,13 +194,6 @@ CREATE TABLE `notebooks` (
   `almacenamiento_gb` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `notebooks`
---
-
-INSERT INTO `notebooks` (`id_notebook`, `id_insumo`, `marca`, `modelo`, `procesador`, `ram_gb`, `almacenamiento_gb`) VALUES
-(2, 10, 'Silverstone', 'Rt 500', 'I3-5320', 8, 500);
-
 -- --------------------------------------------------------
 
 --
@@ -282,12 +209,6 @@ CREATE TABLE `pcs_completas` (
   `mother` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `pcs_completas`
---
-
-INSERT INTO `pcs_completas` (`id_pc_completa`, `id_insumo`, `procesador`, `ram_gb`, `almacenamiento_gb`, `mother`) VALUES
-(8, 3, 'R3 3200 G', 8, 1000, 'ASUS H110M VK-PLUS');
 
 -- --------------------------------------------------------
 
@@ -328,39 +249,6 @@ CREATE TABLE `remitos` (
   `observaciones` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `remitos`
---
-
-INSERT INTO `remitos` (`id_remito`, `numero_remito`, `id_sede`, `id_area`, `nombre_persona_asignada`, `apellido_persona_asignada`, `fecha_asignacion`, `estado`, `fecha_devolucion`, `observaciones`) VALUES
-(1, 'REMITO_2025_0001', 47, 4, 'Juancito', 'Ramirez', '2025-08-19', 'Devuelta', '2025-09-12', NULL),
-(3, 'REMITO_2025_0003', 51, 8, 'jose', 'ruiz', '2025-08-19', 'Devuelta', '2025-09-12', NULL),
-(4, '0001_2025', 30, 5, 'Pepe', 'Sanchez', '2025-09-10', 'Devuelta', '2025-09-12', NULL),
-(5, '0002_2025', 33, 2, 'Carina', 'Pastoriza', '2025-09-12', 'Activa', NULL, 'Otra vez pidiendo el mismo insumo'),
-(6, '0003_2025', 50, 8, 'Ruben', 'Perez', '2025-09-12', 'Devuelta', '2025-09-12', NULL),
-(7, '0004_2025', 43, 1, 'Robeto', 'Juanes', '2025-09-15', 'Activa', NULL, NULL),
-(8, '0005_2025', 27, 3, 'Diego', 'Garcia', '2025-09-15', 'Activa', NULL, NULL),
-(9, '0006_2025', 1, 1, 'Diego', 'Garcia|', '2025-09-15', 'Activa', NULL, NULL),
-(10, '0007_2025', 50, 3, 'qwe', 'qwe', '2025-09-16', 'Devuelta', '2025-09-17', NULL),
-(11, '0008_2025', 50, 7, 'skldfj', 'sñlkf', '2025-09-16', 'Activa', NULL, NULL),
-(12, '0009_2025', 50, 5, 'Laura', 'Rivera', '2025-09-16', 'Activa', NULL, NULL),
-(13, '0010_2025', 1, 1, 'Cintia', 'Cuassolo', '2025-09-16', 'Devuelta', '2025-09-30', NULL),
-(14, '0011_2025', 30, 2, 'Pepe', 'Gomez', '2025-09-16', 'Activa', NULL, NULL),
-(15, '0012_2025', 44, 6, 'Romina', 'Gomez', '2025-09-30', 'Devuelta', '2025-10-01', NULL),
-(16, '0013_2025', 51, 6, 'Genaro', 'Ramirez', '2025-09-30', 'Activa', NULL, NULL),
-(17, '0000_2025', 43, 8, ' Pepito', 'Prueba NRO RMT', '2025-09-30', 'Activa', NULL, NULL),
-(27, '0014_2025', 27, 6, 'Marcos', 'Test NRO', '2025-09-30', 'Devuelta', '2025-10-01', NULL),
-(28, '0015_2025', 51, 5, 'Leonardo', 'Test NRO', '2025-09-30', 'Activa', NULL, NULL),
-(29, '0016_2025', 47, 6, 'Heber', 'Gonzalez', '2025-09-30', 'Activa', NULL, 'Lo retira en nombre de la Delegada.'),
-(30, '0017_2025', 51, 2, 'Vanesa', 'Gimenez', '2025-09-30', 'Activa', NULL, NULL),
-(31, '0018_2025', 29, 9, 'Fiorella', 'Maglione', '2025-09-30', 'Activa', NULL, NULL),
-(32, '0019_2025', 53, 6, 'Horacio', 'Guarani', '2025-10-01', 'Devuelta', '2025-10-01', NULL),
-(33, '0020_2025', 38, 3, 'Gerardo', 'Sofovich', '2025-10-03', 'Activa', NULL, NULL),
-(34, '0021_2025', 42, 1, 'Carlos', 'Santana', '2025-10-03', 'Activa', NULL, NULL),
-(35, '0022_2025', 45, 3, 'Adriana', 'Gomez', '2025-10-03', 'Activa', NULL, NULL),
-(36, '0023_2025', 38, 8, 'Silvio', 'Rodriguez', '2025-10-03', 'Activa', NULL, NULL),
-(37, '0024_2025', 38, 8, 'Jorge', 'Cuarto', '2025-10-13', 'Activa', NULL, NULL),
-(38, '0025_2025', 43, 11, 'Daniel', 'Rosas', '2025-10-14', 'Activa', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -376,72 +264,6 @@ CREATE TABLE `remitos_detalle` (
   `cantidad_devuelta` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `remitos_detalle`
---
-
-INSERT INTO `remitos_detalle` (`id_detalle`, `id_remito`, `id_insumo`, `cantidad`, `cantidad_devuelta`) VALUES
-(1, 1, 6, 1, 1),
-(2, 1, 1, 1, 1),
-(3, 1, 8, 1, 1),
-(4, 1, 3, 1, 1),
-(7, 3, 7, 1, 1),
-(8, 4, 5, 1, 1),
-(9, 4, 1, 1, 1),
-(10, 4, 8, 1, 1),
-(11, 5, 1, 1, 0),
-(12, 5, 8, 2, 0),
-(13, 6, 9, 1, 1),
-(14, 6, 5, 1, 1),
-(15, 6, 1, 1, 1),
-(16, 6, 8, 1, 1),
-(17, 7, 5, 1, 0),
-(18, 7, 1, 1, 1),
-(19, 7, 8, 1, 1),
-(20, 8, 6, 1, 0),
-(21, 8, 1, 1, 0),
-(22, 8, 8, 1, 0),
-(23, 9, 3, 1, 0),
-(24, 10, 1, 1, 1),
-(25, 11, 10, 1, 0),
-(26, 12, 1, 1, 0),
-(27, 12, 8, 1, 0),
-(28, 13, 11, 1, 1),
-(29, 14, 13, 1, 0),
-(30, 14, 15, 1, 0),
-(31, 14, 8, 1, 0),
-(32, 15, 13, 3, 3),
-(33, 15, 1, 1, 1),
-(34, 15, 15, 1, 1),
-(35, 15, 17, 1, 1),
-(36, 16, 15, 1, 0),
-(37, 16, 22, 1, 0),
-(38, 17, 20, 1, 0),
-(39, 17, 18, 1, 0),
-(40, 17, 22, 1, 0),
-(41, 27, 13, 1, 1),
-(42, 27, 15, 1, 1),
-(43, 28, 14, 1, 0),
-(44, 28, 22, 1, 0),
-(45, 28, 8, 1, 0),
-(46, 29, 11, 1, 0),
-(47, 29, 15, 1, 0),
-(48, 29, 14, 2, 0),
-(49, 30, 12, 1, 0),
-(50, 30, 8, 2, 0),
-(51, 31, 8, 2, 0),
-(52, 31, 13, 2, 0),
-(53, 32, 1, 1, 1),
-(54, 32, 8, 1, 1),
-(55, 33, 14, 4, 0),
-(56, 34, 22, 5, 0),
-(57, 35, 13, 1, 0),
-(58, 35, 1, 1, 0),
-(59, 36, 22, 1, 0),
-(60, 36, 14, 1, 0),
-(61, 37, 22, 1, 0),
-(62, 37, 13, 1, 0),
-(63, 38, 23, 1, 0);
 
 -- --------------------------------------------------------
 
@@ -453,13 +275,6 @@ CREATE TABLE `remito_secuencia` (
   `anio` int(11) NOT NULL,
   `ultimo` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `remito_secuencia`
---
-
-INSERT INTO `remito_secuencia` (`anio`, `ultimo`) VALUES
-(2025, 25);
 
 -- --------------------------------------------------------
 
@@ -559,12 +374,6 @@ CREATE TABLE `sedes_internet` (
   `observaciones` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `sedes_internet`
---
-
-INSERT INTO `sedes_internet` (`id_internet`, `id_sede`, `proveedor`, `tipo_conexion`, `velocidad_bajada_mbps`, `velocidad_subida_mbps`, `simetrico`, `tiene_wifi`, `estado_servicio`, `observaciones`) VALUES
-(2, 2, 'Altec', 'Fibra óptica', 50, 50, 1, 0, 'Activo', NULL);
 
 -- --------------------------------------------------------
 
@@ -581,12 +390,6 @@ CREATE TABLE `sedes_planos` (
   `fecha_subida` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `sedes_planos`
---
-
-INSERT INTO `sedes_planos` (`id_plano`, `id_sede`, `tipo_plano`, `archivo`, `descripcion`, `fecha_subida`) VALUES
-(2, 2, 'Red', 'public/uploads/planos/plano_2_Red_1758112560.pdf', 'Relevamiento 11/09/2025', '2025-09-17 09:36:00');
 
 -- --------------------------------------------------------
 
@@ -606,15 +409,6 @@ CREATE TABLE `sedes_red_dispositivos` (
   `observaciones` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `sedes_red_dispositivos`
---
-
-INSERT INTO `sedes_red_dispositivos` (`id_dispositivo`, `id_sede`, `tipo_dispositivo`, `marca`, `modelo`, `cantidad`, `ubicacion`, `estado`, `observaciones`) VALUES
-(1, 2, 'Switch', 'Cisco', 'wb40', 3, '', 'Activo', NULL),
-(2, 2, 'Router', 'TP-Link', '3cv', 1, '', 'Activo', NULL),
-(3, 49, 'Switch', 'hp aruba', '', 3, 'oficina 5, 6, 9', 'Activo', NULL);
-
 -- --------------------------------------------------------
 
 --
@@ -633,13 +427,6 @@ CREATE TABLE `sedes_telefonia_lineas` (
   `observaciones` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `sedes_telefonia_lineas`
---
-
-INSERT INTO `sedes_telefonia_lineas` (`id_linea`, `id_sede`, `tipo_linea`, `operador`, `numero`, `dispositivo_modelo`, `interno_ext`, `estado`, `observaciones`) VALUES
-(1, 2, 'Fija', 'Movistar', '2920425211', '', '', 'Activa', NULL),
-(2, 1, 'Fija', 'Movistar', '2920558963', '', '17', 'Pendiente', NULL);
 
 -- --------------------------------------------------------
 
@@ -655,13 +442,6 @@ CREATE TABLE `sedes_vigilancia` (
   `observaciones` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `sedes_vigilancia`
---
-
-INSERT INTO `sedes_vigilancia` (`id_vigilancia`, `id_sede`, `proveedor`, `estado_servicio`, `observaciones`) VALUES
-(2, 2, 'Compuser', 'Activo', 'No da soporte'),
-(3, 34, 'Pirulo gomez', 'Activo', NULL);
 
 -- --------------------------------------------------------
 
@@ -680,14 +460,7 @@ CREATE TABLE `sedes_vigilancia_dispositivos` (
   `estado` enum('Activo','De Baja') NOT NULL DEFAULT 'Activo'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `sedes_vigilancia_dispositivos`
---
 
-INSERT INTO `sedes_vigilancia_dispositivos` (`id_vigilancia_dispositivo`, `id_vigilancia`, `tipo_dispositivo`, `marca`, `modelo`, `cantidad`, `ubicacion`, `estado`) VALUES
-(1, 2, 'DVR', 'Cisco', 'txt', 1, 'Oficina deposito', 'Activo'),
-(2, 2, 'Cámara', 'Cisco', 'xls', 3, '', 'Activo'),
-(3, 3, 'Cámara', 'Nisuta', 'js', 7, '', 'Activo');
 
 -- --------------------------------------------------------
 
@@ -954,115 +727,115 @@ ALTER TABLE `zonas`
 -- AUTO_INCREMENT de la tabla `areas`
 --
 ALTER TABLE `areas`
-  MODIFY `id_area` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id_area` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `escaneres`
 --
 ALTER TABLE `escaneres`
-  MODIFY `id_escaner` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id_escaner` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `impresoras`
 --
 ALTER TABLE `impresoras`
-  MODIFY `id_impresora` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_impresora` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `insumos`
 --
 ALTER TABLE `insumos`
-  MODIFY `id_insumo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id_insumo` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `insumos_bajas`
 --
 ALTER TABLE `insumos_bajas`
-  MODIFY `id_baja` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id_baja` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `localidades`
 --
 ALTER TABLE `localidades`
-  MODIFY `id_localidad` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
+  MODIFY `id_localidad` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `monitores`
 --
 ALTER TABLE `monitores`
-  MODIFY `id_monitor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id_monitor` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `notebooks`
 --
 ALTER TABLE `notebooks`
-  MODIFY `id_notebook` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_notebook` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `pcs_completas`
 --
 ALTER TABLE `pcs_completas`
-  MODIFY `id_pc_completa` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id_pc_completa` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `puntos_stock`
 --
 ALTER TABLE `puntos_stock`
-  MODIFY `id_punto_stock` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_punto_stock` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `remitos`
 --
 ALTER TABLE `remitos`
-  MODIFY `id_remito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+  MODIFY `id_remito` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `remitos_detalle`
 --
 ALTER TABLE `remitos_detalle`
-  MODIFY `id_detalle` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
+  MODIFY `id_detalle` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `sedes`
 --
 ALTER TABLE `sedes`
-  MODIFY `id_sede` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+  MODIFY `id_sede` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `sedes_internet`
 --
 ALTER TABLE `sedes_internet`
-  MODIFY `id_internet` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_internet` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `sedes_planos`
 --
 ALTER TABLE `sedes_planos`
-  MODIFY `id_plano` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_plano` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `sedes_red_dispositivos`
 --
 ALTER TABLE `sedes_red_dispositivos`
-  MODIFY `id_dispositivo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_dispositivo` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `sedes_telefonia_lineas`
 --
 ALTER TABLE `sedes_telefonia_lineas`
-  MODIFY `id_linea` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id_linea` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `sedes_vigilancia`
 --
 ALTER TABLE `sedes_vigilancia`
-  MODIFY `id_vigilancia` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_vigilancia` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `sedes_vigilancia_dispositivos`
 --
 ALTER TABLE `sedes_vigilancia_dispositivos`
-  MODIFY `id_vigilancia_dispositivo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id_vigilancia_dispositivo` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `sede_areas`
@@ -1074,7 +847,7 @@ ALTER TABLE `sede_areas`
 -- AUTO_INCREMENT de la tabla `zonas`
 --
 ALTER TABLE `zonas`
-  MODIFY `id_zona` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id_zona` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Restricciones para tablas volcadas

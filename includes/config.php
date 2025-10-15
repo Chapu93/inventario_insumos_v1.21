@@ -2,8 +2,8 @@
 // Configuración de la base de datos
 define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
 define('DB_NAME', getenv('DB_NAME') ?: 'inventario_insumos_v1');
-define('DB_USER', getenv('DB_USER') ?: 'root');
-define('DB_PASS', getenv('DB_PASS') ?: '');
+define('DB_USER', getenv('DB_USER') ?: 'joaquin');
+define('DB_PASS', getenv('DB_PASS') ?: '12345678');
 define('DB_PORT', getenv('DB_PORT') ?: '3306');
 define('DB_SOCKET', getenv('DB_SOCKET') ?: null);
 
