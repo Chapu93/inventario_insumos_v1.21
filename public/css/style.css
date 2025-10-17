@@ -9,6 +9,11 @@
     --info-color: #0099cc; /* Azul claro */
     --light-color: #f8f9fa;
     --dark-color: #212529;
+    /* Superficies para contraste con #cecce8 */
+    --surface-1: #d8d5ee; /* más oscuro */
+    --surface-2: #e0def2; /* header/cards */
+    --surface-3: #eeecf8; /* body de cards/modales */
+    --text-color: #1f2430;
 }
 
 body {
@@ -16,6 +21,7 @@ body {
     background-color: #cecce8; /* fondo suave solicitado */
     margin: 0;
     padding: 0;
+    color: var(--text-color);
 }
 
 /* Sidebar Styles */
@@ -133,6 +139,15 @@ body {
     background-color: #cecce8; /* mantener el fondo uniforme */
 }
 
+/* Navbar más contrastada sobre el fondo */
+.navbar.bg-light {
+    background-color: var(--surface-2) !important;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+.navbar .navbar-text, .navbar .nav-link {
+    color: var(--text-color) !important;
+}
+
 #content.active {
     margin-left: 0;
 }
@@ -145,7 +160,8 @@ body {
 .card {
     border: none;
     border-radius: 10px;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    background: var(--surface-3);
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
 }
 
@@ -154,8 +170,8 @@ body {
 }
 
 .card-header {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-bottom: 1px solid #dee2e6;
+    background: var(--surface-2);
+    border-bottom: 1px solid rgba(0,0,0,0.06);
     border-radius: 10px 10px 0 0 !important;
     padding: 1rem 1.25rem;
     font-weight: 600;
@@ -198,10 +214,10 @@ body {
 }
 
 .table thead th {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-bottom: 2px solid #dee2e6;
+    background: var(--surface-2);
+    border-bottom: 2px solid rgba(0,0,0,0.06);
     font-weight: 600;
-    color: #495057;
+    color: var(--text-color);
 }
 
 .table tbody tr:hover {
@@ -377,10 +393,11 @@ body {
 }
 
 .filtros-container {
-    background: #fff;
+    background: var(--surface-3);
     padding: 1.5rem;
     border-radius: 10px;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--surface-2);
     margin-bottom: 1.5rem;
 }
 
@@ -392,6 +409,7 @@ body {
 .modal-content {
     border-radius: 10px;
     border: none;
+    background: var(--surface-3);
 }
 
 .modal-header {
@@ -527,9 +545,9 @@ body {
 
 /* Encabezados unificados para todas las tablas */
 .tabla-asignacion thead th {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
-    color: #495057 !important;
-    border-color: #dee2e6 !important;
+    background: var(--surface-2) !important;
+    color: var(--text-color) !important;
+    border-color: rgba(0,0,0,0.06) !important;
     font-weight: 600;
     text-align: center;
 }
