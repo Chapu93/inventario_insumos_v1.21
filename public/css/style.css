@@ -9,11 +9,14 @@
     --info-color: #0099cc; /* Azul claro */
     --light-color: #f8f9fa;
     --dark-color: #212529;
-    /* Superficies para contraste con #cecce8 */
-    --surface-1: #d8d5ee; /* más oscuro */
-    --surface-2: #e0def2; /* header/cards */
-    --surface-3: #eeecf8; /* body de cards/modales */
+    /* Superficies para contraste con #cecce8 (tono más oscuro) */
+    --surface-1: #c6c2e6; /* más oscuro */
+    --surface-2: #cbc7ea; /* headers de cards/modales */
+    --surface-3: #d6d3ef; /* cuerpo de cards/modales */
     --text-color: #1f2430;
+    /* Colores menú lateral (combinan con paleta violeta) */
+    --menu-start: #6a67ae; /* indigo suave */
+    --menu-end: #4f4b92;   /* indigo más profundo */
 }
 
 body {
@@ -34,7 +37,7 @@ body {
 .sidebar {
     min-width: 250px;
     max-width: 250px;
-    background: linear-gradient(135deg, var(--primary-color) 0%, #004d99 100%);
+    background: linear-gradient(135deg, var(--menu-start) 0%, var(--menu-end) 100%);
     color: #fff;
     transition: all 0.3s;
     position: fixed;
@@ -50,7 +53,7 @@ body {
 
 .sidebar-header {
     padding: 20px;
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.08);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -413,8 +416,9 @@ body {
 }
 
 .modal-header {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    background: var(--surface-2);
     border-radius: 10px 10px 0 0;
+    color: #000; /* texto negro para mayor legibilidad */
 }
 
 .modal-header .btn-close {
