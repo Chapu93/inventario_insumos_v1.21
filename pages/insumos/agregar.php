@@ -288,19 +288,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 
                 <!-- COLUMNA 2: Información Común -->
                 <div class="col-md-4">
-                    <div class="card h-100 border-0 shadow-sm">
+                    <div class="card border-0 shadow-sm">
                         <div class="card-header bg-light py-2">
                             <h6 class="mb-0">
                                 <i class="fas fa-cog me-2 text-primary"></i>Información Común
                             </h6>
                         </div>
-                        <div class="card-body p-3">
+                        <div class="card-body px-3 pt-3 pb-0">
                             <div class="mb-2">
                                 <label for="fecha_adquisicion" class="form-label">Fecha de Adquisición</label>
                                 <input type="date" class="form-control form-control-sm w-100" id="fecha_adquisicion" name="fecha_adquisicion" value="<?php echo date('Y-m-d'); ?>">
                             </div>
                             
-                            <div class="mb-2">
+                            <div class="mb-0">
                                 <label for="id_punto_stock_actual" class="form-label">Punto de Almacenamiento *</label>
                                 <select class="form-select form-select-sm w-100" id="id_punto_stock_actual" name="id_punto_stock_actual" required>
                                     <option value="">Seleccione punto de almacenamiento</option>
@@ -316,7 +316,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                     </div>
                     <!-- Extras Notebook: tarjeta independiente debajo de Información Común -->
-                    <div class="card h-100 border-0 shadow-sm mt-3" id="extras-notebook" style="display:none;">
+                    <div class="card border-0 shadow-sm mt-2" id="extras-notebook" style="display:none;">
                         <div class="card-header bg-light py-2">
                             <h6 class="mb-0"><i class="fas fa-laptop me-2 text-primary"></i>Accesorios Notebook</h6>
                         </div>
