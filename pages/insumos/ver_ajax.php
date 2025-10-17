@@ -226,6 +226,22 @@ try {
                                 <?php endif; ?>
                             </div>
                         </div>
+                        <hr>
+                        <?php
+                          $cargador = !empty($datos_especificos['cargador']);
+                          $funda = !empty($datos_especificos['funda']);
+                          $microSd = !empty($datos_especificos['micro_sd']);
+                          $microSdGb = isset($datos_especificos['micro_sd_gb']) && $datos_especificos['micro_sd_gb'] !== '' ? (int)$datos_especificos['micro_sd_gb'] : null;
+                          $caja = !empty($datos_especificos['caja']);
+                          $adaptadorRed = !empty($datos_especificos['adaptador_red']);
+                        ?>
+                        <div class="row g-2">
+                          <div class="col-sm-6"><span class="text-muted"><i class="fas fa-plug me-1"></i>Cargador:</span> <span class="badge <?php echo $cargador ? 'bg-success' : 'bg-secondary'; ?>"><?php echo $cargador ? 'Sí' : 'No'; ?></span></div>
+                          <div class="col-sm-6"><span class="text-muted"><i class="fas fa-suitcase me-1"></i>Funda:</span> <span class="badge <?php echo $funda ? 'bg-success' : 'bg-secondary'; ?>"><?php echo $funda ? 'Sí' : 'No'; ?></span></div>
+                          <div class="col-sm-6"><span class="text-muted"><i class="fas fa-sd-card me-1"></i>Micro SD:</span> <span class="badge <?php echo $microSd ? 'bg-success' : 'bg-secondary'; ?>"><?php echo $microSd ? 'Sí' : 'No'; ?></span> <?php if ($microSd && $microSdGb !== null): ?><small class="text-muted ms-1"><?php echo $microSdGb; ?> GB</small><?php endif; ?></div>
+                          <div class="col-sm-6"><span class="text-muted"><i class="fas fa-box me-1"></i>Caja:</span> <span class="badge <?php echo $caja ? 'bg-success' : 'bg-secondary'; ?>"><?php echo $caja ? 'Sí' : 'No'; ?></span></div>
+                          <div class="col-sm-6"><span class="text-muted"><i class="fas fa-network-wired me-1"></i>Adaptador de red:</span> <span class="badge <?php echo $adaptadorRed ? 'bg-success' : 'bg-secondary'; ?>"><?php echo $adaptadorRed ? 'Sí' : 'No'; ?></span></div>
+                        </div>
                     <?php elseif ($insumo['tipo_insumo'] === 'Impresora'): ?>
                         <div class="row">
                             <div class="col-md-6">
