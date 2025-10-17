@@ -8,6 +8,12 @@ $puntos_stock = $db->query("SELECT id_punto_stock, nombre_punto FROM puntos_stoc
 $localidades = $db->query("SELECT id_localidad, nombre_localidad FROM localidades ORDER BY nombre_localidad")->fetchAll();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!verify_csrf()) {
+        $_SESSION['mensaje'] = 'CSRF inválido';
+        $_SESSION['tipo_mensaje'] = 'danger';
+        header('Location: agregar_asignado.php');
+        exit;
+    }
     try {
         $db->beginTransaction();
 
@@ -87,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception('Complete Sede/Área y datos de la persona para asignar');
         }
 
-        $numRemito = generarNumeroRemito();
+        $numRemito = generarNumeroRemito($db);
         $db->prepare("INSERT INTO remitos (numero_remito, id_sede, id_area, nombre_persona_asignada, apellido_persona_asignada, fecha_asignacion, estado, observaciones) VALUES (?,?,?,?,?,?,'Activa',?)")
            ->execute([$numRemito, $idSede, $idArea, $nom, $ape, $fechaAsig, $obs]);
         $idRemito = (int)$db->lastInsertId();
@@ -128,6 +134,7 @@ include '../../includes/header.php';
 <div class="card">
     <div class="card-body p-3">
         <form method="POST" class="needs-validation" id="formAgregarAsignado" novalidate>
+            <?php echo csrf_input(); ?>
             <!-- Paso 1: Alta de Insumo (mismo comportamiento que agregar.php) -->
             <div class="row mb-3">
                 <div class="col-12">
