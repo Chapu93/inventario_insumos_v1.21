@@ -122,15 +122,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
             case 'Notebook':
                 $db->prepare("DELETE FROM notebooks WHERE id_insumo = ?")->execute([$id]);
-                $db->prepare("INSERT INTO notebooks (id_insumo, marca, modelo, procesador, ram_gb, almacenamiento_gb) VALUES (?,?,?,?,?,?)")
-                   ->execute([
-                       $id,
-                       ($_POST['marca_notebook'] ?? null),
-                       ($_POST['modelo_notebook'] ?? null),
-                       ($_POST['procesador_notebook'] ?? null),
-                       ($_POST['ram_gb_notebook'] ?? null),
-                       ($_POST['almacenamiento_gb_notebook'] ?? null)
-                   ]);
+                $stmt = $db->prepare("INSERT INTO notebooks (id_insumo, marca, modelo, procesador, ram_gb, almacenamiento_gb, cargador, funda, micro_sd, micro_sd_gb, caja, adaptador_red) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
+                $cargador = isset($_POST['cargador']) ? 1 : 0;
+                $funda = isset($_POST['funda']) ? 1 : 0;
+                $microSd = isset($_POST['micro_sd']) ? 1 : 0;
+                $microSdGb = $microSd ? (($_POST['micro_sd_gb'] !== '' ? (int)$_POST['micro_sd_gb'] : null)) : null;
+                $caja = isset($_POST['caja']) ? 1 : 0;
+                $adaptadorRed = isset($_POST['adaptador_red']) ? 1 : 0;
+                $stmt->execute([
+                    $id,
+                    ($_POST['marca_notebook'] ?? null),
+                    ($_POST['modelo_notebook'] ?? null),
+                    ($_POST['procesador_notebook'] ?? null),
+                    ($_POST['ram_gb_notebook'] ?? null),
+                    ($_POST['almacenamiento_gb_notebook'] ?? null),
+                    $cargador,
+                    $funda,
+                    $microSd,
+                    $microSdGb,
+                    $caja,
+                    $adaptadorRed
+                ]);
                 break;
             case 'Impresora':
                 $db->prepare("DELETE FROM impresoras WHERE id_insumo = ?")->execute([$id]);
@@ -316,6 +328,34 @@ include '../../includes/header.php';
                                 <div class="mb-2"><label class="form-label">Procesador</label><input type="text" class="form-control form-control-sm" name="procesador_notebook" value="<?php echo htmlspecialchars($esp['procesador'] ?? ''); ?>"></div>
                                 <div class="mb-2"><label class="form-label">RAM (GB)</label><input type="number" class="form-control form-control-sm" name="ram_gb_notebook" value="<?php echo htmlspecialchars($esp['ram_gb'] ?? ''); ?>"></div>
                                 <div class="mb-2"><label class="form-label">Almacenamiento (GB)</label><input type="number" class="form-control form-control-sm" name="almacenamiento_gb_notebook" value="<?php echo htmlspecialchars($esp['almacenamiento_gb'] ?? ''); ?>"></div>
+                                <hr>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="cargador" name="cargador" value="1" <?php echo !empty($esp['cargador']) ? 'checked' : ''; ?>>
+                                    <label class="form-check-label" for="cargador">Cargador</label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="funda" name="funda" value="1" <?php echo !empty($esp['funda']) ? 'checked' : ''; ?>>
+                                    <label class="form-check-label" for="funda">Funda</label>
+                                </div>
+                                <div class="row g-2 align-items-center mb-2">
+                                    <div class="col-auto">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="micro_sd" name="micro_sd" value="1" <?php echo !empty($esp['micro_sd']) ? 'checked' : ''; ?>>
+                                            <label class="form-check-label" for="micro_sd">Micro SD</label>
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <input type="number" min="0" step="1" class="form-control form-control-sm" id="micro_sd_gb" name="micro_sd_gb" placeholder="Tamaño (GB)" value="<?php echo isset($esp['micro_sd_gb']) ? (int)$esp['micro_sd_gb'] : ''; ?>" <?php echo !empty($esp['micro_sd']) ? '' : 'disabled'; ?>>
+                                    </div>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="caja" name="caja" value="1" <?php echo !empty($esp['caja']) ? 'checked' : ''; ?>>
+                                    <label class="form-check-label" for="caja">Caja</label>
+                                </div>
+                                <div class="form-check form-switch mb-2">
+                                    <input class="form-check-input" type="checkbox" id="adaptador_red" name="adaptador_red" value="1" <?php echo !empty($esp['adaptador_red']) ? 'checked' : ''; ?>>
+                                    <label class="form-check-label" for="adaptador_red">Adaptador de red</label>
+                                </div>
                             <?php elseif ($tipo_insumo === 'Impresora'): ?>
                                 <div class="mb-2"><label class="form-label">Marca</label><input type="text" class="form-control form-control-sm" name="marca_impresora" value="<?php echo htmlspecialchars($esp['marca'] ?? ''); ?>"></div>
                                 <div class="mb-2"><label class="form-label">Modelo</label><input type="text" class="form-control form-control-sm" name="modelo_impresora" value="<?php echo htmlspecialchars($esp['modelo'] ?? ''); ?>"></div>
@@ -335,7 +375,7 @@ include '../../includes/header.php';
                             <?php elseif ($tipo_insumo === 'Escaner'): ?>
                                 <div class="mb-2"><label class="form-label">Marca</label><input type="text" class="form-control form-control-sm" name="marca_escaner" value="<?php echo htmlspecialchars($esp['marca'] ?? ''); ?>"></div>
                                 <div class="mb-2"><label class="form-label">Modelo</label><input type="text" class="form-control form-control-sm" name="modelo_escaner" value="<?php echo htmlspecialchars($esp['modelo'] ?? ''); ?>"></div>
-                            <?php endif; ?>
+            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -351,3 +391,19 @@ include '../../includes/header.php';
 </div>
 
 <?php include '../../includes/footer.php'; ?>
+<script>
+(function(){
+  const micro = document.getElementById('micro_sd');
+  const gb = document.getElementById('micro_sd_gb');
+  if (micro && gb) {
+    micro.addEventListener('change', function(){
+      if (this.checked) {
+        gb.removeAttribute('disabled');
+      } else {
+        gb.value = '';
+        gb.setAttribute('disabled','disabled');
+      }
+    });
+  }
+})();
+</script>
