@@ -20,12 +20,13 @@ try {
     $idRemito = (int)$r['id_remito'];
 
     // Revertir estado de insumos solo si el remito está Activa; si ya está Devuelta, no tocar stock/estado
-    $items = $db->prepare('SELECT d.id_insumo, d.cantidad, i.tipo_insumo, i.cantidad AS stock_actual FROM remitos_detalle d JOIN insumos i ON i.id_insumo = d.id_insumo WHERE d.id_remito = ?');
+    $items = $db->prepare('SELECT d.id_insumo, d.cantidad, i.tipo_insumo, i.cantidad AS stock_actual, COALESCE(d.cantidad_devuelta,0) AS cantidad_devuelta FROM remitos_detalle d JOIN insumos i ON i.id_insumo = d.id_insumo WHERE d.id_remito = ?');
     $items->execute([$idRemito]);
-    if ((string)$r['estado'] === 'Activa') {
+    if (strcasecmp((string)$r['estado'], 'Activa') === 0) {
         foreach ($items as $it) {
             if ($it['tipo_insumo'] === 'Varios') {
-                $nuevo = (int)$it['stock_actual'] + (int)$it['cantidad'];
+                $pendiente = max(0, (int)$it['cantidad'] - (int)$it['cantidad_devuelta']);
+                $nuevo = (int)$it['stock_actual'] + $pendiente;
                 $db->prepare("UPDATE insumos SET cantidad = ?, estado = 'Disponible' WHERE id_insumo = ?")->execute([$nuevo, (int)$it['id_insumo']]);
             } else {
                 $db->prepare("UPDATE insumos SET estado = 'Disponible', id_sede_actual = NULL, id_area_asignacion_actual = NULL, id_punto_stock_actual = id_punto_stock_actual WHERE id_insumo = ?")
