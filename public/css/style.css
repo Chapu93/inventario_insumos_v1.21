@@ -1,12 +1,14 @@
 /* Estilos personalizados para el sistema de inventario */
 
 :root {
-    --primary-color: #0066cc; /* Azul de la bandera */
+    --primary-color: #6a67ae; /* Indigo suave para botones primarios */
+    --primary-color-hover: #4f4b92; /* Hover primario */
     --secondary-color: #ffffff; /* Blanco de la bandera */
     --success-color: #009933; /* Verde de la bandera */
     --warning-color: #ff8c00; /* Naranja para botones de baja */
     --danger-color: #cc0000; /* Rojo complementario */
-    --info-color: #0099cc; /* Azul claro */
+    --info-color: #7f8fd9; /* Azul violáceo acorde a paleta */
+    --info-color-hover: #6e7ecb;
     --light-color: #f8f9fa;
     --dark-color: #212529;
     /* Superficies para contraste con #cecce8 (tono más oscuro) */
@@ -189,11 +191,23 @@ body {
 .btn-primary {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
+    color: #fff;
 }
 
-.btn-primary:hover {
-    background-color: #004d99;
-    border-color: #004d99;
+.btn-primary:hover, .btn-primary:focus {
+    background-color: var(--primary-color-hover);
+    border-color: var(--primary-color-hover);
+    color: #fff;
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+.btn-outline-primary:hover, .btn-outline-primary:focus {
+    background-color: var(--primary-color);
+    color: #fff;
+    border-color: var(--primary-color);
 }
 
 .btn-success {
@@ -201,9 +215,58 @@ body {
     border-color: var(--success-color);
 }
 
-.btn-success:hover {
+.btn-success:hover, .btn-success:focus {
     background-color: #007a26;
     border-color: #007a26;
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+    border-color: var(--danger-color);
+    color: #fff;
+}
+.btn-danger:hover, .btn-danger:focus {
+    filter: brightness(0.95);
+}
+
+.btn-warning {
+    background-color: var(--warning-color);
+    border-color: var(--warning-color);
+    color: #212529;
+}
+.btn-warning:hover, .btn-warning:focus {
+    filter: brightness(0.95);
+}
+
+.btn-outline-warning {
+    color: var(--warning-color);
+    border-color: var(--warning-color);
+}
+.btn-outline-warning:hover, .btn-outline-warning:focus {
+    background-color: var(--warning-color);
+    color: #212529;
+    border-color: var(--warning-color);
+}
+
+.btn-info {
+    background-color: var(--info-color);
+    border-color: var(--info-color);
+    color: #fff;
+}
+.btn-info:hover, .btn-info:focus {
+    background-color: var(--info-color-hover);
+    border-color: var(--info-color-hover);
+}
+
+.btn-secondary {
+    background-color: var(--surface-2);
+    border-color: var(--surface-2);
+    color: var(--text-color);
+}
+.btn-secondary:hover, .btn-secondary:focus {
+    background-color: var(--surface-1);
+    border-color: var(--surface-1);
+    color: var(--text-color);
 }
 
 .btn-sm {
