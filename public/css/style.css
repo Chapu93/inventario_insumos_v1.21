@@ -13,7 +13,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f8f9fa;
+    background-color: #cecce8; /* fondo suave solicitado */
     margin: 0;
     padding: 0;
 }
@@ -130,6 +130,7 @@ body {
     min-height: 100vh;
     transition: all 0.3s;
     margin-left: 250px;
+    background-color: #cecce8; /* mantener el fondo uniforme */
 }
 
 #content.active {
