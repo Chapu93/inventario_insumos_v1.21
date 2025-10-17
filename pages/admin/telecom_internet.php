@@ -244,6 +244,7 @@ include '../../includes/header.php';
 </div>
 
 <form id="formEliminar" method="POST" style="display:none">
+  <?php echo csrf_input(); ?>
   <input type="hidden" name="accion" value="eliminar">
   <input type="hidden" name="id_internet" id="del_id">
 </form>

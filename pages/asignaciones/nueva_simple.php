@@ -5,6 +5,7 @@ $db = conectarDB();
 // Procesar POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
+        if (!verify_csrf()) { throw new Exception('CSRF inválido'); }
         $db->beginTransaction();
         $idsInsumo = isset($_POST['insumos']) ? array_map('intval', (array)$_POST['insumos']) : [];
         if (empty($idsInsumo)) { throw new Exception('Seleccione al menos un insumo'); }
@@ -16,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $obs = trim($_POST['observaciones'] ?? '');
         if (!$idSede || !$idArea || !$nombre || !$apellido) { throw new Exception('Datos incompletos'); }
 
-        $numero = generarNumeroRemito();
+        $numero = generarNumeroRemito($db);
         $cantVarios = isset($_POST['cantidades_varios']) && is_array($_POST['cantidades_varios']) ? $_POST['cantidades_varios'] : [];
 
         // Insertar cabecera de remito (esquema nuevo)
@@ -79,6 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div class="card">
   <div class="card-body">
     <form method="POST" id="formSimple" class="needs-validation" novalidate>
+      <?php echo csrf_input(); ?>
       <div class="row g-3">
         <div class="col-md-4">
           <label class="form-label">Localidad *</label>

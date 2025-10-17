@@ -113,7 +113,11 @@ include '../../includes/header.php';
   </form>
 </div></div></div>
 
-<form id="formDelServ" method="POST" style="display:none"><input type="hidden" name="accion" value="eliminar_serv"><input type="hidden" name="id_vigilancia" id="del_serv"></form>
+<form id="formDelServ" method="POST" style="display:none">
+  <?php echo csrf_input(); ?>
+  <input type="hidden" name="accion" value="eliminar_serv">
+  <input type="hidden" name="id_vigilancia" id="del_serv">
+</form>
 
 <script>
 function editServ(v){ $('#modalServTitle').text('Editar Servicio'); $('#accionServ').val('editar_serv'); $('#id_vigilancia').val(v.id_vigilancia); $('#id_sede_serv').val(v.id_sede).trigger('change'); $('#proveedor').val(v.proveedor); $('#estado_servicio').val(v.estado_servicio); $('#observaciones_serv').val(v.observaciones||''); new bootstrap.Modal(document.getElementById('modalServ')).show(); }

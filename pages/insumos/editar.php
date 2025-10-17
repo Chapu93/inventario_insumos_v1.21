@@ -66,6 +66,7 @@ $puntos_stock = $db->query("SELECT id_punto_stock, nombre_punto FROM puntos_stoc
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
+        if (!verify_csrf()) { throw new Exception('CSRF inválido'); }
         $db->beginTransaction();
 
         // NO permitir cambiar tipo
@@ -185,6 +186,7 @@ include '../../includes/header.php';
 <div class="card">
     <div class="card-body p-3">
         <form method="POST" id="formInsumo" class="needs-validation" novalidate>
+            <?php echo csrf_input(); ?>
             <div class="row mb-3">
                 <div class="col-12">
                     <div class="border rounded p-2">

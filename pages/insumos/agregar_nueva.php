@@ -9,6 +9,7 @@ $puntos_stock = $db->query("SELECT id_punto_stock, nombre_punto FROM puntos_stoc
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
+        if (!verify_csrf()) { throw new Exception('CSRF inválido'); }
         $db->beginTransaction();
 
         // Paso 1: Asignación (cabecera)
@@ -86,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Crear remito (cabecera) y detalle por el nuevo insumo
-        $numero = generarNumeroRemito();
+        $numero = generarNumeroRemito($db);
         $db->prepare("INSERT INTO remitos (numero_remito, id_sede, id_area, nombre_persona_asignada, apellido_persona_asignada, fecha_asignacion, observaciones) VALUES (?,?,?,?,?,?,?)")
            ->execute([$numero, $idSede, $idArea, $nombre, $apellido, $fechaAsig, $obs]);
         $idRemito = (int)$db->lastInsertId();
@@ -129,6 +130,7 @@ include '../../includes/header.php';
 <div class="card">
     <div class="card-body">
         <form method="POST" id="formAgregarNueva" class="needs-validation" novalidate>
+            <?php echo csrf_input(); ?>
             <!-- Paso 1: Cabecera asignación -->
             <div id="paso1">
                 <div class="row justify-content-center">
