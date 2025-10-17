@@ -101,6 +101,18 @@
                     drawCallback: function() {
                         // Reinicializar tooltips después de cada redibujado
                         inicializarTooltips();
+                        // Autocierre de tooltips al salir de foco o mouseleave
+                        try {
+                            var wrapper = $(this).closest('.dataTables_wrapper');
+                            wrapper.find('[data-bs-toggle="tooltip"]').each(function(){
+                                var el = this;
+                                el.addEventListener('mouseleave', function(){ try { var t = bootstrap.Tooltip.getInstance(el); if (t) t.hide(); } catch(e){} });
+                                el.addEventListener('blur', function(){ try { var t = bootstrap.Tooltip.getInstance(el); if (t) t.hide(); } catch(e){} });
+                            });
+                            document.addEventListener('click', function(){
+                                try { document.querySelectorAll('.tooltip.show').forEach(function(tt){ tt.parentNode && tt.parentNode.removeChild(tt); }); } catch(e){}
+                            }, { once: true });
+                        } catch(e) {}
                         // Placeholder de búsqueda en español (sin tocar estructura del label)
                         try {
                             var wrapper = $t.closest('.dataTables_wrapper');
