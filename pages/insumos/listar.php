@@ -292,7 +292,7 @@ function verInsumo(id) {
 
 <script>
 // Eliminar insumo (con confirmación y aviso si está asignado)
-function eliminarInsumo(id) {
+window.eliminarInsumo = function(id) {
   if (!id) return;
   // Consultar detalle para saber si está asignado y a quién
   fetch(`ver_ajax.php?id=${id}`)
@@ -336,6 +336,14 @@ function eliminarInsumo(id) {
 <script>
 $(function(){
   // Orden inicial se define vía data-default-order-col/dir y se aplica en footer
+});
+</script>
+
+<script>
+// Delegación para botones renderizados por DataTables
+$(document).on('click', '.btn-eliminar-insumo', function(){
+  var id = parseInt($(this).data('id'), 10) || 0;
+  if (id) { window.eliminarInsumo(id); }
 });
 </script>
 

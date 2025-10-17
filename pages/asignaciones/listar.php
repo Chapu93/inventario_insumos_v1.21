@@ -191,7 +191,7 @@ function cambiarEstadoPorRemito(remito, estado) {
 
 <script>
 // Eliminar asignación (remito completo)
-function eliminarAsignacion(remito) {
+window.eliminarAsignacion = function(remito) {
   if (!remito) return;
   if (!confirm(`¿Eliminar la asignación ${remito}? Se revertirán estados de insumos y se eliminará el remito.`)) return;
   const token = (document.querySelector('meta[name="csrf-token"]')||{}).content || '';
