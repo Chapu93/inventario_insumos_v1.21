@@ -17,6 +17,9 @@ try {
     // Borrar cabeceras de remitos que hayan quedado sin ítems
     $db->exec('DELETE r FROM remitos r LEFT JOIN remitos_detalle d ON d.id_remito = r.id_remito WHERE d.id_remito IS NULL');
 
+    // Eliminar registros de bajas del insumo (FK fk_ib_insumo)
+    $db->prepare('DELETE FROM insumos_bajas WHERE id_insumo = ?')->execute([$id]);
+
     // Eliminar datos específicos del insumo en tablas por tipo
 
     // Borrar datos específicos por tipo para evitar huérfanos
