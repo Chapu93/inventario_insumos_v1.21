@@ -12,7 +12,12 @@ try {
     $db = conectarDB();
     $db->beginTransaction();
 
-    // No tocar asignaciones: solo eliminar el insumo y datos específicos
+    // Eliminar referencias en remitos_detalle para respetar FK (fk_rd_insumo)
+    $db->prepare('DELETE FROM remitos_detalle WHERE id_insumo = ?')->execute([$id]);
+    // Borrar cabeceras de remitos que hayan quedado sin ítems
+    $db->exec('DELETE r FROM remitos r LEFT JOIN remitos_detalle d ON d.id_remito = r.id_remito WHERE d.id_remito IS NULL');
+
+    // Eliminar datos específicos del insumo en tablas por tipo
 
     // Borrar datos específicos por tipo para evitar huérfanos
     $db->prepare('DELETE FROM pcs_completas WHERE id_insumo = ?')->execute([$id]);
