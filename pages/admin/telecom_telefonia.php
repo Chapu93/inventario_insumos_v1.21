@@ -107,7 +107,11 @@ include '../../includes/header.php';
   </form>
 </div></div></div>
 
-<form id="formDel" method="POST" style="display:none"><input type="hidden" name="accion" value="eliminar"><input type="hidden" name="id_linea" id="del_id"></form>
+<form id="formDel" method="POST" style="display:none">
+  <?php echo csrf_input(); ?>
+  <input type="hidden" name="accion" value="eliminar">
+  <input type="hidden" name="id_linea" id="del_id">
+</form>
 
 <script>
 function editTel(r){

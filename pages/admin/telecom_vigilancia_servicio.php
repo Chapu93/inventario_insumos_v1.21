@@ -177,8 +177,16 @@ include '../../includes/header.php';
   </form>
 </div></div></div>
 
-<form id="formDelDisp" method="POST" style="display:none"><input type="hidden" name="accion" value="eliminar_disp"><input type="hidden" name="id_vigilancia_dispositivo" id="del_disp"></form>
-<form id="formDelServ" method="POST" action="<?php echo app_base_url(); ?>/pages/admin/telecom_vigilancia.php" style="display:none"><input type="hidden" name="accion" value="eliminar_serv"><input type="hidden" name="id_vigilancia" value="<?php echo (int)$idVig; ?>"></form>
+<form id="formDelDisp" method="POST" style="display:none">
+  <?php echo csrf_input(); ?>
+  <input type="hidden" name="accion" value="eliminar_disp">
+  <input type="hidden" name="id_vigilancia_dispositivo" id="del_disp">
+  </form>
+<form id="formDelServ" method="POST" action="<?php echo app_base_url(); ?>/pages/admin/telecom_vigilancia.php" style="display:none">
+  <?php echo csrf_input(); ?>
+  <input type="hidden" name="accion" value="eliminar_serv">
+  <input type="hidden" name="id_vigilancia" value="<?php echo (int)$idVig; ?>">
+  </form>
 
 <script>
 function editServ(v){ $('#modalServTitle').text('Editar Servicio'); $('#accionServ').val('editar_serv'); $('#id_vigilancia').val(v.id_vigilancia); $('#proveedor').val(v.proveedor); $('#estado_servicio').val(v.estado_servicio); $('#observaciones_serv').val(v.observaciones||''); new bootstrap.Modal(document.getElementById('modalServ')).show(); }

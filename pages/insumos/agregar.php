@@ -9,6 +9,13 @@ $puntos_stock = $stmt->fetchAll();
 
 // Procesar formulario
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // CSRF
+    if (!verify_csrf()) {
+        $_SESSION['mensaje'] = 'CSRF inválido';
+        $_SESSION['tipo_mensaje'] = 'danger';
+        header('Location: agregar.php');
+        exit;
+    }
     error_log('Formulario POST recibido en agregar.php');
     error_log('POST data: ' . print_r($_POST, true));
     
