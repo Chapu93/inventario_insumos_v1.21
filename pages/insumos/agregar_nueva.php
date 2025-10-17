@@ -61,8 +61,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     break;
                 case 'Notebook':
                     if (!empty($_POST['marca_notebook']) || !empty($_POST['modelo_notebook'])) {
-                        $db->prepare("INSERT INTO notebooks (id_insumo, marca, modelo, procesador, ram_gb, almacenamiento_gb) VALUES (?,?,?,?,?,?)")
-                           ->execute([$idInsumo, $_POST['marca_notebook'] ?: null, $_POST['modelo_notebook'] ?: null, $_POST['procesador_notebook'] ?: null, $_POST['ram_gb_notebook'] ?: null, $_POST['almacenamiento_gb_notebook'] ?: null]);
+                        $stmtN = $db->prepare("INSERT INTO notebooks (id_insumo, marca, modelo, procesador, ram_gb, almacenamiento_gb, cargador, funda, micro_sd, micro_sd_gb, caja, adaptador_red) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
+                        $cargador = isset($_POST['cargador']) ? 1 : 0;
+                        $funda = isset($_POST['funda']) ? 1 : 0;
+                        $microSd = isset($_POST['micro_sd']) ? 1 : 0;
+                        $microSdGb = $microSd ? (($_POST['micro_sd_gb'] !== '' ? (int)$_POST['micro_sd_gb'] : null)) : null;
+                        $caja = isset($_POST['caja']) ? 1 : 0;
+                        $adaptadorRed = isset($_POST['adaptador_red']) ? 1 : 0;
+                        $stmtN->execute([$idInsumo, $_POST['marca_notebook'] ?: null, $_POST['modelo_notebook'] ?: null, $_POST['procesador_notebook'] ?: null, $_POST['ram_gb_notebook'] ?: null, $_POST['almacenamiento_gb_notebook'] ?: null, $cargador, $funda, $microSd, $microSdGb, $caja, $adaptadorRed]);
                     }
                     break;
                 case 'Impresora':
@@ -261,11 +267,21 @@ include '../../includes/header.php';
                             </div>
                             <!-- COLUMNA 2: Información Común -->
                             <div class="col-md-4">
-                                <div class="card h-100 border-0 shadow-sm">
+                                <div class="card border-0 shadow-sm">
                                     <div class="card-header bg-light py-2"><h6 class="mb-0"><i class="fas fa-cog me-2 text-primary"></i>Información Común</h6></div>
-                                    <div class="card-body p-3">
+                                    <div class="card-body px-3 pt-3 pb-0">
                                         <div class="mb-2"><label class="form-label">Fecha de Adquisición</label><input type="date" class="form-control form-control-sm w-100" name="fecha_adquisicion" value="<?php echo date('Y-m-d'); ?>"></div>
-                                        <div class="mb-2"><label class="form-label">Punto de Almacenamiento *</label><select class="form-select form-select-sm w-100" name="id_punto_stock_actual" required><option value="">Seleccione punto de almacenamiento</option><?php foreach ($puntos_stock as $p): ?><option value="<?php echo $p['id_punto_stock']; ?>" <?php echo $p['id_punto_stock']==2?'selected':''; ?>><?php echo $p['nombre_punto']; ?></option><?php endforeach; ?></select></div>
+                                        <div class="mb-0"><label class="form-label">Punto de Almacenamiento *</label><select class="form-select form-select-sm w-100" name="id_punto_stock_actual" required><option value="">Seleccione punto de almacenamiento</option><?php foreach ($puntos_stock as $p): ?><option value="<?php echo $p['id_punto_stock']; ?>" <?php echo $p['id_punto_stock']==2?'selected':''; ?>><?php echo $p['nombre_punto']; ?></option><?php endforeach; ?></select></div>
+                                    </div>
+                                </div>
+                                <div class="card border-0 shadow-sm mt-2" id="extras-notebook" style="display:none;">
+                                    <div class="card-header bg-light py-2"><h6 class="mb-0"><i class="fas fa-laptop me-2 text-primary"></i>Accesorios Notebook</h6></div>
+                                    <div class="card-body p-3">
+                                        <div class="form-check form-switch mb-2"><input class="form-check-input" type="checkbox" id="cargador" name="cargador" value="1"><label class="form-check-label" for="cargador">Cargador</label></div>
+                                        <div class="form-check form-switch mb-2"><input class="form-check-input" type="checkbox" id="funda" name="funda" value="1"><label class="form-check-label" for="funda">Funda</label></div>
+                                        <div class="row g-2 align-items-center mb-2"><div class="col-auto"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="micro_sd" name="micro_sd" value="1"><label class="form-check-label" for="micro_sd">Micro SD</label></div></div><div class="col"><input type="number" min="0" step="1" class="form-control form-control-sm" id="micro_sd_gb" name="micro_sd_gb" placeholder="Tamaño (GB)" disabled></div></div>
+                                        <div class="form-check form-switch mb-2"><input class="form-check-input" type="checkbox" id="caja" name="caja" value="1"><label class="form-check-label" for="caja">Caja</label></div>
+                                        <div class="form-check form-switch mb-2"><input class="form-check-input" type="checkbox" id="adaptador_red" name="adaptador_red" value="1"><label class="form-check-label" for="adaptador_red">Adaptador de red</label></div>
                                     </div>
                                 </div>
                             </div>
@@ -395,8 +411,23 @@ function toggleCampos() {
     if (t === 'Monitor') $('#esp-monitor').show();
     if (t === 'Escaner') $('#esp-escaner').show();
   }
+  // Mostrar accesorios notebook en la segunda columna
+  if (t === 'Notebook') {
+    $('#extras-notebook').slideDown(150);
+  } else {
+    $('#extras-notebook').slideUp(150);
+    $('#micro_sd').prop('checked', false);
+    $('#micro_sd_gb').prop('disabled', true).val('');
+  }
 }
 $('#tipo_insumo').on('change', toggleCampos);
 $(function(){ toggleCampos(); });
+
+// Enable/disable tamaño Micro SD
+$(document).on('change', '#micro_sd', function(){
+  const on = $(this).is(':checked');
+  $('#micro_sd_gb').prop('disabled', !on);
+  if (!on) { $('#micro_sd_gb').val(''); }
+});
 </script>
 
