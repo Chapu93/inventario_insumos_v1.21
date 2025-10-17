@@ -19,16 +19,18 @@ try {
     if (!$r) { throw new Exception('Remito no encontrado'); }
     $idRemito = (int)$r['id_remito'];
 
-    // Revertir estado de insumos: para unitarios, poner Disponible y limpiar asignación; para "Varios" sumar cantidades
+    // Revertir estado de insumos solo si el remito está Activa; si ya está Devuelta, no tocar stock/estado
     $items = $db->prepare('SELECT d.id_insumo, d.cantidad, i.tipo_insumo, i.cantidad AS stock_actual FROM remitos_detalle d JOIN insumos i ON i.id_insumo = d.id_insumo WHERE d.id_remito = ?');
     $items->execute([$idRemito]);
-    foreach ($items as $it) {
-        if ($it['tipo_insumo'] === 'Varios') {
-            $nuevo = (int)$it['stock_actual'] + (int)$it['cantidad'];
-            $db->prepare("UPDATE insumos SET cantidad = ?, estado = 'Disponible' WHERE id_insumo = ?")->execute([$nuevo, (int)$it['id_insumo']]);
-        } else {
-            $db->prepare("UPDATE insumos SET estado = 'Disponible', id_sede_actual = NULL, id_area_asignacion_actual = NULL, id_punto_stock_actual = id_punto_stock_actual WHERE id_insumo = ?")
-               ->execute([(int)$it['id_insumo']]);
+    if ((string)$r['estado'] === 'Activa') {
+        foreach ($items as $it) {
+            if ($it['tipo_insumo'] === 'Varios') {
+                $nuevo = (int)$it['stock_actual'] + (int)$it['cantidad'];
+                $db->prepare("UPDATE insumos SET cantidad = ?, estado = 'Disponible' WHERE id_insumo = ?")->execute([$nuevo, (int)$it['id_insumo']]);
+            } else {
+                $db->prepare("UPDATE insumos SET estado = 'Disponible', id_sede_actual = NULL, id_area_asignacion_actual = NULL, id_punto_stock_actual = id_punto_stock_actual WHERE id_insumo = ?")
+                   ->execute([(int)$it['id_insumo']]);
+            }
         }
     }
 
