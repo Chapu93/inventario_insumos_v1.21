@@ -189,6 +189,27 @@ function cambiarEstadoPorRemito(remito, estado) {
 }
 </script>
 
+<script>
+// Eliminar asignación (remito completo)
+function eliminarAsignacion(remito) {
+  if (!remito) return;
+  if (!confirm(`¿Eliminar la asignación ${remito}? Se revertirán estados de insumos y se eliminará el remito.`)) return;
+  const token = (document.querySelector('meta[name="csrf-token"]')||{}).content || '';
+  fetch(`${getAppBase()}/ajax/asignacion_eliminar.php`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': token },
+    body: JSON.stringify({ remito })
+  })
+  .then(r => r.json())
+  .then(resp => {
+    if (!resp.success) { throw new Error(resp.error || 'Error al eliminar asignación'); }
+    showToast('Asignación eliminada correctamente', 'success');
+    try { $('#tablaAsignaciones').DataTable().ajax.reload(); } catch(e) { location.reload(); }
+  })
+  .catch(err => showToast(err.message || 'Error al eliminar asignación', 'error'));
+}
+</script>
+
 <!-- Modal Devolución de Insumos -->
 <div class="modal fade" id="modalDevolucion" tabindex="-1" aria-labelledby="modalDevolucionLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">

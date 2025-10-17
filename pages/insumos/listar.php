@@ -291,6 +291,49 @@ function verInsumo(id) {
 </script>
 
 <script>
+// Eliminar insumo (con confirmación y aviso si está asignado)
+function eliminarInsumo(id) {
+  if (!id) return;
+  // Consultar detalle para saber si está asignado y a quién
+  fetch(`ver_ajax.php?id=${id}`)
+    .then(r => r.json())
+    .then(data => {
+      let msg = '¿Desea eliminar este insumo de forma permanente? Esta acción no se puede deshacer.';
+      if (data && data.remito_activo_numero && data.persona_asignada) {
+        msg = `El insumo está asignado a ${data.persona_asignada} (Remito ${data.remito_activo_numero}).\n` +
+              'Si confirma, también se eliminará la asignación asociada.\n¿Confirma eliminar?';
+      }
+      if (!confirm(msg)) return;
+      const token = (document.querySelector('meta[name="csrf-token"]')||{}).content || '';
+      fetch(`${getAppBase()}/ajax/insumos_eliminar.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': token },
+        body: JSON.stringify({ id_insumo: id })
+      })
+      .then(r => r.json())
+      .then(resp => {
+        if (!resp.success) { throw new Error(resp.error || 'Error al eliminar'); }
+        showToast('Insumo eliminado correctamente', 'success');
+        try { $('#tablaInsumos').DataTable().ajax.reload(); } catch(e) { location.reload(); }
+      })
+      .catch(err => { showToast(err.message || 'Error al eliminar', 'error'); });
+    })
+    .catch(() => {
+      if (!confirm('¿Eliminar este insumo?')) return;
+      const token = (document.querySelector('meta[name="csrf-token"]').content)||'';
+      fetch(`${getAppBase()}/ajax/insumos_eliminar.php`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': token },
+        body: JSON.stringify({ id_insumo: id })
+      }).then(r=>r.json()).then(resp => {
+        if (!resp.success) { throw new Error(resp.error || 'Error'); }
+        showToast('Insumo eliminado', 'success');
+        try { $('#tablaInsumos').DataTable().ajax.reload(); } catch(e) { location.reload(); }
+      }).catch(err => showToast(err.message || 'Error', 'error'));
+    });
+}
+</script>
+
+<script>
 $(function(){
   // Orden inicial se define vía data-default-order-col/dir y se aplica en footer
 });

@@ -95,6 +95,7 @@ try {
                   . '<button type="button" class="btn btn-sm btn-info" aria-label="Ver asignación" onclick="abrirVerAsignacion(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Ver asignación"><i class="fas fa-eye" aria-hidden="true"></i></button>'
                   . ' <button type="button" class="btn btn-sm btn-primary" aria-label="Imprimir remito" onclick="generarRemitoPDF(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Imprimir remito"><i class="fas fa-print" aria-hidden="true"></i></button>'
                   . ' <button ' . $btnDevAttrs . '><i class="fas fa-undo" aria-hidden="true"></i></button>'
+                  . ' <button type="button" class="btn btn-sm btn-danger" aria-label="Eliminar asignación" onclick="eliminarAsignacion(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Eliminar asignación"><i class="fas fa-trash" aria-hidden="true"></i></button>'
                   . '</div>';
         return [
             htmlspecialchars($r['nombre_persona_asignada'] . ' ' . $r['apellido_persona_asignada']),

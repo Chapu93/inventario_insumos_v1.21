@@ -343,12 +343,14 @@ try {
     <?php
     $html = ob_get_clean();
     $remitoNum = $remito_activo ? (string)$remito_activo['numero_remito'] : null;
+    $personaAsignada = $remito_activo ? trim(($remito_activo['nombre_persona_asignada'] ?? '') . ' ' . ($remito_activo['apellido_persona_asignada'] ?? '')) : null;
     $tipoInsumo = isset($insumo['tipo_insumo']) ? (string)$insumo['tipo_insumo'] : null;
     $cantInsumo = isset($insumo['cantidad']) ? (int)$insumo['cantidad'] : null;
     echo json_encode([
         'success' => true,
         'html' => $html,
         'remito_activo_numero' => $remitoNum,
+        'persona_asignada' => $personaAsignada,
         'insumo_tipo' => $tipoInsumo,
         'insumo_cantidad' => $cantInsumo
     ]);
