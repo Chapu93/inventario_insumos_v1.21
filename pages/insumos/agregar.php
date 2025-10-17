@@ -294,7 +294,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <i class="fas fa-cog me-2 text-primary"></i>Información Común
                             </h6>
                         </div>
-                        <div class="card-body px-3 pt-3 pb-0">
+                        <div class="card-body px-3 pt-3 pb-2">
                             <div class="mb-2">
                                 <label for="fecha_adquisicion" class="form-label">Fecha de Adquisición</label>
                                 <input type="date" class="form-control form-control-sm w-100" id="fecha_adquisicion" name="fecha_adquisicion" value="<?php echo date('Y-m-d'); ?>">
