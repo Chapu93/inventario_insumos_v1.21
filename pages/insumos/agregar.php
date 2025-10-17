@@ -315,12 +315,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             </div>
                         </div>
                     </div>
-                    <!-- Extras Notebook -->
-                    <div class="card h-100 border-0 shadow-sm mt-3" id="extras-notebook" style="display:none;">
-                        <div class="card-header bg-light py-2">
-                            <h6 class="mb-0"><i class="fas fa-laptop me-2 text-primary"></i>Accesorios Notebook</h6>
-                        </div>
-                        <div class="card-body p-3">
+                    <!-- Extras Notebook dentro de la misma tarjeta -->
+                    <div id="extras-notebook" style="display:none;">
+                        <div class="px-3 pb-3">
+                            <hr>
+                            <h6 class="mb-2"><i class="fas fa-laptop me-2 text-primary"></i>Accesorios Notebook</h6>
                             <div class="form-check form-switch mb-2">
                                 <input class="form-check-input" type="checkbox" id="cargador" name="cargador" value="1">
                                 <label class="form-check-label" for="cargador">Cargador</label>
@@ -539,9 +538,9 @@ $(document).ready(function() {
         }
         // Mostrar card de extras notebook debajo de Información Común
         if (tipo === 'Notebook') {
-            $('#extras-notebook').show();
+            $('#extras-notebook').slideDown(150);
         } else {
-            $('#extras-notebook').hide();
+            $('#extras-notebook').slideUp(150);
             $('#micro_sd').prop('checked', false);
             $('#micro_sd_gb').prop('disabled', true).val('');
         }
