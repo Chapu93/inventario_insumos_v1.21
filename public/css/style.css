@@ -182,6 +182,17 @@ body {
     font-weight: 600;
 }
 
+/* Dashboard: listas y tablas con fondo coherente */
+.card .list-group-item {
+    background: var(--surface-3);
+}
+.table.table-striped > tbody > tr:nth-of-type(odd) > * {
+    --bs-table-accent-bg: var(--surface-3);
+}
+.table.table-striped > tbody > tr:nth-of-type(even) > * {
+    --bs-table-accent-bg: var(--surface-2);
+}
+
 .btn {
     border-radius: 8px;
     font-weight: 500;

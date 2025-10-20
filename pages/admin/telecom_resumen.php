@@ -11,9 +11,9 @@ include '../../includes/header.php';
 
 <div class="row g-3 mb-3">
   <div class="col-md-3"><div class="dashboard-card" id="kpi-sedes-internet-activo"><h3>0</h3><p>Sedes con Internet Activo</p></div></div>
-  <div class="col-md-3"><div class="dashboard-card" id="kpi-sedes-sin-internet" style="background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);"><h3>0</h3><p>Sedes sin Internet</p></div></div>
-  <div class="col-md-3"><div class="dashboard-card" id="kpi-lineas-fijas" style="background: linear-gradient(135deg, #0dcaf0 0%, #0aa2c0 100%);"><h3>0</h3><p>Líneas Fijas Activas</p></div></div>
-  <div class="col-md-3"><div class="dashboard-card" id="kpi-lineas-moviles" style="background: linear-gradient(135deg, #20c997 0%, #198754 100%);"><h3>0</h3><p>Líneas Móviles Activas</p></div></div>
+  <div class="col-md-3"><div class="dashboard-card" id="kpi-sedes-sin-internet"><h3>0</h3><p>Sedes sin Internet</p></div></div>
+  <div class="col-md-3"><div class="dashboard-card" id="kpi-lineas-fijas"><h3>0</h3><p>Líneas Fijas Activas</p></div></div>
+  <div class="col-md-3"><div class="dashboard-card" id="kpi-lineas-moviles"><h3>0</h3><p>Líneas Móviles Activas</p></div></div>
 </div>
 
 <div class="row g-3">

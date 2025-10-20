@@ -81,7 +81,7 @@ foreach ($rowsV as $row) {
     </div>
     
     <div class="col-md-3">
-        <div class="dashboard-card" style="background: linear-gradient(135deg, #198754 0%, #146c43 100%);">
+        <div class="dashboard-card">
             <div class="d-flex justify-content-between">
                 <div>
                     <h3 id="insumos-disponibles"><?php echo $insumos_disponibles; ?></h3>
@@ -95,7 +95,7 @@ foreach ($rowsV as $row) {
     </div>
     
     <div class="col-md-3">
-        <div class="dashboard-card" style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);">
+        <div class="dashboard-card">
             <div class="d-flex justify-content-between">
                 <div>
                     <h3 id="insumos-asignados"><?php echo $insumos_asignados; ?></h3>
@@ -109,7 +109,7 @@ foreach ($rowsV as $row) {
     </div>
     
     <div class="col-md-3">
-        <div class="dashboard-card" style="background: linear-gradient(135deg, #0dcaf0 0%, #0aa2c0 100%);">
+        <div class="dashboard-card">
             <div class="d-flex justify-content-between">
                 <div>
                     <h3 id="total-asignaciones"><?php echo $total_asignaciones; ?></h3>
