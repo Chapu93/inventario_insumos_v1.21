@@ -171,9 +171,9 @@ body {
     background-color: var(--surface-2) !important;
     border-bottom: 1px solid rgba(0,0,0,0.05);
 }
-.navbar .navbar-text, .navbar .nav-link {
-    color: var(--text-color) !important;
-}
+.navbar .navbar-text, .navbar .nav-link { color: var(--text-color) !important; }
+.nav-tabs .nav-link { color: var(--text-color); }
+.nav-tabs .nav-link.active, .nav-tabs .nav-link:focus, .nav-tabs .nav-link:hover { color: var(--primary-color); }
 
 #content.active {
     margin-left: 0;

@@ -452,6 +452,16 @@ $(document).ready(function() {
     setTimeout(function() {
         $('.alert').fadeOut('slow');
     }, 5000);
+  
+  // Toggle sidebar on small screens
+  $('#btnToggleSidebar').on('click', function(){
+    try {
+      const $sidebar = $('#sidebar');
+      const $content = $('#content');
+      $sidebar.toggleClass('active');
+      $content.toggleClass('active');
+    } catch(e) {}
+  });
     
     // Asegurar que los botones de acción funcionen correctamente
     $(document).on('click', '[onclick*="eliminarItem"]', function(e) {

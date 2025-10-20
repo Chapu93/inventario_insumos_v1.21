@@ -133,7 +133,9 @@
             <!-- Top Navigation -->
             <nav class="navbar navbar-expand-lg navbar-light bg-light">
                 <div class="container-fluid">
-                    
+                    <button class="btn btn-outline-primary d-lg-none" type="button" id="btnToggleSidebar" aria-label="Alternar menú">
+                        <i class="fas fa-bars"></i>
+                    </button>
                     <div class="ms-auto">
                         <span class="navbar-text">
                             <i class="fas fa-user me-2"></i>Sistema de Gestión
