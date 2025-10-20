@@ -458,9 +458,23 @@ $(document).ready(function() {
     try {
       const $sidebar = $('#sidebar');
       const $content = $('#content');
-      $sidebar.toggleClass('active');
-      $content.toggleClass('active');
+      const isActive = $sidebar.hasClass('active');
+      if (isActive) {
+        $sidebar.removeClass('active');
+        $content.removeClass('active');
+      } else {
+        $sidebar.addClass('active');
+        $content.addClass('active');
+      }
     } catch(e) {}
+  });
+
+  // Cerrar sidebar al navegar (en móviles), abrirlo al volver al dashboard
+  $(document).on('click', 'a.nav-link, .components a[href]', function(){
+    if (window.matchMedia('(max-width: 992px)').matches) {
+      $('#sidebar').addClass('active');
+      $('#content').removeClass('active');
+    }
   });
     
     // Asegurar que los botones de acción funcionen correctamente
