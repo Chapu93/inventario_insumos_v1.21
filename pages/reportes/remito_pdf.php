@@ -102,7 +102,12 @@ $pdf->SetTextColor(0,0,0);
 
 // Márgenes y medidas
 $leftMargin = 15;  // 1,5 cm
-$rightMargin = 15; // 1,5 cm
+$rightMargin = 15; // base
+// Aumentar margen derecho en ancho de ~3 caracteres
+$extraRight = $pdf->GetStringWidth($enc('000'));
+if (is_numeric($extraRight) && $extraRight > 0) {
+    $rightMargin += $extraRight;
+}
 $topMargin = 15;   // margen superior base
 $lineHeight = 6;
 $pageWidth = $pdf->GetPageWidth();
@@ -235,7 +240,7 @@ foreach ($items as $it) {
         if (!empty($it['micro_sd'])) { $acc[] = 'MicroSD' . (!empty($it['micro_sd_gb']) ? (' ' . (int)$it['micro_sd_gb'] . 'GB') : ''); }
         if (!empty($it['caja'])) { $acc[] = 'Caja'; }
         if (!empty($it['adaptador_red'])) { $acc[] = 'Adaptador red'; }
-        if (!empty($acc)) { $bullets[] = '- Accesorios: ' . implode(', ', $acc); }
+        if (!empty($acc)) { $bullets[] = '- Accesorios: ' . implode(', ', $acc) . '.'; }
     }
     foreach ($bullets as $line) {
         $pdf->SetXY($x + 2, $y);
