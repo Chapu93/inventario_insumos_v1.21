@@ -104,7 +104,7 @@ $pdf->SetTextColor(0,0,0);
 $leftMargin = 15;  // 1,5 cm
 $rightMargin = 15; // base
 // Aumentar margen derecho en ancho de ~3 caracteres
-$extraRight = $pdf->GetStringWidth($enc('000'));
+$extraRight = $pdf->GetStringWidth('000');
 if (is_numeric($extraRight) && $extraRight > 0) {
     $rightMargin += $extraRight;
 }
