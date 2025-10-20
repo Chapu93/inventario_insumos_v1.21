@@ -148,6 +148,10 @@ body {
     background-color: var(--surface-3);
 }
 
+/* Asegurar que las tablas responsivas ocupen el ancho total del contenedor */
+.table-responsive { width: 100%; }
+.table { width: 100%; }
+
 /* Navbar más contrastada sobre el fondo */
 .navbar.bg-light {
     background-color: var(--surface-2) !important;

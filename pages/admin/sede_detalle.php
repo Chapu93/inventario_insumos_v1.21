@@ -17,7 +17,7 @@ if ($idSede > 0) {
     $sede = $stmt->fetch();
 
     // Internet por sede
-    $stmt = $db->prepare("SELECT proveedor, tipo_conexion, velocidad_bajada_mbps, velocidad_subida_mbps, estado_servicio, simetrico FROM sedes_internet WHERE id_sede=? ORDER BY proveedor");
+    $stmt = $db->prepare("SELECT proveedor, tipo_conexion, velocidad_mbps, estado_servicio, simetrico FROM sedes_internet WHERE id_sede=? ORDER BY proveedor");
     $stmt->execute([$idSede]);
     $internet = $stmt->fetchAll();
 
@@ -141,13 +141,13 @@ include '../../includes/header.php';
         <?php else: ?>
         <div class="table-responsive">
           <table class="table table-sm table-striped">
-            <thead><tr><th>Proveedor</th><th>Tipo</th><th>Vel. (↓/↑)</th><th>Simétrico</th><th>Estado</th></tr></thead>
+            <thead><tr><th>Proveedor</th><th>Tipo</th><th>Velocidad (Mbps)</th><th>Simétrico</th><th>Estado</th></tr></thead>
             <tbody>
               <?php foreach($internet as $i): ?>
               <tr>
                 <td><?php echo htmlspecialchars($i['proveedor']); ?></td>
                 <td><?php echo htmlspecialchars($i['tipo_conexion']); ?></td>
-                <td><span class="badge bg-primary"><?php echo (int)($i['velocidad_bajada_mbps'] ?? 0); ?></span> / <span class="badge bg-success"><?php echo (int)($i['velocidad_subida_mbps'] ?? 0); ?></span></td>
+                <td><span class="badge bg-primary"><?php echo (int)($i['velocidad_mbps'] ?? 0); ?></span></td>
                 <td><?php $sim = (int)($i['simetrico'] ?? 0); ?><span class="badge <?php echo $sim ? 'bg-success' : 'bg-secondary'; ?>"><?php echo $sim ? 'Sí' : 'No'; ?></span></td>
                 <td><?php echo htmlspecialchars($i['estado_servicio']); ?></td>
               </tr>
