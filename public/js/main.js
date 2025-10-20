@@ -507,4 +507,18 @@ $(document).ready(function() {
 
     // React a selección múltiple para dibujar cantidades de Varios
     $('#id_insumo').on('change', inicializarCantidadInsumos);
+  
+  // Editar cantidades en modal de confirmación
+  $(document).on('change', '#modalConfirmacion input[data-edit-id]', function(){
+    var id = $(this).data('edit-id');
+    var val = Math.max(1, parseInt($(this).val()||'1', 10));
+    try {
+      var $hidden = $(`.hidden-insumo-input[value="${id}"]`);
+      var tipo = ($hidden.data('tipo')||'');
+      if (tipo === 'Varios') {
+        var $qty = $(`input[name="cantidad_varios[${id}]" ]`);
+        if ($qty.length) { $qty.val(val); }
+      }
+    } catch(e) {}
+  });
 }); 

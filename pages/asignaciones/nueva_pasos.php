@@ -505,7 +505,7 @@ function mostrarModalConfirmacion(){
     mWrap.classList.remove('d-none');
   }
 
-  let rows = `<table class="table table-sm table-striped"><thead class="table-light"><tr><th>Insumo</th><th>Tipo</th><th>Cantidad</th></tr></thead><tbody>`;
+  let rows = `<table class="table table-sm table-striped"><thead class="table-light"><tr><th>Insumo</th><th>Tipo</th><th style=\"width:120px\">Cantidad</th></tr></thead><tbody>`;
   $('.hidden-insumo-input:not(:disabled)').each(function(){
     const $h = $(this); const $fila = $h.closest('tr');
     const nombre = $fila.find('td:first strong').text();
@@ -515,7 +515,7 @@ function mostrarModalConfirmacion(){
       const input = $fila.find(`input[name="cantidad_varios[${$h.val()}]"]`);
       cant = input.length ? input.val() : '1';
     }
-    rows += `<tr><td><strong>${nombre}</strong></td><td><span class="badge bg-info">${tipo}</span></td><td><span class="badge bg-success">${cant}</span></td></tr>`;
+    rows += `<tr><td><strong>${nombre}</strong></td><td><span class=\"badge bg-info\">${tipo}</span></td><td><input type=\"number\" min=\"1\" class=\"form-control form-control-sm\" value=\"${cant}\" data-edit-id=\"${$h.val()}\" ${tipo==='Varios'?'':'disabled'}></td></tr>`;
   });
   rows += '</tbody></table>';
   $('#m_insumos').html(rows);
