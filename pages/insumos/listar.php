@@ -477,5 +477,24 @@ $(function(){
   }
   // Reaplicar con filtros
   $('form').on('submit', function(e){ e.preventDefault(); $('#tablaInsumos').DataTable().ajax.reload(); });
+  
+  // Delegar edición de cantidades para items asignados (tipo Varios)
+  $(document).on('click', '.btn-editar-cantidad', function(){
+    var remito = $(this).data('remito');
+    var id = parseInt($(this).data('id'), 10) || 0;
+    if (!remito || !id) return;
+    var nueva = prompt('Nueva cantidad para este insumo (Varios):', '1');
+    if (!nueva) return;
+    nueva = Math.max(1, parseInt(nueva, 10) || 1);
+    fetch(`${getAppBase()}/ajax/remito_items_update.php`, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'X-CSRF-Token': (document.querySelector('meta[name="csrf-token"]')||{}).content || '' },
+      body: JSON.stringify({ remito, items: [{ id_insumo: id, cantidad: nueva }] })
+    }).then(r=>r.json()).then(resp => {
+      if (!resp.success) throw new Error(resp.error||'Error al actualizar');
+      showToast('Cantidad actualizada', 'success');
+      try { $('#tablaInsumos').DataTable().ajax.reload(null,false); } catch(e) { location.reload(); }
+    }).catch(err => showToast(err.message||'Error', 'error'));
+  });
 });
 </script>
