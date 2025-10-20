@@ -3,12 +3,11 @@ require_once '../../includes/config.php';
 
 $db = conectarDB();
 
-// Migración tolerante: agregar columna simetrico si no existe
-try {
-    $db->query("SELECT simetrico FROM sedes_internet LIMIT 1");
-} catch (Exception $e) {
-    try { $db->exec("ALTER TABLE sedes_internet ADD COLUMN simetrico TINYINT(1) NOT NULL DEFAULT 0 AFTER velocidad_subida_mbps"); } catch (Exception $e2) {}
-}
+// Migraciones tolerantes (no destructivas) para asegurar columnas clave
+try { $db->query("SELECT simetrico FROM sedes_internet LIMIT 1"); }
+catch (Exception $e) { try { $db->exec("ALTER TABLE sedes_internet ADD COLUMN simetrico TINYINT(1) NOT NULL DEFAULT 0"); } catch (Exception $e2) {} }
+try { $db->query("SELECT velocidad_mbps FROM sedes_internet LIMIT 1"); }
+catch (Exception $e) { try { $db->exec("ALTER TABLE sedes_internet ADD COLUMN velocidad_mbps INT NULL"); } catch (Exception $e2) {} }
 
 // Procesar POST (agregar/editar/eliminar)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -16,13 +15,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!verify_csrf()) { throw new Exception('CSRF inválido'); }
         $accion = $_POST['accion'] ?? '';
         if ($accion === 'agregar') {
-      $stmt = $db->prepare("INSERT INTO sedes_internet (id_sede, proveedor, tipo_conexion, velocidad_bajada_mbps, velocidad_subida_mbps, simetrico, tiene_wifi, estado_servicio, observaciones) VALUES (?,?,?,?,?,?,?,?,?)");
+      $stmt = $db->prepare("INSERT INTO sedes_internet (id_sede, proveedor, tipo_conexion, velocidad_mbps, simetrico, tiene_wifi, estado_servicio, observaciones) VALUES (?,?,?,?,?,?,?,?)");
       $stmt->execute([
         (int)$_POST['id_sede'],
         trim($_POST['proveedor']),
         trim($_POST['tipo_conexion']),
-        ($_POST['velocidad_bajada_mbps'] !== '' ? (int)$_POST['velocidad_bajada_mbps'] : null),
-        ($_POST['velocidad_subida_mbps'] !== '' ? (int)$_POST['velocidad_subida_mbps'] : null),
+        ($_POST['velocidad_mbps'] !== '' ? (int)$_POST['velocidad_mbps'] : null),
         (isset($_POST['simetrico']) ? 1 : 0),
         (isset($_POST['tiene_wifi']) ? 1 : 0),
         trim($_POST['estado_servicio']),
@@ -31,13 +29,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['mensaje'] = 'Servicio de Internet agregado.';
             $_SESSION['tipo_mensaje'] = 'success';
         } elseif ($accion === 'editar') {
-      $stmt = $db->prepare("UPDATE sedes_internet SET id_sede=?, proveedor=?, tipo_conexion=?, velocidad_bajada_mbps=?, velocidad_subida_mbps=?, simetrico=?, tiene_wifi=?, estado_servicio=?, observaciones=? WHERE id_internet=?");
+      $stmt = $db->prepare("UPDATE sedes_internet SET id_sede=?, proveedor=?, tipo_conexion=?, velocidad_mbps=?, simetrico=?, tiene_wifi=?, estado_servicio=?, observaciones=? WHERE id_internet=?");
       $stmt->execute([
         (int)$_POST['id_sede'],
         trim($_POST['proveedor']),
         trim($_POST['tipo_conexion']),
-        ($_POST['velocidad_bajada_mbps'] !== '' ? (int)$_POST['velocidad_bajada_mbps'] : null),
-        ($_POST['velocidad_subida_mbps'] !== '' ? (int)$_POST['velocidad_subida_mbps'] : null),
+        ($_POST['velocidad_mbps'] !== '' ? (int)$_POST['velocidad_mbps'] : null),
         (isset($_POST['simetrico']) ? 1 : 0),
         (isset($_POST['tiene_wifi']) ? 1 : 0),
         trim($_POST['estado_servicio']),
@@ -104,7 +101,7 @@ include '../../includes/header.php';
                             <th>Localidad</th>
                             <th>Proveedor</th>
                             <th>Tipo</th>
-                            <th>Vel. (↓/↑ Mbps)</th>
+                            <th>Velocidad (Mbps)</th>
                             <th>Simétrico</th>
                             <th>WiFi</th>
                             <th>Estado</th>
@@ -118,11 +115,7 @@ include '../../includes/header.php';
                                 <td><?php echo htmlspecialchars($row['nombre_localidad']); ?></td>
                                 <td><?php echo htmlspecialchars($row['proveedor']); ?></td>
                                 <td><span class="badge bg-info"><?php echo htmlspecialchars($row['tipo_conexion']); ?></span></td>
-                                <td>
-                                    <span class="badge bg-primary"><?php echo (int)($row['velocidad_bajada_mbps'] ?? 0); ?></span>
-                                    /
-                                    <span class="badge bg-success"><?php echo (int)($row['velocidad_subida_mbps'] ?? 0); ?></span>
-                                </td>
+                                <td><span class="badge bg-primary"><?php echo (int)($row['velocidad_mbps'] ?? 0); ?></span></td>
                 <td>
                   <?php $sim = (int)($row['simetrico'] ?? 0); ?>
                   <span class="badge <?php echo $sim ? 'bg-success' : 'bg-secondary'; ?>"><?php echo $sim ? 'Sí' : 'No'; ?></span>
@@ -200,15 +193,10 @@ include '../../includes/header.php';
             <div class="invalid-feedback">Tipo requerido</div>
           </div>
 
-          <div class="row g-2">
-            <div class="col">
-              <label class="form-label">Bajada (Mbps)</label>
-              <input type="number" class="form-control" name="velocidad_bajada_mbps" id="velocidad_bajada_mbps" min="0">
-            </div>
-            <div class="col">
-              <label class="form-label">Subida (Mbps)</label>
-              <input type="number" class="form-control" name="velocidad_subida_mbps" id="velocidad_subida_mbps" min="0">
-            </div>
+          <div class="mb-3">
+            <label class="form-label">Velocidad (Mbps)</label>
+            <input type="number" class="form-control" name="velocidad_mbps" id="velocidad_mbps" min="0" required>
+            <div class="invalid-feedback">Ingrese la velocidad</div>
           </div>
 
           <div class="form-check form-switch my-2">
@@ -280,8 +268,7 @@ function editarInternet(row){
   }
   $('#proveedor').val(row.proveedor);
   $('#tipo_conexion').val(row.tipo_conexion);
-  $('#velocidad_bajada_mbps').val(row.velocidad_bajada_mbps || '');
-  $('#velocidad_subida_mbps').val(row.velocidad_subida_mbps || '');
+  $('#velocidad_mbps').val(row.velocidad_mbps || '');
   $('#simetrico').prop('checked', (String(row.simetrico) === '1'));
   $('#tiene_wifi').prop('checked', (String(row.tiene_wifi) === '1'));
   $('#estado_servicio').val(row.estado_servicio);
