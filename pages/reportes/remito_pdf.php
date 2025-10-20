@@ -205,16 +205,18 @@ foreach ($items as $it) {
     $pdf->SetFont('Arial', '', 10);
     // Lista de atributos
     $bullets = [];
-    $bullets[] = '- ' . ($it['nombre_insumo'] ?: '');
     $bullets[] = '- Cantidad: ' . (isset($it['cantidad']) ? (int)$it['cantidad'] : 1);
     if (!empty($it['marca'])) { $bullets[] = '- Marca: ' . $it['marca']; }
     if (!empty($it['modelo'])) { $bullets[] = '- Modelo: ' . $it['modelo']; }
     if (!empty($it['numero_serie'])) { $bullets[] = '- Nro. de serie: ' . $it['numero_serie']; }
     if (!empty($it['id_fisico'])) { $bullets[] = '- ID físico: ' . $it['id_fisico']; }
     if (isset($it['tipo_insumo']) && $it['tipo_insumo'] === 'Notebook') {
+        // Accesorios notebook si existen
         if (!empty($it['accesorios'])) { $bullets[] = '- Accesorios: ' . $it['accesorios']; }
     }
-    if (!empty($it['especificaciones'])) { $bullets[] = '- Especificaciones: ' . $it['especificaciones']; }
+    // Especificaciones técnicas para PC y Notebook
+    if (!empty($it['especificaciones']) && in_array($it['tipo_insumo'], ['PC Completa','Notebook'], true)) {
+        $bullets[] = '- Especificaciones: ' . $it['especificaciones']; }
     foreach ($bullets as $line) {
         $pdf->SetXY($x + 2, $y);
         $pdf->MultiCell($colW - 2, 5, $enc($line), 0, 'L');
