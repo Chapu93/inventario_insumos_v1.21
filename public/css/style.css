@@ -211,10 +211,10 @@ body {
 .card .list-group-item {
     background: var(--surface-3);
 }
-/* Tablas striped con surfaces suaves (dashboard) */
-.table.table-striped > tbody > tr:nth-of-type(odd) > * { --bs-table-accent-bg: var(--surface-3); }
-.table.table-striped > tbody > tr:nth-of-type(even) > * { --bs-table-accent-bg: var(--surface-2); }
-.table.table-striped > tbody > tr:hover > * { background-color: rgba(90, 147, 103, 0.06) !important; }
+/* Tablas striped con surfaces suaves (dashboard) - solo dentro de .card-body para no afectar DataTables */
+.card-body .table.table-striped > tbody > tr:nth-of-type(odd) > * { --bs-table-accent-bg: var(--surface-3); }
+.card-body .table.table-striped > tbody > tr:nth-of-type(even) > * { --bs-table-accent-bg: var(--surface-2); }
+.card-body .table.table-striped > tbody > tr:hover > * { background-color: rgba(90, 147, 103, 0.06) !important; }
 
 .btn {
     border-radius: 8px;

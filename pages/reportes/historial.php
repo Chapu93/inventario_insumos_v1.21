@@ -111,6 +111,11 @@ $(function(){
       ],
       drawCallback: function(){ inicializarTooltips(); }
     });
+
+    // Ajustar columnas al cambiar de pestaña (DataTables en tabs ocultos)
+    $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function(){
+      try { $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust(); } catch(e){}
+    });
   }
 });
 </script>
