@@ -152,6 +152,20 @@ body {
 .table-responsive { width: 100%; }
 .table { width: 100%; }
 
+/* Mejoras responsive generales para secciones de administración/telecom */
+.card > .table-responsive { overflow-x: auto; }
+.card .table { min-width: 640px; }
+
+@media (max-width: 992px) {
+  .card .table { min-width: 540px; }
+}
+
+@media (max-width: 576px) {
+  .card .table { min-width: 480px; }
+  .d-flex.justify-content-between { flex-wrap: wrap; gap: 8px; }
+  .modal-dialog { margin: 0.5rem; }
+}
+
 /* Navbar más contrastada sobre el fondo */
 .navbar.bg-light {
     background-color: var(--surface-2) !important;
