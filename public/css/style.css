@@ -521,6 +521,15 @@ body {
     border-radius: 10px 10px 0 0;
     color: #000; /* texto negro para mayor legibilidad */
 }
+.modal .table {
+    width: 100% !important;
+}
+.modal .table thead th {
+    background: var(--surface-2);
+}
+.modal .table tbody tr:hover > * {
+    background-color: var(--surface-3) !important;
+}
 
 .modal-header .btn-close {
     background: none;

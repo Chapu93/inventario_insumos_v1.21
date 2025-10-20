@@ -223,7 +223,7 @@ window.eliminarAsignacion = function(remito) {
             <div class="modal-body">
                 <div id="devolucionAlert" style="display:none;"></div>
                 <div class="table-responsive">
-                    <table class="table table-sm">
+                    <table class="table table-sm w-100 align-middle table-striped" id="tablaDevolucion">
                         <thead>
                             <tr>
                                 <th style="width: 40px;"><input type="checkbox" id="chkAllDevolver"></th>
