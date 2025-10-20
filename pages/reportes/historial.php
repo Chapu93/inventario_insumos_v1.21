@@ -94,7 +94,7 @@ $(function(){
       drawCallback: function(){ inicializarTooltips(); }
     });
 
-    $('#tablaDevoluciones').DataTable({
+    var dtDev = $('#tablaDevoluciones').DataTable({
       processing: true,
       serverSide: true,
       ajax: { url: getAppBase() + '/ajax/historial_devoluciones_ssp.php', type: 'GET' },
@@ -113,8 +113,11 @@ $(function(){
     });
 
     // Ajustar columnas al cambiar de pestaña (DataTables en tabs ocultos)
-    $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function(){
-      try { $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust(); } catch(e){}
+    $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function(e){
+      var target = $(e.target).attr('data-bs-target');
+      if (target === '#devoluciones') {
+        try { dtDev.columns.adjust().responsive?.recalc?.(); } catch(e){}
+      }
     });
   }
 });
