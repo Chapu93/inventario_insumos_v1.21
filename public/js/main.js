@@ -469,13 +469,29 @@ $(document).ready(function() {
     } catch(e) {}
   });
 
-  // Cerrar sidebar al navegar (en móviles), abrirlo al volver al dashboard
+  // Cerrar sidebar al navegar (en móviles)
   $(document).on('click', 'a.nav-link, .components a[href]', function(){
     if (window.matchMedia('(max-width: 992px)').matches) {
-      $('#sidebar').addClass('active');
+      $('#sidebar').removeClass('active');
       $('#content').removeClass('active');
     }
   });
+
+  // Al cambiar tamaño de ventana, normalizar estado del sidebar
+  function normalizeSidebarByViewport(){
+    if (window.matchMedia('(min-width: 992px)').matches) {
+      // En escritorio, sidebar siempre visible
+      $('#sidebar').removeClass('active');
+      $('#content').removeClass('active');
+    } else {
+      // En móvil, estado cerrado por defecto
+      // (se abrirá con el botón hamburguesa)
+      // No forzar si el usuario lo abrió manualmente
+    }
+  }
+  $(window).on('resize', normalizeSidebarByViewport);
+  // Normalizar al cargar
+  normalizeSidebarByViewport();
     
     // Asegurar que los botones de acción funcionen correctamente
     $(document).on('click', '[onclick*="eliminarItem"]', function(e) {
