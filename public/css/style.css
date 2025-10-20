@@ -717,7 +717,7 @@ progress {
 /* Eliminar encabezado oscuro global */
 
 .tabla-asignacion tbody tr:hover {
-    background-color: #f8f9fa;
+    background-color: var(--surface-3);
     cursor: pointer;
 }
 
@@ -727,16 +727,16 @@ progress {
     border-spacing: 0;
 }
 .table-flat thead th {
-    background: #f8f9fa;
+    background: var(--surface-2);
     border-bottom: 1px solid #e5e7eb;
     color: #374151;
     font-weight: 600;
 }
 .table-flat tbody td {
-    border-top: 1px solid #f1f3f5;
+    border-top: 1px solid #e5e7eb;
 }
 .table-flat tbody tr:hover {
-    background-color: #f9fbff;
+    background-color: var(--surface-3);
 }
 
 /* Botón seleccionar con ancho fijo para evitar saltos de layout */

@@ -244,6 +244,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                         <strong><?php echo htmlspecialchars($ins['nombre_insumo']); ?></strong>
                                                     </div>
                                                 </td>
+                                                <td>
+                                                    <span class="badge bg-info"><?php echo htmlspecialchars($ins['tipo_insumo']); ?></span>
+                                                </td>
                                                 <td><?php echo ($ins['tipo_insumo'] === 'Varios') ? (int)$ins['cantidad'] : 1; ?></td>
                                                 <td><?php echo $ins['punto_stock'] ? htmlspecialchars($ins['punto_stock']) : '<span class="text-muted">Sin punto</span>'; ?></td>
                                                 <td>
@@ -411,7 +414,7 @@ function filtrarInsumos(){
   $tbody.find('tr.no-results').remove();
   const visibles = $('#tablaInsumos tbody tr.fila-insumo:visible').length;
   if (visibles === 0) {
-    $tbody.append('<tr class="no-results"><td colspan="4" class="text-center text-muted">Sin resultados</td></tr>');
+    $tbody.append('<tr class="no-results"><td colspan="5" class="text-center text-muted">Sin resultados</td></tr>');
   }
   reorderSelectedFirst();
 }
