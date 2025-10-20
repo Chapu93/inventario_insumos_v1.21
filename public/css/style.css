@@ -11,14 +11,14 @@
     --info-color-hover: #2f7e74;
     --light-color: #f8f9fa;
     --dark-color: #212529;
-    /* Superficies derivadas de la paleta verde */
-    --surface-1: #e6efe9;
-    --surface-2: #edf5f0;
-    --surface-3: #f6fbf8;
+    /* Superficies derivadas de la paleta verde (ligeramente más oscuras) */
+    --surface-1: #d1ded4;
+    --surface-2: #dbe7e0;
+    --surface-3: #e6efe9;
     --text-color: #1f2430;
-    /* Menú lateral en degradado verde-oliva */
-    --menu-start: #3F4B3B;
-    --menu-end: #44633f;
+    /* Menú lateral más claro para mayor contraste */
+    --menu-start: #5cab7d;
+    --menu-end: #5a9367;
 }
 
 body {
