@@ -186,11 +186,8 @@ if (!empty($cab['observaciones'])) {
     $pdf->MultiCell($contentWidth, 6, $enc($cab['observaciones']));
 }
 
-// Lista de insumos en 3 columnas
+// Lista de insumos en 3 columnas (sin título)
 $pdf->SetXY($leftMargin, $y += 10);
-$pdf->SetFont('Arial', 'B', 12);
-$pdf->Cell(0, 6, $enc('Insumos'), 0, 1);
-$y += 4;
 $pdf->SetFont('Arial', '', 10);
 
 $cols = 3; $colPad = 6; $colW = ($contentWidth - ($colPad * ($cols - 1))) / $cols; $xStart = $leftMargin; $yStart = $y;
@@ -201,11 +198,7 @@ foreach ($items as $it) {
     $x = $xStart + ($colIndex * ($colW + $colPad));
     $y = $colHeights[$colIndex];
     $pdf->SetXY($x, $y);
-    // Tipo
-    $pdf->SetFont('Arial', 'B', 10);
-    $pdf->MultiCell($colW, 5, $enc('Tipo: ' . ($it['tipo_insumo'] ?: '-')), 0, 'L');
-    $y = $pdf->GetY();
-    $pdf->SetFont('Arial', '', 10);
+    // (Se omite el rótulo de tipo solicitado)
     // Lista de atributos
     $bullets = [];
     $bullets[] = '- ' . $enc($it['nombre_insumo'] ?: '');
@@ -220,7 +213,7 @@ foreach ($items as $it) {
     if (!empty($it['especificaciones'])) { $bullets[] = '- Especificaciones: ' . $enc($it['especificaciones']); }
     foreach ($bullets as $line) {
         $pdf->SetXY($x + 2, $y);
-        $pdf->MultiCell($colW - 2, 5, $line, 0, 'L');
+        $pdf->MultiCell($colW - 2, 5, $enc($line), 0, 'L');
         $y = $pdf->GetY();
     }
     // Espacio entre items
