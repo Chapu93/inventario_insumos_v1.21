@@ -34,11 +34,18 @@ $items = [];
 if ($cab) {
     $stmtDet = $conexion->prepare("SELECT 
                                         i.nombre_insumo,
+                                        i.tipo_insumo,
                                         i.numero_serie,
                                         i.id_fisico,
                                         d.cantidad,
                                         COALESCE(nb.marca, imp.marca, mon.marca, esc.marca) AS marca,
-                                        COALESCE(nb.modelo, imp.modelo, mon.modelo, esc.modelo) AS modelo
+                                        COALESCE(nb.modelo, imp.modelo, mon.modelo, esc.modelo) AS modelo,
+                                        NULL AS accesorios,
+                                        CONCAT_WS(' ', 
+                                          CASE WHEN i.tipo_insumo IN ('PC Completa','Notebook') THEN CONCAT('Proc:', NULLIF(nb.procesador,'')) END,
+                                          CASE WHEN i.tipo_insumo IN ('PC Completa','Notebook') THEN CONCAT('RAM:', NULLIF(nb.ram_gb,'')) END,
+                                          CASE WHEN i.tipo_insumo IN ('PC Completa','Notebook') THEN CONCAT('Alm:', NULLIF(nb.almacenamiento_gb,'')) END
+                                        ) AS especificaciones
                                    FROM remitos_detalle d
                                    JOIN insumos i ON d.id_insumo = i.id_insumo
                                    JOIN remitos r ON r.id_remito = d.id_remito
@@ -179,31 +186,47 @@ if (!empty($cab['observaciones'])) {
     $pdf->MultiCell($contentWidth, 6, $enc($cab['observaciones']));
 }
 
-// Tabla de insumos
+// Lista de insumos en 3 columnas
 $pdf->SetXY($leftMargin, $y += 10);
 $pdf->SetFont('Arial', 'B', 12);
 $pdf->Cell(0, 6, $enc('Insumos'), 0, 1);
-$pdf->SetFont('Arial', 'B', 10);
-$pdf->SetXY($leftMargin, $y += 7);
-// Anchos de columnas dentro del área de contenido (suman contentWidth)
-$wNombre = 60; $wMarca = 30; $wModelo = 30; $wCant = 15; $wSN = 25; $wID = max(20, $contentWidth - ($wNombre + $wMarca + $wModelo + $wCant + $wSN));
-$pdf->Cell($wNombre, 6, $enc('Insumo'), 1);
-$pdf->Cell($wMarca, 6, $enc('Marca'), 1);
-$pdf->Cell($wModelo, 6, $enc('Modelo'), 1);
-$pdf->Cell($wCant, 6, $enc('Cant.'), 1);
-$pdf->Cell($wSN, 6, $enc('Nro. de serie'), 1);
-$pdf->Cell($wID, 6, $enc('ID Físico'), 1);
-$y += 6;
+$y += 4;
 $pdf->SetFont('Arial', '', 10);
+
+$cols = 3; $colPad = 6; $colW = ($contentWidth - ($colPad * ($cols - 1))) / $cols; $xStart = $leftMargin; $yStart = $y;
+$colHeights = array_fill(0, $cols, $yStart);
+$colIndex = 0;
+
 foreach ($items as $it) {
-    $pdf->SetXY($leftMargin, $y);
-    $pdf->Cell($wNombre, 6, $fit($it['nombre_insumo'], $wNombre), 1);
-    $pdf->Cell($wMarca, 6, $fit($it['marca'] ?: '-', $wMarca), 1);
-    $pdf->Cell($wModelo, 6, $fit($it['modelo'] ?: '-', $wModelo), 1);
-    $pdf->Cell($wCant, 6, (isset($it['cantidad']) ? (int)$it['cantidad'] : 1), 1, 0, 'C');
-    $pdf->Cell($wSN, 6, $fit($it['numero_serie'] ?: '-', $wSN), 1);
-    $pdf->Cell($wID, 6, $fit($it['id_fisico'] ?: '-', $wID), 1);
-    $y += 6;
+    $x = $xStart + ($colIndex * ($colW + $colPad));
+    $y = $colHeights[$colIndex];
+    $pdf->SetXY($x, $y);
+    // Tipo
+    $pdf->SetFont('Arial', 'B', 10);
+    $pdf->MultiCell($colW, 5, $enc('Tipo: ' . ($it['tipo_insumo'] ?: '-')), 0, 'L');
+    $y = $pdf->GetY();
+    $pdf->SetFont('Arial', '', 10);
+    // Lista de atributos
+    $bullets = [];
+    $bullets[] = '- ' . $enc($it['nombre_insumo'] ?: '');
+    $bullets[] = '- Cantidad: ' . (isset($it['cantidad']) ? (int)$it['cantidad'] : 1);
+    if (!empty($it['marca'])) { $bullets[] = '- Marca: ' . $enc($it['marca']); }
+    if (!empty($it['modelo'])) { $bullets[] = '- Modelo: ' . $enc($it['modelo']); }
+    if (!empty($it['numero_serie'])) { $bullets[] = '- Nro. de serie: ' . $enc($it['numero_serie']); }
+    if (!empty($it['id_fisico'])) { $bullets[] = '- ID físico: ' . $enc($it['id_fisico']); }
+    if (isset($it['tipo_insumo']) && $it['tipo_insumo'] === 'Notebook') {
+        if (!empty($it['accesorios'])) { $bullets[] = '- Accesorios: ' . $enc($it['accesorios']); }
+    }
+    if (!empty($it['especificaciones'])) { $bullets[] = '- Especificaciones: ' . $enc($it['especificaciones']); }
+    foreach ($bullets as $line) {
+        $pdf->SetXY($x + 2, $y);
+        $pdf->MultiCell($colW - 2, 5, $line, 0, 'L');
+        $y = $pdf->GetY();
+    }
+    // Espacio entre items
+    $y += 3;
+    $colHeights[$colIndex] = $y;
+    $colIndex = ($colIndex + 1) % $cols;
 }
 
 // Área de firma: a 8 líneas del final de la tabla
