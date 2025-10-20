@@ -198,19 +198,23 @@ foreach ($items as $it) {
     $x = $xStart + ($colIndex * ($colW + $colPad));
     $y = $colHeights[$colIndex];
     $pdf->SetXY($x, $y);
-    // (Se omite el rótulo de tipo solicitado)
+    // Título del ítem: Tipo en negrita
+    $pdf->SetFont('Arial', 'B', 10);
+    $pdf->MultiCell($colW, 5, $enc($it['tipo_insumo'] ?: ''), 0, 'L');
+    $y = $pdf->GetY();
+    $pdf->SetFont('Arial', '', 10);
     // Lista de atributos
     $bullets = [];
-    $bullets[] = '- ' . $enc($it['nombre_insumo'] ?: '');
+    $bullets[] = '- ' . ($it['nombre_insumo'] ?: '');
     $bullets[] = '- Cantidad: ' . (isset($it['cantidad']) ? (int)$it['cantidad'] : 1);
-    if (!empty($it['marca'])) { $bullets[] = '- Marca: ' . $enc($it['marca']); }
-    if (!empty($it['modelo'])) { $bullets[] = '- Modelo: ' . $enc($it['modelo']); }
-    if (!empty($it['numero_serie'])) { $bullets[] = '- Nro. de serie: ' . $enc($it['numero_serie']); }
-    if (!empty($it['id_fisico'])) { $bullets[] = '- ID físico: ' . $enc($it['id_fisico']); }
+    if (!empty($it['marca'])) { $bullets[] = '- Marca: ' . $it['marca']; }
+    if (!empty($it['modelo'])) { $bullets[] = '- Modelo: ' . $it['modelo']; }
+    if (!empty($it['numero_serie'])) { $bullets[] = '- Nro. de serie: ' . $it['numero_serie']; }
+    if (!empty($it['id_fisico'])) { $bullets[] = '- ID físico: ' . $it['id_fisico']; }
     if (isset($it['tipo_insumo']) && $it['tipo_insumo'] === 'Notebook') {
-        if (!empty($it['accesorios'])) { $bullets[] = '- Accesorios: ' . $enc($it['accesorios']); }
+        if (!empty($it['accesorios'])) { $bullets[] = '- Accesorios: ' . $it['accesorios']; }
     }
-    if (!empty($it['especificaciones'])) { $bullets[] = '- Especificaciones: ' . $enc($it['especificaciones']); }
+    if (!empty($it['especificaciones'])) { $bullets[] = '- Especificaciones: ' . $it['especificaciones']; }
     foreach ($bullets as $line) {
         $pdf->SetXY($x + 2, $y);
         $pdf->MultiCell($colW - 2, 5, $enc($line), 0, 'L');
