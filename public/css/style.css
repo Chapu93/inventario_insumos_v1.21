@@ -1,3 +1,7 @@
+.badge.bg-info {
+    background-color: var(--info-color) !important;
+    color: #fff !important;
+}
 /* Estilos personalizados para el sistema de inventario */
 
 :root {

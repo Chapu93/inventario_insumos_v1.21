@@ -109,7 +109,7 @@ foreach ($rowsV as $row) {
     </div>
     
     <div class="col-md-3">
-        <div class="dashboard-card">
+        <div class="dashboard-card dashboard-card--warning">
             <div class="d-flex justify-content-between">
                 <div>
                     <h3 id="total-asignaciones"><?php echo $total_asignaciones; ?></h3>
