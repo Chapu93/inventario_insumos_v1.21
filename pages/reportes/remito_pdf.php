@@ -101,12 +101,14 @@ $pdf->SetFont('Arial', '', 11);
 $pdf->SetTextColor(0,0,0);
 
 // Márgenes y medidas
-$leftMargin = 15;  // 1,5 cm
+$leftMargin = 15;  // base
 $rightMargin = 15; // base
 // Aumentar margen derecho en ancho de ~3 caracteres
-// Sumar ~6 caracteres al margen derecho (ancho de '000000')
+// Sumar ~6 caracteres al margen derecho (ancho de '000000') y ~4 al izquierdo
 $extraRight = $pdf->GetStringWidth('000000');
 if (is_numeric($extraRight) && $extraRight > 0) { $rightMargin += $extraRight; }
+$extraLeft = $pdf->GetStringWidth('0000');
+if (is_numeric($extraLeft) && $extraLeft > 0) { $leftMargin += $extraLeft; }
 $topMargin = 15;   // margen superior base
 $lineHeight = 6;
 $pageWidth = $pdf->GetPageWidth();

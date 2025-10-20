@@ -55,8 +55,7 @@ try {
     $filtered = (int)$stmt->fetchColumn();
 
     // Página de datos
-    $dataSql = "SELECT i.id_insumo, i.nombre_insumo, i.estado, i.cantidad,
-                       (SELECT r.numero_remito FROM remitos_detalle d JOIN remitos r ON r.id_remito = d.id_remito WHERE d.id_insumo = i.id_insumo ORDER BY r.fecha_asignacion DESC LIMIT 1) AS remito_activo
+    $dataSql = "SELECT i.id_insumo, i.nombre_insumo, i.estado, i.cantidad
                 FROM insumos i
                 LEFT JOIN sedes s ON i.id_sede_actual = s.id_sede
                 LEFT JOIN localidades l ON s.id_localidad = l.id_localidad
@@ -77,9 +76,6 @@ try {
                   . '<button type="button" class="btn btn-sm btn-info" aria-label="Ver detalles del insumo" onclick="verInsumo(' . (int)$r['id_insumo'] . ')" data-bs-toggle="tooltip" title="Ver detalles"><i class="fas fa-eye" aria-hidden="true"></i></button>'
                   . ' <a href="editar.php?id=' . (int)$r['id_insumo'] . '" class="btn btn-sm btn-warning" aria-label="Editar insumo" data-bs-toggle="tooltip" title="Editar"><i class="fas fa-edit" aria-hidden="true"></i></a>'
                   . ' <button type="button" class="btn btn-sm btn-outline-warning" aria-label="Dar de baja insumo" ' . ($isDeBaja ? 'disabled ' : 'onclick=\'abrirModalBajaInsumo(' . (int)$r['id_insumo'] . ', ' . $nombreJs . ')\' ') . 'data-bs-toggle="tooltip" title="Dar de baja"><i class="fas fa-arrow-down" aria-hidden="true"></i></button>'
-                  . ( ((int)$r['cantidad'] > 1) && !empty($r['remito_activo'])
-                      ? ' <button type="button" class="btn btn-sm btn-primary btn-editar-cantidad" data-id="' . (int)$r['id_insumo'] . '" data-remito="' . htmlspecialchars($r['remito_activo'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '" title="Editar cantidad asignada"><i class="fas fa-pencil-alt"></i></button>'
-                      : '' )
                   . ' <button type="button" class="btn btn-sm btn-danger btn-eliminar-insumo" aria-label="Eliminar insumo" data-id="' . (int)$r['id_insumo'] . '" data-bs-toggle="tooltip" title="Eliminar"><i class="fas fa-trash" aria-hidden="true"></i></button>'
                   . '</div>';
         return [

@@ -458,14 +458,11 @@ $(document).ready(function() {
     try {
       const $sidebar = $('#sidebar');
       const $content = $('#content');
-      const isActive = $sidebar.hasClass('active');
-      if (isActive) {
-        $sidebar.removeClass('active');
-        $content.removeClass('active');
-      } else {
-        $sidebar.addClass('active');
-        $content.addClass('active');
-      }
+      // En móviles: si está oculto (margen negativo), remover 'active' para mostrar
+      // Si está visible, agregar 'active' para ocultar
+      const hidden = $sidebar.hasClass('active');
+      if (hidden) { $sidebar.removeClass('active'); $content.removeClass('active'); }
+      else { $sidebar.addClass('active'); $content.addClass('active'); }
     } catch(e) {}
   });
 
