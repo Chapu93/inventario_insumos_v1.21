@@ -377,24 +377,24 @@ body {
 
 /* Variantes con acentos suaves para KPIs */
 .dashboard-card--primary {
-    background: linear-gradient(135deg, rgba(90,147,103,0.18), rgba(68,99,63,0.12)), var(--surface-3);
-    border: 1px solid rgba(90,147,103,0.35);
+    background: var(--primary-color);
+    color: #fff;
 }
 .dashboard-card--success {
-    background: linear-gradient(135deg, rgba(92,171,125,0.18), rgba(68,99,63,0.12)), var(--surface-3);
-    border: 1px solid rgba(92,171,125,0.35);
+    background: var(--success-color);
+    color: #0b1a12;
 }
 .dashboard-card--warning {
-    background: linear-gradient(135deg, rgba(227,165,66,0.18), rgba(68,99,63,0.08)), var(--surface-3);
-    border: 1px solid rgba(227,165,66,0.35);
+    background: var(--warning-color);
+    color: #212529;
 }
 .dashboard-card--info {
-    background: linear-gradient(135deg, rgba(74,167,155,0.18), rgba(59,139,130,0.12)), var(--surface-3);
-    border: 1px solid rgba(74,167,155,0.35);
+    background: var(--info-color);
+    color: #fff;
 }
 .dashboard-card--danger {
-    background: linear-gradient(135deg, rgba(204,0,0,0.15), rgba(68,99,63,0.06)), var(--surface-3);
-    border: 1px solid rgba(204,0,0,0.30);
+    background: var(--danger-color);
+    color: #fff;
 }
 
 .dashboard-card h3 {
@@ -405,7 +405,7 @@ body {
 
 .dashboard-card p {
     margin-bottom: 0;
-    opacity: 0.9;
+    opacity: 0.92;
     font-size: 0.95rem;
 }
 
