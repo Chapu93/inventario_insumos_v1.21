@@ -67,7 +67,7 @@ foreach ($rowsV as $row) {
 <!-- Tarjetas de estadísticas -->
 <div class="row mb-4">
     <div class="col-md-3">
-        <div class="dashboard-card">
+        <div class="dashboard-card dashboard-card--primary">
             <div class="d-flex justify-content-between">
                 <div>
                     <h3 id="total-insumos"><?php echo $total_insumos; ?></h3>
@@ -81,7 +81,7 @@ foreach ($rowsV as $row) {
     </div>
     
     <div class="col-md-3">
-        <div class="dashboard-card">
+        <div class="dashboard-card dashboard-card--success">
             <div class="d-flex justify-content-between">
                 <div>
                     <h3 id="insumos-disponibles"><?php echo $insumos_disponibles; ?></h3>
@@ -95,7 +95,7 @@ foreach ($rowsV as $row) {
     </div>
     
     <div class="col-md-3">
-        <div class="dashboard-card">
+        <div class="dashboard-card dashboard-card--info">
             <div class="d-flex justify-content-between">
                 <div>
                     <h3 id="insumos-asignados"><?php echo $insumos_asignados; ?></h3>

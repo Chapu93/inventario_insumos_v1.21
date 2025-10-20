@@ -186,12 +186,10 @@ body {
 .card .list-group-item {
     background: var(--surface-3);
 }
-.table.table-striped > tbody > tr:nth-of-type(odd) > * {
-    --bs-table-accent-bg: var(--surface-3);
-}
-.table.table-striped > tbody > tr:nth-of-type(even) > * {
-    --bs-table-accent-bg: var(--surface-2);
-}
+/* Tablas striped con surfaces suaves (dashboard) */
+.table.table-striped > tbody > tr:nth-of-type(odd) > * { --bs-table-accent-bg: var(--surface-3); }
+.table.table-striped > tbody > tr:nth-of-type(even) > * { --bs-table-accent-bg: var(--surface-2); }
+.table.table-striped > tbody > tr:hover > * { background-color: rgba(90, 147, 103, 0.06) !important; }
 
 .btn {
     border-radius: 8px;
@@ -371,6 +369,28 @@ body {
     border-radius: 10px;
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.12);
     transition: all 0.3s ease;
+}
+
+/* Variantes con acentos suaves para KPIs */
+.dashboard-card--primary {
+    background: linear-gradient(135deg, rgba(90,147,103,0.18), rgba(68,99,63,0.12)), var(--surface-3);
+    border: 1px solid rgba(90,147,103,0.35);
+}
+.dashboard-card--success {
+    background: linear-gradient(135deg, rgba(92,171,125,0.18), rgba(68,99,63,0.12)), var(--surface-3);
+    border: 1px solid rgba(92,171,125,0.35);
+}
+.dashboard-card--warning {
+    background: linear-gradient(135deg, rgba(227,165,66,0.18), rgba(68,99,63,0.08)), var(--surface-3);
+    border: 1px solid rgba(227,165,66,0.35);
+}
+.dashboard-card--info {
+    background: linear-gradient(135deg, rgba(74,167,155,0.18), rgba(59,139,130,0.12)), var(--surface-3);
+    border: 1px solid rgba(74,167,155,0.35);
+}
+.dashboard-card--danger {
+    background: linear-gradient(135deg, rgba(204,0,0,0.15), rgba(68,99,63,0.06)), var(--surface-3);
+    border: 1px solid rgba(204,0,0,0.30);
 }
 
 .dashboard-card h3 {

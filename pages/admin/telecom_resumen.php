@@ -10,10 +10,10 @@ include '../../includes/header.php';
 </div>
 
 <div class="row g-3 mb-3">
-  <div class="col-md-3"><div class="dashboard-card" id="kpi-sedes-internet-activo"><h3>0</h3><p>Sedes con Internet Activo</p></div></div>
-  <div class="col-md-3"><div class="dashboard-card" id="kpi-sedes-sin-internet"><h3>0</h3><p>Sedes sin Internet</p></div></div>
-  <div class="col-md-3"><div class="dashboard-card" id="kpi-lineas-fijas"><h3>0</h3><p>Líneas Fijas Activas</p></div></div>
-  <div class="col-md-3"><div class="dashboard-card" id="kpi-lineas-moviles"><h3>0</h3><p>Líneas Móviles Activas</p></div></div>
+  <div class="col-md-3"><div class="dashboard-card dashboard-card--primary" id="kpi-sedes-internet-activo"><h3>0</h3><p>Sedes con Internet Activo</p></div></div>
+  <div class="col-md-3"><div class="dashboard-card dashboard-card--danger" id="kpi-sedes-sin-internet"><h3>0</h3><p>Sedes sin Internet</p></div></div>
+  <div class="col-md-3"><div class="dashboard-card dashboard-card--info" id="kpi-lineas-fijas"><h3>0</h3><p>Líneas Fijas Activas</p></div></div>
+  <div class="col-md-3"><div class="dashboard-card dashboard-card--success" id="kpi-lineas-moviles"><h3>0</h3><p>Líneas Móviles Activas</p></div></div>
 </div>
 
 <div class="row g-3">
