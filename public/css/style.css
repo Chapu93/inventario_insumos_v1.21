@@ -5,10 +5,10 @@
     --primary-color-hover: #44633f; /* verde más oscuro (hover) */
     --secondary-color: #ffffff;
     --success-color: #5cab7d; /* verde éxito */
-    --warning-color: #ff8c00;
+    --warning-color: #e3a542; /* amarillo suave */
     --danger-color: #cc0000;
-    --info-color: #38998c; /* teal informativo */
-    --info-color-hover: #2f7e74;
+    --info-color: #4aa79b; /* turquesa suavizado */
+    --info-color-hover: #3b8b82;
     --light-color: #f8f9fa;
     --dark-color: #212529;
     /* Superficies derivadas de la paleta verde (ligeramente más oscuras) */
@@ -262,14 +262,14 @@ body {
 }
 
 .btn-secondary {
-    background-color: var(--surface-2);
-    border-color: var(--surface-2);
-    color: var(--text-color);
+    background-color: #9bb7a2; /* más oscuro que surface-2, dentro de paleta */
+    border-color: #8eab96;
+    color: #0f1a12;
 }
 .btn-secondary:hover, .btn-secondary:focus {
-    background-color: var(--surface-1);
-    border-color: var(--surface-1);
-    color: var(--text-color);
+    background-color: #8eab96;
+    border-color: #7fa28b;
+    color: #0f1a12;
 }
 
 .btn-sm {
@@ -354,24 +354,24 @@ body {
 }
 
 .dashboard-card {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-hover) 100%);
-    color: white;
+    background: var(--surface-3); /* mismo fondo que el resto */
+    color: var(--text-color);
     padding: 1.5rem;
     border-radius: 10px;
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.12);
     transition: all 0.3s ease;
 }
 
 .dashboard-card h3 {
-    font-size: 2.5rem;
-    font-weight: bold;
+    font-size: 2.25rem;
+    font-weight: 700;
     margin-bottom: 0.5rem;
 }
 
 .dashboard-card p {
     margin-bottom: 0;
     opacity: 0.9;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
 }
 
 /* Stepper (pasos) */
