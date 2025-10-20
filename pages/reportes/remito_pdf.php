@@ -40,15 +40,18 @@ if ($cab) {
                                         d.cantidad,
                                         COALESCE(nb.marca, imp.marca, mon.marca, esc.marca) AS marca,
                                         COALESCE(nb.modelo, imp.modelo, mon.modelo, esc.modelo) AS modelo,
-                                        NULL AS accesorios,
-                                        CONCAT_WS(' ', 
-                                          CASE WHEN i.tipo_insumo IN ('PC Completa','Notebook') THEN CONCAT('Proc:', NULLIF(nb.procesador,'')) END,
-                                          CASE WHEN i.tipo_insumo IN ('PC Completa','Notebook') THEN CONCAT('RAM:', NULLIF(nb.ram_gb,'')) END,
-                                          CASE WHEN i.tipo_insumo IN ('PC Completa','Notebook') THEN CONCAT('Alm:', NULLIF(nb.almacenamiento_gb,'')) END
-                                        ) AS especificaciones
+                                        pc.procesador AS pc_procesador,
+                                        pc.ram_gb     AS pc_ram,
+                                        pc.almacenamiento_gb AS pc_alm,
+                                        pc.mother     AS pc_mother,
+                                        nb.procesador AS nb_procesador,
+                                        nb.ram_gb     AS nb_ram,
+                                        nb.almacenamiento_gb AS nb_alm,
+                                        nb.cargador, nb.funda, nb.micro_sd, nb.micro_sd_gb, nb.caja, nb.adaptador_red
                                    FROM remitos_detalle d
                                    JOIN insumos i ON d.id_insumo = i.id_insumo
                                    JOIN remitos r ON r.id_remito = d.id_remito
+                                   LEFT JOIN pcs_completas pc ON pc.id_insumo = i.id_insumo
                                    LEFT JOIN notebooks nb ON nb.id_insumo = i.id_insumo
                                    LEFT JOIN impresoras imp ON imp.id_insumo = i.id_insumo
                                    LEFT JOIN monitores mon ON mon.id_insumo = i.id_insumo
@@ -198,9 +201,10 @@ foreach ($items as $it) {
     $x = $xStart + ($colIndex * ($colW + $colPad));
     $y = $colHeights[$colIndex];
     $pdf->SetXY($x, $y);
-    // Título del ítem: Tipo en negrita
+    // Título del ítem: Tipo en negrita (o nombre si es Varios)
     $pdf->SetFont('Arial', 'B', 10);
-    $pdf->MultiCell($colW, 5, $enc($it['tipo_insumo'] ?: ''), 0, 'L');
+    $titulo = ($it['tipo_insumo'] === 'Varios') ? ($it['nombre_insumo'] ?: 'Varios') : ($it['tipo_insumo'] ?: '');
+    $pdf->MultiCell($colW, 5, $enc($titulo), 0, 'L');
     $y = $pdf->GetY();
     $pdf->SetFont('Arial', '', 10);
     // Lista de atributos
@@ -214,9 +218,25 @@ foreach ($items as $it) {
         // Accesorios notebook si existen
         if (!empty($it['accesorios'])) { $bullets[] = '- Accesorios: ' . $it['accesorios']; }
     }
-    // Especificaciones técnicas para PC y Notebook
-    if (!empty($it['especificaciones']) && in_array($it['tipo_insumo'], ['PC Completa','Notebook'], true)) {
-        $bullets[] = '- Especificaciones: ' . $it['especificaciones']; }
+    // Especificaciones técnicas para PC y Notebook (lista)
+    if ($it['tipo_insumo'] === 'PC Completa') {
+        if (!empty($it['pc_procesador'])) { $bullets[] = '- Proc.: ' . $it['pc_procesador']; }
+        if (!empty($it['pc_ram'])) { $bullets[] = '- RAM: ' . $it['pc_ram'] . ' GB'; }
+        if (!empty($it['pc_alm'])) { $bullets[] = '- Almacenamiento: ' . $it['pc_alm'] . ' GB'; }
+        if (!empty($it['pc_mother'])) { $bullets[] = '- Mother: ' . $it['pc_mother']; }
+    } elseif ($it['tipo_insumo'] === 'Notebook') {
+        if (!empty($it['nb_procesador'])) { $bullets[] = '- Proc.: ' . $it['nb_procesador']; }
+        if (!empty($it['nb_ram'])) { $bullets[] = '- RAM: ' . $it['nb_ram'] . ' GB'; }
+        if (!empty($it['nb_alm'])) { $bullets[] = '- Almacenamiento: ' . $it['nb_alm'] . ' GB'; }
+        // Accesorios notebook (si existen)
+        $acc = [];
+        if (!empty($it['cargador'])) { $acc[] = 'Cargador'; }
+        if (!empty($it['funda'])) { $acc[] = 'Funda'; }
+        if (!empty($it['micro_sd'])) { $acc[] = 'MicroSD' . (!empty($it['micro_sd_gb']) ? (' ' . (int)$it['micro_sd_gb'] . 'GB') : ''); }
+        if (!empty($it['caja'])) { $acc[] = 'Caja'; }
+        if (!empty($it['adaptador_red'])) { $acc[] = 'Adaptador red'; }
+        if (!empty($acc)) { $bullets[] = '- Accesorios: ' . implode(', ', $acc); }
+    }
     foreach ($bullets as $line) {
         $pdf->SetXY($x + 2, $y);
         $pdf->MultiCell($colW - 2, 5, $enc($line), 0, 'L');
