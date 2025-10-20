@@ -1,29 +1,29 @@
 /* Estilos personalizados para el sistema de inventario */
 
 :root {
-    --primary-color: #6a67ae; /* Indigo suave para botones primarios */
-    --primary-color-hover: #4f4b92; /* Hover primario */
-    --secondary-color: #ffffff; /* Blanco de la bandera */
-    --success-color: #009933; /* Verde de la bandera */
-    --warning-color: #ff8c00; /* Naranja para botones de baja */
-    --danger-color: #cc0000; /* Rojo complementario */
-    --info-color: #7f8fd9; /* Azul violáceo acorde a paleta */
-    --info-color-hover: #6e7ecb;
+    --primary-color: #5a9367; /* verde medio (principal) */
+    --primary-color-hover: #44633f; /* verde más oscuro (hover) */
+    --secondary-color: #ffffff;
+    --success-color: #5cab7d; /* verde éxito */
+    --warning-color: #ff8c00;
+    --danger-color: #cc0000;
+    --info-color: #38998c; /* teal informativo */
+    --info-color-hover: #2f7e74;
     --light-color: #f8f9fa;
     --dark-color: #212529;
-    /* Superficies para contraste con #cecce8 (tono más oscuro) */
-    --surface-1: #c6c2e6; /* más oscuro */
-    --surface-2: #cbc7ea; /* headers de cards/modales */
-    --surface-3: #d6d3ef; /* cuerpo de cards/modales */
+    /* Superficies derivadas de la paleta verde */
+    --surface-1: #e6efe9;
+    --surface-2: #edf5f0;
+    --surface-3: #f6fbf8;
     --text-color: #1f2430;
-    /* Colores menú lateral (combinan con paleta violeta) */
-    --menu-start: #6a67ae; /* indigo suave */
-    --menu-end: #4f4b92;   /* indigo más profundo */
+    /* Menú lateral en degradado verde-oliva */
+    --menu-start: #3F4B3B;
+    --menu-end: #44633f;
 }
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #cecce8; /* fondo suave solicitado */
+    background-color: var(--surface-3);
     margin: 0;
     padding: 0;
     color: var(--text-color);
@@ -141,7 +141,7 @@ body {
     min-height: 100vh;
     transition: all 0.3s;
     margin-left: 250px;
-    background-color: #cecce8; /* mantener el fondo uniforme */
+    background-color: var(--surface-3);
 }
 
 /* Navbar más contrastada sobre el fondo */
@@ -209,6 +209,9 @@ body {
     color: #fff;
     border-color: var(--primary-color);
 }
+.text-primary { color: var(--primary-color) !important; }
+.bg-primary { background-color: var(--primary-color) !important; }
+.border-primary { border-color: var(--primary-color) !important; }
 
 .btn-success {
     background-color: var(--success-color);
@@ -287,7 +290,7 @@ body {
 }
 
 .table tbody tr:hover {
-    background-color: rgba(0, 102, 204, 0.05);
+    background-color: rgba(90, 147, 103, 0.08);
 }
 
 .badge {
@@ -298,12 +301,12 @@ body {
 
 .form-control:focus {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
+    box-shadow: 0 0 0 0.2rem rgba(90, 147, 103, 0.25);
 }
 
 .form-select:focus {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
+    box-shadow: 0 0 0 0.2rem rgba(90, 147, 103, 0.25);
 }
 
 /* Campos de formulario más cortos */
@@ -351,7 +354,7 @@ body {
 }
 
 .dashboard-card {
-    background: linear-gradient(135deg, var(--primary-color) 0%, #004d99 100%);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-color-hover) 100%);
     color: white;
     padding: 1.5rem;
     border-radius: 10px;
@@ -398,10 +401,10 @@ body {
     font-size: 0.9rem;
 }
 .stepper .step.active .circle {
-    background: #0d6efd;
+    background: var(--primary-color);
     color: #fff;
 }
-.stepper .step.active { color: #0d6efd; }
+.stepper .step.active { color: var(--primary-color); }
 .stepper .divider {
     flex: 0 0 40px;
     height: 2px;
@@ -412,7 +415,7 @@ body {
 .section-title {
     font-weight: 700;
     font-size: 1.25rem;
-    border-bottom: 2px solid rgba(13,110,253,0.15);
+    border-bottom: 2px solid rgba(90,147,103,0.2);
     padding-bottom: 6px;
 }
 
@@ -493,16 +496,32 @@ body {
 .dataTables_wrapper .dataTables_length select {
     border-radius: 6px;
     border: 1px solid #ced4da;
+    outline: none;
 }
 
 .dataTables_wrapper .dataTables_filter input {
     border-radius: 6px;
     border: 1px solid #ced4da;
+    outline: none;
 }
 
 .select2-container--bootstrap-5 .select2-selection {
     border-radius: 6px;
     border: 1px solid #ced4da;
+    outline: none;
+}
+
+/* Select2 palette adjustments */
+.select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+    color: var(--text-color);
+}
+.select2-container--bootstrap-5 .select2-results__option--highlighted {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+.select2-container--bootstrap-5 .select2-results__option[aria-selected=true] {
+    background-color: var(--primary-color-hover);
+    color: #fff;
 }
 
 /* Responsive */
@@ -538,6 +557,14 @@ body {
     #modalSede .form-control, #modalSede .form-select {
         max-width: 100%;
     }
+}
+
+/* Focus states coherentes para DataTables y Select2 */
+.dataTables_wrapper .dataTables_filter input:focus,
+.dataTables_wrapper .dataTables_length select:focus,
+.select2-container--bootstrap-5 .select2-selection:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(90, 147, 103, 0.25);
 }
 
 .fade-in {
@@ -598,6 +625,39 @@ body {
 /* Estilos para tooltips */
 .tooltip {
     z-index: 9999;
+}
+
+/* Controles de formularios alineados a la paleta */
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+.form-check-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(90, 147, 103, 0.25);
+}
+input[type="checkbox"],
+input[type="radio"],
+input[type="range"],
+progress {
+    accent-color: var(--primary-color);
+}
+
+/* Paginación (DataTables/Bootstrap) */
+.pagination .page-link {
+    color: var(--primary-color);
+}
+.pagination .page-link:hover {
+    color: var(--primary-color-hover);
+    border-color: var(--primary-color);
+}
+.pagination .page-link:focus {
+    box-shadow: 0 0 0 0.2rem rgba(90, 147, 103, 0.25);
+}
+.page-item.active .page-link {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: #fff;
 }
 
 /* Asegurar que los botones de acción en DataTables funcionen */
@@ -695,7 +755,7 @@ body {
     background-color: #f8f9fa;
     padding: 10px;
     border-radius: 5px;
-    border-left: 3px solid #28a745;
+    border-left: 3px solid var(--success-color);
 }
 
 .cantidad-varios {
@@ -704,11 +764,11 @@ body {
 
 /* Estilos para filtros */
 .filtros-container {
-    background-color: #f8f9fa;
-    padding: 15px;
-    border-radius: 5px;
-    margin-bottom: 20px;
-    border: 1px solid #dee2e6;
+    background: var(--surface-3);
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--surface-2);
 }
 
 /* Responsive para tabla de insumos (nueva asignación) */
@@ -729,7 +789,7 @@ body {
 
 /* Estilos para el modal de confirmación */
 #modalConfirmacion .modal-header {
-    border-bottom: 2px solid #0d6efd;
+    border-bottom: 2px solid var(--primary-color);
 }
 
 #modalConfirmacion .modal-body {
@@ -754,7 +814,7 @@ body {
 }
 
 #modalConfirmacion .text-primary {
-    color: #0d6efd !important;
+    color: var(--primary-color) !important;
 }
 
 #modalConfirmacion .modal-footer {
