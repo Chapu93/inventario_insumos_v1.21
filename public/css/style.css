@@ -1,3 +1,6 @@
+.modal #tablaDevolucion { width: 100%; }
+.modal #tablaDevolucion thead th { white-space: nowrap; }
+.modal #tablaDevolucion input[type=number] { max-width: 90px; }
 .badge.bg-info {
     background-color: var(--info-color) !important;
     color: #fff !important;
