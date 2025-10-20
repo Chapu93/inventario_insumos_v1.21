@@ -200,10 +200,6 @@ $localidades = $stmt->fetchAll();
                         <label for="direccion" class="form-label">Dirección</label>
                         <input type="text" class="form-control" id="direccion" name="direccion">
                     </div>
-                    <div class="mb-3">
-                        <label for="observaciones" class="form-label">Observaciones</label>
-                        <textarea class="form-control" id="observaciones" name="observaciones" rows="3"></textarea>
-                    </div>
                     
                     <div class="mb-3">
                         <label for="id_localidad" class="form-label">Localidad *</label>
@@ -240,6 +236,11 @@ $localidades = $stmt->fetchAll();
                             <label class="form-label">Teléfono Responsable</label>
                             <input type="text" class="form-control" id="responsable_telefono" name="responsable_telefono">
                         </div>
+                    </div>
+                    
+                    <div class="mb-3 mt-3">
+                        <label for="observaciones" class="form-label">Observaciones</label>
+                        <textarea class="form-control" id="observaciones" name="observaciones" rows="3"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer" style="background: #fff;">
