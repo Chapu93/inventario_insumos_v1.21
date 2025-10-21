@@ -107,8 +107,9 @@ function cargarDisponibles(){
     const $tb = $('#tablaInsumosLicDisponibles tbody');
     $tb.empty();
     (resp.data||[]).forEach(it => {
-      const controls = it.tipo==='Varios' ? `<div class=\"cantidad-input ms-2 ${SELECCION.has(it.id)?'':'d-none'}\"><label class=\"small text-muted mb-0\">Cant.</label><input type=\"number\" class=\"form-control form-control-sm\" min=\"1\" max=\"${it.max||1}\" value=\"1\" data-cantidad-id=\"${it.id}\" style=\"width:84px;\"></div>` : '';
-      $tb.append(`<tr class=\"fila-insumo\" data-id=\"${it.id}\" data-tipo=\"${it.tipo}\" data-texto=\"${(it.nombre||'').toLowerCase()}\"><td><strong>${it.nombre}</strong>${controls}</td><td class=\"text-end\"><button type=\"button\" class=\"btn btn-sm ${SELECCION.has(it.id)?'btn-primary':'btn-outline-primary'} btn-sel\" data-id=\"${it.id}\"><i class=\"fas ${SELECCION.has(it.id)?'fa-minus':'fa-plus'}\"></i> ${SELECCION.has(it.id)?'Deseleccionar':'Seleccionar'}</button></td></tr>`);
+      const saved = parseInt(localStorage.getItem('LIC_CANT_'+it.id)||'1',10) || 1;
+      const controls = it.tipo==='Varios' ? `<div class=\"cantidad-input d-inline-flex align-items-center gap-2 ms-2 ${SELECCION.has(it.id)?'':'d-none'}\"><label class=\"small text-muted mb-0\">Cant.</label><input type=\"number\" class=\"form-control form-control-sm\" min=\"1\" max=\"${it.max||1}\" value=\"${saved}\" data-cantidad-id=\"${it.id}\" style=\"width:84px;\"></div>` : '';
+      $tb.append(`<tr class=\"fila-insumo\" data-id=\"${it.id}\" data-tipo=\"${it.tipo}\" data-texto=\"${(it.nombre||'').toLowerCase()}\"><td><strong>${it.nombre}</strong></td><td class=\"text-end\"><button type=\"button\" class=\"btn btn-sm ${SELECCION.has(it.id)?'btn-primary':'btn-outline-primary'} btn-sel\" data-id=\"${it.id}\"><i class=\"fas ${SELECCION.has(it.id)?'fa-minus':'fa-plus'}\"></i> ${SELECCION.has(it.id)?'Deseleccionar':'Seleccionar'}</button>${controls}</td></tr>`);
     });
     filtrar();
     actualizarContador();
@@ -133,18 +134,51 @@ function actualizarContador(){ $('#contadorSeleccionLic').text(`${SELECCION.size
 
 $(function(){
   // Restaurar selección guardada y sumar el recién creado si vuelve con added_id
-  try { const prev = JSON.parse(localStorage.getItem('LIC_SELECCION')||'[]'); if (Array.isArray(prev)) { prev.forEach(i=> SELECCION.add(parseInt(i,10))); } } catch(e) {}
+  // Restaurar paso y datos del paso 1 si existían
+  try {
+    const prev = JSON.parse(localStorage.getItem('LIC_SELECCION')||'[]');
+    if (Array.isArray(prev)) { prev.forEach(i=> SELECCION.add(parseInt(i,10))); }
+    const p1 = JSON.parse(localStorage.getItem('LIC_PASO1')||'{}');
+    if (p1 && (p1.cod_expediente||p1.fecha_finalizacion||p1.descripcion)) {
+      $('#cod_expediente').val(p1.cod_expediente||'');
+      $('#fecha_finalizacion').val(p1.fecha_finalizacion||'');
+      $('#descripcion').val(p1.descripcion||'');
+      // Si venimos de volver del alta, quedarnos en paso 2
+      $('#paso1').hide(); $('.stepper .step').removeClass('active'); $('.stepper .step-2').addClass('active'); $('#paso2').show();
+    }
+  } catch(e) {}
   try { const url = new URL(window.location.href); const added = url.searchParams.get('added_id'); if (added) { SELECCION.add(parseInt(added,10)); } } catch(e) {}
   cargarDisponibles();
   $('#filtro_busqueda').on('input', function(){ filtrar(); });
   $('#filtro_tipo').on('change', filtrar);
   $('#btnLimpiarFiltros').on('click', function(){ $('#filtro_busqueda').val(''); $('#filtro_tipo').val(''); filtrar(); });
-  $(document).on('click', '.btn-sel', function(){ const id = parseInt($(this).data('id'),10); if (SELECCION.has(id)) { SELECCION.delete(id); } else { SELECCION.add(id); } cargarDisponibles(); });
+  
+  // Inicializar contador correcto
+  actualizarContador();
+  $(document).on('click', '.btn-sel', function(){
+    const id = parseInt($(this).data('id'),10);
+    if (SELECCION.has(id)) {
+      SELECCION.delete(id);
+      try { localStorage.removeItem('LIC_CANT_'+id); } catch(e) {}
+    } else {
+      SELECCION.add(id);
+      const $row = $(this).closest('tr');
+      $row.find('.cantidad-input').removeClass('d-none');
+    }
+    // Reordenar: seleccionados primero
+    const $tbody = $('#tablaInsumosLicDisponibles tbody');
+    const $rows = $tbody.find('tr');
+    $rows.sort(function(a,b){ const ida = parseInt($(a).data('id'),10); const idb = parseInt($(b).data('id'),10); const sa = SELECCION.has(ida) ? 0 : 1; const sb = SELECCION.has(idb) ? 0 : 1; return sa - sb; });
+    $tbody.html($rows);
+    actualizarContador();
+    // Actualizar botón
+    $(this).toggleClass('btn-outline-primary btn-primary').html(`<i class="fas ${SELECCION.has(id)?'fa-minus':'fa-plus'}"></i> ${SELECCION.has(id)?'Deseleccionar':'Seleccionar'}`);
+  });
   // Guardar cantidades de 'Varios'
   $(document).on('change', 'input[data-cantidad-id]', function(){ const id = parseInt($(this).data('cantidad-id'),10); const val = Math.max(1, parseInt($(this).val()||'1',10)); try { localStorage.setItem('LIC_CANT_'+id, String(val)); } catch(e) {} });
   $('#btnNuevoInsumo').on('click', function(){ try { localStorage.setItem('LIC_SELECCION', JSON.stringify(Array.from(SELECCION.values()))); } catch(e) {} });
 
-  $('#btnPaso1').on('click', function(){ if (!document.getElementById('cod_expediente').checkValidity()) { document.getElementById('cod_expediente').reportValidity(); return; } $('#paso1').hide(); $('.stepper .step').removeClass('active'); $('.stepper .step-2').addClass('active'); $('#paso2').show(); });
+  $('#btnPaso1').on('click', function(){ if (!document.getElementById('cod_expediente').checkValidity()) { document.getElementById('cod_expediente').reportValidity(); return; } try { localStorage.setItem('LIC_PASO1', JSON.stringify({ cod_expediente: $('#cod_expediente').val(), fecha_finalizacion: $('#fecha_finalizacion').val(), descripcion: $('#descripcion').val() })); } catch(e) {} $('#paso1').hide(); $('.stepper .step').removeClass('active'); $('.stepper .step-2').addClass('active'); $('#paso2').show(); });
   $('#btnVolver1').on('click', function(){ $('#paso2').hide(); $('.stepper .step').removeClass('active'); $('.stepper .step-1').addClass('active'); $('#paso1').show(); });
   $('#btnPaso2').on('click', function(){
     const cod = $('#cod_expediente').val(); const fin = $('#fecha_finalizacion').val(); const desc = $('#descripcion').val();
