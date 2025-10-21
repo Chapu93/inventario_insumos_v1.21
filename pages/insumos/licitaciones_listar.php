@@ -6,7 +6,7 @@ include '../../includes/header.php';
 <div class="row">
   <div class="col-12 d-flex justify-content-between align-items-center mb-4">
     <h1 class="mb-0"><i class="fas fa-file-signature me-2"></i>Licitaciones</h1>
-    <a class="btn btn-primary" href="licitaciones_pasos.php?new=1"><i class="fas fa-plus me-2"></i>Nueva Licitación</a>
+    <a class="btn btn-primary" href="licitaciones_nueva.php"><i class="fas fa-plus me-2"></i>Nueva Licitación</a>
   </div>
 </div>
 
