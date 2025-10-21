@@ -51,13 +51,9 @@ include '../../includes/header.php';
           <hr>
           <h6 class="mb-2"><i class="fas fa-boxes me-2"></i>Insumos</h6>
           <div class="row g-2 align-items-end">
-            <div class="col-md-8">
-              <label class="form-label">Agregar insumos existentes</label>
-              <select class="form-select select2" id="selInsumos" multiple style="width:100%"></select>
-              <small class="text-muted">Puede filtrar por nombre/tipo; se listan sin licitación (asignados o no).</small>
-            </div>
-            <div class="col-md-4">
-              <button type="button" id="btnAgregarInsumos" class="btn btn-primary w-100"><i class="fas fa-plus me-2"></i>Agregar Seleccionados</button>
+            <div class="col-12">
+              <div class="alert alert-light mb-2">Use la opción <strong>Nueva licitación (pasos)</strong> para seleccionar insumos existentes en una tabla con filtros y para crear nuevos insumos dentro del flujo. Este modal es solo para edición rápida.</div>
+              <a href="<?php echo app_base_url(); ?>/pages/insumos/licitaciones_pasos.php" class="btn btn-primary"><i class="fas fa-route me-2"></i>Nueva licitación (pasos)</a>
             </div>
           </div>
           <div class="table-responsive mt-3">
@@ -94,29 +90,7 @@ $(function(){
     ]
   });
 
-  // Select2 insumos sin licitación (cargar todos, sin filtrar por estado)
-  $('#selInsumos').select2({
-    theme: 'bootstrap-5',
-    ajax: {
-      delay: 250,
-      url: BASE + '/ajax/insumos_listar_disponibles_lic.php',
-      data: params => ({ q: params.term || '' }),
-      processResults: data => ({ results: (data.data||[]).map(x => ({ id: x.id, text: x.nombre + ' (' + x.tipo + ')' })) })
-    }
-  });
-
-  $('#btnAgregarInsumos').on('click', function(){
-    const ids = $('#selInsumos').val() || [];
-    if (!ids.length) return;
-    const cuerpo = $('#tablaInsumosLic tbody');
-    ids.forEach(id => {
-      if (cuerpo.find(`[data-id="${id}"]`).length) return;
-      const txt = $('#selInsumos').find(`option[value="${id}"]`).text();
-      const tipo = (txt.match(/\(([^)]+)\)$/)||[])[1] || '';
-      cuerpo.append(`<tr data-id="${id}"><td>${txt.replace(/\s*\([^)]*\)$/, '')}</td><td>${tipo}</td><td><button type="button" class="btn btn-sm btn-outline-danger" onclick="quitarInsumo(${id})"><i class="fas fa-times"></i></button></td></tr>`);
-    });
-    $('#selInsumos').val(null).trigger('change');
-  });
+  // Se quita la selección por Select2 en este modal y se guía al flujo por pasos
 });
 
 function quitarInsumo(id){ $('#tablaInsumosLic tbody tr[data-id="'+id+'"]').remove(); }
