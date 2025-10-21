@@ -23,6 +23,23 @@ if (isset($_GET['id']) && $_GET['id']) {
     }
 }
 
+// Obtener todos los insumos disponibles (sin licitación asignada) y los de esta licitación si estamos editando
+$sqlInsumos = "SELECT i.id_insumo, i.nombre_insumo, i.tipo_insumo, i.numero_serie, i.id_fisico, i.cantidad, 
+               ps.nombre_punto AS punto_stock
+               FROM insumos i
+               LEFT JOIN puntos_stock ps ON i.id_punto_stock_actual = ps.id_punto_stock
+               WHERE (i.id_licitacion IS NULL" . ($esEdicion ? " OR i.id_licitacion = ?" : "") . ")
+               AND (i.tipo_insumo <> 'Varios' OR i.cantidad > 0)
+               ORDER BY i.nombre_insumo";
+
+if ($esEdicion) {
+    $stmt = $db->prepare($sqlInsumos);
+    $stmt->execute([$idLicitacion]);
+} else {
+    $stmt = $db->query($sqlInsumos);
+}
+$insumos = $stmt->fetchAll();
+
 // POST para crear/actualizar la licitación
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
@@ -33,10 +50,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $codExpediente = trim($_POST['cod_expediente'] ?? '');
         $fechaFin = $_POST['fecha_finalizacion'] ?: null;
         $descripcion = trim($_POST['descripcion'] ?? '') ?: null;
-        $insumos = isset($_POST['insumos']) && is_array($_POST['insumos']) ? array_map('intval', $_POST['insumos']) : [];
+        $insumos = isset($_POST['id_insumo']) && is_array($_POST['id_insumo']) ? array_map('intval', $_POST['id_insumo']) : [];
+        $cantidades = isset($_POST['cantidad_varios']) && is_array($_POST['cantidad_varios']) ? $_POST['cantidad_varios'] : [];
         
         if ($codExpediente === '') {
             throw new Exception('El código de expediente es obligatorio');
+        }
+        
+        if (empty($insumos)) {
+            throw new Exception('Debe seleccionar al menos un insumo');
         }
         
         if ($esEdicion && $idLicitacion) {
@@ -78,687 +100,526 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 include '../../includes/header.php';
 ?>
 
-<style>
-/* Estilos para el wizard de licitaciones */
-.wizard-container {
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.wizard-steps {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 2rem;
-    position: relative;
-}
-
-.wizard-steps::before {
-    content: '';
-    position: absolute;
-    top: 20px;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: #e0e0e0;
-    z-index: 0;
-}
-
-.wizard-step {
-    flex: 1;
-    text-align: center;
-    position: relative;
-    z-index: 1;
-}
-
-.wizard-step-circle {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #fff;
-    border: 2px solid #e0e0e0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 0.5rem;
-    font-weight: bold;
-    color: #999;
-    transition: all 0.3s;
-}
-
-.wizard-step.active .wizard-step-circle {
-    background: var(--primary-color);
-    border-color: var(--primary-color);
-    color: white;
-}
-
-.wizard-step.completed .wizard-step-circle {
-    background: var(--success-color);
-    border-color: var(--success-color);
-    color: white;
-}
-
-.wizard-step-label {
-    font-size: 0.875rem;
-    color: #666;
-    font-weight: 500;
-}
-
-.wizard-step.active .wizard-step-label {
-    color: var(--primary-color);
-    font-weight: 600;
-}
-
-.wizard-step.completed .wizard-step-label {
-    color: var(--success-color);
-}
-
-.wizard-content {
-    display: none;
-}
-
-.wizard-content.active {
-    display: block;
-}
-
-.wizard-actions {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid #e0e0e0;
-}
-
-.insumo-card {
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 1rem;
-    margin-bottom: 0.75rem;
-    transition: all 0.2s;
-    cursor: pointer;
-    background: white;
-}
-
-.insumo-card:hover {
-    border-color: var(--primary-color);
-    box-shadow: 0 2px 8px rgba(90, 147, 103, 0.1);
-}
-
-.insumo-card.selected {
-    border-color: var(--primary-color);
-    background: rgba(90, 147, 103, 0.05);
-}
-
-.insumo-card input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-}
-
-.badge-tipo {
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem;
-}
-
-.resumen-item {
-    padding: 0.75rem;
-    background: #f8f9fa;
-    border-radius: 6px;
-    margin-bottom: 0.5rem;
-}
-
-#contadorSeleccionados {
-    min-width: 24px;
-    height: 24px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-</style>
-
-<div class="wizard-container">
-    <div class="row mb-3">
-        <div class="col-12 d-flex justify-content-between align-items-center">
-            <h1 class="mb-0">
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="mb-0">
                 <i class="fas fa-file-signature me-2"></i>
                 <?php echo $esEdicion ? 'Editar Licitación' : 'Nueva Licitación'; ?>
-            </h1>
+            </h4>
             <a href="licitaciones_listar.php" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-1"></i>Volver
+                <i class="fas fa-arrow-left me-2"></i>Volver
             </a>
         </div>
     </div>
+</div>
 
-    <!-- Wizard Steps -->
-    <div class="wizard-steps">
-        <div class="wizard-step active" data-step="1">
-            <div class="wizard-step-circle">1</div>
-            <div class="wizard-step-label">Datos de la Licitación</div>
-        </div>
-        <div class="wizard-step" data-step="2">
-            <div class="wizard-step-circle">2</div>
-            <div class="wizard-step-label">Selección de Insumos</div>
-        </div>
-        <div class="wizard-step" data-step="3">
-            <div class="wizard-step-circle">3</div>
-            <div class="wizard-step-label">Confirmación</div>
+<!-- Stepper visual (mismo estilo que asignaciones) -->
+<div class="stepper">
+    <div class="step step-1 active"><span class="circle">1</span><span>Datos de Licitación</span></div>
+    <div class="divider"></div>
+    <div class="step step-2"><span class="circle">2</span><span>Selección de Insumos</span></div>
+</div>
+
+<div id="licitacion-pasos">
+    <div class="card">
+        <div class="card-body">
+            <form method="POST" id="formPasos" class="needs-validation" novalidate>
+                <?php echo csrf_input(); ?>
+                <?php if ($esEdicion && $idLicitacion): ?>
+                    <input type="hidden" name="id_licitacion" value="<?php echo $idLicitacion; ?>">
+                <?php endif; ?>
+
+                <!-- Paso 1: Datos de la Licitación -->
+                <div id="paso1">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-10 col-xl-8">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="mb-3 section-title">Información de la Licitación</h6>
+                                    <div class="mb-3">
+                                        <label for="cod_expediente" class="form-label">
+                                            Código de Expediente <span class="text-danger">*</span>
+                                        </label>
+                                        <input 
+                                            type="text" 
+                                            class="form-control" 
+                                            id="cod_expediente" 
+                                            name="cod_expediente" 
+                                            required
+                                            value="<?php echo $esEdicion && $licitacionData ? htmlspecialchars($licitacionData['cod_expediente']) : ''; ?>"
+                                            placeholder="Ej: EXP-2025-001"
+                                        >
+                                        <div class="invalid-feedback">El código de expediente es obligatorio</div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="fecha_finalizacion" class="form-label">
+                                            Fecha de Finalización
+                                        </label>
+                                        <input 
+                                            type="date" 
+                                            class="form-control" 
+                                            id="fecha_finalizacion" 
+                                            name="fecha_finalizacion"
+                                            value="<?php echo $esEdicion && $licitacionData && $licitacionData['fecha_finalizacion'] ? $licitacionData['fecha_finalizacion'] : ''; ?>"
+                                        >
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <h6 class="mb-3 section-title">Descripción</h6>
+                                    <textarea 
+                                        class="form-control" 
+                                        id="descripcion" 
+                                        name="descripcion" 
+                                        rows="6"
+                                        placeholder="Descripción detallada de la licitación..."
+                                    ><?php echo $esEdicion && $licitacionData && $licitacionData['descripcion'] ? htmlspecialchars($licitacionData['descripcion']) : ''; ?></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-2 justify-content-center">
+                        <div class="col-lg-10 col-xl-8">
+                            <div class="d-flex justify-content-end">
+                                <button type="button" class="btn btn-primary" id="btnSiguiente">
+                                    <i class="fas fa-arrow-right me-2"></i>Siguiente
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paso 2: Selección de Insumos -->
+                <div id="paso2" style="display:none;">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-11">
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <div class="row g-2 align-items-end">
+                                        <div class="col-md-5">
+                                            <label class="form-label">Buscar</label>
+                                            <input type="text" class="form-control" id="filtro_busqueda" placeholder="Nombre, S/N, ID...">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Tipo de Insumo</label>
+                                            <select class="form-select form-select-sm" id="filtro_tipo" style="min-width: 280px;">
+                                                <option value="">Todos los tipos</option>
+                                                <option value="Varios">Varios</option>
+                                                <option value="PC Completa">PC Completa</option>
+                                                <option value="Notebook">Notebook</option>
+                                                <option value="Impresora">Impresora</option>
+                                                <option value="Monitor">Monitor</option>
+                                                <option value="Escaner">Escaner</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3 d-flex justify-content-end gap-2">
+                                            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnLimpiarFiltros" title="Limpiar filtros" aria-label="Limpiar filtros">
+                                                <i class="fas fa-eraser" aria-hidden="true"></i>
+                                            </button>
+                                            <a href="<?php echo app_base_url(); ?>/pages/insumos/agregar.php?from=licitacion" id="btnNuevoInsumo" class="btn btn-success btn-sm" title="Nuevo Insumo">
+                                                <i class="fas fa-plus" aria-hidden="true"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0"><i class="fas fa-boxes me-2"></i>Insumos Disponibles</h6>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge bg-secondary" id="contadorSeleccion">0</span>
+                                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="seleccionarFiltrados()" title="Seleccionar filtrados" aria-label="Seleccionar filtrados">
+                                            <i class="fas fa-check-double" aria-hidden="true"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="deseleccionarTodos()" title="Deseleccionar todo" aria-label="Deseleccionar todo">
+                                            <i class="fas fa-times" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-flat table-hover" id="tablaInsumos">
+                                            <tbody>
+                                                <?php foreach ($insumos as $ins): 
+                                                    $yaSeleccionado = in_array($ins['id_insumo'], $insumosExistentes);
+                                                ?>
+                                                <tr class="fila-insumo <?php echo $yaSeleccionado ? 'fila-seleccionada' : ''; ?>" 
+                                                    data-tipo="<?php echo htmlspecialchars($ins['tipo_insumo']); ?>" 
+                                                    data-texto="<?php echo strtolower(htmlspecialchars($ins['nombre_insumo'] . ' ' . ($ins['numero_serie'] ?: '') . ' ' . ($ins['id_fisico'] ?: ''))); ?>">
+                                                    <td>
+                                                        <div>
+                                                            <strong><?php echo htmlspecialchars($ins['nombre_insumo']); ?></strong>
+                                                            <?php if ($ins['numero_serie']): ?>
+                                                                <div class="text-muted small">S/N: <?php echo htmlspecialchars($ins['numero_serie']); ?></div>
+                                                            <?php endif; ?>
+                                                            <?php if ($ins['id_fisico']): ?>
+                                                                <div class="text-muted small">ID: <?php echo htmlspecialchars($ins['id_fisico']); ?></div>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-info"><?php echo htmlspecialchars($ins['tipo_insumo']); ?></span>
+                                                    </td>
+                                                    <td><?php echo ($ins['tipo_insumo'] === 'Varios') ? (int)$ins['cantidad'] : 1; ?></td>
+                                                    <td><?php echo $ins['punto_stock'] ? htmlspecialchars($ins['punto_stock']) : '<span class="text-muted">Sin punto</span>'; ?></td>
+                                                    <td>
+                                                        <div class="d-flex gap-2 align-items-center justify-content-end flex-wrap">
+                                                            <input type="hidden" name="id_insumo[]" value="<?php echo $ins['id_insumo']; ?>" class="hidden-insumo-input" data-tipo="<?php echo htmlspecialchars($ins['tipo_insumo']); ?>" data-max="<?php echo ($ins['tipo_insumo'] === 'Varios') ? (int)$ins['cantidad'] : 1; ?>" <?php echo $yaSeleccionado ? '' : 'disabled'; ?> style="display:none;">
+                                                            <?php if ($ins['tipo_insumo'] === 'Varios' && $ins['cantidad'] > 1): ?>
+                                                            <div class="cantidad-input" style="<?php echo $yaSeleccionado ? '' : 'display:none;'; ?>">
+                                                                <?php $cid = 'cantidad_varios_' . (int)$ins['id_insumo']; ?>
+                                                                <label for="<?php echo $cid; ?>" class="small text-muted mb-0">Cant.</label>
+                                                                <input id="<?php echo $cid; ?>" type="number" class="form-control form-control-sm" name="cantidad_varios[<?php echo $ins['id_insumo']; ?>]" min="1" max="<?php echo (int)$ins['cantidad']; ?>" value="1" style="width:84px;">
+                                                            </div>
+                                                            <?php endif; ?>
+                                                            <button type="button" class="btn btn-sm <?php echo $yaSeleccionado ? 'btn-primary' : 'btn-outline-primary'; ?> btn-seleccionar" data-insumo-id="<?php echo $ins['id_insumo']; ?>" onclick="toggleSeleccionInsumo(<?php echo $ins['id_insumo']; ?>)" title="<?php echo $yaSeleccionado ? 'Deseleccionar' : 'Seleccionar'; ?>" aria-label="<?php echo $yaSeleccionado ? 'Deseleccionar' : 'Seleccionar'; ?> insumo <?php echo htmlspecialchars($ins['nombre_insumo']); ?>">
+                                                                <i class="fas <?php echo $yaSeleccionado ? 'fa-minus' : 'fa-plus'; ?>" aria-hidden="true"></i>
+                                                                <span class="d-none d-sm-inline"> <?php echo $yaSeleccionado ? 'Deseleccionar' : 'Seleccionar'; ?></span>
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="d-flex justify-content-end gap-2 mt-3">
+                                        <button type="button" class="btn btn-secondary" id="btnVolver">
+                                            <i class="fas fa-arrow-left me-1"></i>Volver
+                                        </button>
+                                        <button type="button" class="btn btn-primary" onclick="mostrarModalConfirmacion()">
+                                            <i class="fas fa-eye me-1"></i>Revisar y Confirmar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
-
-    <form method="POST" id="formLicitacion" class="needs-validation" novalidate>
-        <?php echo csrf_input(); ?>
-        <?php if ($esEdicion && $idLicitacion): ?>
-            <input type="hidden" name="id_licitacion" value="<?php echo $idLicitacion; ?>">
-        <?php endif; ?>
-
-        <!-- Paso 1: Datos de la Licitación -->
-        <div class="wizard-content active" data-step="1">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-info-circle me-2"></i>Información de la Licitación
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="cod_expediente" class="form-label">
-                                Código de Expediente <span class="text-danger">*</span>
-                            </label>
-                            <input 
-                                type="text" 
-                                class="form-control" 
-                                id="cod_expediente" 
-                                name="cod_expediente" 
-                                required
-                                value="<?php echo $esEdicion && $licitacionData ? htmlspecialchars($licitacionData['cod_expediente']) : ''; ?>"
-                                placeholder="Ej: EXP-2025-001"
-                            >
-                            <div class="invalid-feedback">Por favor ingrese el código de expediente.</div>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <label for="fecha_finalizacion" class="form-label">
-                                Fecha de Finalización
-                            </label>
-                            <input 
-                                type="date" 
-                                class="form-control" 
-                                id="fecha_finalizacion" 
-                                name="fecha_finalizacion"
-                                value="<?php echo $esEdicion && $licitacionData && $licitacionData['fecha_finalizacion'] ? $licitacionData['fecha_finalizacion'] : ''; ?>"
-                            >
-                        </div>
-                        
-                        <div class="col-12">
-                            <label for="descripcion" class="form-label">
-                                Descripción
-                            </label>
-                            <textarea 
-                                class="form-control" 
-                                id="descripcion" 
-                                name="descripcion" 
-                                rows="4"
-                                placeholder="Descripción detallada de la licitación..."
-                            ><?php echo $esEdicion && $licitacionData && $licitacionData['descripcion'] ? htmlspecialchars($licitacionData['descripcion']) : ''; ?></textarea>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Paso 2: Selección de Insumos -->
-        <div class="wizard-content" data-step="2">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">
-                        <i class="fas fa-boxes me-2"></i>Selección de Insumos
-                    </h5>
-                    <div class="d-flex align-items-center gap-2">
-                        <a href="agregar.php?from=licitacion" class="btn btn-success btn-sm" target="_blank">
-                            <i class="fas fa-plus me-1"></i>Nuevo Insumo
-                        </a>
-                        <span class="badge bg-primary" id="contadorSeleccionados">0</span>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <!-- Filtros -->
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6">
-                            <input 
-                                type="text" 
-                                class="form-control" 
-                                id="filtroBusqueda" 
-                                placeholder="Buscar por nombre, serie, ID..."
-                            >
-                        </div>
-                        <div class="col-md-4">
-                            <select class="form-select" id="filtroTipo">
-                                <option value="">Todos los tipos</option>
-                                <option value="Varios">Varios</option>
-                                <option value="PC Completa">PC Completa</option>
-                                <option value="Notebook">Notebook</option>
-                                <option value="Impresora">Impresora</option>
-                                <option value="Monitor">Monitor</option>
-                                <option value="Escaner">Escaner</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
-                            <button type="button" class="btn btn-outline-secondary w-100" id="btnLimpiarFiltros">
-                                <i class="fas fa-eraser me-1"></i>Limpiar
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Acciones de selección -->
-                    <div class="d-flex gap-2 mb-3">
-                        <button type="button" class="btn btn-outline-primary btn-sm" id="btnSeleccionarTodos">
-                            <i class="fas fa-check-double me-1"></i>Seleccionar todos
-                        </button>
-                        <button type="button" class="btn btn-outline-danger btn-sm" id="btnDeseleccionarTodos">
-                            <i class="fas fa-times me-1"></i>Deseleccionar todos
-                        </button>
-                        <button type="button" class="btn btn-outline-info btn-sm" id="btnRecargarInsumos">
-                            <i class="fas fa-sync me-1"></i>Recargar
-                        </button>
-                    </div>
-
-                    <!-- Lista de insumos -->
-                    <div id="listaInsumos" style="max-height: 500px; overflow-y: auto;">
-                        <div class="text-center py-4">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Cargando...</span>
-                            </div>
-                            <p class="mt-2 text-muted">Cargando insumos disponibles...</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Paso 3: Confirmación -->
-        <div class="wizard-content" data-step="3">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="fas fa-check-circle me-2"></i>Confirmación de Licitación
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h6 class="border-bottom pb-2 mb-3">Datos de la Licitación</h6>
-                            <div class="resumen-item">
-                                <strong>Código de Expediente:</strong>
-                                <div id="resumenCodigo" class="text-muted">-</div>
-                            </div>
-                            <div class="resumen-item">
-                                <strong>Fecha de Finalización:</strong>
-                                <div id="resumenFecha" class="text-muted">-</div>
-                            </div>
-                            <div class="resumen-item">
-                                <strong>Descripción:</strong>
-                                <div id="resumenDescripcion" class="text-muted">-</div>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <h6 class="border-bottom pb-2 mb-3">
-                                Insumos Seleccionados 
-                                <span class="badge bg-primary" id="resumenCantidad">0</span>
-                            </h6>
-                            <div id="resumenInsumos" style="max-height: 400px; overflow-y: auto;">
-                                <p class="text-muted">No hay insumos seleccionados</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="alert alert-info mt-3">
-                        <i class="fas fa-info-circle me-2"></i>
-                        Por favor, revise todos los datos antes de confirmar la licitación.
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Wizard Actions -->
-        <div class="wizard-actions">
-            <button type="button" class="btn btn-secondary" id="btnAnterior" style="display: none;">
-                <i class="fas fa-arrow-left me-1"></i>Anterior
-            </button>
-            <div class="ms-auto d-flex gap-2">
-                <button type="button" class="btn btn-primary" id="btnSiguiente">
-                    Siguiente<i class="fas fa-arrow-right ms-1"></i>
-                </button>
-                <button type="submit" class="btn btn-success" id="btnConfirmar" style="display: none;">
-                    <i class="fas fa-check me-1"></i>Confirmar Licitación
-                </button>
-            </div>
-        </div>
-    </form>
 </div>
+
+<!-- Modal de Confirmación -->
+<div class="modal fade" id="modalConfirmacion" tabindex="-1" aria-labelledby="modalConfirmacionLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="modalConfirmacionLabel">
+                    <i class="fas fa-check-circle me-2"></i>Confirmar Licitación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-primary mb-2"><i class="fas fa-file-signature me-2"></i>Datos de la Licitación</h6>
+                        <p class="mb-1"><strong>Código Expediente:</strong> <span id="m_codigo"></span></p>
+                        <p class="mb-1"><strong>Fecha Finalización:</strong> <span id="m_fecha"></span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-primary mb-2"><i class="fas fa-comment me-2"></i>Descripción</h6>
+                        <div class="alert alert-light mb-0" id="m_descripcion" style="white-space: pre-wrap; max-height: 100px; overflow-y: auto;"></div>
+                    </div>
+                </div>
+                <hr>
+                <h6 class="text-primary mb-2"><i class="fas fa-boxes me-2"></i>Insumos Seleccionados</h6>
+                <div id="m_insumos" class="table-responsive"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-success" onclick="confirmarLicitacion()">
+                    <i class="fas fa-check me-1"></i>Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php include '../../includes/footer.php'; ?>
 
 <script>
 const BASE = '<?php echo app_base_url(); ?>';
 const ES_EDICION = <?php echo $esEdicion ? 'true' : 'false'; ?>;
-const INSUMOS_EXISTENTES = <?php echo json_encode($insumosExistentes); ?>;
 
-let pasoActual = 1;
-let insumosDisponibles = [];
-let insumosSeleccionados = new Set(INSUMOS_EXISTENTES);
-
-// Navegación entre pasos
-function irAPaso(paso) {
-    // Validar paso actual antes de avanzar
-    if (paso > pasoActual) {
-        if (pasoActual === 1 && !validarPaso1()) {
-            return;
+// Restaurar datos del paso 1 si volvemos de crear un insumo
+function restaurarDatosPaso1() {
+    try {
+        const datos = localStorage.getItem('licitacion_paso1');
+        if (datos) {
+            const obj = JSON.parse(datos);
+            if (obj.cod_expediente) document.getElementById('cod_expediente').value = obj.cod_expediente;
+            if (obj.fecha_finalizacion) document.getElementById('fecha_finalizacion').value = obj.fecha_finalizacion;
+            if (obj.descripcion) document.getElementById('descripcion').value = obj.descripcion;
         }
+    } catch (e) {
+        console.error('Error restaurando datos:', e);
     }
-    
-    // Ocultar todos los contenidos
-    document.querySelectorAll('.wizard-content').forEach(content => {
-        content.classList.remove('active');
-    });
-    
-    // Actualizar estados de los pasos
-    document.querySelectorAll('.wizard-step').forEach(step => {
-        const stepNum = parseInt(step.dataset.step);
-        step.classList.remove('active', 'completed');
-        
-        if (stepNum === paso) {
-            step.classList.add('active');
-        } else if (stepNum < paso) {
-            step.classList.add('completed');
-        }
-    });
-    
-    // Mostrar contenido del paso
-    const content = document.querySelector(`.wizard-content[data-step="${paso}"]`);
-    if (content) {
-        content.classList.add('active');
-    }
-    
-    // Actualizar botones
-    document.getElementById('btnAnterior').style.display = paso > 1 ? 'block' : 'none';
-    document.getElementById('btnSiguiente').style.display = paso < 3 ? 'block' : 'none';
-    document.getElementById('btnConfirmar').style.display = paso === 3 ? 'block' : 'none';
-    
-    // Acciones específicas por paso
-    if (paso === 2 && insumosDisponibles.length === 0) {
-        cargarInsumos();
-    } else if (paso === 3) {
-        actualizarResumen();
-    }
-    
-    pasoActual = paso;
 }
 
-// Validar paso 1
-function validarPaso1() {
-    const form = document.getElementById('formLicitacion');
-    const codExpediente = document.getElementById('cod_expediente');
-    
-    if (!codExpediente.value.trim()) {
-        codExpediente.classList.add('is-invalid');
-        codExpediente.focus();
-        return false;
+// Guardar datos del paso 1 antes de ir a crear insumo
+function guardarDatosPaso1() {
+    try {
+        const datos = {
+            cod_expediente: document.getElementById('cod_expediente').value,
+            fecha_finalizacion: document.getElementById('fecha_finalizacion').value,
+            descripcion: document.getElementById('descripcion').value
+        };
+        localStorage.setItem('licitacion_paso1', JSON.stringify(datos));
+    } catch (e) {
+        console.error('Error guardando datos:', e);
     }
-    
-    codExpediente.classList.remove('is-invalid');
-    return true;
 }
 
-// Cargar insumos disponibles
-function cargarInsumos() {
-    const container = document.getElementById('listaInsumos');
-    container.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div><p class="mt-2 text-muted">Cargando insumos disponibles...</p></div>';
-    
-    fetch(BASE + '/ajax/insumos_listar_disponibles_lic.php')
-        .then(r => r.json())
-        .then(resp => {
-            if (!resp.success) {
-                throw new Error(resp.error || 'Error al cargar insumos');
-            }
-            
-            insumosDisponibles = resp.data || [];
-            renderizarInsumos();
-        })
-        .catch(err => {
-            container.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i>${err.message}</div>`;
-        });
-}
+// Interceptar click en botón de nuevo insumo
+document.getElementById('btnNuevoInsumo')?.addEventListener('click', function(e) {
+    guardarDatosPaso1();
+});
 
-// Renderizar lista de insumos
-function renderizarInsumos() {
-    const container = document.getElementById('listaInsumos');
-    
-    if (insumosDisponibles.length === 0) {
-        container.innerHTML = '<div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>No hay insumos disponibles.</div>';
-        return;
+// Al cargar la página, restaurar datos si volvemos de crear insumo
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('from') === 'agregar') {
+        restaurarDatosPaso1();
+        // Limpiar el localStorage después de restaurar
+        localStorage.removeItem('licitacion_paso1');
     }
     
-    const filtro = document.getElementById('filtroBusqueda').value.toLowerCase();
-    const tipo = document.getElementById('filtroTipo').value;
-    
-    const insumosFiltrados = insumosDisponibles.filter(ins => {
-        let cumple = true;
-        
-        if (tipo && ins.tipo !== tipo) {
-            cumple = false;
-        }
-        
-        if (filtro) {
-            const texto = `${ins.nombre} ${ins.numero_serie || ''} ${ins.id_fisico || ''}`.toLowerCase();
-            if (!texto.includes(filtro)) {
-                cumple = false;
-            }
-        }
-        
-        return cumple;
-    });
-    
-    if (insumosFiltrados.length === 0) {
-        container.innerHTML = '<div class="alert alert-warning"><i class="fas fa-filter me-2"></i>No se encontraron insumos con los filtros aplicados.</div>';
-        return;
-    }
-    
-    let html = '';
-    insumosFiltrados.forEach(ins => {
-        const isSelected = insumosSeleccionados.has(ins.id);
-        const badgeColor = ins.tipo === 'Varios' ? 'secondary' : 'info';
-        
-        html += `
-            <div class="insumo-card ${isSelected ? 'selected' : ''}" data-id="${ins.id}" data-tipo="${ins.tipo}">
-                <div class="d-flex align-items-start">
-                    <input 
-                        type="checkbox" 
-                        class="me-3 mt-1" 
-                        ${isSelected ? 'checked' : ''}
-                        onchange="toggleInsumo(${ins.id})"
-                    >
-                    <div class="flex-grow-1">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <strong>${escapeHtml(ins.nombre)}</strong>
-                                <span class="badge badge-tipo bg-${badgeColor} ms-2">${escapeHtml(ins.tipo)}</span>
-                            </div>
-                        </div>
-                        ${ins.numero_serie ? `<div class="text-muted small mt-1"><i class="fas fa-barcode me-1"></i>S/N: ${escapeHtml(ins.numero_serie)}</div>` : ''}
-                        ${ins.id_fisico ? `<div class="text-muted small"><i class="fas fa-tag me-1"></i>ID: ${escapeHtml(ins.id_fisico)}</div>` : ''}
-                    </div>
-                </div>
-            </div>
-        `;
-    });
-    
-    container.innerHTML = html;
+    // Actualizar contador inicial
     actualizarContador();
-}
+});
+
+// Paso 1 -> Paso 2
+$('#btnSiguiente').on('click', function() {
+    const form = document.getElementById('formPasos');
+    const paso1 = document.getElementById('paso1');
+    
+    // Validar solo código de expediente (obligatorio)
+    let valido = true;
+    const codExp = document.getElementById('cod_expediente');
+    if (!codExp || !codExp.value.trim()) {
+        valido = false;
+        codExp && codExp.classList.add('is-invalid');
+    } else {
+        codExp.classList.remove('is-invalid');
+    }
+    
+    if (!valido) {
+        paso1.classList.add('was-validated');
+        return;
+    }
+    
+    // Guardar datos por si acaso
+    guardarDatosPaso1();
+    
+    // Limpiar validación
+    paso1.classList.remove('was-validated');
+    form.classList.remove('was-validated');
+    
+    $('#paso1').hide();
+    $('#paso2').show();
+    
+    // Stepper activo
+    $('.stepper .step').removeClass('active');
+    $('.stepper .step-2').addClass('active');
+    
+    // Ordenar filas (seleccionados arriba)
+    ordenarFilas();
+});
+
+// Paso 2 -> Paso 1
+$('#btnVolver').on('click', function() {
+    $('#paso2').hide();
+    $('#paso1').show();
+    $('.stepper .step').removeClass('active');
+    $('.stepper .step-1').addClass('active');
+});
 
 // Toggle selección de insumo
-function toggleInsumo(id) {
-    if (insumosSeleccionados.has(id)) {
-        insumosSeleccionados.delete(id);
-    } else {
-        insumosSeleccionados.add(id);
-    }
+function toggleSeleccionInsumo(id) {
+    const fila = $(`tr.fila-insumo:has(.btn-seleccionar[data-insumo-id="${id}"])`);
+    const btn = fila.find('.btn-seleccionar');
+    const input = fila.find('.hidden-insumo-input');
+    const cantInput = fila.find('.cantidad-input');
     
-    const card = document.querySelector(`.insumo-card[data-id="${id}"]`);
-    if (card) {
-        card.classList.toggle('selected');
+    if (input.prop('disabled')) {
+        // Seleccionar
+        input.prop('disabled', false);
+        btn.removeClass('btn-outline-primary').addClass('btn-primary');
+        btn.find('i').removeClass('fa-plus').addClass('fa-minus');
+        btn.find('span').text(' Deseleccionar');
+        btn.attr('title', 'Deseleccionar');
+        fila.addClass('fila-seleccionada');
+        
+        if (cantInput.length) {
+            cantInput.show();
+        }
+    } else {
+        // Deseleccionar
+        input.prop('disabled', true);
+        btn.removeClass('btn-primary').addClass('btn-outline-primary');
+        btn.find('i').removeClass('fa-minus').addClass('fa-plus');
+        btn.find('span').text(' Seleccionar');
+        btn.attr('title', 'Seleccionar');
+        fila.removeClass('fila-seleccionada');
+        
+        if (cantInput.length) {
+            cantInput.hide();
+        }
     }
     
     actualizarContador();
+    ordenarFilas();
 }
 
 // Actualizar contador
 function actualizarContador() {
-    const count = insumosSeleccionados.size;
-    document.getElementById('contadorSeleccionados').textContent = count;
+    const count = $('.hidden-insumo-input:not([disabled])').length;
+    $('#contadorSeleccion').text(count);
 }
 
-// Actualizar resumen
-function actualizarResumen() {
-    const codExpediente = document.getElementById('cod_expediente').value;
-    const fechaFin = document.getElementById('fecha_finalizacion').value;
-    const descripcion = document.getElementById('descripcion').value;
+// Ordenar filas (seleccionados arriba)
+function ordenarFilas() {
+    const tbody = $('#tablaInsumos tbody');
+    const filas = tbody.find('tr.fila-insumo').toArray();
     
-    document.getElementById('resumenCodigo').textContent = codExpediente || '-';
-    document.getElementById('resumenFecha').textContent = fechaFin ? formatearFecha(fechaFin) : 'No especificada';
-    document.getElementById('resumenDescripcion').textContent = descripcion || 'Sin descripción';
-    document.getElementById('resumenCantidad').textContent = insumosSeleccionados.size;
+    filas.sort(function(a, b) {
+        const aSeleccionada = $(a).hasClass('fila-seleccionada');
+        const bSeleccionada = $(b).hasClass('fila-seleccionada');
+        
+        if (aSeleccionada && !bSeleccionada) return -1;
+        if (!aSeleccionada && bSeleccionada) return 1;
+        return 0;
+    });
     
-    // Renderizar insumos seleccionados
-    const container = document.getElementById('resumenInsumos');
+    tbody.empty();
+    $.each(filas, function(idx, fila) {
+        tbody.append(fila);
+    });
+}
+
+// Filtrar insumos
+function filtrarInsumos() {
+    const busqueda = $('#filtro_busqueda').val().toLowerCase();
+    const tipo = $('#filtro_tipo').val();
     
-    if (insumosSeleccionados.size === 0) {
-        container.innerHTML = '<p class="text-muted">No hay insumos seleccionados</p>';
+    $('tr.fila-insumo').each(function() {
+        const $fila = $(this);
+        const texto = $fila.data('texto') || '';
+        const tipoFila = $fila.data('tipo') || '';
+        
+        let mostrar = true;
+        
+        if (tipo && tipoFila !== tipo) {
+            mostrar = false;
+        }
+        
+        if (busqueda && texto.indexOf(busqueda) === -1) {
+            mostrar = false;
+        }
+        
+        $fila.toggle(mostrar);
+    });
+}
+
+$('#filtro_busqueda').on('input', filtrarInsumos);
+$('#filtro_tipo').on('change', filtrarInsumos);
+
+$('#btnLimpiarFiltros').on('click', function() {
+    $('#filtro_busqueda').val('');
+    $('#filtro_tipo').val('');
+    filtrarInsumos();
+});
+
+// Seleccionar todos los filtrados
+function seleccionarFiltrados() {
+    $('tr.fila-insumo:visible').each(function() {
+        const $fila = $(this);
+        const input = $fila.find('.hidden-insumo-input');
+        if (input.prop('disabled')) {
+            const id = $fila.find('.btn-seleccionar').data('insumo-id');
+            toggleSeleccionInsumo(id);
+        }
+    });
+}
+
+// Deseleccionar todos
+function deseleccionarTodos() {
+    $('tr.fila-insumo').each(function() {
+        const $fila = $(this);
+        const input = $fila.find('.hidden-insumo-input');
+        if (!input.prop('disabled')) {
+            const id = $fila.find('.btn-seleccionar').data('insumo-id');
+            toggleSeleccionInsumo(id);
+        }
+    });
+}
+
+// Mostrar modal de confirmación
+function mostrarModalConfirmacion() {
+    const seleccionados = $('.hidden-insumo-input:not([disabled])');
+    
+    if (seleccionados.length === 0) {
+        alert('Debe seleccionar al menos un insumo');
         return;
     }
     
-    const insumosArray = insumosDisponibles.filter(ins => insumosSeleccionados.has(ins.id));
+    // Llenar datos de la licitación
+    $('#m_codigo').text($('#cod_expediente').val() || '-');
+    const fecha = $('#fecha_finalizacion').val();
+    $('#m_fecha').text(fecha ? new Date(fecha + 'T00:00:00').toLocaleDateString('es-AR') : 'No especificada');
+    $('#m_descripcion').text($('#descripcion').val() || 'Sin descripción');
     
-    // Agrupar por tipo
+    // Agrupar insumos por tipo
     const porTipo = {};
-    insumosArray.forEach(ins => {
-        if (!porTipo[ins.tipo]) {
-            porTipo[ins.tipo] = [];
+    seleccionados.each(function() {
+        const $input = $(this);
+        const $fila = $input.closest('tr');
+        const tipo = $input.data('tipo');
+        const nombre = $fila.find('td:first strong').text();
+        const cantidad = $fila.find('input[type="number"]').val() || 1;
+        
+        if (!porTipo[tipo]) {
+            porTipo[tipo] = [];
         }
-        porTipo[ins.tipo].push(ins);
+        
+        porTipo[tipo].push({ nombre, cantidad: parseInt(cantidad) });
     });
     
-    let html = '';
+    // Renderizar tabla de insumos
+    let html = '<table class="table table-sm table-striped"><tbody>';
     Object.keys(porTipo).sort().forEach(tipo => {
-        html += `
-            <div class="mb-3">
-                <h6 class="text-primary"><i class="fas fa-box me-2"></i>${tipo} (${porTipo[tipo].length})</h6>
-                <ul class="list-unstyled ms-3">
-        `;
-        
+        html += `<tr><td colspan="2" class="fw-bold bg-light">${tipo} (${porTipo[tipo].length})</td></tr>`;
         porTipo[tipo].forEach(ins => {
-            html += `<li class="mb-1"><i class="fas fa-check text-success me-2"></i>${escapeHtml(ins.nombre)}`;
-            if (ins.numero_serie) {
-                html += ` <small class="text-muted">(S/N: ${escapeHtml(ins.numero_serie)})</small>`;
+            html += `<tr><td class="ps-4">${ins.nombre}</td><td class="text-end">`;
+            if (tipo === 'Varios' && ins.cantidad > 1) {
+                html += `<span class="badge bg-primary">Cant: ${ins.cantidad}</span>`;
             }
-            html += `</li>`;
+            html += '</td></tr>';
         });
-        
-        html += '</ul></div>';
     });
+    html += '</tbody></table>';
     
-    container.innerHTML = html;
+    $('#m_insumos').html(html);
     
-    // Agregar inputs hidden para los insumos seleccionados
-    const form = document.getElementById('formLicitacion');
-    document.querySelectorAll('input[name="insumos[]"]').forEach(el => el.remove());
-    
-    insumosSeleccionados.forEach(id => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'insumos[]';
-        input.value = id;
-        form.appendChild(input);
-    });
+    new bootstrap.Modal(document.getElementById('modalConfirmacion')).show();
 }
 
-// Utilidades
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-function formatearFecha(fecha) {
-    const d = new Date(fecha + 'T00:00:00');
-    return d.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-}
-
-// Event Listeners
-document.getElementById('btnSiguiente').addEventListener('click', () => {
-    irAPaso(pasoActual + 1);
-});
-
-document.getElementById('btnAnterior').addEventListener('click', () => {
-    irAPaso(pasoActual - 1);
-});
-
-document.getElementById('filtroBusqueda').addEventListener('input', renderizarInsumos);
-document.getElementById('filtroTipo').addEventListener('change', renderizarInsumos);
-
-document.getElementById('btnLimpiarFiltros').addEventListener('click', () => {
-    document.getElementById('filtroBusqueda').value = '';
-    document.getElementById('filtroTipo').value = '';
-    renderizarInsumos();
-});
-
-document.getElementById('btnSeleccionarTodos').addEventListener('click', () => {
-    const filtro = document.getElementById('filtroBusqueda').value.toLowerCase();
-    const tipo = document.getElementById('filtroTipo').value;
+// Confirmar licitación
+function confirmarLicitacion() {
+    const seleccionados = $('.hidden-insumo-input:not([disabled])');
     
-    insumosDisponibles.forEach(ins => {
-        let cumple = true;
-        
-        if (tipo && ins.tipo !== tipo) {
-            cumple = false;
-        }
-        
-        if (filtro) {
-            const texto = `${ins.nombre} ${ins.numero_serie || ''} ${ins.id_fisico || ''}`.toLowerCase();
-            if (!texto.includes(filtro)) {
-                cumple = false;
-            }
-        }
-        
-        if (cumple) {
-            insumosSeleccionados.add(ins.id);
-        }
-    });
-    
-    renderizarInsumos();
-});
-
-document.getElementById('btnDeseleccionarTodos').addEventListener('click', () => {
-    insumosSeleccionados.clear();
-    renderizarInsumos();
-});
-
-document.getElementById('btnRecargarInsumos').addEventListener('click', () => {
-    cargarInsumos();
-});
-
-// Validación del formulario
-document.getElementById('formLicitacion').addEventListener('submit', (e) => {
-    if (insumosSeleccionados.size === 0) {
-        e.preventDefault();
-        alert('Debe seleccionar al menos un insumo para la licitación.');
-        return false;
+    if (seleccionados.length === 0) {
+        alert('Debe seleccionar al menos un insumo');
+        return;
     }
-});
-
-// Inicializar
-document.addEventListener('DOMContentLoaded', () => {
-    irAPaso(1);
-});
+    
+    document.getElementById('formPasos').submit();
+}
 </script>
-
-<?php include '../../includes/footer.php'; ?>

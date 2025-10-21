@@ -145,10 +145,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         // Redirección condicional: volver a licitación (pasos) si corresponde
         $from = isset($_GET['from']) ? $_GET['from'] : (isset($_POST['from']) ? $_POST['from'] : '');
-        $back = isset($_GET['back']) ? $_GET['back'] : (isset($_POST['back']) ? $_POST['back'] : '');
-        if ($from === 'licitacion' && $back) {
-            $url = $back . (strpos($back, '?') !== false ? '&' : '?') . 'added_id=' . urlencode($id_insumo);
-            header('Location: ' . $url);
+        if ($from === 'licitacion') {
+            // Redirigir a licitaciones_nueva_pasos.php con parámetro from=agregar
+            header('Location: ' . app_base_url() . '/pages/insumos/licitaciones_nueva_pasos.php?from=agregar&added_id=' . urlencode($id_insumo));
         } else {
             header('Location: listar.php');
         }
@@ -193,10 +192,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <form method="POST" id="formInsumo" class="needs-validation" novalidate action="agregar.php">
             <?php
               $from = isset($_GET['from']) ? $_GET['from'] : '';
-              $back = isset($_GET['back']) ? $_GET['back'] : '';
-              if ($from === 'licitacion' && $back) {
+              if ($from === 'licitacion') {
                   echo '<input type="hidden" name="from" value="licitacion">';
-                  echo '<input type="hidden" name="back" value="' . htmlspecialchars($back, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '">';
               }
             ?>
             <?php echo csrf_input(); ?>
