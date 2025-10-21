@@ -9,7 +9,8 @@ try{
                         CASE WHEN tipo_insumo='Varios' THEN CONCAT(' (Cantidad: ', COALESCE(cantidad,0), ')')
                              ELSE CONCAT(IFNULL(CONCAT(' (S/N: ', NULLIF(numero_serie,''), ')'),''), IFNULL(CONCAT(' (ID: ', NULLIF(id_fisico,''), ')'),''))
                         END) AS nombre,
-                 tipo_insumo AS tipo
+                 tipo_insumo AS tipo,
+                 COALESCE(cantidad,1) AS max
           FROM insumos
           WHERE id_licitacion IS NULL
             AND (? = '' OR nombre_insumo LIKE CONCAT('%', ?, '%') OR numero_serie LIKE CONCAT('%', ?, '%') OR id_fisico LIKE CONCAT('%', ?, '%'))
@@ -17,5 +18,14 @@ try{
   $stmt = $db->prepare($sql);
   $stmt->execute([$q, $q, $q, $q]);
   $rows = $stmt->fetchAll();
-  echo json_encode(['success'=>true, 'data'=>$rows]);
+  // Normalizar estructura (id, nombre, tipo, max)
+  $data = array_map(function($r){
+    return [
+      'id' => (int)$r['id'],
+      'nombre' => (string)$r['nombre'],
+      'tipo' => (string)$r['tipo'],
+      'max' => (int)$r['max']
+    ];
+  }, $rows);
+  echo json_encode(['success'=>true, 'data'=>$data]);
 }catch(Exception $e){ echo json_encode(['success'=>false, 'error'=>$e->getMessage()]); }

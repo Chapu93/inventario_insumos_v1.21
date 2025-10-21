@@ -107,7 +107,8 @@ function cargarDisponibles(){
     const $tb = $('#tablaInsumosLicDisponibles tbody');
     $tb.empty();
     (resp.data||[]).forEach(it => {
-      $tb.append(`<tr class="fila-insumo" data-id="${it.id}" data-tipo="${it.tipo}" data-texto="${(it.nombre||'').toLowerCase()}"><td><strong>${it.nombre}</strong></td><td class="text-end"><button type="button" class="btn btn-sm ${SELECCION.has(it.id)?'btn-primary':'btn-outline-primary'} btn-sel" data-id="${it.id}"><i class="fas ${SELECCION.has(it.id)?'fa-minus':'fa-plus'}"></i> ${SELECCION.has(it.id)?'Deseleccionar':'Seleccionar'}</button></td></tr>`);
+      const controls = it.tipo==='Varios' ? `<div class=\"cantidad-input ms-2 ${SELECCION.has(it.id)?'':'d-none'}\"><label class=\"small text-muted mb-0\">Cant.</label><input type=\"number\" class=\"form-control form-control-sm\" min=\"1\" max=\"${it.max||1}\" value=\"1\" data-cantidad-id=\"${it.id}\" style=\"width:84px;\"></div>` : '';
+      $tb.append(`<tr class=\"fila-insumo\" data-id=\"${it.id}\" data-tipo=\"${it.tipo}\" data-texto=\"${(it.nombre||'').toLowerCase()}\"><td><strong>${it.nombre}</strong>${controls}</td><td class=\"text-end\"><button type=\"button\" class=\"btn btn-sm ${SELECCION.has(it.id)?'btn-primary':'btn-outline-primary'} btn-sel\" data-id=\"${it.id}\"><i class=\"fas ${SELECCION.has(it.id)?'fa-minus':'fa-plus'}\"></i> ${SELECCION.has(it.id)?'Deseleccionar':'Seleccionar'}</button></td></tr>`);
     });
     filtrar();
     actualizarContador();
@@ -139,6 +140,8 @@ $(function(){
   $('#filtro_tipo').on('change', filtrar);
   $('#btnLimpiarFiltros').on('click', function(){ $('#filtro_busqueda').val(''); $('#filtro_tipo').val(''); filtrar(); });
   $(document).on('click', '.btn-sel', function(){ const id = parseInt($(this).data('id'),10); if (SELECCION.has(id)) { SELECCION.delete(id); } else { SELECCION.add(id); } cargarDisponibles(); });
+  // Guardar cantidades de 'Varios'
+  $(document).on('change', 'input[data-cantidad-id]', function(){ const id = parseInt($(this).data('cantidad-id'),10); const val = Math.max(1, parseInt($(this).val()||'1',10)); try { localStorage.setItem('LIC_CANT_'+id, String(val)); } catch(e) {} });
   $('#btnNuevoInsumo').on('click', function(){ try { localStorage.setItem('LIC_SELECCION', JSON.stringify(Array.from(SELECCION.values()))); } catch(e) {} });
 
   $('#btnPaso1').on('click', function(){ if (!document.getElementById('cod_expediente').checkValidity()) { document.getElementById('cod_expediente').reportValidity(); return; } $('#paso1').hide(); $('.stepper .step').removeClass('active'); $('.stepper .step-2').addClass('active'); $('#paso2').show(); });
@@ -158,7 +161,7 @@ $(function(){
          items.forEach(it => { const t = it.tipo_insumo || 'N/D'; porTipo[t] = (porTipo[t]||0) + 1; if (t==='Varios') { varios.push(it); } });
          html += '<hr><h6>Resumen por tipo</h6><ul>';
          Object.keys(porTipo).forEach(t => { if (t !== 'Varios') { html += `<li><strong>${t}:</strong> ${porTipo[t]}</li>`; } });
-         if (varios.length) { html += '<li><strong>Varios</strong><ul>'; varios.forEach(v => { html += `<li>${$('<div>').text(v.nombre_insumo||'').html()} (Cantidad: ${parseInt(v.cantidad||1,10)})</li>`; }); html += '</ul></li>'; }
+         if (varios.length) { html += '<li><strong>Varios</strong><ul>'; varios.forEach(v => { const key = 'LIC_CANT_'+v.id_insumo; let cant = parseInt(localStorage.getItem(key)||v.cantidad||1,10); if (!Number.isFinite(cant) || cant<1) cant = 1; html += `<li>${$('<div>').text(v.nombre_insumo||'').html()} (Cantidad: ${cant})</li>`; }); html += '</ul></li>'; }
          html += '</ul>';
          $('#resumenLic').html(html);
        })
