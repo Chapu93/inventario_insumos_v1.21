@@ -143,12 +143,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['mensaje'] = "Insumo agregado correctamente";
         $_SESSION['tipo_mensaje'] = "success";
         
-        // Asegurar que no haya salida antes del header
-        if (headers_sent()) {
-            error_log('Headers ya enviados, usando JavaScript para redirección');
-            echo "<script>window.location.href = 'listar.php';</script>";
+        // Redirección condicional: volver a licitación (pasos) si corresponde
+        $from = isset($_GET['from']) ? $_GET['from'] : (isset($_POST['from']) ? $_POST['from'] : '');
+        $back = isset($_GET['back']) ? $_GET['back'] : (isset($_POST['back']) ? $_POST['back'] : '');
+        if ($from === 'licitacion' && $back) {
+            $url = $back . (strpos($back, '?') !== false ? '&' : '?') . 'added_id=' . urlencode($id_insumo);
+            header('Location: ' . $url);
         } else {
-            header("Location: listar.php");
+            header('Location: listar.php');
         }
         exit;
         

@@ -61,7 +61,7 @@ include '../../includes/header.php';
           </div>
           <div class="col-md-3 d-flex justify-content-end gap-2">
             <button type="button" class="btn btn-outline-secondary btn-sm" id="btnLimpiarFiltros"><i class="fas fa-eraser"></i> Limpiar</button>
-            <a href="agregar.php" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Nuevo Insumo</a>
+            <a href="agregar.php?from=licitacion&back=<?php echo urlencode(app_base_url().'/pages/insumos/licitaciones_pasos.php'); ?>" id="btnNuevoInsumo" class="btn btn-success btn-sm"><i class="fas fa-plus"></i> Nuevo Insumo</a>
           </div>
         </div>
         <div class="card">
@@ -131,23 +131,39 @@ function filtrar(){
 function actualizarContador(){ $('#contadorSeleccionLic').text(`${SELECCION.size}`); }
 
 $(function(){
+  // Restaurar selección guardada y sumar el recién creado si vuelve con added_id
+  try { const prev = JSON.parse(localStorage.getItem('LIC_SELECCION')||'[]'); if (Array.isArray(prev)) { prev.forEach(i=> SELECCION.add(parseInt(i,10))); } } catch(e) {}
+  try { const url = new URL(window.location.href); const added = url.searchParams.get('added_id'); if (added) { SELECCION.add(parseInt(added,10)); } } catch(e) {}
   cargarDisponibles();
   $('#filtro_busqueda').on('input', function(){ filtrar(); });
   $('#filtro_tipo').on('change', filtrar);
   $('#btnLimpiarFiltros').on('click', function(){ $('#filtro_busqueda').val(''); $('#filtro_tipo').val(''); filtrar(); });
   $(document).on('click', '.btn-sel', function(){ const id = parseInt($(this).data('id'),10); if (SELECCION.has(id)) { SELECCION.delete(id); } else { SELECCION.add(id); } cargarDisponibles(); });
+  $('#btnNuevoInsumo').on('click', function(){ try { localStorage.setItem('LIC_SELECCION', JSON.stringify(Array.from(SELECCION.values()))); } catch(e) {} });
 
   $('#btnPaso1').on('click', function(){ if (!document.getElementById('cod_expediente').checkValidity()) { document.getElementById('cod_expediente').reportValidity(); return; } $('#paso1').hide(); $('.stepper .step').removeClass('active'); $('.stepper .step-2').addClass('active'); $('#paso2').show(); });
   $('#btnVolver1').on('click', function(){ $('#paso2').hide(); $('.stepper .step').removeClass('active'); $('.stepper .step-1').addClass('active'); $('#paso1').show(); });
   $('#btnPaso2').on('click', function(){
-    // Resumen
     const cod = $('#cod_expediente').val(); const fin = $('#fecha_finalizacion').val(); const desc = $('#descripcion').val();
     let html = `<div class=\"mb-2\"><strong>Expediente:</strong> ${cod}</div>`;
     html += `<div class=\"mb-2\"><strong>Finalización:</strong> ${fin||'-'}</div>`;
     if (desc) html += `<div class=\"mb-2\"><strong>Descripción:</strong> ${$('<div>').text(desc).html()}</div>`;
-    html += `<hr><h6>Insumos seleccionados (${SELECCION.size})</h6>`;
-    if (SELECCION.size===0) html += '<div class=\"text-muted\">Sin insumos</div>';
-    $('#resumenLic').html(html);
+    const ids = Array.from(SELECCION.values());
+    if (ids.length === 0) { html += '<hr><div class=\"text-muted\">Sin insumos</div>'; $('#resumenLic').html(html); }
+    else {
+      $.ajax({ url: BASE + '/ajax/insumos_por_ids.php', method: 'POST', contentType: 'application/json', data: JSON.stringify({ ids }) })
+       .done(function(r){
+         const items = r && r.data ? r.data : [];
+         const porTipo = {}; const varios = [];
+         items.forEach(it => { const t = it.tipo_insumo || 'N/D'; porTipo[t] = (porTipo[t]||0) + 1; if (t==='Varios') { varios.push(it); } });
+         html += '<hr><h6>Resumen por tipo</h6><ul>';
+         Object.keys(porTipo).forEach(t => { if (t !== 'Varios') { html += `<li><strong>${t}:</strong> ${porTipo[t]}</li>`; } });
+         if (varios.length) { html += '<li><strong>Varios</strong><ul>'; varios.forEach(v => { html += `<li>${$('<div>').text(v.nombre_insumo||'').html()} (Cantidad: ${parseInt(v.cantidad||1,10)})</li>`; }); html += '</ul></li>'; }
+         html += '</ul>';
+         $('#resumenLic').html(html);
+       })
+       .fail(function(){ $('#resumenLic').html(html + '<hr><div class=\"text-danger\">Error al cargar resumen</div>'); });
+    }
     $('#paso2').hide(); $('.stepper .step').removeClass('active'); $('.stepper .step-3').addClass('active'); $('#paso3').show();
   });
   $('#btnVolver2').on('click', function(){ $('#paso3').hide(); $('.stepper .step').removeClass('active'); $('.stepper .step-2').addClass('active'); $('#paso2').show(); });
