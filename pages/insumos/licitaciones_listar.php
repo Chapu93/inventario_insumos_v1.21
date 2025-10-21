@@ -6,7 +6,7 @@ include '../../includes/header.php';
 <div class="row">
   <div class="col-12 d-flex justify-content-between align-items-center mb-4">
     <h1 class="mb-0"><i class="fas fa-file-signature me-2"></i>Licitaciones</h1>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalLicitacion"><i class="fas fa-plus me-2"></i>Nueva Licitación</button>
+    <a class="btn btn-primary" href="licitaciones_pasos.php?new=1"><i class="fas fa-plus me-2"></i>Nueva Licitación</a>
   </div>
 </div>
 
@@ -15,62 +15,14 @@ include '../../includes/header.php';
   <div class="card-body">
     <div class="table-responsive">
       <table class="table table-striped datatable" id="tablaLicitaciones">
-        <thead><tr><th>Código Expediente</th><th>Fin</th><th>Insumos</th><th>Acciones</th></tr></thead>
+        <thead><tr><th>Código Expediente</th><th>Fin</th><th>Insumos</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
   </div>
 </div>
 
-<!-- Modal crear/editar licitación -->
-<div class="modal fade" id="modalLicitacion" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="fas fa-file-signature me-2"></i>Licitación</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <form id="formLicitacion" class="needs-validation" novalidate>
-          <?php echo csrf_input(); ?>
-          <input type="hidden" name="id_licitacion" id="id_licitacion">
-          <div class="row g-2">
-            <div class="col-md-4">
-              <label class="form-label">Código Expediente *</label>
-              <input type="text" class="form-control" name="cod_expediente" id="cod_expediente" required>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label">Fecha Finalización</label>
-              <input type="date" class="form-control" name="fecha_finalizacion" id="fecha_finalizacion">
-            </div>
-            <div class="col-12">
-              <label class="form-label">Descripción (opcional)</label>
-              <textarea class="form-control" name="descripcion" id="descripcion" rows="2"></textarea>
-            </div>
-          </div>
-          <hr>
-          <h6 class="mb-2"><i class="fas fa-boxes me-2"></i>Insumos</h6>
-          <div class="row g-2 align-items-end">
-            <div class="col-12">
-              <div class="alert alert-light mb-2">Use la opción <strong>Nueva licitación (pasos)</strong> para seleccionar insumos existentes en una tabla con filtros y para crear nuevos insumos dentro del flujo. Este modal es solo para edición rápida.</div>
-              <a href="<?php echo app_base_url(); ?>/pages/insumos/licitaciones_pasos.php" class="btn btn-primary"><i class="fas fa-route me-2"></i>Nueva licitación (pasos)</a>
-            </div>
-          </div>
-          <div class="table-responsive mt-3">
-            <table class="table table-sm" id="tablaInsumosLic">
-              <thead><tr><th>Nombre</th><th>Tipo</th><th>Acciones</th></tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-primary" id="btnGuardarLicitacion">Guardar</button>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- Modal removido: creación desde flujo por pasos -->
 
 <script>
 const BASE = '<?php echo app_base_url(); ?>';
@@ -81,12 +33,7 @@ $(function(){
     columns: [
       { data: 'cod_expediente' },
       { data: 'fecha_finalizacion' },
-      { data: 'num_insumos', render: d => `<span class="badge bg-primary">${d||0}</span>` },
-      { data: null, orderable:false, searchable:false, render: row => `
-        <div class="btn-group">
-          <button class="btn btn-sm btn-info" onclick="editarLic(${row.id_licitacion})" title="Editar"><i class="fas fa-edit"></i></button>
-          <button class="btn btn-sm btn-danger" onclick="eliminarLic(${row.id_licitacion})" title="Eliminar"><i class="fas fa-trash"></i></button>
-        </div>` }
+      { data: 'num_insumos', render: d => `<span class="badge bg-primary">${d||0}</span>` }
     ]
   });
 
