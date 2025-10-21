@@ -78,6 +78,11 @@
                         <i class="fas fa-box me-2"></i>Insumos
                     </a>
                 </li>
+                <li>
+                    <a href="<?php echo app_base_url(); ?>/pages/insumos/licitaciones_listar.php" class="nav-link <?php echo (strpos($currentPath, '/pages/insumos/licitaciones_') !== false) ? 'active' : ''; ?>" role="menuitem">
+                        <i class="fas fa-file-signature me-2"></i>Licitaciones
+                    </a>
+                </li>
                 
                 <li>
                     <a href="<?php echo app_base_url(); ?>/pages/asignaciones/listar.php" class="nav-link <?php echo ($isAsignaciones || $isReportes) ? 'active' : ''; ?>" role="menuitem">
