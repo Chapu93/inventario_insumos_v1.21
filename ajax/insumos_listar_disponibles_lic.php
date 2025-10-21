@@ -4,9 +4,14 @@ header('Content-Type: application/json');
 try{
   $db = conectarDB();
   $q = trim($_GET['q'] ?? '');
-  $sql = "SELECT id_insumo AS id, CONCAT(nombre_insumo, IF(tipo_insumo='Varios', CONCAT(' (Cantidad: ', cantidad, ')'), CONCAT(IFNULL(CONCAT(' (S/N: ', NULLIF(numero_serie,''), ')'),''), IFNULL(CONCAT(' (ID: ', NULLIF(id_fisico,''), ')'),'')))) AS nombre, tipo_insumo AS tipo
+  $sql = "SELECT id_insumo AS id,
+                 CONCAT(nombre_insumo,
+                        CASE WHEN tipo_insumo='Varios' THEN CONCAT(' (Cantidad: ', COALESCE(cantidad,0), ')')
+                             ELSE CONCAT(IFNULL(CONCAT(' (S/N: ', NULLIF(numero_serie,''), ')'),''), IFNULL(CONCAT(' (ID: ', NULLIF(id_fisico,''), ')'),''))
+                        END) AS nombre,
+                 tipo_insumo AS tipo
           FROM insumos
-          WHERE (id_licitacion IS NULL) AND (estado='Disponible') AND (tipo_insumo <> 'Varios' OR cantidad > 0)
+          WHERE id_licitacion IS NULL
             AND (? = '' OR nombre_insumo LIKE CONCAT('%', ?, '%') OR numero_serie LIKE CONCAT('%', ?, '%') OR id_fisico LIKE CONCAT('%', ?, '%'))
           ORDER BY nombre_insumo";
   $stmt = $db->prepare($sql);

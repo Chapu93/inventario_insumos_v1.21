@@ -54,7 +54,7 @@ include '../../includes/header.php';
             <div class="col-md-8">
               <label class="form-label">Agregar insumos existentes</label>
               <select class="form-select select2" id="selInsumos" multiple style="width:100%"></select>
-              <small class="text-muted">Puede filtrar por nombre/tipo; solo se listan sin licitación.</small>
+              <small class="text-muted">Puede filtrar por nombre/tipo; se listan sin licitación (asignados o no).</small>
             </div>
             <div class="col-md-4">
               <button type="button" id="btnAgregarInsumos" class="btn btn-primary w-100"><i class="fas fa-plus me-2"></i>Agregar Seleccionados</button>
@@ -94,14 +94,14 @@ $(function(){
     ]
   });
 
-  // Select2 insumos sin licitación
+  // Select2 insumos sin licitación (cargar todos, sin filtrar por estado)
   $('#selInsumos').select2({
     theme: 'bootstrap-5',
     ajax: {
       delay: 250,
-      url: BASE + '/ajax/insumos_disponibles.php',
+      url: BASE + '/ajax/insumos_listar_disponibles_lic.php',
       data: params => ({ q: params.term || '' }),
-      processResults: data => ({ results: (data.items||[]).map(x => ({ id: x.id_insumo, text: x.nombre_insumo + ' (' + x.tipo_insumo + ')' })) })
+      processResults: data => ({ results: (data.data||[]).map(x => ({ id: x.id, text: x.nombre + ' (' + x.tipo + ')' })) })
     }
   });
 
