@@ -85,6 +85,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         $db->commit();
+        
+        // Limpiar localStorage
+        echo '<script>try { localStorage.removeItem("licitacion_paso1"); localStorage.removeItem("licitacion_seleccionados"); } catch(e) {}</script>';
+        
         $_SESSION['mensaje'] = $esEdicion ? 'Licitación actualizada correctamente' : 'Licitación creada correctamente';
         $_SESSION['tipo_mensaje'] = 'success';
         header('Location: ' . app_base_url() . '/pages/insumos/licitaciones_listar.php');
@@ -114,11 +118,13 @@ include '../../includes/header.php';
     </div>
 </div>
 
-<!-- Stepper visual (mismo estilo que asignaciones) -->
+<!-- Stepper visual (3 pasos) -->
 <div class="stepper">
-    <div class="step step-1 active"><span class="circle">1</span><span>Datos de Licitación</span></div>
+    <div class="step step-1 active"><span class="circle">1</span><span>Datos</span></div>
     <div class="divider"></div>
-    <div class="step step-2"><span class="circle">2</span><span>Selección de Insumos</span></div>
+    <div class="step step-2"><span class="circle">2</span><span>Insumos</span></div>
+    <div class="divider"></div>
+    <div class="step step-3"><span class="circle">3</span><span>Confirmación</span></div>
 </div>
 
 <div id="licitacion-pasos">
@@ -247,7 +253,9 @@ include '../../includes/header.php';
                                                     $yaSeleccionado = in_array($ins['id_insumo'], $insumosExistentes);
                                                 ?>
                                                 <tr class="fila-insumo <?php echo $yaSeleccionado ? 'fila-seleccionada' : ''; ?>" 
+                                                    data-id="<?php echo $ins['id_insumo']; ?>"
                                                     data-tipo="<?php echo htmlspecialchars($ins['tipo_insumo']); ?>" 
+                                                    data-nombre="<?php echo htmlspecialchars($ins['nombre_insumo']); ?>"
                                                     data-texto="<?php echo strtolower(htmlspecialchars($ins['nombre_insumo'] . ' ' . ($ins['numero_serie'] ?: '') . ' ' . ($ins['id_fisico'] ?: ''))); ?>">
                                                     <td>
                                                         <div>
@@ -290,8 +298,8 @@ include '../../includes/header.php';
                                         <button type="button" class="btn btn-secondary" id="btnVolver">
                                             <i class="fas fa-arrow-left me-1"></i>Volver
                                         </button>
-                                        <button type="button" class="btn btn-primary" onclick="mostrarModalConfirmacion()">
-                                            <i class="fas fa-eye me-1"></i>Revisar y Confirmar
+                                        <button type="button" class="btn btn-primary" id="btnSiguiente3">
+                                            <i class="fas fa-arrow-right me-1"></i>Siguiente
                                         </button>
                                     </div>
                                 </div>
@@ -299,45 +307,50 @@ include '../../includes/header.php';
                         </div>
                     </div>
                 </div>
-            </form>
-        </div>
-    </div>
-</div>
 
-<!-- Modal de Confirmación -->
-<div class="modal fade" id="modalConfirmacion" tabindex="-1" aria-labelledby="modalConfirmacionLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="modalConfirmacionLabel">
-                    <i class="fas fa-check-circle me-2"></i>Confirmar Licitación
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6 class="text-primary mb-2"><i class="fas fa-file-signature me-2"></i>Datos de la Licitación</h6>
-                        <p class="mb-1"><strong>Código Expediente:</strong> <span id="m_codigo"></span></p>
-                        <p class="mb-1"><strong>Fecha Finalización:</strong> <span id="m_fecha"></span></p>
+                <!-- Paso 3: Confirmación -->
+                <div id="paso3" style="display:none;">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-10">
+                            <div class="card">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-check-circle me-2"></i>Confirmar Licitación
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h6 class="text-primary mb-2"><i class="fas fa-file-signature me-2"></i>Datos de la Licitación</h6>
+                                            <p class="mb-1"><strong>Código Expediente:</strong> <span id="m_codigo"></span></p>
+                                            <p class="mb-1"><strong>Fecha Finalización:</strong> <span id="m_fecha"></span></p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6 class="text-primary mb-2"><i class="fas fa-comment me-2"></i>Descripción</h6>
+                                            <div class="alert alert-light mb-0" id="m_descripcion" style="white-space: pre-wrap; max-height: 100px; overflow-y: auto;"></div>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <h6 class="text-primary mb-2"><i class="fas fa-boxes me-2"></i>Insumos Seleccionados</h6>
+                                    <div id="m_insumos" class="table-responsive"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <h6 class="text-primary mb-2"><i class="fas fa-comment me-2"></i>Descripción</h6>
-                        <div class="alert alert-light mb-0" id="m_descripcion" style="white-space: pre-wrap; max-height: 100px; overflow-y: auto;"></div>
+                    <div class="row mt-3 justify-content-center">
+                        <div class="col-lg-10">
+                            <div class="d-flex justify-content-end gap-2">
+                                <button type="button" class="btn btn-secondary" id="btnVolver3">
+                                    <i class="fas fa-arrow-left me-1"></i>Volver
+                                </button>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-check me-1"></i>Confirmar Licitación
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <hr>
-                <h6 class="text-primary mb-2"><i class="fas fa-boxes me-2"></i>Insumos Seleccionados</h6>
-                <div id="m_insumos" class="table-responsive"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="fas fa-times me-1"></i>Cancelar
-                </button>
-                <button type="button" class="btn btn-success" onclick="confirmarLicitacion()">
-                    <i class="fas fa-check me-1"></i>Confirmar
-                </button>
-            </div>
+            </form>
         </div>
     </div>
 </div>
@@ -348,7 +361,32 @@ include '../../includes/header.php';
 const BASE = '<?php echo app_base_url(); ?>';
 const ES_EDICION = <?php echo $esEdicion ? 'true' : 'false'; ?>;
 
-// Restaurar datos del paso 1 si volvemos de crear un insumo
+let pasoActual = 1;
+
+// Guardar datos del paso 1 y seleccionados
+function guardarEstado() {
+    try {
+        const datos = {
+            cod_expediente: document.getElementById('cod_expediente').value,
+            fecha_finalizacion: document.getElementById('fecha_finalizacion').value,
+            descripcion: document.getElementById('descripcion').value
+        };
+        localStorage.setItem('licitacion_paso1', JSON.stringify(datos));
+        
+        // Guardar seleccionados con cantidades
+        const seleccionados = {};
+        $('.hidden-insumo-input:not([disabled])').each(function() {
+            const id = $(this).val();
+            const cantidad = $(`#cantidad_varios_${id}`).val() || 1;
+            seleccionados[id] = parseInt(cantidad);
+        });
+        localStorage.setItem('licitacion_seleccionados', JSON.stringify(seleccionados));
+    } catch (e) {
+        console.error('Error guardando estado:', e);
+    }
+}
+
+// Restaurar datos del paso 1
 function restaurarDatosPaso1() {
     try {
         const datos = localStorage.getItem('licitacion_paso1');
@@ -363,87 +401,194 @@ function restaurarDatosPaso1() {
     }
 }
 
-// Guardar datos del paso 1 antes de ir a crear insumo
-function guardarDatosPaso1() {
+// Restaurar seleccionados
+function restaurarSeleccionados(nuevoId) {
     try {
-        const datos = {
-            cod_expediente: document.getElementById('cod_expediente').value,
-            fecha_finalizacion: document.getElementById('fecha_finalizacion').value,
-            descripcion: document.getElementById('descripcion').value
-        };
-        localStorage.setItem('licitacion_paso1', JSON.stringify(datos));
+        const datos = localStorage.getItem('licitacion_seleccionados');
+        if (datos) {
+            const seleccionados = JSON.parse(datos);
+            Object.keys(seleccionados).forEach(id => {
+                const fila = $(`.fila-insumo[data-id="${id}"]`);
+                if (fila.length) {
+                    const input = fila.find('.hidden-insumo-input');
+                    const btn = fila.find('.btn-seleccionar');
+                    const cantInput = fila.find('.cantidad-input');
+                    
+                    // Seleccionar
+                    input.prop('disabled', false);
+                    btn.removeClass('btn-outline-primary').addClass('btn-primary');
+                    btn.find('i').removeClass('fa-plus').addClass('fa-minus');
+                    btn.find('span').text(' Deseleccionar');
+                    fila.addClass('fila-seleccionada');
+                    
+                    if (cantInput.length) {
+                        cantInput.show();
+                        cantInput.find('input').val(seleccionados[id]);
+                    }
+                }
+            });
+        }
+        
+        // Seleccionar el nuevo insumo si existe
+        if (nuevoId) {
+            const fila = $(`.fila-insumo[data-id="${nuevoId}"]`);
+            if (fila.length) {
+                const input = fila.find('.hidden-insumo-input');
+                if (input.prop('disabled')) {
+                    toggleSeleccionInsumo(parseInt(nuevoId));
+                }
+            }
+        }
+        
+        actualizarContador();
+        ordenarFilas();
     } catch (e) {
-        console.error('Error guardando datos:', e);
+        console.error('Error restaurando seleccionados:', e);
     }
 }
 
 // Interceptar click en botón de nuevo insumo
 document.getElementById('btnNuevoInsumo')?.addEventListener('click', function(e) {
-    guardarDatosPaso1();
+    guardarEstado();
 });
 
-// Al cargar la página, restaurar datos si volvemos de crear insumo
+// Al cargar la página
 document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('from') === 'agregar') {
-        restaurarDatosPaso1();
-        // Limpiar el localStorage después de restaurar
-        localStorage.removeItem('licitacion_paso1');
-    }
+    const nuevoId = urlParams.get('added_id');
     
-    // Actualizar contador inicial
-    actualizarContador();
+    if (urlParams.get('from') === 'agregar') {
+        // Volver del formulario de agregar
+        restaurarDatosPaso1();
+        restaurarSeleccionados(nuevoId);
+        
+        // IR DIRECTAMENTE AL PASO 2
+        irAPaso(2);
+    } else {
+        // Actualizar contador inicial
+        actualizarContador();
+        ordenarFilas();
+    }
 });
 
-// Paso 1 -> Paso 2
-$('#btnSiguiente').on('click', function() {
-    const form = document.getElementById('formPasos');
-    const paso1 = document.getElementById('paso1');
+// Ir a un paso específico
+function irAPaso(paso) {
+    // Validar paso actual antes de avanzar
+    if (paso > pasoActual) {
+        if (pasoActual === 1 && !validarPaso1()) {
+            return;
+        }
+        if (pasoActual === 2 && !validarPaso2()) {
+            return;
+        }
+    }
     
-    // Validar solo código de expediente (obligatorio)
-    let valido = true;
+    // Ocultar todos los pasos
+    $('#paso1, #paso2, #paso3').hide();
+    
+    // Actualizar stepper
+    $('.stepper .step').removeClass('active');
+    $(`.stepper .step-${paso}`).addClass('active');
+    
+    // Mostrar paso
+    $(`#paso${paso}`).show();
+    
+    // Acciones específicas
+    if (paso === 2) {
+        ordenarFilas();
+        filtrarInsumos();
+    } else if (paso === 3) {
+        actualizarResumenPaso3();
+    }
+    
+    pasoActual = paso;
+}
+
+// Validar paso 1
+function validarPaso1() {
     const codExp = document.getElementById('cod_expediente');
     if (!codExp || !codExp.value.trim()) {
-        valido = false;
         codExp && codExp.classList.add('is-invalid');
-    } else {
-        codExp.classList.remove('is-invalid');
+        return false;
     }
-    
-    if (!valido) {
-        paso1.classList.add('was-validated');
-        return;
+    codExp.classList.remove('is-invalid');
+    return true;
+}
+
+// Validar paso 2
+function validarPaso2() {
+    const seleccionados = $('.hidden-insumo-input:not([disabled])');
+    if (seleccionados.length === 0) {
+        alert('Debe seleccionar al menos un insumo');
+        return false;
     }
+    return true;
+}
+
+// Actualizar resumen paso 3
+function actualizarResumenPaso3() {
+    $('#m_codigo').text($('#cod_expediente').val() || '-');
+    const fecha = $('#fecha_finalizacion').val();
+    $('#m_fecha').text(fecha ? new Date(fecha + 'T00:00:00').toLocaleDateString('es-AR') : 'No especificada');
+    $('#m_descripcion').text($('#descripcion').val() || 'Sin descripción');
     
-    // Guardar datos por si acaso
-    guardarDatosPaso1();
+    // Agrupar insumos por tipo
+    const porTipo = {};
+    $('.hidden-insumo-input:not([disabled])').each(function() {
+        const $input = $(this);
+        const $fila = $input.closest('tr');
+        const tipo = $input.data('tipo');
+        const nombre = $fila.data('nombre');
+        const cantidad = $fila.find('input[type="number"]').val() || 1;
+        
+        if (!porTipo[tipo]) {
+            porTipo[tipo] = [];
+        }
+        
+        porTipo[tipo].push({ nombre, cantidad: parseInt(cantidad) });
+    });
     
-    // Limpiar validación
-    paso1.classList.remove('was-validated');
-    form.classList.remove('was-validated');
+    // Renderizar tabla
+    let html = '<table class="table table-sm table-striped"><tbody>';
+    Object.keys(porTipo).sort().forEach(tipo => {
+        html += `<tr><td colspan="2" class="fw-bold bg-light">${tipo} (${porTipo[tipo].length})</td></tr>`;
+        porTipo[tipo].forEach(ins => {
+            html += `<tr><td class="ps-4">${ins.nombre}</td><td class="text-end">`;
+            if (tipo === 'Varios' && ins.cantidad > 1) {
+                html += `<span class="badge bg-primary">Cant: ${ins.cantidad}</span>`;
+            }
+            html += '</td></tr>';
+        });
+    });
+    html += '</tbody></table>';
     
-    $('#paso1').hide();
-    $('#paso2').show();
-    
-    // Stepper activo
-    $('.stepper .step').removeClass('active');
-    $('.stepper .step-2').addClass('active');
-    
-    // Ordenar filas (seleccionados arriba)
-    ordenarFilas();
+    $('#m_insumos').html(html);
+}
+
+// Navegación entre pasos
+$('#btnSiguiente').on('click', function() {
+    guardarEstado();
+    irAPaso(2);
 });
 
-// Paso 2 -> Paso 1
 $('#btnVolver').on('click', function() {
-    $('#paso2').hide();
-    $('#paso1').show();
-    $('.stepper .step').removeClass('active');
-    $('.stepper .step-1').addClass('active');
+    irAPaso(1);
+});
+
+$('#btnSiguiente3').on('click', function() {
+    if (validarPaso2()) {
+        guardarEstado();
+        irAPaso(3);
+    }
+});
+
+$('#btnVolver3').on('click', function() {
+    irAPaso(2);
 });
 
 // Toggle selección de insumo
 function toggleSeleccionInsumo(id) {
-    const fila = $(`tr.fila-insumo:has(.btn-seleccionar[data-insumo-id="${id}"])`);
+    const fila = $(`.fila-insumo[data-id="${id}"]`);
     const btn = fila.find('.btn-seleccionar');
     const input = fila.find('.hidden-insumo-input');
     const cantInput = fila.find('.cantidad-input');
@@ -475,6 +620,7 @@ function toggleSeleccionInsumo(id) {
     }
     
     actualizarContador();
+    guardarEstado();
     ordenarFilas();
 }
 
@@ -484,7 +630,7 @@ function actualizarContador() {
     $('#contadorSeleccion').text(count);
 }
 
-// Ordenar filas (seleccionados arriba)
+// Ordenar filas - SELECCIONADOS SIEMPRE ARRIBA
 function ordenarFilas() {
     const tbody = $('#tablaInsumos tbody');
     const filas = tbody.find('tr.fila-insumo').toArray();
@@ -493,9 +639,14 @@ function ordenarFilas() {
         const aSeleccionada = $(a).hasClass('fila-seleccionada');
         const bSeleccionada = $(b).hasClass('fila-seleccionada');
         
+        // Seleccionados siempre arriba
         if (aSeleccionada && !bSeleccionada) return -1;
         if (!aSeleccionada && bSeleccionada) return 1;
-        return 0;
+        
+        // Entre seleccionados o no seleccionados, mantener orden alfabético
+        const aNombre = $(a).data('nombre') || '';
+        const bNombre = $(b).data('nombre') || '';
+        return aNombre.localeCompare(bNombre);
     });
     
     tbody.empty();
@@ -504,7 +655,7 @@ function ordenarFilas() {
     });
 }
 
-// Filtrar insumos
+// Filtrar insumos - MANTENER ORDEN (seleccionados arriba)
 function filtrarInsumos() {
     const busqueda = $('#filtro_busqueda').val().toLowerCase();
     const tipo = $('#filtro_tipo').val();
@@ -526,6 +677,9 @@ function filtrarInsumos() {
         
         $fila.toggle(mostrar);
     });
+    
+    // Re-ordenar después de filtrar para asegurar que seleccionados estén arriba
+    ordenarFilas();
 }
 
 $('#filtro_busqueda').on('input', filtrarInsumos);
@@ -543,7 +697,7 @@ function seleccionarFiltrados() {
         const $fila = $(this);
         const input = $fila.find('.hidden-insumo-input');
         if (input.prop('disabled')) {
-            const id = $fila.find('.btn-seleccionar').data('insumo-id');
+            const id = $fila.data('id');
             toggleSeleccionInsumo(id);
         }
     });
@@ -555,71 +709,17 @@ function deseleccionarTodos() {
         const $fila = $(this);
         const input = $fila.find('.hidden-insumo-input');
         if (!input.prop('disabled')) {
-            const id = $fila.find('.btn-seleccionar').data('insumo-id');
+            const id = $fila.data('id');
             toggleSeleccionInsumo(id);
         }
     });
 }
 
-// Mostrar modal de confirmación
-function mostrarModalConfirmacion() {
-    const seleccionados = $('.hidden-insumo-input:not([disabled])');
-    
-    if (seleccionados.length === 0) {
-        alert('Debe seleccionar al menos un insumo');
-        return;
-    }
-    
-    // Llenar datos de la licitación
-    $('#m_codigo').text($('#cod_expediente').val() || '-');
-    const fecha = $('#fecha_finalizacion').val();
-    $('#m_fecha').text(fecha ? new Date(fecha + 'T00:00:00').toLocaleDateString('es-AR') : 'No especificada');
-    $('#m_descripcion').text($('#descripcion').val() || 'Sin descripción');
-    
-    // Agrupar insumos por tipo
-    const porTipo = {};
-    seleccionados.each(function() {
-        const $input = $(this);
-        const $fila = $input.closest('tr');
-        const tipo = $input.data('tipo');
-        const nombre = $fila.find('td:first strong').text();
-        const cantidad = $fila.find('input[type="number"]').val() || 1;
-        
-        if (!porTipo[tipo]) {
-            porTipo[tipo] = [];
-        }
-        
-        porTipo[tipo].push({ nombre, cantidad: parseInt(cantidad) });
-    });
-    
-    // Renderizar tabla de insumos
-    let html = '<table class="table table-sm table-striped"><tbody>';
-    Object.keys(porTipo).sort().forEach(tipo => {
-        html += `<tr><td colspan="2" class="fw-bold bg-light">${tipo} (${porTipo[tipo].length})</td></tr>`;
-        porTipo[tipo].forEach(ins => {
-            html += `<tr><td class="ps-4">${ins.nombre}</td><td class="text-end">`;
-            if (tipo === 'Varios' && ins.cantidad > 1) {
-                html += `<span class="badge bg-primary">Cant: ${ins.cantidad}</span>`;
-            }
-            html += '</td></tr>';
-        });
-    });
-    html += '</tbody></table>';
-    
-    $('#m_insumos').html(html);
-    
-    new bootstrap.Modal(document.getElementById('modalConfirmacion')).show();
-}
-
-// Confirmar licitación
-function confirmarLicitacion() {
-    const seleccionados = $('.hidden-insumo-input:not([disabled])');
-    
-    if (seleccionados.length === 0) {
-        alert('Debe seleccionar al menos un insumo');
-        return;
-    }
-    
-    document.getElementById('formPasos').submit();
-}
+// Limpiar localStorage al enviar formulario
+$('#formPasos').on('submit', function() {
+    try {
+        localStorage.removeItem('licitacion_paso1');
+        localStorage.removeItem('licitacion_seleccionados');
+    } catch(e) {}
+});
 </script>
