@@ -191,6 +191,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <div class="card">
     <div class="card-body p-3">
         <form method="POST" id="formInsumo" class="needs-validation" novalidate action="agregar.php">
+            <?php
+              $from = isset($_GET['from']) ? $_GET['from'] : '';
+              $back = isset($_GET['back']) ? $_GET['back'] : '';
+              if ($from === 'licitacion' && $back) {
+                  echo '<input type="hidden" name="from" value="licitacion">';
+                  echo '<input type="hidden" name="back" value="' . htmlspecialchars($back, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '">';
+              }
+            ?>
             <?php echo csrf_input(); ?>
             <!-- Selección de tipo de insumo -->
             <div class="row mb-3">

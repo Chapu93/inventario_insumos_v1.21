@@ -107,7 +107,7 @@ function cargarDisponibles(){
     const $tb = $('#tablaInsumosLicDisponibles tbody');
     $tb.empty();
     (resp.data||[]).forEach(it => {
-      $tb.append(`<tr class="fila-insumo" data-id="${it.id}" data-tipo="${it.tipo}" data-texto="${(it.nombre||'').toLowerCase()}"><td><strong>${it.nombre}</strong></td><td class="text-end"><button type="button" class="btn btn-sm ${SELECCION.has(it.id)?'btn-primary':'btn-outline-primary'} btn-sel" data-id="${it.id}"><i class="fas ${SELECCION.has(it.id)?'fa-minus':'fa-plus'}"></i> ${SELECCION.has(it.id)?'Quitar':'Seleccionar'}</button></td></tr>`);
+      $tb.append(`<tr class="fila-insumo" data-id="${it.id}" data-tipo="${it.tipo}" data-texto="${(it.nombre||'').toLowerCase()}"><td><strong>${it.nombre}</strong></td><td class="text-end"><button type="button" class="btn btn-sm ${SELECCION.has(it.id)?'btn-primary':'btn-outline-primary'} btn-sel" data-id="${it.id}"><i class="fas ${SELECCION.has(it.id)?'fa-minus':'fa-plus'}"></i> ${SELECCION.has(it.id)?'Deseleccionar':'Seleccionar'}</button></td></tr>`);
     });
     filtrar();
     actualizarContador();
