@@ -467,7 +467,10 @@ $(document).ready(function() {
   });
 
   // Cerrar sidebar al navegar (en móviles)
-  $(document).on('click', 'a.nav-link, .components a[href]', function(){
+  $(document).on('click', 'a.nav-link, .components a[href]', function(e){
+    // No cerrar el sidebar si el link es un toggler de colapso (submenu)
+    var isToggler = this.hasAttribute('data-bs-toggle') && this.getAttribute('data-bs-toggle') === 'collapse';
+    if (isToggler) { return; }
     if (window.matchMedia('(max-width: 992px)').matches) {
       $('#sidebar').removeClass('active');
       $('#content').removeClass('active');

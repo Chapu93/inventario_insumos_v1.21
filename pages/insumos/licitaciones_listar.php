@@ -15,7 +15,7 @@ include '../../includes/header.php';
   <div class="card-body">
     <div class="table-responsive">
       <table class="table table-striped datatable" id="tablaLicitaciones">
-        <thead><tr><th>Código Expediente</th><th>Fin</th><th>Insumos</th></tr></thead>
+        <thead><tr><th>Código Expediente</th><th>Fin</th><th>Insumos</th><th>Acciones</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
@@ -33,7 +33,15 @@ $(function(){
     columns: [
       { data: 'cod_expediente' },
       { data: 'fecha_finalizacion' },
-      { data: 'num_insumos', render: d => `<span class="badge bg-primary">${d||0}</span>` }
+      { data: 'num_insumos', render: d => `<span class=\"badge bg-primary\">${d||0}</span>` },
+      { data: null, orderable:false, searchable:false, render: function(data, type, row){
+          return `
+            <div class=\"btn-group\">
+              <button class=\"btn btn-sm btn-secondary\" onclick=\"verDetalleLic(${row.id_licitacion})\" title=\"Ver\"><i class=\"fas fa-eye\"></i></button>
+              <a class=\"btn btn-sm btn-info\" href=\"licitaciones_nueva.php?id=${row.id_licitacion}\" title=\"Editar\"><i class=\"fas fa-edit\"></i></a>
+              <button class=\"btn btn-sm btn-danger\" onclick=\"eliminarLic(${row.id_licitacion})\" title=\"Eliminar\"><i class=\"fas fa-trash\"></i></button>
+            </div>`;
+        } }
     ]
   });
 
@@ -55,6 +63,30 @@ function editarLic(id){
       cuerpo.append(`<tr data-id="${it.id_insumo}"><td>${it.nombre_insumo}</td><td>${it.tipo_insumo||''}</td><td><button type="button" class="btn btn-sm btn-outline-danger" onclick="quitarInsumo(${it.id_insumo})"><i class="fas fa-times"></i></button></td></tr>`);
     });
     new bootstrap.Modal(document.getElementById('modalLicitacion')).show();
+  });
+}
+
+function verDetalleLic(id){
+  $.getJSON(BASE + '/ajax/licitaciones_get.php', { id: id }, function(resp){
+    if (!resp || !resp.success) { showToast('Error al cargar licitación', 'error'); return; }
+    const d = resp.data || {};
+    let html = '';
+    html += `<div><strong>Expediente:</strong> ${$('<div>').text(d.cod_expediente||'').html()}</div>`;
+    html += `<div><strong>Finalización:</strong> ${d.fecha_finalizacion||'-'}</div>`;
+    if (d.descripcion) html += `<div><strong>Descripción:</strong> ${$('<div>').text(d.descripcion||'').html()}</div>`;
+    html += '<hr><h6>Insumos</h6>';
+    const items = (d.insumos||[]).map(function(it){
+      const nombre = $('<div>').text(it.nombre_insumo||'').html();
+      const tipo = $('<div>').text(it.tipo_insumo||'').html();
+      return `<li>${nombre} <small class=\"text-muted\">(${tipo})</small></li>`;
+    }).join('');
+    html += items ? `<ul>${items}</ul>` : '<div class=\"text-muted\">Sin insumos</div>';
+    // Fallback simple: alert legible si no hay modal genérico
+    try {
+      alert(html.replace(/<[^>]*>/g, '\n').replace(/\n\n+/g, '\n'));
+    } catch(e) {
+      console.log('Detalle licitación', d);
+    }
   });
 }
 

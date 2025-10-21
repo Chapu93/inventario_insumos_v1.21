@@ -74,10 +74,13 @@
                 </li>
                 
                 <li>
-                    <a href="<?php echo app_base_url(); ?>/pages/insumos/listar.php" class="nav-link <?php echo $isInsumos ? 'active' : ''; ?>" role="menuitem">
+                    <a href="#insumosSubmenu" class="nav-link <?php echo $isInsumos ? 'active' : ''; ?>" data-bs-toggle="collapse" role="button" aria-expanded="<?php echo $isInsumos ? 'true' : 'false'; ?>" aria-controls="insumosSubmenu">
                         <i class="fas fa-box me-2"></i>Insumos
                     </a>
-                    <ul class="collapse list-unstyled <?php echo (strpos($currentPath, '/pages/insumos/licitaciones_') !== false) ? 'show' : ''; ?>" id="insumosSubmenu" data-bs-parent="#sidebar" role="menu">
+                    <ul class="collapse list-unstyled <?php echo $isInsumos ? 'show' : ''; ?>" id="insumosSubmenu" data-bs-parent="#sidebar" role="menu">
+                        <li>
+                            <a href="<?php echo app_base_url(); ?>/pages/insumos/listar.php" class="<?php echo strpos($currentPath, '/pages/insumos/listar.php') !== false ? 'active' : ''; ?>" role="menuitem">Listado</a>
+                        </li>
                         <li>
                             <a href="<?php echo app_base_url(); ?>/pages/insumos/licitaciones_listar.php" class="<?php echo strpos($currentPath, '/pages/insumos/licitaciones_listar.php') !== false ? 'active' : ''; ?>" role="menuitem">Licitaciones</a>
                         </li>
