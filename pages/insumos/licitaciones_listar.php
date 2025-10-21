@@ -6,7 +6,7 @@ include '../../includes/header.php';
 <div class="row">
   <div class="col-12 d-flex justify-content-between align-items-center mb-4">
     <h1 class="mb-0"><i class="fas fa-file-signature me-2"></i>Licitaciones</h1>
-    <a class="btn btn-primary" href="licitaciones_nueva.php"><i class="fas fa-plus me-2"></i>Nueva Licitación</a>
+    <a class="btn btn-primary" href="licitaciones_nueva_pasos.php"><i class="fas fa-plus me-2"></i>Nueva Licitación</a>
   </div>
 </div>
 
@@ -38,7 +38,7 @@ $(function(){
           return `
             <div class=\"btn-group\">
               <button class=\"btn btn-sm btn-secondary\" onclick=\"verDetalleLic(${row.id_licitacion})\" title=\"Ver\"><i class=\"fas fa-eye\"></i></button>
-              <a class=\"btn btn-sm btn-info\" href=\"licitaciones_nueva.php?id=${row.id_licitacion}\" title=\"Editar\"><i class=\"fas fa-edit\"></i></a>
+              <a class=\"btn btn-sm btn-info\" href=\"licitaciones_nueva_pasos.php?id=${row.id_licitacion}\" title=\"Editar\"><i class=\"fas fa-edit\"></i></a>
               <button class=\"btn btn-sm btn-danger\" onclick=\"eliminarLic(${row.id_licitacion})\" title=\"Eliminar\"><i class=\"fas fa-trash\"></i></button>
             </div>`;
         } }
