@@ -364,10 +364,45 @@ function actualizarContadores() {
 
 // Función para inicializar tooltips
 function inicializarTooltips() {
+    // Destruir tooltips existentes primero para evitar duplicados
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
+    tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+        // Destruir instancia anterior si existe
+        const existingTooltip = bootstrap.Tooltip.getInstance(tooltipTriggerEl);
+        if (existingTooltip) {
+            existingTooltip.dispose();
+        }
+        
+        // Crear nuevo tooltip con configuración optimizada
+        const tooltip = new bootstrap.Tooltip(tooltipTriggerEl, {
+            trigger: 'hover focus',
+            delay: { show: 500, hide: 100 },  // Mostrar después de 500ms, ocultar rápido
+            animation: true,
+            html: false,
+            placement: 'top',
+            container: 'body'
+        });
+        
+        // Asegurar que se oculte al hacer mouseleave
+        tooltipTriggerEl.addEventListener('mouseleave', function() {
+            tooltip.hide();
+        });
+        
+        // Ocultar al hacer click en cualquier parte
+        tooltipTriggerEl.addEventListener('click', function() {
+            tooltip.hide();
+        });
     });
+    
+    // Ocultar todos los tooltips al hacer scroll
+    window.addEventListener('scroll', function() {
+        tooltipTriggerList.forEach(function(el) {
+            const tooltip = bootstrap.Tooltip.getInstance(el);
+            if (tooltip) {
+                tooltip.hide();
+            }
+        });
+    }, { passive: true });
 }
 
 // Función para mostrar loading

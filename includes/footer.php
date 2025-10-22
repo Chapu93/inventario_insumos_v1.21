@@ -101,19 +101,7 @@
                     drawCallback: function() {
                         // Reinicializar tooltips después de cada redibujado
                         inicializarTooltips();
-                        // Autocierre de tooltips al salir de foco o mouseleave
-                        try {
-                            var wrapper = $(this).closest('.dataTables_wrapper');
-                            wrapper.find('[data-bs-toggle="tooltip"]').each(function(){
-                                var el = this;
-                                el.addEventListener('mouseleave', function(){ try { var t = bootstrap.Tooltip.getInstance(el); if (t) t.hide(); } catch(e){} });
-                                el.addEventListener('blur', function(){ try { var t = bootstrap.Tooltip.getInstance(el); if (t) t.hide(); } catch(e){} });
-                            });
-                            document.addEventListener('click', function(){
-                                try { document.querySelectorAll('.tooltip.show').forEach(function(tt){ tt.parentNode && tt.parentNode.removeChild(tt); }); } catch(e){}
-                            }, { once: true });
-                        } catch(e) {}
-                        // Placeholder de búsqueda en español (sin tocar estructura del label)
+                        // Placeholder de búsqueda en español
                         try {
                             var wrapper = $t.closest('.dataTables_wrapper');
                             wrapper.find('.dataTables_filter input[type="search"]').attr('placeholder', 'Buscar...');
@@ -161,6 +149,30 @@
       });
       document.addEventListener('hidden.bs.modal', function(){
         try { if (lastFocus && typeof lastFocus.focus === 'function') { lastFocus.focus(); } } catch(e) {}
+      });
+      
+      // Ocultar todos los tooltips al hacer click en cualquier parte
+      document.addEventListener('click', function(e) {
+        // No ocultar si el click es en un elemento con tooltip
+        if (!e.target.closest('[data-bs-toggle="tooltip"]')) {
+          try {
+            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function(el) {
+              const tooltip = bootstrap.Tooltip.getInstance(el);
+              if (tooltip) {
+                tooltip.hide();
+              }
+            });
+          } catch(e) {}
+        }
+      });
+      
+      // Ocultar tooltips antes de navegación
+      window.addEventListener('beforeunload', function() {
+        try {
+          document.querySelectorAll('.tooltip').forEach(function(el) {
+            el.remove();
+          });
+        } catch(e) {}
       });
     })();
     </script>
