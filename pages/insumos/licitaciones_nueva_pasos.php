@@ -283,7 +283,7 @@ include '../../includes/header.php';
                                                                 <input id="<?php echo $cid; ?>" type="number" class="form-control form-control-sm" name="cantidad_varios[<?php echo $ins['id_insumo']; ?>]" min="1" max="<?php echo (int)$ins['cantidad']; ?>" value="1" style="width:84px;">
                                                             </div>
                                                             <?php endif; ?>
-                                                            <button type="button" class="btn btn-sm <?php echo $yaSeleccionado ? 'btn-primary' : 'btn-outline-primary'; ?> btn-seleccionar" data-insumo-id="<?php echo $ins['id_insumo']; ?>" onclick="toggleSeleccionInsumo(<?php echo $ins['id_insumo']; ?>)" title="<?php echo $yaSeleccionado ? 'Deseleccionar' : 'Seleccionar'; ?>" aria-label="<?php echo $yaSeleccionado ? 'Deseleccionar' : 'Seleccionar'; ?> insumo <?php echo htmlspecialchars($ins['nombre_insumo']); ?>">
+                                                            <button type="button" class="btn btn-sm <?php echo $yaSeleccionado ? 'btn-primary' : 'btn-outline-primary'; ?> btn-seleccionar" data-insumo-id="<?php echo $ins['id_insumo']; ?>" onclick="toggleSeleccionInsumo(<?php echo $ins['id_insumo']; ?>, undefined)" title="<?php echo $yaSeleccionado ? 'Deseleccionar' : 'Seleccionar'; ?>" aria-label="<?php echo $yaSeleccionado ? 'Deseleccionar' : 'Seleccionar'; ?> insumo <?php echo htmlspecialchars($ins['nombre_insumo']); ?>">
                                                                 <i class="fas <?php echo $yaSeleccionado ? 'fa-minus' : 'fa-plus'; ?>" aria-hidden="true"></i>
                                                                 <span class="d-none d-sm-inline"> <?php echo $yaSeleccionado ? 'Deseleccionar' : 'Seleccionar'; ?></span>
                                                             </button>
@@ -384,10 +384,17 @@ function guardarEstado() {
         
         insumosSeleccionados.each(function() {
             const id = $(this).val();
-            const inputCantidad = $(`#cantidad_varios_${id}`);
-            const cantidad = inputCantidad.length ? inputCantidad.val() : 1;
-            seleccionados[id] = parseInt(cantidad) || 1;
-            console.log(`  - Insumo ${id}: cantidad ${cantidad}`);
+            const $fila = $(this).closest('tr');
+            const inputCantidad = $fila.find('input[type="number"]');
+            
+            if (inputCantidad.length) {
+                const cantidad = parseInt(inputCantidad.val()) || 1;
+                seleccionados[id] = cantidad;
+                console.log(`  - Insumo ${id} (Varios): cantidad ${cantidad}`);
+            } else {
+                seleccionados[id] = 1;
+                console.log(`  - Insumo ${id} (Normal): cantidad 1`);
+            }
         });
         
         localStorage.setItem('licitacion_seleccionados', JSON.stringify(seleccionados));
@@ -434,6 +441,8 @@ function restaurarSeleccionados(nuevoId) {
                     const input = fila.find('.hidden-insumo-input');
                     const btn = fila.find('.btn-seleccionar');
                     const cantInput = fila.find('.cantidad-input');
+                    const inputNumero = cantInput.find('input[type="number"]');
+                    const cantidadGuardada = parseInt(seleccionados[id]) || 1;
                     
                     // Seleccionar
                     input.prop('disabled', false);
@@ -443,12 +452,14 @@ function restaurarSeleccionados(nuevoId) {
                     btn.attr('title', 'Deseleccionar');
                     fila.addClass('fila-seleccionada');
                     
-                    if (cantInput.length) {
+                    // Restaurar cantidad si es tipo "Varios"
+                    if (cantInput.length && inputNumero.length) {
                         cantInput.show();
-                        cantInput.find('input').val(seleccionados[id]);
+                        inputNumero.val(cantidadGuardada);
+                        console.log(`✓ Insumo ${id} restaurado con cantidad: ${cantidadGuardada}`);
+                    } else {
+                        console.log(`✓ Insumo ${id} restaurado (normal)`);
                     }
-                    
-                    console.log(`✓ Insumo ${id} restaurado`);
                 }
             });
         } else {
@@ -464,8 +475,9 @@ function restaurarSeleccionados(nuevoId) {
             if (fila.length) {
                 const input = fila.find('.hidden-insumo-input');
                 if (input.prop('disabled')) {
-                    console.log('Seleccionando nuevo insumo...');
-                    toggleSeleccionInsumo(parseInt(nuevoId));
+                    console.log('Seleccionando nuevo insumo con cantidad máxima...');
+                    // Pasar null como cantidad para que use el máximo del stock
+                    toggleSeleccionInsumo(parseInt(nuevoId), null);
                 } else {
                     console.log('El nuevo insumo ya estaba seleccionado');
                 }
@@ -643,11 +655,12 @@ $('#btnVolver3').on('click', function() {
 });
 
 // Toggle selección de insumo
-function toggleSeleccionInsumo(id) {
+function toggleSeleccionInsumo(id, cantidadInicial) {
     const fila = $(`.fila-insumo[data-id="${id}"]`);
     const btn = fila.find('.btn-seleccionar');
     const input = fila.find('.hidden-insumo-input');
     const cantInput = fila.find('.cantidad-input');
+    const inputNumero = cantInput.find('input[type="number"]');
     
     if (input.prop('disabled')) {
         // Seleccionar
@@ -658,8 +671,19 @@ function toggleSeleccionInsumo(id) {
         btn.attr('title', 'Deseleccionar');
         fila.addClass('fila-seleccionada');
         
-        if (cantInput.length) {
+        if (cantInput.length && inputNumero.length) {
             cantInput.show();
+            
+            // Si es cantidad inicial (restaurando), usar ese valor
+            // Si no, usar el máximo del stock para tipo "Varios"
+            if (cantidadInicial !== undefined && cantidadInicial !== null) {
+                inputNumero.val(cantidadInicial);
+                console.log(`Cantidad inicial establecida: ${cantidadInicial}`);
+            } else {
+                const max = parseInt(input.data('max')) || 1;
+                inputNumero.val(max);
+                console.log(`Cantidad máxima establecida: ${max}`);
+            }
         }
     } else {
         // Deseleccionar
@@ -754,7 +778,8 @@ function seleccionarFiltrados() {
         const input = $fila.find('.hidden-insumo-input');
         if (input.prop('disabled')) {
             const id = $fila.data('id');
-            toggleSeleccionInsumo(id);
+            // Pasar undefined para que use el máximo
+            toggleSeleccionInsumo(id, undefined);
         }
     });
 }
@@ -766,7 +791,7 @@ function deseleccionarTodos() {
         const input = $fila.find('.hidden-insumo-input');
         if (!input.prop('disabled')) {
             const id = $fila.data('id');
-            toggleSeleccionInsumo(id);
+            toggleSeleccionInsumo(id, undefined);
         }
     });
 }
