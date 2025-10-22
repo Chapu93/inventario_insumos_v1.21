@@ -12,7 +12,7 @@ try{
                  tipo_insumo AS tipo,
                  COALESCE(cantidad,1) AS max
           FROM insumos
-          WHERE id_licitacion IS NULL
+          WHERE id_ingreso IS NULL
             AND (? = '' OR nombre_insumo LIKE CONCAT('%', ?, '%') OR numero_serie LIKE CONCAT('%', ?, '%') OR id_fisico LIKE CONCAT('%', ?, '%'))
           ORDER BY nombre_insumo";
   $stmt = $db->prepare($sql);
