@@ -88,7 +88,10 @@ try {
         echo "✓ Foreign key creada correctamente\n";
     }
     
-    $db->commit();
+    // Nota: Los comandos DDL hacen commit implícito, por lo que puede no haber transacción activa
+    if ($db->inTransaction()) {
+        $db->commit();
+    }
     
     echo "\n";
     echo "════════════════════════════════════════\n";
