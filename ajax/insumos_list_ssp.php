@@ -15,8 +15,9 @@ try {
     // Columnas disponibles para ordenar
     $columns = [
         0 => 'i.nombre_insumo',
-        1 => 'i.estado',
-        2 => 'i.cantidad',
+        1 => 'i.tipo_insumo',
+        2 => 'i.es_nuevo',
+        3 => 'i.cantidad',
     ];
     $orderColIdx = isset($_GET['order'][0]['column']) ? (int)$_GET['order'][0]['column'] : 0;
     $orderDir = isset($_GET['order'][0]['dir']) && strtolower($_GET['order'][0]['dir']) === 'desc' ? 'DESC' : 'ASC';
@@ -55,7 +56,7 @@ try {
     $filtered = (int)$stmt->fetchColumn();
 
     // Página de datos
-    $dataSql = "SELECT i.id_insumo, i.nombre_insumo, i.estado, i.cantidad
+    $dataSql = "SELECT i.id_insumo, i.nombre_insumo, i.tipo_insumo, i.es_nuevo, i.cantidad, i.estado
                 FROM insumos i
                 LEFT JOIN sedes s ON i.id_sede_actual = s.id_sede
                 LEFT JOIN localidades l ON s.id_localidad = l.id_localidad
@@ -68,19 +69,22 @@ try {
 
     // Mapear a columnas esperadas por la tabla actual
     $data = array_map(function($r){
-        $estadoBadge = '<span class="badge estado-' . strtolower(str_replace(' ', '-', $r['estado'])) . '">' . $r['estado'] . '</span>';
-        $cantBadge = '<span class="badge ' . ((int)$r['cantidad'] > 0 ? 'bg-success' : 'bg-danger') . '">' . (int)$r['cantidad'] . '</span>';
+        $tipoBadge = '<div class="text-center"><span class="badge bg-info">' . htmlspecialchars($r['tipo_insumo']) . '</span></div>';
+        $esNuevo = isset($r['es_nuevo']) ? (int)$r['es_nuevo'] : 1;
+        $condicionBadge = '<div class="text-center"><span class="badge ' . ($esNuevo ? 'bg-success' : 'bg-warning') . '">' . ($esNuevo ? 'Nuevo' : 'Usado') . '</span></div>';
+        $cantBadge = '<div class="text-center"><span class="badge ' . ((int)$r['cantidad'] > 0 ? 'bg-success' : 'bg-danger') . '">' . (int)$r['cantidad'] . '</span></div>';
         $nombreJs = json_encode((string)$r['nombre_insumo']);
         $isDeBaja = (strcasecmp(trim((string)$r['estado']), 'De Baja') === 0);
-        $acciones = '<div class="btn-group" role="group">'
+        $acciones = '<div class="btn-group d-flex justify-content-center" role="group">'
                   . '<button type="button" class="btn btn-sm btn-info" aria-label="Ver detalles del insumo" onclick="verInsumo(' . (int)$r['id_insumo'] . ')" data-bs-toggle="tooltip" title="Ver detalles"><i class="fas fa-eye" aria-hidden="true"></i></button>'
                   . ' <a href="editar.php?id=' . (int)$r['id_insumo'] . '" class="btn btn-sm btn-warning" aria-label="Editar insumo" data-bs-toggle="tooltip" title="Editar"><i class="fas fa-edit" aria-hidden="true"></i></a>'
                   . ' <button type="button" class="btn btn-sm btn-outline-warning" aria-label="Dar de baja insumo" ' . ($isDeBaja ? 'disabled ' : 'onclick=\'abrirModalBajaInsumo(' . (int)$r['id_insumo'] . ', ' . $nombreJs . ')\' ') . 'data-bs-toggle="tooltip" title="Dar de baja"><i class="fas fa-arrow-down" aria-hidden="true"></i></button>'
                   . ' <button type="button" class="btn btn-sm btn-danger btn-eliminar-insumo" aria-label="Eliminar insumo" data-id="' . (int)$r['id_insumo'] . '" data-bs-toggle="tooltip" title="Eliminar"><i class="fas fa-trash" aria-hidden="true"></i></button>'
                   . '</div>';
         return [
-            '<strong>' . htmlspecialchars($r['nombre_insumo']) . '</strong>',
-            $estadoBadge,
+            '<div class="text-center"><strong>' . htmlspecialchars($r['nombre_insumo']) . '</strong></div>',
+            $tipoBadge,
+            $condicionBadge,
             $cantBadge,
             $acciones,
         ];

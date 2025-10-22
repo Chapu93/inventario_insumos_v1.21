@@ -70,6 +70,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $fecha = $_POST['fecha_adquisicion'] ?: null;
         $estado = $_POST['estado'] ?? 'Disponible';
         $punto = $_POST['id_punto_stock_actual'] ?: null;
+        $esNuevo = isset($_POST['es_nuevo']) && $_POST['es_nuevo'] == '1' ? 1 : 0;
+        $idLicitacion = !empty($_POST['id_licitacion']) ? (int)$_POST['id_licitacion'] : null;
 
         // Campos específicos según tipo
         $subcat = $desc = $numero_serie = $id_fisico = $id_patrimonio = null;
@@ -93,11 +95,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Actualizar insumo
         $sql = "UPDATE insumos
                 SET nombre_insumo = ?, subcategoria_varios = ?, descripcion_general = ?,
-                    numero_serie = ?, id_fisico = ?, id_patrimonio = ?, cantidad = ?, fecha_adquisicion = ?
+                    numero_serie = ?, id_fisico = ?, id_patrimonio = ?, cantidad = ?, fecha_adquisicion = ?,
+                    id_punto_stock_actual = ?, id_licitacion = ?, es_nuevo = ?
                 WHERE id_insumo = ?";
         $db->prepare($sql)->execute([
             $nombre, $subcat, $desc,
             $numero_serie, $id_fisico, $id_patrimonio, $cantidad, $fecha,
+            $punto, $idLicitacion, $esNuevo,
             $id
         ]);
 
@@ -284,9 +288,41 @@ include '../../includes/header.php';
                                 <small class="text-muted">El estado no se modifica desde esta pantalla.</small>
                             </div>
                             <div class="mb-2">
-                                <label class="form-label">Punto de Stock</label>
-                                <input type="text" class="form-control form-control-sm" value="<?php echo htmlspecialchars($insumo['id_punto_stock_actual'] ? 'ID '.$insumo['id_punto_stock_actual'] : 'Sin asignar'); ?>" disabled>
-                                <small class="text-muted">El punto de stock no se modifica desde esta pantalla.</small>
+                                <label for="id_punto_stock_actual" class="form-label">Punto de Almacenamiento</label>
+                                <select class="form-select form-select-sm" id="id_punto_stock_actual" name="id_punto_stock_actual">
+                                    <option value="">Sin punto de stock</option>
+                                    <?php foreach ($puntos_stock as $punto): ?>
+                                        <option value="<?php echo $punto['id_punto_stock']; ?>" 
+                                                <?php echo $insumo['id_punto_stock_actual'] == $punto['id_punto_stock'] ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($punto['nombre_punto']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="es_nuevo" name="es_nuevo" value="1" <?php echo ($insumo['es_nuevo'] ?? 1) ? 'checked' : ''; ?>>
+                                    <label class="form-check-label" for="es_nuevo">
+                                        <strong>Insumo Nuevo</strong>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <label for="id_licitacion" class="form-label">Nro. Expediente</label>
+                                <select class="form-select form-select-sm" id="id_licitacion" name="id_licitacion">
+                                    <option value="">Sin licitación</option>
+                                    <?php
+                                    $licitaciones = $db->query("SELECT id_licitacion, cod_expediente FROM licitaciones ORDER BY cod_expediente DESC")->fetchAll();
+                                    foreach ($licitaciones as $lic):
+                                    ?>
+                                        <option value="<?php echo $lic['id_licitacion']; ?>" <?php echo ($insumo['id_licitacion'] ?? null) == $lic['id_licitacion'] ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($lic['cod_expediente']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <small class="text-muted">Opcional: Asociar insumo a una licitación</small>
                             </div>
                         </div>
                     </div>
