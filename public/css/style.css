@@ -172,6 +172,31 @@ body {
 /* DataTables: asegurar ancho completo */
 .dataTables_wrapper .dataTable { width: 100% !important; }
 
+/* Alineación de columnas en tablas DataTables */
+.dataTables_wrapper table.dataTable thead th,
+.dataTables_wrapper table.dataTable tbody td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* Primera columna siempre alineada a la izquierda */
+.dataTables_wrapper table.dataTable thead th:first-child,
+.dataTables_wrapper table.dataTable tbody td:first-child {
+    text-align: left;
+}
+
+/* Tablas normales (no DataTables) */
+table thead th,
+table tbody td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+table thead th:first-child,
+table tbody td:first-child {
+    text-align: left;
+}
+
 /* Navbar más contrastada sobre el fondo */
 .navbar.bg-light {
     background-color: var(--surface-2) !important;
