@@ -172,17 +172,6 @@ body {
 /* DataTables: asegurar ancho completo */
 .dataTables_wrapper .dataTable { width: 100% !important; }
 
-/* Submenu toggle icon */
-.nav-link .submenu-toggle {
-    float: right;
-    padding: 5px;
-    cursor: pointer;
-}
-.nav-link .submenu-toggle:hover {
-    background-color: rgba(255,255,255,0.1);
-    border-radius: 3px;
-}
-
 /* Navbar más contrastada sobre el fondo */
 .navbar.bg-light {
     background-color: var(--surface-2) !important;
