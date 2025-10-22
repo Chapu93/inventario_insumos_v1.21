@@ -224,9 +224,9 @@ include '../../includes/header.php';
                                             <button type="button" class="btn btn-outline-secondary btn-sm" id="btnLimpiarFiltros" title="Limpiar filtros" aria-label="Limpiar filtros">
                                                 <i class="fas fa-eraser" aria-hidden="true"></i>
                                             </button>
-                                            <a href="<?php echo app_base_url(); ?>/pages/insumos/agregar.php?from=licitacion" id="btnNuevoInsumo" class="btn btn-success btn-sm" title="Nuevo Insumo">
-                                                <i class="fas fa-plus" aria-hidden="true"></i>
-                                            </a>
+                                            <button type="button" class="btn btn-success" id="btnNuevoInsumo" onclick="irACrearInsumo()">
+                                                <i class="fas fa-plus me-1"></i>Nuevo Insumo
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -366,23 +366,37 @@ let pasoActual = 1;
 // Guardar datos del paso 1 y seleccionados
 function guardarEstado() {
     try {
+        console.log('=== Guardando estado ===');
+        
+        // Guardar datos del Paso 1
         const datos = {
             cod_expediente: document.getElementById('cod_expediente').value,
             fecha_finalizacion: document.getElementById('fecha_finalizacion').value,
             descripcion: document.getElementById('descripcion').value
         };
         localStorage.setItem('licitacion_paso1', JSON.stringify(datos));
+        console.log('Paso 1 guardado:', datos);
         
         // Guardar seleccionados con cantidades
         const seleccionados = {};
-        $('.hidden-insumo-input:not([disabled])').each(function() {
+        const insumosSeleccionados = $('.hidden-insumo-input:not([disabled])');
+        console.log('Insumos seleccionados encontrados:', insumosSeleccionados.length);
+        
+        insumosSeleccionados.each(function() {
             const id = $(this).val();
-            const cantidad = $(`#cantidad_varios_${id}`).val() || 1;
-            seleccionados[id] = parseInt(cantidad);
+            const inputCantidad = $(`#cantidad_varios_${id}`);
+            const cantidad = inputCantidad.length ? inputCantidad.val() : 1;
+            seleccionados[id] = parseInt(cantidad) || 1;
+            console.log(`  - Insumo ${id}: cantidad ${cantidad}`);
         });
+        
         localStorage.setItem('licitacion_seleccionados', JSON.stringify(seleccionados));
+        console.log('Seleccionados guardados:', seleccionados);
+        console.log('Total insumos guardados:', Object.keys(seleccionados).length);
+        
     } catch (e) {
         console.error('Error guardando estado:', e);
+        alert('Error al guardar el estado. Por favor, intente nuevamente.');
     }
 }
 
@@ -404,11 +418,18 @@ function restaurarDatosPaso1() {
 // Restaurar seleccionados
 function restaurarSeleccionados(nuevoId) {
     try {
+        console.log('Iniciando restauración de seleccionados...');
         const datos = localStorage.getItem('licitacion_seleccionados');
+        console.log('Datos en localStorage:', datos);
+        
         if (datos) {
             const seleccionados = JSON.parse(datos);
+            console.log('Seleccionados a restaurar:', seleccionados);
+            
             Object.keys(seleccionados).forEach(id => {
                 const fila = $(`.fila-insumo[data-id="${id}"]`);
+                console.log(`Buscando fila con id ${id}:`, fila.length > 0 ? 'Encontrada' : 'NO encontrada');
+                
                 if (fila.length) {
                     const input = fila.find('.hidden-insumo-input');
                     const btn = fila.find('.btn-seleccionar');
@@ -419,51 +440,86 @@ function restaurarSeleccionados(nuevoId) {
                     btn.removeClass('btn-outline-primary').addClass('btn-primary');
                     btn.find('i').removeClass('fa-plus').addClass('fa-minus');
                     btn.find('span').text(' Deseleccionar');
+                    btn.attr('title', 'Deseleccionar');
                     fila.addClass('fila-seleccionada');
                     
                     if (cantInput.length) {
                         cantInput.show();
                         cantInput.find('input').val(seleccionados[id]);
                     }
+                    
+                    console.log(`✓ Insumo ${id} restaurado`);
                 }
             });
+        } else {
+            console.log('No hay datos de seleccionados en localStorage');
         }
         
         // Seleccionar el nuevo insumo si existe
         if (nuevoId) {
+            console.log('Intentando seleccionar nuevo insumo:', nuevoId);
             const fila = $(`.fila-insumo[data-id="${nuevoId}"]`);
+            console.log('Fila del nuevo insumo:', fila.length > 0 ? 'Encontrada' : 'NO encontrada');
+            
             if (fila.length) {
                 const input = fila.find('.hidden-insumo-input');
                 if (input.prop('disabled')) {
+                    console.log('Seleccionando nuevo insumo...');
                     toggleSeleccionInsumo(parseInt(nuevoId));
+                } else {
+                    console.log('El nuevo insumo ya estaba seleccionado');
                 }
+            } else {
+                console.error('¡PROBLEMA! El nuevo insumo no se encuentra en la tabla. ID:', nuevoId);
+                console.log('IDs disponibles en la tabla:', $('.fila-insumo').map(function() { return $(this).data('id'); }).get());
             }
         }
         
         actualizarContador();
         ordenarFilas();
+        console.log('Restauración completada');
     } catch (e) {
         console.error('Error restaurando seleccionados:', e);
     }
 }
 
-// Interceptar click en botón de nuevo insumo
-document.getElementById('btnNuevoInsumo')?.addEventListener('click', function(e) {
+// Función para ir a crear nuevo insumo
+function irACrearInsumo() {
+    console.log('Guardando estado antes de crear insumo...');
     guardarEstado();
-});
+    
+    // Verificar que se guardó
+    const verificar = localStorage.getItem('licitacion_seleccionados');
+    console.log('Seleccionados guardados:', verificar);
+    
+    // Redirigir
+    window.location.href = BASE + '/pages/insumos/agregar.php?from=licitacion';
+}
 
 // Al cargar la página
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== DOMContentLoaded ===');
     const urlParams = new URLSearchParams(window.location.search);
     const nuevoId = urlParams.get('added_id');
+    const from = urlParams.get('from');
     
-    if (urlParams.get('from') === 'agregar') {
-        // Volver del formulario de agregar
-        restaurarDatosPaso1();
-        restaurarSeleccionados(nuevoId);
+    console.log('URL params:', { from, nuevoId });
+    
+    if (from === 'agregar') {
+        console.log('Volviendo de crear insumo...');
         
-        // IR DIRECTAMENTE AL PASO 2
-        irAPaso(2);
+        // Restaurar datos del Paso 1
+        restaurarDatosPaso1();
+        
+        // Pequeño delay para asegurar que el DOM está listo
+        setTimeout(function() {
+            // Restaurar seleccionados
+            restaurarSeleccionados(nuevoId);
+            
+            // IR DIRECTAMENTE AL PASO 2
+            console.log('Navegando al Paso 2...');
+            irAPaso(2);
+        }, 100);
     } else {
         // Actualizar contador inicial
         actualizarContador();
