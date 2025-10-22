@@ -75,7 +75,7 @@
                 
                 
                 <li>
-                    <a href="<?php echo app_base_url(); ?>/pages/insumos/listar.php" class="nav-link <?php echo $isInsumos ? 'active' : ''; ?>" role="menuitem">
+                    <a href="<?php echo app_base_url(); ?>/pages/insumos/listar.php" class="nav-link <?php echo $isInsumos ? 'active' : ''; ?>" data-bs-toggle="collapse" data-bs-target="#insumosSubmenu" role="button" aria-expanded="<?php echo $isInsumos ? 'true' : 'false'; ?>" aria-controls="insumosSubmenu">
                         <i class="fas fa-box me-2"></i>Insumos
                     </a>
                     <ul class="collapse list-unstyled <?php echo $isInsumos ? 'show' : ''; ?>" id="insumosSubmenu" data-bs-parent="#sidebar" role="menu">
