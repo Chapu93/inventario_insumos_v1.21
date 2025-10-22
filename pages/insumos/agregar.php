@@ -52,11 +52,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Insertar insumo principal
         $sql = "INSERT INTO insumos (nombre_insumo, tipo_insumo, subcategoria_varios, descripcion_general, 
                                    numero_serie, id_fisico, id_patrimonio, cantidad, fecha_adquisicion, estado, 
-                                   id_punto_stock_actual, id_licitacion, es_nuevo) 
+                                   id_punto_stock_actual, id_ingreso, es_nuevo) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         $esNuevo = isset($_POST['es_nuevo']) && $_POST['es_nuevo'] == '1' ? 1 : 0;
-        $idLicitacion = !empty($_POST['id_licitacion']) ? (int)$_POST['id_licitacion'] : null;
+        $idIngreso = !empty($_POST['id_ingreso']) ? (int)$_POST['id_ingreso'] : null;
         
         $stmt = $conexion->prepare($sql);
         $stmt->execute([
