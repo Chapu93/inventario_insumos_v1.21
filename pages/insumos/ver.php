@@ -13,18 +13,19 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 }
 
 $id = (int)$_GET['id'];
-$db = conectarDB();
-
-// Datos generales del insumo con ubicación
+$db = // Datos generales del insumo con ubicación
 $stmt = $db->prepare("
-    SELECT i.*, ps.nombre_punto, ar.nombre_area, s.nombre_sede, l.nombre_localidad, z.nombre_zona
+    SELECT i.*, ps.nombre_punto, ar.nombre_area, s.nombre_sede, l.nombre_localidad, z.nombre_zona,
+           lic.cod_expediente AS licitacion_expediente
     FROM insumos i
     LEFT JOIN puntos_stock ps ON i.id_punto_stock_actual = ps.id_punto_stock
     LEFT JOIN areas ar ON i.id_area_asignacion_actual = ar.id_area
     LEFT JOIN sedes s ON i.id_sede_actual = s.id_sede
     LEFT JOIN localidades l ON s.id_localidad = l.id_localidad
     LEFT JOIN zonas z ON l.id_zona = z.id_zona
+    LEFT JOIN licitaciones lic ON i.id_licitacion = lic.id_licitacion
     WHERE i.id_insumo = ?
+"); WHERE i.id_insumo = ?
 ");
 $stmt->execute([$id]);
 $insumo = $stmt->fetch();
@@ -111,12 +112,18 @@ include '../../includes/header.php';
                     <div class="col-md-6">
                         <p><strong>Cantidad:</strong>
                             <span class="badge <?php echo $insumo['cantidad'] > 0 ? 'bg-success' : 'bg-danger'; ?>">
-                                <?php echo (int)$insumo['cantidad']; ?>
-                            </span>
-                        </p>
-                        <p><strong>Fecha de Adquisición:</strong> <?php echo $insumo['fecha_adquisicion'] ? date('d/m/Y', strtotime($insumo['fecha_adquisicion'])) : '-'; ?></p>
+                                <?p                        <p><strong>Fecha de Adquisición:</strong> <?php echo $insumo['fecha_adquisicion'] ? date('d/m/Y', strtotime($insumo['fecha_adquisicion'])) : '-'; ?></p>
                         <?php if ($insumo['estado'] !== 'Asignado'): ?>
                             <p><strong>Punto de Stock:</strong> <?php echo $insumo['nombre_punto'] ?: 'Sin asignar'; ?></p>
+                        <?php endif; ?>
+                        <p><strong>Condición:</strong> 
+                            <span class="badge <?php echo ($insumo['es_nuevo'] ?? 1) ? 'bg-success' : 'bg-warning'; ?>">
+                                <?php echo ($insumo['es_nuevo'] ?? 1) ? 'Nuevo' : 'Usado'; ?>
+                            </span>
+                        </p>
+                        <?php if (!empty($insumo['licitacion_expediente'])): ?>
+                            <p><strong>Nro. Expediente:</strong> <span class="badge bg-primary"><?php echo htmlspecialchars($insumo['licitacion_expediente']); ?></span></p>
+                        <?php endif; ?>strong> <?php echo $insumo['nombre_punto'] ?: 'Sin asignar'; ?></p>
                         <?php endif; ?>
                     </div>
                 </div>

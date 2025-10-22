@@ -52,8 +52,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Insertar insumo principal
         $sql = "INSERT INTO insumos (nombre_insumo, tipo_insumo, subcategoria_varios, descripcion_general, 
                                    numero_serie, id_fisico, id_patrimonio, cantidad, fecha_adquisicion, estado, 
-                                   id_punto_stock_actual) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                                   id_punto_stock_actual, id_licitacion, es_nuevo) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
+        $esNuevo = isset($_POST['es_nuevo']) && $_POST['es_nuevo'] == '1' ? 1 : 0;
+        $idLicitacion = !empty($_POST['id_licitacion']) ? (int)$_POST['id_licitacion'] : null;
         
         $stmt = $conexion->prepare($sql);
         $stmt->execute([
@@ -67,7 +70,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $cantidad,
             $_POST['fecha_adquisicion'] ?: null,
             'Disponible', // Estado inicial siempre disponible
-            $_POST['id_punto_stock_actual'] ?: 2 // Por defecto Depósito
+            $_POST['id_punto_stock_actual'] ?: 2, // Por defecto Depósito
+            $idLicitacion, // Licitación asociada (opcional)
+            $esNuevo // 1=Nuevo, 0=Usado
         ]);
         
         $id_insumo = $conexion->lastInsertId();
@@ -307,7 +312,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <input type="date" class="form-control form-control-sm w-100" id="fecha_adquisicion" name="fecha_adquisicion" value="<?php echo date('Y-m-d'); ?>">
                             </div>
                             
-                            <div class="mb-0">
+                            <div class="mb-2">
                                 <label for="id_punto_stock_actual" class="form-label">Punto de Almacenamiento *</label>
                                 <select class="form-select form-select-sm w-100" id="id_punto_stock_actual" name="id_punto_stock_actual" required>
                                     <option value="">Seleccione punto de almacenamiento</option>
@@ -319,6 +324,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     <?php endforeach; ?>
                                 </select>
                                 <div class="invalid-feedback">Debe seleccionar un punto de almacenamiento</div>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="es_nuevo" name="es_nuevo" value="1" checked>
+                                    <label class="form-check-label" for="es_nuevo">
+                                        <strong>Insumo Nuevo</strong> <small class="text-muted">(desmarcar si es usado)</small>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-0">
+                                <label for="id_licitacion" class="form-label">Nro. Expediente</label>
+                                <select class="form-select form-select-sm w-100" id="id_licitacion" name="id_licitacion">
+                                    <option value="">Sin licitación</option>
+                                    <?php
+                                    $licitaciones = $conexion->query("SELECT id_licitacion, cod_expediente FROM licitaciones ORDER BY cod_expediente DESC")->fetchAll();
+                                    foreach ($licitaciones as $lic):
+                                    ?>
+                                        <option value="<?php echo $lic['id_licitacion']; ?>">
+                                            <?php echo htmlspecialchars($lic['cod_expediente']); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <small class="text-muted">Opcional: Asociar insumo a una licitación</small>
                             </div>
                         </div>
                     </div>
