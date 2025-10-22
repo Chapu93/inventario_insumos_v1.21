@@ -208,13 +208,13 @@ function verDetalleLic(id){
     if (d.insumos && d.insumos.length > 0) {
       html += '<div class="table-responsive">';
       html += '<table class="table table-sm table-striped">';
-      html += '<thead><tr><th>Nombre</th><th>Tipo</th><th>Estado</th></tr></thead>';
+      html += '<thead><tr><th>Nombre</th><th>Tipo</th><th>Cantidad</th></tr></thead>';
       html += '<tbody>';
       d.insumos.forEach(function(it){
         const nombre = $('<div>').text(it.nombre_insumo||'').html();
         const tipo = $('<div>').text(it.tipo_insumo||'').html();
-        const estado = $('<div>').text(it.estado||'').html();
-        html += `<tr><td><strong>${nombre}</strong></td><td><span class="badge bg-info">${tipo}</span></td><td>${estado}</td></tr>`;
+        const cantidad = parseInt(it.cantidad) || 1;
+        html += `<tr><td><strong>${nombre}</strong></td><td><span class="badge bg-info">${tipo}</span></td><td><span class="badge bg-primary">${cantidad}</span></td></tr>`;
       });
       html += '</tbody></table>';
       html += '</div>';
