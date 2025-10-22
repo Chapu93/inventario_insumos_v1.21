@@ -139,11 +139,11 @@ $tipos_insumo = $stmt->fetchAll();
                 <table class="table table-striped datatable" id="tablaInsumos" data-default-order-col="1" data-default-order-dir="asc" data-ssp="1">
                     <thead>
                         <tr>
-                            <th class="text-center">Nombre</th>
-                            <th class="text-center">Tipo</th>
-                            <th class="text-center">Condición</th>
-                            <th class="text-center">Cantidad</th>
-                            <th class="text-center">Acciones</th>
+                            <th>Nombre</th>
+                            <th>Tipo</th>
+                            <th>Condición</th>
+                            <th>Cantidad</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody></tbody>

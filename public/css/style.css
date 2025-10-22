@@ -172,12 +172,6 @@ body {
 /* DataTables: asegurar ancho completo */
 .dataTables_wrapper .dataTable { width: 100% !important; }
 
-/* Centrar contenido de celdas en tablas DataTables */
-#tablaInsumos tbody td {
-    text-align: center;
-    vertical-align: middle;
-}
-
 /* Navbar más contrastada sobre el fondo */
 .navbar.bg-light {
     background-color: var(--surface-2) !important;
