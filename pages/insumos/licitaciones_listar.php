@@ -6,7 +6,9 @@ include '../../includes/header.php';
 <div class="row">
   <div class="col-12 d-flex justify-content-between align-items-center mb-4">
     <h1 class="mb-0"><i class="fas fa-file-signature me-2"></i>Licitaciones</h1>
-    <a class="btn btn-primary" href="licitaciones_nueva_pasos.php"><i class="fas fa-plus me-2"></i>Nueva Licitación</a>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalNuevaLicitacion">
+      <i class="fas fa-plus me-2"></i>Nueva Licitación
+    </button>
   </div>
 </div>
 
@@ -15,115 +17,247 @@ include '../../includes/header.php';
   <div class="card-body">
     <div class="table-responsive">
       <table class="table table-striped datatable" id="tablaLicitaciones">
-        <thead><tr><th>Código Expediente</th><th>Fin</th><th>Insumos</th><th>Acciones</th></tr></thead>
+        <thead><tr><th>Código Expediente</th><th>Finalización</th><th>Insumos</th><th>Acciones</th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
   </div>
 </div>
 
-<!-- Modal removido: creación desde flujo por pasos -->
+<!-- Modal Nueva Licitación -->
+<div class="modal fade" id="modalNuevaLicitacion" tabindex="-1" aria-labelledby="modalNuevaLicitacionLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalNuevaLicitacionLabel">
+          <i class="fas fa-plus-circle me-2"></i>Nueva Licitación
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formNuevaLicitacion">
+          <div class="mb-3">
+            <label for="nuevo_cod_expediente" class="form-label">Código Expediente *</label>
+            <input type="text" class="form-control" id="nuevo_cod_expediente" name="cod_expediente" required>
+          </div>
+          <div class="mb-3">
+            <label for="nuevo_fecha_finalizacion" class="form-label">Fecha Finalización</label>
+            <input type="date" class="form-control" id="nuevo_fecha_finalizacion" name="fecha_finalizacion">
+          </div>
+          <div class="mb-3">
+            <label for="nuevo_descripcion" class="form-label">Descripción</label>
+            <textarea class="form-control" id="nuevo_descripcion" name="descripcion" rows="3"></textarea>
+          </div>
+          <div class="alert alert-info mb-0">
+            <i class="fas fa-info-circle me-2"></i>
+            Los insumos se asignan desde la carga/edición de cada insumo seleccionando el Nro. de Expediente.
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" id="btnGuardarNuevaLicitacion">
+          <i class="fas fa-save me-2"></i>Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Ver Licitación -->
+<div class="modal fade" id="modalVerLicitacion" tabindex="-1" aria-labelledby="modalVerLicitacionLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalVerLicitacionLabel">
+          <i class="fas fa-eye me-2"></i>Detalle de Licitación
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body" id="modalVerLicitacionBody">
+        <div class="text-center">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-warning" id="btnEditarDesdever" style="display:none;">
+          <i class="fas fa-edit me-2"></i>Editar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
 const BASE = '<?php echo app_base_url(); ?>';
 $(function(){
-  // DataTable principal
+  // DataTable en español
   $('#tablaLicitaciones').DataTable({
     ajax: { url: BASE + '/ajax/licitaciones_list.php', dataSrc: 'data' },
     columns: [
       { data: 'cod_expediente' },
-      { data: 'fecha_finalizacion' },
-      { data: 'num_insumos', render: d => `<span class=\"badge bg-primary\">${d||0}</span>` },
+      { data: 'fecha_finalizacion', render: function(d) {
+          if (!d) return '-';
+          const fecha = new Date(d);
+          return fecha.toLocaleDateString('es-AR');
+        }
+      },
+      { data: 'num_insumos', render: d => `<span class="badge bg-primary">${d||0}</span>` },
       { data: null, orderable:false, searchable:false, render: function(data, type, row){
           return `
-            <div class=\"btn-group\">
-              <button class=\"btn btn-sm btn-info\" onclick=\"verDetalleLic(${row.id_licitacion})\" title=\"Ver\"><i class=\"fas fa-eye\"></i></button>
-              <a class=\"btn btn-sm btn-warning\" href=\"licitaciones_nueva_pasos.php?id=${row.id_licitacion}\" title=\"Editar\"><i class=\"fas fa-edit\"></i></a>
-              <button class=\"btn btn-sm btn-danger\" onclick=\"eliminarLic(${row.id_licitacion})\" title=\"Eliminar\"><i class=\"fas fa-trash\"></i></button>
+            <div class="btn-group">
+              <button class="btn btn-sm btn-info" onclick="verDetalleLic(${row.id_licitacion})" title="Ver" data-bs-toggle="tooltip"><i class="fas fa-eye"></i></button>
+              <a class="btn btn-sm btn-warning" href="licitaciones_nueva_pasos.php?id=${row.id_licitacion}" title="Editar" data-bs-toggle="tooltip"><i class="fas fa-edit"></i></a>
+              <button class="btn btn-sm btn-danger" onclick="eliminarLic(${row.id_licitacion})" title="Eliminar" data-bs-toggle="tooltip"><i class="fas fa-trash"></i></button>
             </div>`;
         } }
-    ]
-  });
-
-  // Se quita la selección por Select2 en este modal y se guía al flujo por pasos
-});
-
-function quitarInsumo(id){ $('#tablaInsumosLic tbody tr[data-id="'+id+'"]').remove(); }
-
-function editarLic(id){
-  // cargar cabecera + insumos
-  $.getJSON(BASE + '/ajax/licitaciones_get.php', { id }, function(resp){
-    if (!resp || !resp.success) { showToast('Error al cargar licitación', 'error'); return; }
-    $('#id_licitacion').val(resp.data.id_licitacion);
-    $('#cod_expediente').val(resp.data.cod_expediente);
-    $('#fecha_finalizacion').val(resp.data.fecha_finalizacion||'');
-    $('#descripcion').val(resp.data.descripcion||'');
-    const cuerpo = $('#tablaInsumosLic tbody'); cuerpo.empty();
-    (resp.data.insumos||[]).forEach(it => {
-      cuerpo.append(`<tr data-id="${it.id_insumo}"><td>${it.nombre_insumo}</td><td>${it.tipo_insumo||''}</td><td><button type="button" class="btn btn-sm btn-outline-danger" onclick="quitarInsumo(${it.id_insumo})"><i class="fas fa-times"></i></button></td></tr>`);
-    });
-    new bootstrap.Modal(document.getElementById('modalLicitacion')).show();
-  });
-}
-
-function verDetalleLic(id){
-  $.getJSON(BASE + '/ajax/licitaciones_get.php', { id: id }, function(resp){
-    if (!resp || !resp.success) { showToast('Error al cargar licitación', 'error'); return; }
-    const d = resp.data || {};
-    let html = '';
-    html += `<div><strong>Expediente:</strong> ${$('<div>').text(d.cod_expediente||'').html()}</div>`;
-    html += `<div><strong>Finalización:</strong> ${d.fecha_finalizacion||'-'}</div>`;
-    if (d.descripcion) html += `<div><strong>Descripción:</strong> ${$('<div>').text(d.descripcion||'').html()}</div>`;
-    html += '<hr><h6>Insumos</h6>';
-    const items = (d.insumos||[]).map(function(it){
-      const nombre = $('<div>').text(it.nombre_insumo||'').html();
-      const tipo = $('<div>').text(it.tipo_insumo||'').html();
-      return `<li>${nombre} <small class=\"text-muted\">(${tipo})</small></li>`;
-    }).join('');
-    html += items ? `<ul>${items}</ul>` : '<div class=\"text-muted\">Sin insumos</div>';
-    // Fallback simple: alert legible si no hay modal genérico
-    try {
-      alert(html.replace(/<[^>]*>/g, '\n').replace(/\n\n+/g, '\n'));
-    } catch(e) {
-      console.log('Detalle licitación', d);
+    ],
+    language: {
+      url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
     }
   });
-}
+});
 
-$('#btnGuardarLicitacion').on('click', function(){
+// Guardar nueva licitación
+$('#btnGuardarNuevaLicitacion').on('click', function(){
+  const form = $('#formNuevaLicitacion')[0];
+  if (!form.checkValidity()) {
+    form.reportValidity();
+    return;
+  }
+  
   const payload = {
     _csrf: (document.querySelector('meta[name="csrf-token"]')||{}).content || '',
-    id_licitacion: $('#id_licitacion').val()||null,
-    cod_expediente: $('#cod_expediente').val(),
-    fecha_finalizacion: $('#fecha_finalizacion').val()||null,
-    descripcion: $('#descripcion').val()||null,
-    insumos: $('#tablaInsumosLic tbody tr').map(function(){ return parseInt($(this).data('id'),10); }).get()
+    cod_expediente: $('#nuevo_cod_expediente').val(),
+    fecha_finalizacion: $('#nuevo_fecha_finalizacion').val() || null,
+    descripcion: $('#nuevo_descripcion').val() || null
   };
+  
   $.ajax({
-    url: BASE + '/ajax/licitaciones_save.php',
+    url: BASE + '/ajax/licitaciones_save_simple.php',
     method: 'POST',
     contentType: 'application/json',
     data: JSON.stringify(payload),
-    success: function(r){ if (!r.success) { showToast(r.error||'Error', 'error'); return; }
-      showToast('Licitación guardada', 'success');
-      $('#modalLicitacion').modal('hide');
+    success: function(r){ 
+      if (!r.success) { 
+        showToast(r.error||'Error al guardar', 'error'); 
+        return; 
+      }
+      showToast('Licitación creada correctamente', 'success');
+      $('#modalNuevaLicitacion').modal('hide');
+      $('#formNuevaLicitacion')[0].reset();
       try { $('#tablaLicitaciones').DataTable().ajax.reload(); } catch(e) { location.reload(); }
     },
-    error: function(){ showToast('Error al guardar', 'error'); }
+    error: function(){ 
+      showToast('Error al guardar la licitación', 'error'); 
+    }
   });
 });
 
+// Ver detalle de licitación
+function verDetalleLic(id){
+  const modal = new bootstrap.Modal(document.getElementById('modalVerLicitacion'));
+  const modalBody = document.getElementById('modalVerLicitacionBody');
+  const btnEditar = document.getElementById('btnEditarDesdever');
+  
+  // Mostrar loading
+  modalBody.innerHTML = `
+    <div class="text-center">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="mt-2">Cargando detalles...</p>
+    </div>
+  `;
+  
+  modal.show();
+  
+  $.getJSON(BASE + '/ajax/licitaciones_get.php', { id: id }, function(resp){
+    if (!resp || !resp.success) { 
+      showToast('Error al cargar licitación', 'error'); 
+      modal.hide();
+      return; 
+    }
+    
+    const d = resp.data || {};
+    let html = '';
+    
+    // Información principal
+    html += '<div class="row">';
+    html += '<div class="col-md-12">';
+    html += '<div class="card mb-3">';
+    html += '<div class="card-header"><h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Información de la Licitación</h6></div>';
+    html += '<div class="card-body">';
+    html += `<div class="row">`;
+    html += `<div class="col-md-6"><p><strong>Código Expediente:</strong><br><span class="badge bg-primary">${$('<div>').text(d.cod_expediente||'').html()}</span></p></div>`;
+    html += `<div class="col-md-6"><p><strong>Fecha Finalización:</strong><br>${d.fecha_finalizacion ? new Date(d.fecha_finalizacion).toLocaleDateString('es-AR') : '-'}</p></div>`;
+    html += `</div>`;
+    if (d.descripcion) {
+      html += `<div class="row"><div class="col-12"><p><strong>Descripción:</strong><br>${$('<div>').text(d.descripcion).html().replace(/\n/g, '<br>')}</p></div></div>`;
+    }
+    html += '</div></div>';
+    
+    // Insumos asignados
+    html += '<div class="card">';
+    html += '<div class="card-header"><h6 class="mb-0"><i class="fas fa-boxes me-2"></i>Insumos Asignados (' + (d.insumos?.length || 0) + ')</h6></div>';
+    html += '<div class="card-body">';
+    
+    if (d.insumos && d.insumos.length > 0) {
+      html += '<div class="table-responsive">';
+      html += '<table class="table table-sm table-striped">';
+      html += '<thead><tr><th>Nombre</th><th>Tipo</th><th>Estado</th></tr></thead>';
+      html += '<tbody>';
+      d.insumos.forEach(function(it){
+        const nombre = $('<div>').text(it.nombre_insumo||'').html();
+        const tipo = $('<div>').text(it.tipo_insumo||'').html();
+        const estado = $('<div>').text(it.estado||'').html();
+        html += `<tr><td><strong>${nombre}</strong></td><td><span class="badge bg-info">${tipo}</span></td><td>${estado}</td></tr>`;
+      });
+      html += '</tbody></table>';
+      html += '</div>';
+    } else {
+      html += '<div class="alert alert-info mb-0"><i class="fas fa-info-circle me-2"></i>No hay insumos asignados a esta licitación.</div>';
+    }
+    
+    html += '</div></div>';
+    html += '</div></div>';
+    
+    modalBody.innerHTML = html;
+    
+    // Configurar botón editar
+    btnEditar.onclick = () => {
+      modal.hide();
+      window.location.href = `licitaciones_nueva_pasos.php?id=${id}`;
+    };
+    btnEditar.style.display = 'inline-block';
+  });
+}
+
+// Eliminar licitación
 function eliminarLic(id){
-  if (!confirm('¿Eliminar licitación?')) return;
+  if (!confirm('¿Está seguro de eliminar esta licitación?\n\nLos insumos asociados quedarán sin licitación asignada.')) return;
+  
   $.post({
     url: BASE + '/ajax/licitaciones_delete.php',
     contentType: 'application/json',
-    data: JSON.stringify({ _csrf: (document.querySelector('meta[name="csrf-token"]')||{}).content || '', id }),
-    success: function(r){ if (!r.success) { showToast(r.error||'Error', 'error'); return; }
-      showToast('Licitación eliminada', 'success');
+    data: JSON.stringify({ 
+      _csrf: (document.querySelector('meta[name="csrf-token"]')||{}).content || '', 
+      id 
+    }),
+    success: function(r){ 
+      if (!r.success) { 
+        showToast(r.error||'Error al eliminar', 'error'); 
+        return; 
+      }
+      showToast('Licitación eliminada correctamente', 'success');
       try { $('#tablaLicitaciones').DataTable().ajax.reload(); } catch(e) { location.reload(); }
     },
-    error: function(){ showToast('Error al eliminar', 'error'); }
+    error: function(){ 
+      showToast('Error al eliminar la licitación', 'error'); 
+    }
   });
 }
 </script>
