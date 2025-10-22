@@ -80,7 +80,7 @@
                     </a>
                     <ul class="collapse list-unstyled <?php echo $isInsumos ? 'show' : ''; ?>" id="insumosSubmenu" data-bs-parent="#sidebar" role="menu">
                         <li>
-                            <a href="<?php echo app_base_url(); ?>/pages/insumos/licitaciones_listar.php" class="<?php echo strpos($currentPath, '/pages/insumos/licitaciones_listar.php') !== false ? 'active' : ''; ?>" role="menuitem">Licitaciones</a>
+                            <a href="<?php echo app_base_url(); ?>/pages/insumos/ingresos_listar.php" class="<?php echo strpos($currentPath, '/pages/insumos/ingresos_listar.php') !== false ? 'active' : ''; ?>" role="menuitem">Ingresos</a>
                         </li>
                     </ul>
                 </li>
