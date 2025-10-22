@@ -121,8 +121,21 @@ include '../../includes/header.php';
                                 <?php echo ($insumo['es_nuevo'] ?? 1) ? 'Nuevo' : 'Usado'; ?>
                             </span>
                         </p>
-                        <?php if (!empty($insumo['licitacion_expediente'])): ?>
-                            <p><strong>Nro. Expediente:</strong> <span class="badge bg-primary"><?php echo htmlspecialchars($insumo['licitacion_expediente']); ?></span></p>
+                        <?php if (!empty($insumo['ingreso_referencia'])): ?>
+                            <p><strong>
+                                <?php 
+                                $tipoIngreso = $insumo['tipo_ingreso'] ?? 'otros';
+                                $labelIngreso = match($tipoIngreso) {
+                                    'fondos' => 'Nro. Nota (Fondos)',
+                                    'licitacion' => 'Nro. Expediente (Licitación)',
+                                    'compra_directa' => 'Nro. Expediente (Compra Directa)',
+                                    'otros' => 'Nro. Referencia',
+                                    default => 'Nro. Referencia'
+                                };
+                                echo $labelIngreso;
+                                ?>:</strong> 
+                                <span class="badge bg-primary"><?php echo htmlspecialchars($insumo['ingreso_referencia']); ?></span>
+                            </p>
                         <?php endif; ?>strong> <?php echo $insumo['nombre_punto'] ?: 'Sin asignar'; ?></p>
                         <?php endif; ?>
                     </div>

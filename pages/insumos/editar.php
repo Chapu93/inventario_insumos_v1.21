@@ -96,12 +96,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $sql = "UPDATE insumos
                 SET nombre_insumo = ?, subcategoria_varios = ?, descripcion_general = ?,
                     numero_serie = ?, id_fisico = ?, id_patrimonio = ?, cantidad = ?, fecha_adquisicion = ?,
-                    id_punto_stock_actual = ?, id_licitacion = ?, es_nuevo = ?
+                    id_punto_stock_actual = ?, id_ingreso = ?, es_nuevo = ?
                 WHERE id_insumo = ?";
         $db->prepare($sql)->execute([
             $nombre, $subcat, $desc,
             $numero_serie, $id_fisico, $id_patrimonio, $cantidad, $fecha,
-            $punto, $idLicitacion, $esNuevo,
+            $punto, $idIngreso, $esNuevo,
             $id
         ]);
 
@@ -310,20 +310,75 @@ include '../../includes/header.php';
                             </div>
                             
                             <div class="mb-2">
-                                <label for="id_licitacion" class="form-label">Nro. Expediente</label>
-                                <select class="form-select form-select-sm" id="id_licitacion" name="id_licitacion">
-                                    <option value="">Sin licitación</option>
+                                <label for="id_ingreso" class="form-label">Tipo de Ingreso</label>
+                                <select class="form-select form-select-sm" id="select_tipo_ingreso_edit" name="id_ingreso" onchange="cambiarTipoIngresoEdit()">
+                                    <option value="">Sin ingreso asociado</option>
                                     <?php
-                                    $licitaciones = $db->query("SELECT id_licitacion, cod_expediente FROM licitaciones ORDER BY cod_expediente DESC")->fetchAll();
-                                    foreach ($licitaciones as $lic):
+                                    $ingresos = $db->query("SELECT id_ingreso, tipo_ingreso, nro_referencia FROM ingresos ORDER BY tipo_ingreso, nro_referencia DESC")->fetchAll();
+                                    $tipos = ['fondos' => 'Fondos', 'compra_directa' => 'Compra Directa', 'licitacion' => 'Licitación', 'otros' => 'Otros'];
+                                    
+                                    foreach ($tipos as $tipoKey => $tipoLabel):
+                                        $ingresosTipo = array_filter($ingresos, function($ing) use ($tipoKey) {
+                                            return $ing['tipo_ingreso'] === $tipoKey;
+                                        });
+                                        if (count($ingresosTipo) > 0):
                                     ?>
-                                        <option value="<?php echo $lic['id_licitacion']; ?>" <?php echo ($insumo['id_licitacion'] ?? null) == $lic['id_licitacion'] ? 'selected' : ''; ?>>
-                                            <?php echo htmlspecialchars($lic['cod_expediente']); ?>
-                                        </option>
-                                    <?php endforeach; ?>
+                                        <optgroup label="<?php echo $tipoLabel; ?>">
+                                            <?php foreach ($ingresosTipo as $ing): ?>
+                                                <option value="<?php echo $ing['id_ingreso']; ?>" 
+                                                        data-tipo="<?php echo $ing['tipo_ingreso']; ?>"
+                                                        <?php echo ($insumo['id_ingreso'] ?? null) == $ing['id_ingreso'] ? 'selected' : ''; ?>>
+                                                    <?php echo htmlspecialchars($ing['nro_referencia']); ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </optgroup>
+                                    <?php 
+                                        endif;
+                                    endforeach; 
+                                    ?>
                                 </select>
-                                <small class="text-muted">Opcional: Asociar insumo a una licitación</small>
+                                <small class="text-muted" id="help_ingreso_edit">Opcional: Asociar insumo a un ingreso</small>
                             </div>
+                            
+                            <script>
+                            function cambiarTipoIngresoEdit() {
+                                const select = document.getElementById('select_tipo_ingreso_edit');
+                                const label = document.querySelector('label[for="id_ingreso"]');
+                                const help = document.getElementById('help_ingreso_edit');
+                                
+                                if (!select || !label) return;
+                                
+                                const selectedOption = select.options[select.selectedIndex];
+                                const tipo = selectedOption.getAttribute('data-tipo');
+                                
+                                if (!tipo) {
+                                    label.textContent = 'Tipo de Ingreso';
+                                    if (help) help.textContent = 'Opcional: Asociar insumo a un ingreso';
+                                    return;
+                                }
+                                
+                                switch(tipo) {
+                                    case 'fondos':
+                                        label.innerHTML = '<i class="fas fa-money-bill me-1"></i>Nro. de Nota (Fondos)';
+                                        if (help) help.textContent = 'Número de nota de fondos';
+                                        break;
+                                    case 'licitacion':
+                                        label.innerHTML = '<i class="fas fa-file-signature me-1"></i>Nro. de Expediente (Licitación)';
+                                        if (help) help.textContent = 'Número de expediente de licitación';
+                                        break;
+                                    case 'compra_directa':
+                                        label.innerHTML = '<i class="fas fa-shopping-cart me-1"></i>Nro. de Expediente (Compra Directa)';
+                                        if (help) help.textContent = 'Número de expediente de compra directa';
+                                        break;
+                                    case 'otros':
+                                        label.innerHTML = '<i class="fas fa-ellipsis-h me-1"></i>Nro. de Referencia (Otros)';
+                                        if (help) help.textContent = 'Número de referencia';
+                                        break;
+                                }
+                            }
+                            // Ejecutar al cargar si hay selección
+                            $(document).ready(function(){ cambiarTipoIngresoEdit(); });
+                            </script>
                         </div>
                     </div>
                 </div>
