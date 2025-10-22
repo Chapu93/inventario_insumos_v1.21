@@ -470,10 +470,11 @@ $(function(){
       order: [[$t.data('default-order-col') || 1, $t.data('default-order-dir') || 'asc']],
       pageLength: 25,
       columns: [
-        { data: 0 },
-        { data: 1, orderable: true },
-        { data: 2, orderable: true },
-        { data: 3, orderable: false, searchable: false }
+        { data: 0 },  // Nombre
+        { data: 1, orderable: true },  // Tipo
+        { data: 2, orderable: true },  // Condición
+        { data: 3, orderable: true },  // Cantidad
+        { data: 4, orderable: false, searchable: false }  // Acciones
       ],
       drawCallback: function(){ inicializarTooltips(); }
     });
