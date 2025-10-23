@@ -537,14 +537,16 @@ document.addEventListener('DOMContentLoaded', function() {
         // Restaurar datos del Paso 1
         restaurarDatosPaso1();
         
-        // Pequeño delay para asegurar que el DOM está listo
+        // Delay para asegurar que el DOM está listo
         setTimeout(function() {
             // Restaurar seleccionados
             restaurarSeleccionados(nuevoId);
             
-            // IR DIRECTAMENTE AL PASO 2
-            console.log('Navegando al Paso 2...');
-            irAPaso(2);
+            // IR DIRECTAMENTE AL PASO 2 con delay adicional
+            setTimeout(function() {
+                console.log('Navegando al Paso 2...');
+                irAPaso(2);
+            }, 150); // Después de que restaurarSeleccionados termine
         }, 100);
     } else {
         // Actualizar contador inicial
