@@ -150,9 +150,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         // Redirección condicional: volver a ingreso (pasos) si corresponde
         $from = isset($_GET['from']) ? $_GET['from'] : (isset($_POST['from']) ? $_POST['from'] : '');
+        $returnToId = isset($_GET['return_to_id']) ? (int)$_GET['return_to_id'] : (isset($_POST['return_to_id']) ? (int)$_POST['return_to_id'] : 0);
+        
         if ($from === 'ingreso') {
             // Redirigir a ingresos_editar.php con parámetro from=agregar
-            header('Location: ' . app_base_url() . '/pages/insumos/ingresos_editar.php?from=agregar&added_id=' . urlencode($id_insumo));
+            $url = app_base_url() . '/pages/insumos/ingresos_editar.php?from=agregar&added_id=' . urlencode($id_insumo);
+            if ($returnToId > 0) {
+                $url .= '&id=' . $returnToId;
+            }
+            header('Location: ' . $url);
         } elseif ($from === 'licitacion') {
             // Compatibilidad con archivo antiguo
             header('Location: ' . app_base_url() . '/pages/insumos/licitaciones_nueva_pasos.php?from=agregar&added_id=' . urlencode($id_insumo));
