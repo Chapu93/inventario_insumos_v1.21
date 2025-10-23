@@ -301,7 +301,7 @@ document.getElementById('btnConfirmarDevolucion').addEventListener('click', func
   const seleccion = [];
   document.querySelectorAll('#tablaDevolucionBody .chk-dev:checked').forEach(chk => {
     const id = parseInt(chk.getAttribute('data-id'), 10);
-    const qtyInput = document.querySelector(`#tablaDevolucionBody input[data-id=\"${id}\"]`);
+    const qtyInput = document.querySelector(`#tablaDevolucionBody input[data-id="${id}"]`);
     const cantidad = qtyInput ? Math.max(1, Math.min(parseInt(qtyInput.value || '1', 10), parseInt(qtyInput.getAttribute('data-max') || '1', 10))) : 1;
     seleccion.push({ id_insumo: id, cantidad });
   });
