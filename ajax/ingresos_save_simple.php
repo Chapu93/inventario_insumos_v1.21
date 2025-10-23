@@ -65,7 +65,13 @@ try {
     $verificar = $db->prepare('SELECT DATE(fecha_finalizacion) as fecha FROM ingresos WHERE id_ingreso = ?');
     $verificar->execute([$id]);
     $fechaGuardada = $verificar->fetchColumn();
-    error_log("Ingreso guardado - ID: {$id} - Fecha guardada: " . ($fechaGuardada ?? 'NULL'));
+    error_log("Ingreso guardado - ID: {$id}");
+    error_log("Fecha guardada en BD: " . ($fechaGuardada ?? 'NULL'));
+    error_log("Comparación: Enviada[{$fecha_finalizacion}] vs Guardada[{$fechaGuardada}]");
+    if ($fecha_finalizacion && $fechaGuardada && $fecha_finalizacion !== $fechaGuardada) {
+        error_log("⚠️ ALERTA: Las fechas NO coinciden!");
+    }
+    error_log("======================");
     
     echo json_encode([
         'success' => true,
