@@ -358,12 +358,25 @@ function verDetalleIngreso(id){
     
     modalBody.innerHTML = html;
     
-    // Configurar botón editar
-    btnEditar.onclick = () => {
-      modal.hide();
-      window.location.href = `ingresos_editar.php?id=${id}`;
-    };
-    btnEditar.style.display = 'inline-block';
+      // Configurar botón editar
+      btnEditar.onclick = () => {
+        modal.hide();
+        window.location.href = `ingresos_editar.php?id=${id}`;
+      };
+      btnEditar.style.display = 'inline-block';
+    },
+    error: function(xhr, status, error) {
+      console.error('Error AJAX al cargar ingreso:', {xhr, status, error});
+      console.error('Response Text:', xhr.responseText);
+      console.error('URL llamada:', BASE + '/ajax/ingresos_get.php?id=' + id);
+      modalBody.innerHTML = `
+        <div class="alert alert-danger">
+          <h6><i class="fas fa-exclamation-triangle me-2"></i>Error al cargar el ingreso</h6>
+          <p><strong>Status:</strong> ${status}</p>
+          <p><strong>Error:</strong> ${error || 'Error desconocido'}</p>
+          <p><small>Abre la consola del navegador (F12) para ver más detalles</small></p>
+        </div>`;
+    }
   });
 }
 
