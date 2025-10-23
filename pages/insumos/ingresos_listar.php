@@ -222,13 +222,20 @@ $('#btnGuardarNuevoIngreso').on('click', function(){
     return;
   }
   
+  const fechaInput = $('#nuevo_fecha_finalizacion').val();
+  
+  // Log para debug
+  console.log('Fecha del input:', fechaInput);
+  
   const payload = {
     _csrf: (document.querySelector('meta[name="csrf-token"]')||{}).content || '',
     tipo_ingreso: $('#nuevo_tipo_ingreso').val(),
     nro_referencia: $('#nuevo_nro_referencia').val(),
-    fecha_finalizacion: $('#nuevo_fecha_finalizacion').val() || null,
+    fecha_finalizacion: fechaInput || null,
     descripcion: $('#nuevo_descripcion').val() || null
   };
+  
+  console.log('Payload enviado:', payload);
   
   $.ajax({
     url: BASE + '/ajax/ingresos_save_simple.php',
