@@ -301,10 +301,13 @@ document.getElementById('btnConfirmarDevolucion').addEventListener('click', func
   const seleccion = [];
   document.querySelectorAll('#tablaDevolucionBody .chk-dev:checked').forEach(chk => {
     const id = parseInt(chk.getAttribute('data-id'), 10);
-    const qtyInput = document.querySelector(`#tablaDevolucionBody input[data-id="${id}"]`);
+    const qtyInput = document.querySelector(`#tablaDevolucionBody input[type="number"][data-id="${id}"]`);
+    console.log('ID:', id, 'Input encontrado:', qtyInput, 'Valor:', qtyInput?.value);
     const cantidad = qtyInput ? Math.max(1, Math.min(parseInt(qtyInput.value || '1', 10), parseInt(qtyInput.getAttribute('data-max') || '1', 10))) : 1;
+    console.log('Cantidad final:', cantidad);
     seleccion.push({ id_insumo: id, cantidad });
   });
+  console.log('Selección completa:', seleccion);
   if (seleccion.length === 0) {
     alert('Debe seleccionar al menos un insumo a devolver');
     return;

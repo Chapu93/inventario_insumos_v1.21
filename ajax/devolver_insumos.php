@@ -41,7 +41,8 @@ try {
 
     foreach ($items as $it) {
         $idInsumo = (int)($it['id_insumo'] ?? 0);
-        $cantidadDev = (int)max(1, ($it['cantidad'] ?? 1));
+        $cantidadDev = isset($it['cantidad']) ? (int)$it['cantidad'] : 1;
+        $cantidadDev = max(1, $cantidadDev); // Mínimo 1
         if ($idInsumo <= 0) { continue; }
 
         // Obtener detalle actual del remito para ese insumo
