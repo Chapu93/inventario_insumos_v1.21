@@ -76,12 +76,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         if ($fromPost === 'ingreso' && $returnToIdPost > 0) {
             // Obtener datos del ingreso
-            $stmtIng = $conexion->prepare('SELECT fecha_finalizacion FROM ingresos WHERE id_ingreso = ?');
+            $stmtIng = $conexion->prepare('SELECT DATE(fecha_finalizacion) as fecha_finalizacion FROM ingresos WHERE id_ingreso = ?');
             $stmtIng->execute([$returnToIdPost]);
             $ingreso = $stmtIng->fetch();
             
             $idIngreso = $returnToIdPost; // Asignar automáticamente al ingreso
-            $fechaAdquisicion = $ingreso['fecha_finalizacion'] ?: null; // Usar fecha de finalización del ingreso
+            // Usar fecha exacta del ingreso (formato YYYY-MM-DD sin hora)
+            $fechaAdquisicion = !empty($ingreso['fecha_finalizacion']) ? $ingreso['fecha_finalizacion'] : null;
+            
+            error_log("Insumo desde ingreso - Fecha finalizacion: " . ($ingreso['fecha_finalizacion'] ?? 'NULL'));
+            error_log("Fecha adquisicion asignada: " . ($fechaAdquisicion ?? 'NULL'));
         } else {
             // Modo normal: usar lo que viene del form
             $idIngreso = !empty($_POST['id_ingreso']) ? (int)$_POST['id_ingreso'] : null;
@@ -89,11 +93,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             
             // Si se asigna manualmente un ingreso, usar su fecha de finalización
             if ($idIngreso) {
-                $stmtIng = $conexion->prepare('SELECT fecha_finalizacion FROM ingresos WHERE id_ingreso = ?');
+                $stmtIng = $conexion->prepare('SELECT DATE(fecha_finalizacion) as fecha_finalizacion FROM ingresos WHERE id_ingreso = ?');
                 $stmtIng->execute([$idIngreso]);
                 $ingreso = $stmtIng->fetch();
-                if ($ingreso && $ingreso['fecha_finalizacion']) {
+                if ($ingreso && !empty($ingreso['fecha_finalizacion'])) {
                     $fechaAdquisicion = $ingreso['fecha_finalizacion'];
+                    error_log("Ingreso asignado manualmente - Fecha: " . $fechaAdquisicion);
                 }
             }
         }
@@ -234,7 +239,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <h4 class="mb-0">
                 <i class="fas fa-plus me-2"></i>Agregar Insumo
             </h4>
-            <a href="listar.php" class="btn btn-secondary btn-sm">
+            <?php
+            // Botón volver inteligente: vuelve al ingreso si corresponde
+            if ($fromIngreso && $returnToId > 0) {
+                $urlVolver = 'ingresos_editar.php?id=' . $returnToId;
+            } else {
+                $urlVolver = 'listar.php';
+            }
+            ?>
+            <a href="<?php echo $urlVolver; ?>" class="btn btn-secondary btn-sm">
                 <i class="fas fa-arrow-left me-1"></i>Volver
             </a>
         </div>
