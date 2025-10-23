@@ -5,14 +5,14 @@ $db = conectarDB();
 
 // Detectar si es edición
 $esEdicion = false;
-$idLicitacion = null;
+$idIngreso = null;
 $ingresoData = null;
 $insumosExistentes = [];
 
 if (isset($_GET['id']) && $_GET['id']) {
-    $idLicitacion = (int)$_GET['id'];
+    $idIngreso = (int)$_GET['id'];
     $stmt = $db->prepare('SELECT * FROM ingresos WHERE id_ingreso=?');
-    $stmt->execute([$idLicitacion]);
+    $stmt->execute([$idIngreso]);
     $ingresoData = $stmt->fetch();
     
     if ($ingresoData) {
@@ -34,7 +34,7 @@ $sqlInsumos = "SELECT i.id_insumo, i.nombre_insumo, i.tipo_insumo, i.numero_seri
 
 if ($esEdicion) {
     $stmt = $db->prepare($sqlInsumos);
-    $stmt->execute([$idLicitacion]);
+    $stmt->execute([$idIngreso]);
 } else {
     $stmt = $db->query($sqlInsumos);
 }
@@ -47,29 +47,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         $db->beginTransaction();
         
-        $codExpediente = trim($_POST['cod_expediente'] ?? '');
+        $nroReferencia = trim($_POST['nro_referencia'] ?? '');
         $fechaFin = $_POST['fecha_finalizacion'] ?: null;
         $descripcion = trim($_POST['descripcion'] ?? '') ?: null;
         $insumos = isset($_POST['id_insumo']) && is_array($_POST['id_insumo']) ? array_map('intval', $_POST['id_insumo']) : [];
         $cantidades = isset($_POST['cantidad_varios']) && is_array($_POST['cantidad_varios']) ? $_POST['cantidad_varios'] : [];
         
-        if ($codExpediente === '') {
-            throw new Exception('El código de expediente es obligatorio');
+        if ($nroReferencia === '') {
+            throw new Exception('El número de referencia es obligatorio');
         }
         
         if (empty($insumos)) {
             throw new Exception('Debe seleccionar al menos un insumo');
         }
         
-        if ($esEdicion && $idLicitacion) {
-            // Actualizar licitación existente
-            $stmt = $db->prepare('UPDATE ingresos SET cod_expediente=?, descripcion=?, fecha_finalizacion=? WHERE id_ingreso=?');
-            $stmt->execute([$codExpediente, $descripcion, $fechaFin, $idLicitacion]);
-            $id = $idLicitacion;
+        if ($esEdicion && $idIngreso) {
+            // Actualizar ingreso existente
+            $stmt = $db->prepare('UPDATE ingresos SET nro_referencia=?, descripcion=?, fecha_finalizacion=? WHERE id_ingreso=?');
+            $stmt->execute([$nroReferencia, $descripcion, $fechaFin, $idIngreso]);
+            $id = $idIngreso;
         } else {
-            // Crear nueva licitación
-            $stmt = $db->prepare('INSERT INTO ingresos (cod_expediente, descripcion, fecha_finalizacion) VALUES (?,?,?)');
-            $stmt->execute([$codExpediente, $descripcion, $fechaFin]);
+            // Crear nuevo ingreso
+            $stmt = $db->prepare('INSERT INTO ingresos (nro_referencia, descripcion, fecha_finalizacion) VALUES (?,?,?)');
+            $stmt->execute([$nroReferencia, $descripcion, $fechaFin]);
             $id = (int)$db->lastInsertId();
         }
         
@@ -133,7 +133,7 @@ include '../../includes/header.php';
             <form method="POST" id="formPasos" class="needs-validation" novalidate>
                 <?php echo csrf_input(); ?>
                 <?php if ($esEdicion && $idLicitacion): ?>
-                    <input type="hidden" name="id_ingreso" value="<?php echo $idLicitacion; ?>">
+                    <input type="hidden" name="id_ingreso" value="<?php echo $idIngreso; ?>">
                 <?php endif; ?>
 
                 <!-- Paso 1: Datos de la Ingreso -->
@@ -144,16 +144,16 @@ include '../../includes/header.php';
                                 <div class="col-md-6">
                                     <h6 class="mb-3 section-title">Información de la Ingreso</h6>
                                     <div class="mb-3">
-                                        <label for="cod_expediente" class="form-label">
-                                            Código de Expediente <span class="text-danger">*</span>
+                                        <label for="nro_referencia" class="form-label">
+                                            Número de Referencia <span class="text-danger">*</span>
                                         </label>
                                         <input 
                                             type="text" 
                                             class="form-control" 
-                                            id="cod_expediente" 
-                                            name="cod_expediente" 
+                                            id="nro_referencia" 
+                                            name="nro_referencia" 
                                             required
-                                            value="<?php echo $esEdicion && $ingresoData ? htmlspecialchars($ingresoData['cod_expediente']) : ''; ?>"
+                                            value="<?php echo $esEdicion && $ingresoData ? htmlspecialchars($ingresoData['nro_referencia']) : ''; ?>"
                                             placeholder="Ej: EXP-2025-001"
                                         >
                                         <div class="invalid-feedback">El código de expediente es obligatorio</div>
@@ -370,7 +370,7 @@ function guardarEstado() {
         
         // Guardar datos del Paso 1
         const datos = {
-            cod_expediente: document.getElementById('cod_expediente').value,
+            nro_referencia: document.getElementById('nro_referencia').value,
             fecha_finalizacion: document.getElementById('fecha_finalizacion').value,
             descripcion: document.getElementById('descripcion').value
         };
@@ -413,7 +413,7 @@ function restaurarDatosPaso1() {
         const datos = localStorage.getItem('ingreso_paso1');
         if (datos) {
             const obj = JSON.parse(datos);
-            if (obj.cod_expediente) document.getElementById('cod_expediente').value = obj.cod_expediente;
+            if (obj.nro_referencia) document.getElementById('nro_referencia').value = obj.nro_referencia;
             if (obj.fecha_finalizacion) document.getElementById('fecha_finalizacion').value = obj.fecha_finalizacion;
             if (obj.descripcion) document.getElementById('descripcion').value = obj.descripcion;
         }
@@ -574,9 +574,9 @@ function irAPaso(paso) {
 
 // Validar paso 1
 function validarPaso1() {
-    const codExp = document.getElementById('cod_expediente');
-    if (!codExp || !codExp.value.trim()) {
-        codExp && codExp.classList.add('is-invalid');
+    const nroRef = document.getElementById('nro_referencia');
+    if (!nroRef || !nroRef.value.trim()) {
+        nroRef && nroRef.classList.add('is-invalid');
         return false;
     }
     codExp.classList.remove('is-invalid');
@@ -595,7 +595,7 @@ function validarPaso2() {
 
 // Actualizar resumen paso 3
 function actualizarResumenPaso3() {
-    $('#m_codigo').text($('#cod_expediente').val() || '-');
+    $('#m_codigo').text($('#nro_referencia').val() || '-');
     const fecha = $('#fecha_finalizacion').val();
     $('#m_fecha').text(fecha ? new Date(fecha + 'T00:00:00').toLocaleDateString('es-AR') : 'No especificada');
     $('#m_descripcion').text($('#descripcion').val() || 'Sin descripción');

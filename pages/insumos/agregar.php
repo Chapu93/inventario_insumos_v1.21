@@ -148,10 +148,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['mensaje'] = "Insumo agregado correctamente";
         $_SESSION['tipo_mensaje'] = "success";
         
-        // Redirección condicional: volver a licitación (pasos) si corresponde
+        // Redirección condicional: volver a ingreso (pasos) si corresponde
         $from = isset($_GET['from']) ? $_GET['from'] : (isset($_POST['from']) ? $_POST['from'] : '');
-        if ($from === 'licitacion') {
-            // Redirigir a licitaciones_nueva_pasos.php con parámetro from=agregar
+        if ($from === 'ingreso') {
+            // Redirigir a ingresos_editar.php con parámetro from=agregar
+            header('Location: ' . app_base_url() . '/pages/insumos/ingresos_editar.php?from=agregar&added_id=' . urlencode($id_insumo));
+        } elseif ($from === 'licitacion') {
+            // Compatibilidad con archivo antiguo
             header('Location: ' . app_base_url() . '/pages/insumos/licitaciones_nueva_pasos.php?from=agregar&added_id=' . urlencode($id_insumo));
         } else {
             header('Location: listar.php');
