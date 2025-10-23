@@ -12,6 +12,9 @@ define('APP_NAME', 'Sistema de Gestión de Insumos');
 define('APP_VERSION', '1.0');
 define('BASE_URL', rtrim(getenv('APP_BASE_URL') ?: '/inventario_app', '/'));
 
+// Configuración de timezone (importante para fechas)
+date_default_timezone_set('America/Argentina/Buenos_Aires');
+
 // Configuración de sesión
 session_start();
 
@@ -126,6 +129,10 @@ function conectarDB() {
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         ]);
+        
+        // Configurar timezone de MySQL para evitar conversiones automáticas de fechas
+        $conexion->exec("SET time_zone = '-03:00'"); // Argentina (UTC-3)
+        
         return $conexion;
     } catch(PDOException $e) {
         error_log('Error de conexión a la base de datos: ' . $e->getMessage());
