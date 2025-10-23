@@ -18,8 +18,14 @@ try {
     
     $tipo_ingreso = trim($input['tipo_ingreso'] ?? '');
     $nro_referencia = trim($input['nro_referencia'] ?? '');
-    $fecha_finalizacion = $input['fecha_finalizacion'] ?? null;
+    $fecha_finalizacion = !empty($input['fecha_finalizacion']) ? $input['fecha_finalizacion'] : null;
     $descripcion = $input['descripcion'] ?? null;
+    
+    // Log para debug
+    error_log("=== GUARDAR INGRESO ===");
+    error_log("Fecha recibida del frontend: " . ($fecha_finalizacion ?? 'NULL'));
+    error_log("Tipo ingreso: " . $tipo_ingreso);
+    error_log("Nro referencia: " . $nro_referencia);
     
     // Validaciones
     if (empty($tipo_ingreso)) {
