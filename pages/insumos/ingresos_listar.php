@@ -118,7 +118,7 @@ include '../../includes/header.php';
 const BASE = '<?php echo app_base_url(); ?>';
 
 $(function(){
-  // DataTable en español
+  // DataTable con configuración en español
   $('#tablaIngresos').DataTable({
     ajax: { url: BASE + '/ajax/ingresos_list.php', dataSrc: 'data' },
     columns: [
@@ -143,14 +143,40 @@ $(function(){
       { data: null, orderable:false, searchable:false, render: function(data, type, row){
           return `
             <div class="btn-group">
-              <button class="btn btn-sm btn-info" onclick="verDetalleIngreso(${row.id_ingreso})" title="Ver" data-bs-toggle="tooltip"><i class="fas fa-eye"></i></button>
-              <a class="btn btn-sm btn-warning" href="ingresos_editar.php?id=${row.id_ingreso}" title="Editar" data-bs-toggle="tooltip"><i class="fas fa-edit"></i></a>
-              <button class="btn btn-sm btn-danger" onclick="eliminarIngreso(${row.id_ingreso})" title="Eliminar" data-bs-toggle="tooltip"><i class="fas fa-trash"></i></button>
+              <button class="btn btn-sm btn-info" onclick="verDetalleIngreso(${row.id_ingreso})" title="Ver"><i class="fas fa-eye"></i></button>
+              <a class="btn btn-sm btn-warning" href="ingresos_editar.php?id=${row.id_ingreso}" title="Editar"><i class="fas fa-edit"></i></a>
+              <button class="btn btn-sm btn-danger" onclick="eliminarIngreso(${row.id_ingreso})" title="Eliminar"><i class="fas fa-trash"></i></button>
             </div>`;
         } }
     ],
     language: {
-      url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+      decimal: ',',
+      thousands: '.',
+      processing: 'Procesando...',
+      search: 'Buscar:',
+      lengthMenu: 'Mostrar _MENU_ registros',
+      info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
+      infoEmpty: 'Mostrando 0 a 0 de 0 registros',
+      infoFiltered: '(filtrado de _MAX_ registros totales)',
+      loadingRecords: 'Cargando...',
+      zeroRecords: 'No se encontraron resultados',
+      emptyTable: 'Ningún dato disponible en la tabla',
+      paginate: {
+        first: 'Primero',
+        previous: 'Anterior',
+        next: 'Siguiente',
+        last: 'Último'
+      },
+      aria: {
+        sortAscending: ': activar para ordenar ascendente',
+        sortDescending: ': activar para ordenar descendente'
+      }
+    },
+    drawCallback: function() {
+      // Inicializar tooltips usando la función global del proyecto
+      if (typeof inicializarTooltips === 'function') {
+        inicializarTooltips();
+      }
     }
   });
 });
