@@ -281,12 +281,16 @@ function verDetalleIngreso(id){
   
   modal.show();
   
-  $.getJSON(BASE + '/ajax/ingresos_get.php', { id: id }, function(resp){
-    if (!resp || !resp.success) { 
-      showToast('Error al cargar ingreso', 'error'); 
-      modal.hide();
-      return; 
-    }
+  $.ajax({
+    url: BASE + '/ajax/ingresos_get.php',
+    data: { id: id },
+    dataType: 'json',
+    success: function(resp){
+      if (!resp || !resp.success) { 
+        console.error('Error en respuesta:', resp);
+        modalBody.innerHTML = '<div class="alert alert-danger">Error: ' + (resp?.error || 'No se pudo cargar el ingreso') + '</div>';
+        return; 
+      }
     
     const d = resp.data || {};
     let html = '';
