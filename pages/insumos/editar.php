@@ -75,11 +75,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Si se asigna un ingreso, usar su fecha de finalización como fecha de adquisición
         if ($idIngreso) {
-            $stmtIng = $db->prepare('SELECT fecha_finalizacion FROM ingresos WHERE id_ingreso = ?');
+            $stmtIng = $db->prepare('SELECT DATE(fecha_finalizacion) as fecha_finalizacion FROM ingresos WHERE id_ingreso = ?');
             $stmtIng->execute([$idIngreso]);
             $ingreso = $stmtIng->fetch();
-            if ($ingreso && $ingreso['fecha_finalizacion']) {
+            if ($ingreso && !empty($ingreso['fecha_finalizacion'])) {
                 $fecha = $ingreso['fecha_finalizacion'];
+                error_log("Editar insumo - Ingreso asignado - Fecha: " . $fecha);
             }
         }
 

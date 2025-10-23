@@ -10,7 +10,8 @@ $returnToId = isset($_GET['return_to_id']) ? (int)$_GET['return_to_id'] : 0;
 // Si venimos de un ingreso, obtener sus datos
 $ingresoData = null;
 if ($fromIngreso && $returnToId > 0) {
-    $stmt = $conexion->prepare('SELECT id_ingreso, tipo_ingreso, nro_referencia, fecha_finalizacion FROM ingresos WHERE id_ingreso = ?');
+    // Usar DATE() para obtener solo la fecha sin hora
+    $stmt = $conexion->prepare('SELECT id_ingreso, tipo_ingreso, nro_referencia, DATE(fecha_finalizacion) as fecha_finalizacion FROM ingresos WHERE id_ingreso = ?');
     $stmt->execute([$returnToId]);
     $ingresoData = $stmt->fetch();
 }
@@ -617,7 +618,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="row mt-3" id="botones-formulario" style="display: none;">
                 <div class="col-12">
                     <div class="d-flex justify-content-end gap-2">
-                        <a href="listar.php" class="btn btn-secondary btn-sm">
+                        <a href="<?php echo $urlVolver; ?>" class="btn btn-secondary btn-sm">
                             <i class="fas fa-times me-1"></i>Cancelar
                         </a>
                         <button type="submit" class="btn btn-primary btn-sm">
