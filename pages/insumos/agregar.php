@@ -200,8 +200,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <form method="POST" id="formInsumo" class="needs-validation" novalidate action="agregar.php">
             <?php
               $from = isset($_GET['from']) ? $_GET['from'] : '';
+              $returnToId = isset($_GET['return_to_id']) ? (int)$_GET['return_to_id'] : 0;
+              
               if ($from === 'ingreso') {
                   echo '<input type="hidden" name="from" value="ingreso">';
+                  if ($returnToId > 0) {
+                      echo '<input type="hidden" name="return_to_id" value="' . $returnToId . '">';
+                  }
               } elseif ($from === 'licitacion') {
                   echo '<input type="hidden" name="from" value="licitacion">';
               }

@@ -504,8 +504,16 @@ function irACrearInsumo() {
     const verificar = localStorage.getItem('ingreso_seleccionados');
     console.log('Seleccionados guardados:', verificar);
     
-    // Redirigir
-    window.location.href = BASE + '/pages/insumos/agregar.php?from=ingreso';
+    // Obtener ID del ingreso actual si estamos editando
+    const urlParams = new URLSearchParams(window.location.search);
+    const idIngreso = urlParams.get('id');
+    
+    // Redirigir incluyendo el ID del ingreso si existe
+    let url = BASE + '/pages/insumos/agregar.php?from=ingreso';
+    if (idIngreso) {
+        url += '&return_to_id=' + idIngreso;
+    }
+    window.location.href = url;
 }
 
 // Al cargar la página
