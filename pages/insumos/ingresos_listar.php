@@ -263,26 +263,6 @@ $('#btnGuardarNuevoIngreso').on('click', function(){
   });
 });
 
-// Función para formatear fechas sin conversión de timezone
-function formatearFecha(fecha, conHora = false) {
-  if (!fecha) return '-';
-  
-  // Si es solo fecha (YYYY-MM-DD)
-  if (fecha.match(/^\d{4}-\d{2}-\d{2}$/)) {
-    const [anio, mes, dia] = fecha.split('-');
-    return `${dia.padStart(2,'0')}/${mes.padStart(2,'0')}/${anio}`;
-  }
-  
-  // Si incluye hora (YYYY-MM-DD HH:MM:SS)
-  if (conHora && fecha.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/)) {
-    const [fechaParte, horaParte] = fecha.split(' ');
-    const [anio, mes, dia] = fechaParte.split('-');
-    return `${dia.padStart(2,'0')}/${mes.padStart(2,'0')}/${anio} ${horaParte}`;
-  }
-  
-  return fecha;
-}
-
 // Ver detalle de ingreso
 function verDetalleIngreso(id){
   const modal = new bootstrap.Modal(document.getElementById('modalVerIngreso'));
