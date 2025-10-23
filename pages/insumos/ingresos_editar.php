@@ -18,7 +18,7 @@ if (isset($_GET['id']) && $_GET['id']) {
     if ($ingresoData) {
         $esEdicion = true;
         $ins = $db->prepare('SELECT id_insumo FROM insumos WHERE id_ingreso=?');
-        $ins->execute([$idLicitacion]);
+        $ins->execute([$idIngreso]);
         $insumosExistentes = array_column($ins->fetchAll(), 'id_insumo');
     }
 }
