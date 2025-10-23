@@ -364,7 +364,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <div class="card-body px-3 pt-3 pb-2">
                             <div class="mb-2">
                                 <label for="fecha_adquisicion" class="form-label">Fecha de Adquisición</label>
-                                <input type="date" class="form-control form-control-sm w-100" id="fecha_adquisicion" name="fecha_adquisicion" value="<?php echo date('Y-m-d'); ?>">
+                                <?php
+                                // Si venimos de un ingreso, usar su fecha de finalización SIN conversión
+                                $fechaDefault = date('Y-m-d');
+                                if ($fromIngreso && $ingresoData && !empty($ingresoData['fecha_finalizacion'])) {
+                                    // Usar la fecha tal cual viene de la BD (formato YYYY-MM-DD)
+                                    $fechaDefault = $ingresoData['fecha_finalizacion'];
+                                }
+                                ?>
+                                <input type="date" class="form-control form-control-sm w-100" id="fecha_adquisicion" name="fecha_adquisicion" value="<?php echo htmlspecialchars($fechaDefault); ?>" <?php echo ($fromIngreso && $ingresoData) ? 'readonly' : ''; ?>>
+                                <?php if ($fromIngreso && $ingresoData): ?>
+                                    <small class="text-muted">Fecha del ingreso: <?php echo htmlspecialchars($fechaDefault); ?></small>
+                                <?php endif; ?>
                             </div>
                             
                             <div class="mb-2">

@@ -290,7 +290,10 @@ include '../../includes/header.php';
                         <div class="card-body p-3">
                             <div class="mb-2">
                                 <label class="form-label">Fecha de Adquisición</label>
-                                <input type="date" class="form-control form-control-sm" name="fecha_adquisicion" value="<?php echo htmlspecialchars($insumo['fecha_adquisicion'] ?? ''); ?>">
+                                <input type="date" class="form-control form-control-sm" name="fecha_adquisicion" value="<?php echo htmlspecialchars($insumo['fecha_adquisicion'] ?? ''); ?>" <?php echo !empty($insumo['id_ingreso']) ? 'readonly' : ''; ?>>
+                                <?php if (!empty($insumo['id_ingreso'])): ?>
+                                    <small class="text-muted">Fecha establecida por el ingreso asociado</small>
+                                <?php endif; ?>
                             </div>
                             <div class="mb-2">
                                 <label class="form-label">Estado</label>

@@ -488,8 +488,12 @@ function restaurarSeleccionados(nuevoId) {
         }
         
         actualizarContador();
-        ordenarFilas();
-        console.log('Restauración completada');
+        
+        // Asegurar que las filas seleccionadas estén arriba
+        setTimeout(function() {
+            ordenarFilas();
+            console.log('Restauración y ordenamiento completados');
+        }, 50);
     } catch (e) {
         console.error('Error restaurando seleccionados:', e);
     }
