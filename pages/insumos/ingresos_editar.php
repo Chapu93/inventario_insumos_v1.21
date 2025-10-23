@@ -577,9 +577,10 @@ function validarPaso1() {
     const nroRef = document.getElementById('nro_referencia');
     if (!nroRef || !nroRef.value.trim()) {
         nroRef && nroRef.classList.add('is-invalid');
+        showToast('Complete el número de referencia', 'warning');
         return false;
     }
-    codExp.classList.remove('is-invalid');
+    nroRef.classList.remove('is-invalid');
     return true;
 }
 
