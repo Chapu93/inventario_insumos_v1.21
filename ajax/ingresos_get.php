@@ -4,7 +4,10 @@ header('Content-Type: application/json');
 try{
   if (empty($_GET['id'])) throw new Exception('ID requerido');
   $db = conectarDB();
-  $stmt = $db->prepare('SELECT * FROM ingresos WHERE id_ingreso=?');
+  $stmt = $db->prepare('SELECT id_ingreso, tipo_ingreso, nro_referencia, 
+                               DATE(fecha_finalizacion) as fecha_finalizacion, 
+                               descripcion, created_at 
+                        FROM ingresos WHERE id_ingreso=?');
   $stmt->execute([(int)$_GET['id']]);
   $cab = $stmt->fetch();
   if (!$cab) throw new Exception('No encontrado');

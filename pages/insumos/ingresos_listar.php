@@ -135,8 +135,13 @@ $(function(){
       },
       { data: 'fecha_finalizacion', render: function(d) {
           if (!d) return '-';
-          const fecha = new Date(d);
-          return fecha.toLocaleDateString('es-AR');
+          // Parsear manualmente para evitar conversión de timezone
+          const partes = d.split('-'); // YYYY-MM-DD
+          if (partes.length === 3) {
+            const [anio, mes, dia] = partes;
+            return `${dia.padStart(2,'0')}/${mes.padStart(2,'0')}/${anio}`;
+          }
+          return d;
         }
       },
       { data: 'num_insumos', render: d => `<span class="badge bg-primary">${d||0}</span>` },
@@ -313,8 +318,8 @@ function verDetalleIngreso(id){
     html += `<div class="col-md-6"><p><strong>${labelsRef[d.tipo_ingreso] || 'Referencia'}:</strong><br><span class="badge bg-primary">${$('<div>').text(d.nro_referencia||'').html()}</span></p></div>`;
     html += `</div>`;
     html += `<div class="row">`;
-    html += `<div class="col-md-6"><p><strong>Fecha Finalización:</strong><br>${d.fecha_finalizacion ? new Date(d.fecha_finalizacion).toLocaleDateString('es-AR') : '-'}</p></div>`;
-    html += `<div class="col-md-6"><p><strong>Fecha Creación:</strong><br>${d.created_at ? new Date(d.created_at).toLocaleDateString('es-AR') : '-'}</p></div>`;
+    html += `<div class="col-md-6"><p><strong>Fecha Finalización:</strong><br>${formatearFecha(d.fecha_finalizacion)}</p></div>`;
+    html += `<div class="col-md-6"><p><strong>Fecha Creación:</strong><br>${formatearFecha(d.created_at, true)}</p></div>`;
     html += `</div>`;
     if (d.descripcion) {
       html += `<div class="row"><div class="col-12"><p><strong>Descripción:</strong><br>${$('<div>').text(d.descripcion).html().replace(/\n/g, '<br>')}</p></div></div>`;
