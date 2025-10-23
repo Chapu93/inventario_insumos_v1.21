@@ -49,10 +49,17 @@ try {
     }
     
     // Insertar ingreso
+    // Asegurar que la fecha se guarde correctamente sin conversión timezone
     $stmt = $db->prepare('INSERT INTO ingresos (tipo_ingreso, nro_referencia, fecha_finalizacion, descripcion) VALUES (?, ?, ?, ?)');
     $stmt->execute([$tipo_ingreso, $nro_referencia, $fecha_finalizacion, $descripcion]);
     
     $id = $db->lastInsertId();
+    
+    // Verificar fecha guardada
+    $verificar = $db->prepare('SELECT DATE(fecha_finalizacion) as fecha FROM ingresos WHERE id_ingreso = ?');
+    $verificar->execute([$id]);
+    $fechaGuardada = $verificar->fetchColumn();
+    error_log("Ingreso guardado - ID: {$id} - Fecha guardada: " . ($fechaGuardada ?? 'NULL'));
     
     echo json_encode([
         'success' => true,
