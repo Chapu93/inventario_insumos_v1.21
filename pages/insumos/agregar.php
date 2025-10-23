@@ -3,6 +3,18 @@ require_once '../../includes/config.php';
 
 $conexion = conectarDB();
 
+// Detectar si venimos de un ingreso específico
+$fromIngreso = isset($_GET['from']) && $_GET['from'] === 'ingreso';
+$returnToId = isset($_GET['return_to_id']) ? (int)$_GET['return_to_id'] : 0;
+
+// Si venimos de un ingreso, obtener sus datos
+$ingresoData = null;
+if ($fromIngreso && $returnToId > 0) {
+    $stmt = $conexion->prepare('SELECT id_ingreso, tipo_ingreso, nro_referencia, fecha_finalizacion FROM ingresos WHERE id_ingreso = ?');
+    $stmt->execute([$returnToId]);
+    $ingresoData = $stmt->fetch();
+}
+
 // Obtener datos para los select
 $stmt = $conexion->query("SELECT id_punto_stock, nombre_punto FROM puntos_stock ORDER BY nombre_punto");
 $puntos_stock = $stmt->fetchAll();
@@ -56,7 +68,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         $esNuevo = isset($_POST['es_nuevo']) && $_POST['es_nuevo'] == '1' ? 1 : 0;
-        $idIngreso = !empty($_POST['id_ingreso']) ? (int)$_POST['id_ingreso'] : null;
+        
+        // Si venimos de un ingreso, usar el return_to_id y la fecha del ingreso
+        $fromPost = isset($_POST['from']) ? $_POST['from'] : '';
+        $returnToIdPost = isset($_POST['return_to_id']) ? (int)$_POST['return_to_id'] : 0;
+        
+        if ($fromPost === 'ingreso' && $returnToIdPost > 0) {
+            // Obtener datos del ingreso
+            $stmtIng = $conexion->prepare('SELECT fecha_finalizacion FROM ingresos WHERE id_ingreso = ?');
+            $stmtIng->execute([$returnToIdPost]);
+            $ingreso = $stmtIng->fetch();
+            
+            $idIngreso = $returnToIdPost; // Asignar automáticamente al ingreso
+            $fechaAdquisicion = $ingreso['fecha_finalizacion'] ?: null; // Usar fecha de finalización del ingreso
+        } else {
+            // Modo normal: usar lo que viene del form
+            $idIngreso = !empty($_POST['id_ingreso']) ? (int)$_POST['id_ingreso'] : null;
+            $fechaAdquisicion = $_POST['fecha_adquisicion'] ?: null;
+            
+            // Si se asigna manualmente un ingreso, usar su fecha de finalización
+            if ($idIngreso) {
+                $stmtIng = $conexion->prepare('SELECT fecha_finalizacion FROM ingresos WHERE id_ingreso = ?');
+                $stmtIng->execute([$idIngreso]);
+                $ingreso = $stmtIng->fetch();
+                if ($ingreso && $ingreso['fecha_finalizacion']) {
+                    $fechaAdquisicion = $ingreso['fecha_finalizacion'];
+                }
+            }
+        }
         
         $stmt = $conexion->prepare($sql);
         $stmt->execute([
@@ -68,10 +107,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             ($tipo_insumo != 'Varios') ? ($_POST['id_fisico'] ?: null) : null,
             ($tipo_insumo != 'Varios') ? ($_POST['id_patrimonio'] ?: null) : null,
             $cantidad,
-            $_POST['fecha_adquisicion'] ?: null,
+            $fechaAdquisicion,
             'Disponible', // Estado inicial siempre disponible
             $_POST['id_punto_stock_actual'] ?: 2, // Por defecto Depósito
-            $idIngreso, // Ingreso asociado (opcional)
+            $idIngreso, // Ingreso asociado
             $esNuevo // 1=Nuevo, 0=Usado
         ]);
         
@@ -351,35 +390,57 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 </div>
                             </div>
                             
-                            <div class="mb-0">
-                                <label for="id_ingreso" class="form-label">Tipo de Ingreso</label>
-                                <select class="form-select form-select-sm w-100" id="select_tipo_ingreso" name="id_ingreso" onchange="cambiarTipoIngreso()">
-                                    <option value="">Sin ingreso asociado</option>
-                                    <?php
-                                    // Agrupar por tipo de ingreso, ordenados por más reciente primero
-                                    $ingresos = $conexion->query("SELECT id_ingreso, tipo_ingreso, nro_referencia, created_at FROM ingresos ORDER BY created_at DESC")->fetchAll();
-                                    $tipos = ['fondos' => 'Fondos', 'compra_directa' => 'Compra Directa', 'licitacion' => 'Licitación', 'otros' => 'Otros'];
-                                    
-                                    foreach ($tipos as $tipoKey => $tipoLabel):
-                                        $ingresosTipo = array_filter($ingresos, function($ing) use ($tipoKey) {
-                                            return $ing['tipo_ingreso'] === $tipoKey;
-                                        });
-                                        if (count($ingresosTipo) > 0):
-                                    ?>
-                                        <optgroup label="<?php echo $tipoLabel; ?>">
-                                            <?php foreach ($ingresosTipo as $ing): ?>
-                                                <option value="<?php echo $ing['id_ingreso']; ?>" data-tipo="<?php echo $ing['tipo_ingreso']; ?>">
-                                                    <?php echo htmlspecialchars($ing['nro_referencia']); ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </optgroup>
-                                    <?php 
-                                        endif;
-                                    endforeach; 
-                                    ?>
-                                </select>
-                                <small class="text-muted" id="help_ingreso">Opcional: Asociar insumo a un ingreso (Fondos, Licitación, etc.)</small>
-                            </div>
+                            <?php if ($fromIngreso && $ingresoData): ?>
+                                <!-- Cuando venimos de un ingreso, mostrar info pero no permitir cambio -->
+                                <div class="mb-0">
+                                    <label class="form-label">Ingreso Asociado</label>
+                                    <div class="alert alert-info mb-0 py-2">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        <strong><?php 
+                                            $tipoLabel = match($ingresoData['tipo_ingreso']) {
+                                                'fondos' => 'Fondos',
+                                                'compra_directa' => 'Compra Directa',
+                                                'licitacion' => 'Licitación',
+                                                'otros' => 'Otros',
+                                                default => 'Ingreso'
+                                            };
+                                            echo $tipoLabel;
+                                        ?>:</strong> <?php echo htmlspecialchars($ingresoData['nro_referencia']); ?>
+                                    </div>
+                                    <small class="text-muted">Este insumo se asignará automáticamente a este ingreso</small>
+                                </div>
+                            <?php else: ?>
+                                <!-- Modo normal: mostrar select de ingreso -->
+                                <div class="mb-0">
+                                    <label for="id_ingreso" class="form-label">Tipo de Ingreso</label>
+                                    <select class="form-select form-select-sm w-100" id="select_tipo_ingreso" name="id_ingreso" onchange="cambiarTipoIngreso()">
+                                        <option value="">Sin ingreso asociado</option>
+                                        <?php
+                                        // Agrupar por tipo de ingreso, ordenados por más reciente primero
+                                        $ingresos = $conexion->query("SELECT id_ingreso, tipo_ingreso, nro_referencia, created_at FROM ingresos ORDER BY created_at DESC")->fetchAll();
+                                        $tipos = ['fondos' => 'Fondos', 'compra_directa' => 'Compra Directa', 'licitacion' => 'Licitación', 'otros' => 'Otros'];
+                                        
+                                        foreach ($tipos as $tipoKey => $tipoLabel):
+                                            $ingresosTipo = array_filter($ingresos, function($ing) use ($tipoKey) {
+                                                return $ing['tipo_ingreso'] === $tipoKey;
+                                            });
+                                            if (count($ingresosTipo) > 0):
+                                        ?>
+                                            <optgroup label="<?php echo $tipoLabel; ?>">
+                                                <?php foreach ($ingresosTipo as $ing): ?>
+                                                    <option value="<?php echo $ing['id_ingreso']; ?>" data-tipo="<?php echo $ing['tipo_ingreso']; ?>">
+                                                        <?php echo htmlspecialchars($ing['nro_referencia']); ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </optgroup>
+                                        <?php 
+                                            endif;
+                                        endforeach; 
+                                        ?>
+                                    </select>
+                                    <small class="text-muted" id="help_ingreso">Opcional: Asociar insumo a un ingreso (Fondos, Licitación, etc.)</small>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                     <!-- Extras Notebook: tarjeta independiente debajo de Información Común -->

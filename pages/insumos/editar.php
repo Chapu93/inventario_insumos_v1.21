@@ -72,6 +72,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $punto = $_POST['id_punto_stock_actual'] ?: null;
         $esNuevo = isset($_POST['es_nuevo']) && $_POST['es_nuevo'] == '1' ? 1 : 0;
         $idIngreso = !empty($_POST['id_ingreso']) ? (int)$_POST['id_ingreso'] : null;
+        
+        // Si se asigna un ingreso, usar su fecha de finalización como fecha de adquisición
+        if ($idIngreso) {
+            $stmtIng = $db->prepare('SELECT fecha_finalizacion FROM ingresos WHERE id_ingreso = ?');
+            $stmtIng->execute([$idIngreso]);
+            $ingreso = $stmtIng->fetch();
+            if ($ingreso && $ingreso['fecha_finalizacion']) {
+                $fecha = $ingreso['fecha_finalizacion'];
+            }
+        }
 
         // Campos específicos según tipo
         $subcat = $desc = $numero_serie = $id_fisico = $id_patrimonio = null;
