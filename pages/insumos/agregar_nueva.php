@@ -272,8 +272,43 @@ include '../../includes/header.php';
                                 <div class="card border-0 shadow-sm">
                                     <div class="card-header bg-light py-2"><h6 class="mb-0"><i class="fas fa-cog me-2 text-primary"></i>Información Común</h6></div>
                                     <div class="card-body px-3 pt-3 pb-0">
-                                        <div class="mb-2"><label class="form-label">Fecha de Adquisición</label><input type="date" class="form-control form-control-sm w-100" name="fecha_adquisicion" value="<?php echo date('Y-m-d'); ?>"></div>
-                                        <div class="mb-0"><label class="form-label">Punto de Almacenamiento *</label><select class="form-select form-select-sm w-100" name="id_punto_stock_actual" required><option value="">Seleccione punto de almacenamiento</option><?php foreach ($puntos_stock as $p): ?><option value="<?php echo $p['id_punto_stock']; ?>" <?php echo $p['id_punto_stock']==2?'selected':''; ?>><?php echo $p['nombre_punto']; ?></option><?php endforeach; ?></select></div>
+                                        <div class="mb-2"><label class="form-label">Fecha de Adquisición</label><input type="date" class="form-control form-control-sm w-100" id="fecha_adquisicion_nueva" name="fecha_adquisicion" value="<?php echo date('Y-m-d'); ?>"></div>
+                                        <div class="mb-2"><label class="form-label">Punto de Almacenamiento *</label><select class="form-select form-select-sm w-100" name="id_punto_stock_actual" required><option value="">Seleccione punto de almacenamiento</option><?php foreach ($puntos_stock as $p): ?><option value="<?php echo $p['id_punto_stock']; ?>" <?php echo $p['id_punto_stock']==2?'selected':''; ?>><?php echo $p['nombre_punto']; ?></option><?php endforeach; ?></select></div>
+                                        
+                                        <div class="mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="es_nuevo_nueva" name="es_nuevo" value="1" checked>
+                                                <label class="form-check-label" for="es_nuevo_nueva">
+                                                    <strong>Insumo Nuevo</strong> <small class="text-muted">(desmarcar si es usado)</small>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-0">
+                                            <label for="id_ingreso_nueva" class="form-label">Tipo de Ingreso</label>
+                                            <select class="form-select form-select-sm w-100" id="id_ingreso_nueva" name="id_ingreso" onchange="cambiarTipoIngresoNueva()">
+                                                <option value="">Sin ingreso asociado</option>
+                                                <?php
+                                                $ingresos = $db->query("SELECT id_ingreso, tipo_ingreso, nro_referencia, created_at FROM ingresos ORDER BY created_at DESC")->fetchAll();
+                                                $tipos = ['fondos' => 'Fondos', 'compra_directa' => 'Compra Directa', 'licitacion' => 'Licitación', 'otros' => 'Otros'];
+                                                
+                                                foreach ($tipos as $tipoKey => $tipoLabel):
+                                                    $ingresosTipo = array_filter($ingresos, function($ing) use ($tipoKey) {
+                                                        return $ing['tipo_ingreso'] === $tipoKey;
+                                                    });
+                                                    if (empty($ingresosTipo)) continue;
+                                                ?>
+                                                    <optgroup label="<?php echo $tipoLabel; ?>">
+                                                        <?php foreach ($ingresosTipo as $ing): ?>
+                                                            <option value="<?php echo $ing['id_ingreso']; ?>" data-tipo="<?php echo $ing['tipo_ingreso']; ?>">
+                                                                <?php echo htmlspecialchars($ing['nro_referencia']); ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </optgroup>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <small class="text-muted" id="help_ingreso_nueva">Opcional: Asociar a un ingreso</small>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="card border-0 shadow-sm mt-2" id="extras-notebook" style="display:none;">
