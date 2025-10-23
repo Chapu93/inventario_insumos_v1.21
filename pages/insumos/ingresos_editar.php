@@ -134,7 +134,7 @@ include '../../includes/header.php';
         <div class="card-body">
             <form method="POST" id="formPasos" class="needs-validation" novalidate>
                 <?php echo csrf_input(); ?>
-                <?php if ($esEdicion && $idLicitacion): ?>
+                <?php if ($esEdicion && $idIngreso): ?>
                     <input type="hidden" name="id_ingreso" value="<?php echo $idIngreso; ?>">
                 <?php endif; ?>
 
