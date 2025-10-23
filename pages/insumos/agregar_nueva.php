@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($idPat === '') { throw new Exception('El ID Patrimonio es obligatorio para este tipo de insumo.'); }
         }
 
-        $stmt = $db->prepare("INSERT INTO insumos (nombre_insumo, tipo_insumo, subcategoria_varios, descripcion_general, numero_serie, id_fisico, id_patrimonio, cantidad, fecha_adquisicion, estado, id_punto_stock_actual, id_sede_actual, id_area_asignacion_actual) VALUES (?,?,?,?,?,?,?,?,?, 'Asignado', ?, ?, ?)");
+        $stmt = $db->prepare("INSERT INTO insumos (nombre_insumo, tipo_insumo, subcategoria_varios, descripcion_general, numero_serie, id_fisico, id_patrimonio, cantidad, fecha_adquisicion, estado, id_punto_stock_actual, id_sede_actual, id_area_asignacion_actual, es_nuevo, id_ingreso) VALUES (?,?,?,?,?,?,?,?,?, 'Asignado', ?, ?, ?, ?, ?)");
         $stmt->execute([
             $nombreInsumo,
             $tipo,
