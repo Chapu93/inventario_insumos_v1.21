@@ -381,7 +381,7 @@ include '../../includes/header.php';
                                             <select class="form-select form-select-sm w-100" id="id_ingreso_nueva" name="id_ingreso" onchange="cambiarTipoIngresoNueva()">
                                                 <option value="">Sin ingreso asociado</option>
                                                 <?php
-                                                $ingresos = $db->query("SELECT id_ingreso, tipo_ingreso, nro_referencia, created_at FROM ingresos ORDER BY created_at DESC")->fetchAll();
+                                                $ingresos = $conexion->query("SELECT id_ingreso, tipo_ingreso, nro_referencia, created_at FROM ingresos ORDER BY created_at DESC")->fetchAll();
                                                 $tipos = ['fondos' => 'Fondos', 'compra_directa' => 'Compra Directa', 'licitacion' => 'Licitación', 'otros' => 'Otros'];
                                                 
                                                 foreach ($tipos as $tipoKey => $tipoLabel):
