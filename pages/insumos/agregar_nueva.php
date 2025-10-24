@@ -34,6 +34,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($idPat === '') { throw new Exception('El ID Patrimonio es obligatorio para este tipo de insumo.'); }
         }
 
+        // Obtener valores adicionales
+        $esNuevo = isset($_POST['es_nuevo']) ? 1 : 0;
+        $idIngreso = !empty($_POST['id_ingreso']) ? (int)$_POST['id_ingreso'] : null;
+        
+        // Si tiene ingreso asignado, obtener su fecha_finalizacion para fecha_adquisicion
+        $fechaAdquisicion = null;
+        if ($idIngreso) {
+            $stmtIng = $db->prepare('SELECT DATE(fecha_finalizacion) as fecha_finalizacion FROM ingresos WHERE id_ingreso = ?');
+            $stmtIng->execute([$idIngreso]);
+            $ingreso = $stmtIng->fetch();
+            if ($ingreso) {
+                $fechaAdquisicion = $ingreso['fecha_finalizacion'];
+            }
+        }
+        // Si no tiene ingreso o no se encontró, usar fecha del POST o actual
+        if (!$fechaAdquisicion) {
+            $fechaAdquisicion = !empty($_POST['fecha_adquisicion']) ? $_POST['fecha_adquisicion'] : date('Y-m-d');
+        }
+
         $stmt = $db->prepare("INSERT INTO insumos (nombre_insumo, tipo_insumo, subcategoria_varios, descripcion_general, numero_serie, id_fisico, id_patrimonio, cantidad, fecha_adquisicion, estado, id_punto_stock_actual, id_sede_actual, id_area_asignacion_actual, es_nuevo, id_ingreso) VALUES (?,?,?,?,?,?,?,?,?, 'Asignado', ?, ?, ?, ?, ?)");
         $stmt->execute([
             $nombreInsumo,
