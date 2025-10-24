@@ -278,9 +278,9 @@ include '../../includes/header.php';
                                             </div>
                                         </div>
                                         <div id="campos-especificos" style="display: none;">
-                                            <div class="mb-2"><label class="form-label">Número de Serie *</label><input type="text" class="form-control form-control-sm w-100" name="numero_serie"></div>
-                                            <div class="mb-2"><label class="form-label">ID Físico *</label><input type="text" class="form-control form-control-sm w-100" name="id_fisico"></div>
-                                            <div class="mb-2"><label class="form-label">ID Patrimonio *</label><input type="text" class="form-control form-control-sm w-100" name="id_patrimonio"></div>
+                                            <div class="mb-2"><label class="form-label">Número de Serie *</label><input type="text" class="form-control form-control-sm w-100" name="numero_serie" id="numero_serie"></div>
+                                            <div class="mb-2"><label class="form-label">ID Físico *</label><input type="text" class="form-control form-control-sm w-100" name="id_fisico" id="id_fisico"></div>
+                                            <div class="mb-2"><label class="form-label">ID Patrimonio *</label><input type="text" class="form-control form-control-sm w-100" name="id_patrimonio" id="id_patrimonio"></div>
                                             <div class="mb-2"><label class="form-label">Cantidad</label><input type="number" class="form-control form-control-sm w-100" name="cantidad_especifica" value="1" min="1" readonly><small class="form-text text-muted">Para este tipo de insumo, la cantidad siempre es 1 (carga unitaria)</small></div>
                                         </div>
                                     </div>
@@ -446,6 +446,8 @@ function toggleCampos() {
     // Ocultar todo cuando no hay selección
     $('#formulario-campos').hide();
     $('#campos-varios, #campos-especificos, #campos-pc, #campos-notebook, #campos-impresora, #campos-monitor, #campos-escaner').hide();
+    // Deshabilitar campos requeridos cuando están ocultos
+    $('#numero_serie, #id_fisico, #id_patrimonio').prop('required', false);
     return;
   }
   // Mostrar grilla principal cuando hay tipo seleccionado
@@ -455,12 +457,16 @@ function toggleCampos() {
     $('#campos-especificos, #campos-pc, #campos-notebook, #campos-impresora, #campos-monitor, #campos-escaner').hide();
     // Ocultar columna de especificaciones para Varios
     $('#columna-especificaciones').hide();
+    // Deshabilitar required en campos ocultos
+    $('#numero_serie, #id_fisico, #id_patrimonio').prop('required', false);
   } else {
     $('#campos-varios').hide();
     $('#campos-especificos').show();
     $('#campos-pc, #campos-notebook, #campos-impresora, #campos-monitor, #campos-escaner').hide();
     // Mostrar columna de especificaciones para tipos unitarios
     $('#columna-especificaciones').show();
+    // Habilitar required en campos visibles
+    $('#numero_serie, #id_fisico, #id_patrimonio').prop('required', true);
     if (t === 'PC Completa') $('#campos-pc').show();
     if (t === 'Notebook') $('#campos-notebook').show();
     if (t === 'Impresora') $('#campos-impresora').show();
