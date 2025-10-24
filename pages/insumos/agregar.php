@@ -204,8 +204,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $url .= '&id=' . $returnToId;
             }
             header('Location: ' . $url);
-        } elseif ($from === 'licitacion') {
-            // Compatibilidad: redirigir a ingresos (nombre actualizado)
+        } elseif ($from === 'licitacion' || $from === 'ingreso') {
+            // Redirigir a edición de ingreso
             header('Location: ' . app_base_url() . '/pages/insumos/ingresos_editar.php?from=agregar&added_id=' . urlencode($id_insumo));
         } else {
             header('Location: listar.php');

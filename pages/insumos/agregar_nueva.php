@@ -370,7 +370,102 @@ include '../../includes/header.php';
     </div>
 </div>
 
-// Función para cambiar label según tipo de ingreso
+<?php include '../../includes/footer.php'; ?>
+
+<script>
+// Paso 1 -> Paso 2 y viceversa
+$('#btnSiguiente').on('click', function(){
+  let ok = true;
+  ['id_localidad','id_sede','id_area_asignada','nombre_persona_asignada','apellido_persona_asignada','fecha_asignacion']
+    .forEach(id => { const el = document.getElementById(id); if (!el || !el.checkValidity()) { ok = false; el && el.classList.add('is-invalid'); }});
+  if (!ok) return;
+  $('#paso1').hide();
+  $('#paso2').show();
+  $('.stepper .step').removeClass('active');
+  $('.stepper .step-2').addClass('active');
+});
+$('#btnVolver').on('click', function(){
+  $('#paso2').hide();
+  $('#paso1').show();
+  $('.stepper .step').removeClass('active');
+  $('.stepper .step-1').addClass('active');
+});
+
+// Cargar sedes y áreas
+$('#id_localidad').on('change', function(){
+  const id = $(this).val();
+  setLoading($('#id_sede'), 'Cargando sedes...');
+  $.getJSON(`${getAppBase()}/ajax/cargar_sedes.php`, { localidad_id: id })
+    .done(r => {
+      const data = r && r.data ? r.data : r;
+      const lista = data && data.sedes ? data.sedes : [];
+      let html = '<option value="">Seleccione una sede</option>';
+      lista.forEach(s => { html += `<option value="${parseInt(s.id,10)}">${$('<div>').text(s.nombre||'').html()}</option>`; });
+      $('#id_sede').html(html);
+      $('#id_area_asignada').html('<option value="">Seleccione un área</option>');
+    })
+    .fail(()=> $('#id_sede').html('<option value="">Seleccione una sede</option>'));
+});
+$('#id_sede').on('change', function(){
+  const id = $(this).val();
+  setLoading($('#id_area_asignada'), 'Cargando áreas...');
+  $.getJSON(`${getAppBase()}/ajax/cargar_areas.php`, { sede_id: id })
+    .done(r => {
+      const data = r && r.data ? r.data : r;
+      const lista = data && data.areas ? data.areas : [];
+      let html = '<option value="">Seleccione un área</option>';
+      lista.forEach(a => { html += `<option value="${parseInt(a.id_area || a.id,10)}">${$('<div>').text(a.nombre_area || a.nombre || '').html()}</option>`; });
+      $('#id_area_asignada').html(html);
+    })
+    .fail(()=> $('#id_area_asignada').html('<option value="">Seleccione un área</option>'));
+});
+
+// Dinámica del tipo de insumo
+function toggleCampos() {
+  const t = $('#tipo_insumo').val();
+  if (!t) {
+    // Ocultar todo cuando no hay selección
+    $('#formulario-campos').hide();
+    $('#campos-varios, #campos-especificos, #esp-pc, #esp-notebook, #esp-impresora, #esp-monitor, #esp-escaner').hide();
+    return;
+  }
+  // Mostrar grilla principal cuando hay tipo seleccionado
+  $('#formulario-campos').show();
+  if (t === 'Varios') {
+    $('#campos-varios').show();
+    $('#campos-especificos, #esp-pc, #esp-notebook, #esp-impresora, #esp-monitor, #esp-escaner').hide();
+    // Ocultar columna de especificaciones para Varios
+    $('#columna-especificaciones').hide();
+  } else {
+    $('#campos-varios').hide();
+    $('#campos-especificos').show();
+    $('#esp-pc, #esp-notebook, #esp-impresora, #esp-monitor, #esp-escaner').hide();
+    // Mostrar columna de especificaciones para tipos unitarios
+    $('#columna-especificaciones').show();
+    if (t === 'PC Completa') $('#esp-pc').show();
+    if (t === 'Notebook') $('#esp-notebook').show();
+    if (t === 'Impresora') $('#esp-impresora').show();
+    if (t === 'Monitor') $('#esp-monitor').show();
+    if (t === 'Escaner') $('#esp-escaner').show();
+  }
+  // Mostrar accesorios notebook en la segunda columna
+  if (t === 'Notebook') {
+    $('#extras-notebook').slideDown(150);
+  } else {
+    $('#extras-notebook').slideUp(150);
+    $('#micro_sd').prop('checked', false);
+    $('#micro_sd_gb').prop('disabled', true).val('');
+  }
+}
+$('#tipo_insumo').on('change', toggleCampos);
+$(function(){ toggleCampos(); });
+
+// Enable/disable tamaño Micro SD
+$(document).on('change', '#micro_sd', function(){
+  const on = $(this).is(':checked');
+  $('#micro_sd_gb').prop('disabled', !on);
+  if (!on) { $('#micro_sd_gb').val(''); }
+});
 
 // Función para cambiar label según tipo de ingreso
 function cambiarTipoIngresoNueva() {
