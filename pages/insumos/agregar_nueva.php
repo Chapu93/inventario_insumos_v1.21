@@ -590,5 +590,65 @@ function cambiarTipoIngresoNueva() {
       if (help) help.textContent = 'Opcional: Asociar a un ingreso';
   }
 }
+
+// DEBUG: Detectar submit del formulario
+$('#formAgregarNueva').on('submit', function(e) {
+  console.log('========================================');
+  console.log('FORMULARIO SUBMIT DISPARADO');
+  console.log('========================================');
+  console.log('Tipo insumo:', $('#tipo_insumo').val());
+  console.log('Nombre insumo:', $('[name="nombre_insumo"]').val());
+  console.log('ID Sede:', $('#id_sede').val());
+  console.log('ID Area:', $('#id_area_asignada').val());
+  console.log('Nombre persona:', $('#nombre_persona_asignada').val());
+  console.log('Apellido persona:', $('#apellido_persona_asignada').val());
+  
+  // Verificar campos inválidos
+  const invalidos = $(this).find(':invalid');
+  console.log('Campos inválidos encontrados:', invalidos.length);
+  
+  if (invalidos.length > 0) {
+    console.log('BLOQUEANDO SUBMIT - Campos inválidos:');
+    invalidos.each(function() {
+      console.log('  - Campo:', this.name || this.id, 'Valor:', $(this).val(), 'Tipo:', this.type);
+    });
+    e.preventDefault();
+    alert('Hay campos requeridos sin completar. Revisa la consola (F12) para más detalles.');
+    return false;
+  }
+  
+  console.log('✅ Validación OK - Enviando formulario...');
+});
 </script>
 
+
+<script>
+// DEBUG: Detectar submit del formulario
+$('#formAgregarNueva').on('submit', function(e) {
+  console.log('========================================');
+  console.log('FORMULARIO SUBMIT DISPARADO');
+  console.log('========================================');
+  console.log('Tipo insumo:', $('#tipo_insumo').val());
+  console.log('Nombre insumo:', $('[name="nombre_insumo"]').val());
+  console.log('ID Sede:', $('#id_sede').val());
+  console.log('ID Area:', $('#id_area_asignada').val());
+  console.log('Nombre persona:', $('#nombre_persona_asignada').val());
+  console.log('Apellido persona:', $('#apellido_persona_asignada').val());
+  
+  // Verificar campos inválidos
+  const invalidos = $(this).find(':invalid');
+  console.log('Campos inválidos encontrados:', invalidos.length);
+  
+  if (invalidos.length > 0) {
+    console.log('BLOQUEANDO SUBMIT - Campos inválidos:');
+    invalidos.each(function() {
+      console.log('  - Campo:', this.name || this.id, 'Valor:', $(this).val(), 'Tipo:', this.type);
+    });
+    e.preventDefault();
+    alert('Hay campos requeridos sin completar. Revisa la consola (F12) para más detalles.');
+    return false;
+  }
+  
+  console.log('✅ Validación OK - Enviando formulario...');
+});
+</script>
