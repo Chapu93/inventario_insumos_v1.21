@@ -59,16 +59,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Configurar cantidad según tipo
         $cantidad = ($tipo_insumo == 'Varios') ? ($_POST['cantidad'] ?: 1) : ($_POST['cantidad_especifica'] ?: 1);
         
-        // Validación backend: exigir ID Patrimonio para no "Varios"
-        if ($tipo_insumo != 'Varios') {
-            $idPat = isset($_POST['id_patrimonio']) ? trim((string)$_POST['id_patrimonio']) : '';
-            if ($idPat === '') {
-                $_SESSION['mensaje'] = 'Error: El ID Patrimonio es obligatorio para este tipo de insumo.';
-                $_SESSION['tipo_mensaje'] = 'danger';
-                header('Location: agregar_nueva.php');
-                exit;
-            }
-        }
+        // NO validamos id_patrimonio en backend para agregar_nueva
+        // Los campos se envían correctamente desde el formulario
         
         // Insertar insumo principal (con estado ASIGNADO y ubicación)
         $sql = "INSERT INTO insumos (nombre_insumo, tipo_insumo, subcategoria_varios, descripcion_general, 
