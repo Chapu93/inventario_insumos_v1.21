@@ -445,27 +445,27 @@ function toggleCampos() {
   if (!t) {
     // Ocultar todo cuando no hay selección
     $('#formulario-campos').hide();
-    $('#campos-varios, #campos-especificos, #esp-pc, #esp-notebook, #esp-impresora, #esp-monitor, #esp-escaner').hide();
+    $('#campos-varios, #campos-especificos, #campos-pc, #campos-notebook, #campos-impresora, #campos-monitor, #campos-escaner').hide();
     return;
   }
   // Mostrar grilla principal cuando hay tipo seleccionado
   $('#formulario-campos').show();
   if (t === 'Varios') {
     $('#campos-varios').show();
-    $('#campos-especificos, #esp-pc, #esp-notebook, #esp-impresora, #esp-monitor, #esp-escaner').hide();
+    $('#campos-especificos, #campos-pc, #campos-notebook, #campos-impresora, #campos-monitor, #campos-escaner').hide();
     // Ocultar columna de especificaciones para Varios
     $('#columna-especificaciones').hide();
   } else {
     $('#campos-varios').hide();
     $('#campos-especificos').show();
-    $('#esp-pc, #esp-notebook, #esp-impresora, #esp-monitor, #esp-escaner').hide();
+    $('#campos-pc, #campos-notebook, #campos-impresora, #campos-monitor, #campos-escaner').hide();
     // Mostrar columna de especificaciones para tipos unitarios
     $('#columna-especificaciones').show();
-    if (t === 'PC Completa') $('#esp-pc').show();
-    if (t === 'Notebook') $('#esp-notebook').show();
-    if (t === 'Impresora') $('#esp-impresora').show();
-    if (t === 'Monitor') $('#esp-monitor').show();
-    if (t === 'Escaner') $('#esp-escaner').show();
+    if (t === 'PC Completa') $('#campos-pc').show();
+    if (t === 'Notebook') $('#campos-notebook').show();
+    if (t === 'Impresora') $('#campos-impresora').show();
+    if (t === 'Monitor') $('#campos-monitor').show();
+    if (t === 'Escaner') $('#campos-escaner').show();
   }
   // Mostrar accesorios notebook en la segunda columna
   if (t === 'Notebook') {
