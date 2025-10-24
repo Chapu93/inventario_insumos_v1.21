@@ -1,121 +1,215 @@
 <?php
 require_once '../../includes/config.php';
 
-$db = conectarDB();
+$conexion = conectarDB();
 
-// Datos para selects
-$localidades = $db->query("SELECT id_localidad, nombre_localidad FROM localidades ORDER BY nombre_localidad")->fetchAll();
-$puntos_stock = $db->query("SELECT id_punto_stock, nombre_punto FROM puntos_stock ORDER BY nombre_punto")->fetchAll();
+// Obtener datos para los select
+$localidades = $conexion->query("SELECT id_localidad, nombre_localidad FROM localidades ORDER BY nombre_localidad")->fetchAll();
+$puntos_stock = $conexion->query("SELECT id_punto_stock, nombre_punto FROM puntos_stock ORDER BY nombre_punto")->fetchAll();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+// Procesar formulario
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // CSRF
+    if (!verify_csrf()) {
+        $_SESSION['mensaje'] = 'CSRF inválido';
+        $_SESSION['tipo_mensaje'] = 'danger';
+        header('Location: agregar_nueva.php');
+        exit;
+    }
+    error_log('Formulario POST recibido en agregar_nueva.php');
+    error_log('POST data: ' . print_r($_POST, true));
+    
+    // Verificar campos de asignación
+    $campos_asignacion = ['id_sede', 'id_area_asignada', 'nombre_persona_asignada', 'apellido_persona_asignada'];
+    foreach ($campos_asignacion as $campo) {
+        if (!isset($_POST[$campo]) || empty($_POST[$campo])) {
+            error_log('Campo de asignación faltante: ' . $campo);
+            $_SESSION['mensaje'] = "Error: Complete todos los datos de asignación";
+            $_SESSION['tipo_mensaje'] = "danger";
+            header("Location: agregar_nueva.php");
+            exit;
+        }
+    }
+    
+    // Verificar campos de insumo
+    $campos_requeridos = ['nombre_insumo', 'tipo_insumo'];
+    foreach ($campos_requeridos as $campo) {
+        if (!isset($_POST[$campo]) || empty($_POST[$campo])) {
+            error_log('Campo requerido faltante: ' . $campo);
+            $_SESSION['mensaje'] = "Error: Campo requerido faltante: " . $campo;
+            $_SESSION['tipo_mensaje'] = "danger";
+            header("Location: agregar_nueva.php");
+            exit;
+        }
+    }
+    
     try {
-        if (!verify_csrf()) { throw new Exception('CSRF inválido'); }
-        $db->beginTransaction();
-
-        // Paso 1: Asignación (cabecera)
-        $idSede = (int)($_POST['id_sede'] ?? 0);
-        $idArea = (int)($_POST['id_area_asignada'] ?? 0);
-        $nombre = trim($_POST['nombre_persona_asignada'] ?? '');
-        $apellido = trim($_POST['apellido_persona_asignada'] ?? '');
+        $conexion->beginTransaction();
+        
+        // Datos de asignación (Paso 1)
+        $idSede = (int)$_POST['id_sede'];
+        $idArea = (int)$_POST['id_area_asignada'];
+        $nombre = trim($_POST['nombre_persona_asignada']);
+        $apellido = trim($_POST['apellido_persona_asignada']);
         $fechaAsig = $_POST['fecha_asignacion'] ?: date('Y-m-d');
         $obs = ($_POST['observaciones'] ?? '') ?: null;
-        if (!$idSede || !$idArea || $nombre === '' || $apellido === '') {
-            throw new Exception('Complete datos de ubicación y agente asignado');
-        }
-
-        // Paso 2: Alta de insumo (mismo criterio que agregar.php)
-        $tipo = $_POST['tipo_insumo'] ?? '';
-        $nombreInsumo = trim($_POST['nombre_insumo'] ?? '');
-        if ($nombreInsumo === '' || $tipo === '') { throw new Exception('Complete nombre y tipo de insumo'); }
-
-        $cantidad = ($tipo === 'Varios') ? (int)($_POST['cantidad'] ?: 1) : (int)($_POST['cantidad_especifica'] ?: 1);
-        if ($tipo !== 'Varios') {
-            $idPat = isset($_POST['id_patrimonio']) ? trim((string)$_POST['id_patrimonio']) : '';
-            if ($idPat === '') { throw new Exception('El ID Patrimonio es obligatorio para este tipo de insumo.'); }
-        }
-
-        // Obtener valores adicionales
-        $esNuevo = isset($_POST['es_nuevo']) ? 1 : 0;
-        $idIngreso = !empty($_POST['id_ingreso']) ? (int)$_POST['id_ingreso'] : null;
         
-        // Si tiene ingreso asignado, obtener su fecha_finalizacion para fecha_adquisicion
-        $fechaAdquisicion = null;
-        if ($idIngreso) {
-            $stmtIng = $db->prepare('SELECT DATE(fecha_finalizacion) as fecha_finalizacion FROM ingresos WHERE id_ingreso = ?');
-            $stmtIng->execute([$idIngreso]);
-            $ingreso = $stmtIng->fetch();
-            if ($ingreso) {
-                $fechaAdquisicion = $ingreso['fecha_finalizacion'];
+        $tipo_insumo = $_POST['tipo_insumo'];
+        
+        // Configurar cantidad según tipo
+        $cantidad = ($tipo_insumo == 'Varios') ? ($_POST['cantidad'] ?: 1) : ($_POST['cantidad_especifica'] ?: 1);
+        
+        // Validación backend: exigir ID Patrimonio para no "Varios"
+        if ($tipo_insumo != 'Varios') {
+            $idPat = isset($_POST['id_patrimonio']) ? trim((string)$_POST['id_patrimonio']) : '';
+            if ($idPat === '') {
+                $_SESSION['mensaje'] = 'Error: El ID Patrimonio es obligatorio para este tipo de insumo.';
+                $_SESSION['tipo_mensaje'] = 'danger';
+                header('Location: agregar_nueva.php');
+                exit;
             }
         }
-        // Si no tiene ingreso o no se encontró, usar fecha del POST o actual
-        if (!$fechaAdquisicion) {
-            $fechaAdquisicion = !empty($_POST['fecha_adquisicion']) ? $_POST['fecha_adquisicion'] : date('Y-m-d');
+        
+        // Insertar insumo principal (con estado ASIGNADO y ubicación)
+        $sql = "INSERT INTO insumos (nombre_insumo, tipo_insumo, subcategoria_varios, descripcion_general, 
+                                   numero_serie, id_fisico, id_patrimonio, cantidad, fecha_adquisicion, estado, 
+                                   id_punto_stock_actual, id_sede_actual, id_area_asignacion_actual, id_ingreso, es_nuevo) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Asignado', ?, ?, ?, ?, ?)";
+        
+        $esNuevo = isset($_POST['es_nuevo']) && $_POST['es_nuevo'] == '1' ? 1 : 0;
+        $idIngreso = !empty($_POST['id_ingreso']) ? (int)$_POST['id_ingreso'] : null;
+        $fechaAdquisicion = $_POST['fecha_adquisicion'] ?: null;
+        
+        // Si se asigna manualmente un ingreso, usar su fecha de finalización
+        if ($idIngreso) {
+            $stmtIng = $conexion->prepare('SELECT DATE(fecha_finalizacion) as fecha_finalizacion FROM ingresos WHERE id_ingreso = ?');
+            $stmtIng->execute([$idIngreso]);
+            $ingreso = $stmtIng->fetch();
+            if ($ingreso && !empty($ingreso['fecha_finalizacion'])) {
+                $fechaAdquisicion = $ingreso['fecha_finalizacion'];
+                error_log("Ingreso asignado - Fecha: " . $fechaAdquisicion);
+            }
         }
-
-        $stmt = $db->prepare("INSERT INTO insumos (nombre_insumo, tipo_insumo, subcategoria_varios, descripcion_general, numero_serie, id_fisico, id_patrimonio, cantidad, fecha_adquisicion, estado, id_punto_stock_actual, id_sede_actual, id_area_asignacion_actual, es_nuevo, id_ingreso) VALUES (?,?,?,?,?,?,?,?,?, 'Asignado', ?, ?, ?, ?, ?)");
+        
+        $stmt = $conexion->prepare($sql);
         $stmt->execute([
-            $nombreInsumo,
-            $tipo,
-            ($tipo==='Varios'?($_POST['subcategoria_varios']?:null):null),
-            ($tipo==='Varios'?($_POST['descripcion_general']?:null):null),
-            ($tipo!=='Varios'?($_POST['numero_serie']?:null):null),
-            ($tipo!=='Varios'?($_POST['id_fisico']?:null):null),
-            ($tipo!=='Varios'?($_POST['id_patrimonio']?:null):null),
+            $_POST['nombre_insumo'],
+            $tipo_insumo,
+            ($tipo_insumo == 'Varios') ? ($_POST['subcategoria_varios'] ?: null) : null,
+            ($tipo_insumo == 'Varios') ? ($_POST['descripcion_general'] ?: null) : null,
+            ($tipo_insumo != 'Varios') ? ($_POST['numero_serie'] ?: null) : null,
+            ($tipo_insumo != 'Varios') ? ($_POST['id_fisico'] ?: null) : null,
+            ($tipo_insumo != 'Varios') ? ($_POST['id_patrimonio'] ?: null) : null,
             $cantidad,
             $fechaAdquisicion,
             $_POST['id_punto_stock_actual'] ?: 2,
             $idSede,
             $idArea,
-            $esNuevo,
-            $idIngreso
+            $idIngreso,
+            $esNuevo
         ]);
-        $idInsumo = (int)$db->lastInsertId();
-
-        if ($tipo !== 'Varios') {
-            switch ($tipo) {
+        
+        $id_insumo = $conexion->lastInsertId();
+        
+        // Insertar datos específicos según el tipo (solo para tipos que no son "Varios")
+        if ($tipo_insumo != 'Varios') {
+            switch ($tipo_insumo) {
                 case 'PC Completa':
                     if (!empty($_POST['procesador']) || !empty($_POST['ram_gb']) || !empty($_POST['almacenamiento_gb']) || !empty($_POST['mother'])) {
-                        $db->prepare("INSERT INTO pcs_completas (id_insumo, procesador, ram_gb, almacenamiento_gb, mother) VALUES (?,?,?,?,?)")
-                           ->execute([$idInsumo, $_POST['procesador'] ?: null, $_POST['ram_gb'] ?: null, $_POST['almacenamiento_gb'] ?: null, $_POST['mother'] ?: null]);
+                        $sql = "INSERT INTO pcs_completas (id_insumo, procesador, ram_gb, almacenamiento_gb, mother) VALUES (?, ?, ?, ?, ?)";
+                        $stmt = $conexion->prepare($sql);
+                        $stmt->execute([$id_insumo, $_POST['procesador'] ?: null, $_POST['ram_gb'] ?: null, $_POST['almacenamiento_gb'] ?: null, $_POST['mother'] ?: null]);
                     }
                     break;
+                    
                 case 'Notebook':
                     if (!empty($_POST['marca_notebook']) || !empty($_POST['modelo_notebook'])) {
-                        $stmtN = $db->prepare("INSERT INTO notebooks (id_insumo, marca, modelo, procesador, ram_gb, almacenamiento_gb, cargador, funda, micro_sd, micro_sd_gb, caja, adaptador_red) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
+                        $sql = "INSERT INTO notebooks (id_insumo, marca, modelo, procesador, ram_gb, almacenamiento_gb, cargador, funda, micro_sd, micro_sd_gb, caja, adaptador_red) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                        $stmt = $conexion->prepare($sql);
                         $cargador = isset($_POST['cargador']) ? 1 : 0;
                         $funda = isset($_POST['funda']) ? 1 : 0;
                         $microSd = isset($_POST['micro_sd']) ? 1 : 0;
                         $microSdGb = $microSd ? (($_POST['micro_sd_gb'] !== '' ? (int)$_POST['micro_sd_gb'] : null)) : null;
                         $caja = isset($_POST['caja']) ? 1 : 0;
                         $adaptadorRed = isset($_POST['adaptador_red']) ? 1 : 0;
-                        $stmtN->execute([$idInsumo, $_POST['marca_notebook'] ?: null, $_POST['modelo_notebook'] ?: null, $_POST['procesador_notebook'] ?: null, $_POST['ram_gb_notebook'] ?: null, $_POST['almacenamiento_gb_notebook'] ?: null, $cargador, $funda, $microSd, $microSdGb, $caja, $adaptadorRed]);
+                        $stmt->execute([
+                            $id_insumo,
+                            $_POST['marca_notebook'] ?: null,
+                            $_POST['modelo_notebook'] ?: null,
+                            $_POST['procesador_notebook'] ?: null,
+                            $_POST['ram_gb_notebook'] ?: null,
+                            $_POST['almacenamiento_gb_notebook'] ?: null,
+                            $cargador,
+                            $funda,
+                            $microSd,
+                            $microSdGb,
+                            $caja,
+                            $adaptadorRed
+                        ]);
                     }
                     break;
+                    
                 case 'Impresora':
                     if (!empty($_POST['marca_impresora']) || !empty($_POST['modelo_impresora'])) {
-                        $db->prepare("INSERT INTO impresoras (id_insumo, marca, modelo) VALUES (?,?,?)")
-                           ->execute([$idInsumo, $_POST['marca_impresora'] ?: null, $_POST['modelo_impresora'] ?: null]);
+                        $sql = "INSERT INTO impresoras (id_insumo, marca, modelo) VALUES (?, ?, ?)";
+                        $stmt = $conexion->prepare($sql);
+                        $stmt->execute([$id_insumo, $_POST['marca_impresora'], $_POST['modelo_impresora']]);
                     }
                     break;
+                    
                 case 'Monitor':
                     if (!empty($_POST['marca_monitor']) || !empty($_POST['modelo_monitor'])) {
-                        $db->prepare("INSERT INTO monitores (id_insumo, marca, modelo, pulgadas, conexion) VALUES (?,?,?,?,?)")
-                           ->execute([$idInsumo, $_POST['marca_monitor'] ?: null, $_POST['modelo_monitor'] ?: null, $_POST['pulgadas'] ?: null, $_POST['conexion_monitor'] ?: null]);
+                        $sql = "INSERT INTO monitores (id_insumo, marca, modelo, pulgadas, conexion) VALUES (?, ?, ?, ?, ?)";
+                        $stmt = $conexion->prepare($sql);
+                        $stmt->execute([$id_insumo, $_POST['marca_monitor'], $_POST['modelo_monitor'], $_POST['pulgadas'] ?: null, $_POST['conexion_monitor']]);
                     }
                     break;
+                    
                 case 'Escaner':
                     if (!empty($_POST['marca_escaner']) || !empty($_POST['modelo_escaner'])) {
-                        $db->prepare("INSERT INTO escaneres (id_insumo, marca, modelo) VALUES (?,?,?)")
-                           ->execute([$idInsumo, $_POST['marca_escaner'] ?: null, $_POST['modelo_escaner'] ?: null]);
+                        $sql = "INSERT INTO escaneres (id_insumo, marca, modelo) VALUES (?, ?, ?)";
+                        $stmt = $conexion->prepare($sql);
+                        $stmt->execute([$id_insumo, $_POST['marca_escaner'], $_POST['modelo_escaner']]);
                     }
                     break;
             }
         }
+        
+        // Crear remito (cabecera) y detalle
+        $numero = generarNumeroRemito($conexion);
+        $sql = "INSERT INTO remitos (numero_remito, id_sede, id_area, nombre_persona_asignada, apellido_persona_asignada, fecha_asignacion, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $stmt = $conexion->prepare($sql);
+        $stmt->execute([$numero, $idSede, $idArea, $nombre, $apellido, $fechaAsig, $obs]);
+        $idRemito = $conexion->lastInsertId();
+        
+        // Detalle del remito
+        $cantidadAsignar = ($tipo_insumo === 'Varios') ? max(1, (int)($_POST['cantidad_asignar'] ?? $cantidad)) : 1;
+        $sql = "INSERT INTO remitos_detalle (id_remito, id_insumo, cantidad) VALUES (?, ?, ?)";
+        $stmt = $conexion->prepare($sql);
+        $stmt->execute([$idRemito, $id_insumo, $cantidadAsignar]);
+        
+        $conexion->commit();
+        
+        error_log('Insumo agregado y asignado correctamente');
+        error_log('ID del insumo: ' . $id_insumo . ', ID del remito: ' . $idRemito);
+        $_SESSION['mensaje'] = "Insumo creado y asignado correctamente";
+        $_SESSION['tipo_mensaje'] = "success";
+        header('Location: ' . app_base_url() . '/pages/insumos/listar.php');
+        exit;
+        
+    } catch (Exception $e) {
+        $conexion->rollBack();
+        error_log('Error al agregar insumo asignado: ' . $e->getMessage());
+        error_log('Stack trace: ' . $e->getTraceAsString());
+        $_SESSION['mensaje'] = "Error: " . $e->getMessage();
+        $_SESSION['tipo_mensaje'] = "danger";
+        header("Location: agregar_nueva.php");
+        exit;
+    }
+}
 
-        // Crear remito (cabecera) y detalle por el nuevo insumo
-        $numero = generarNumeroRemito($db);
-        $db->prepare("INSERT INTO remitos (numero_remito, id_sede, id_area, nombre_persona_asignada, apellido_persona_asignada, fecha_asignacion, observaciones) VALUES (?,?,?,?,?,?,?)")
+include '../../includes/header.php';
+?>
            ->execute([$numero, $idSede, $idArea, $nombre, $apellido, $fechaAsig, $obs]);
         $idRemito = (int)$db->lastInsertId();
         $db->prepare("INSERT INTO remitos_detalle (id_remito, id_insumo, cantidad) VALUES (?,?,?)")
