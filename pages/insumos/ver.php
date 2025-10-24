@@ -9,23 +9,22 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     $_SESSION['mensaje'] = 'ID de insumo no válido.';
     $_SESSION['tipo_mensaje'] = 'danger';
     header('Location: listar.php');
-    exit;
-}
+  $id = (int)$_GET['id'];
+$db = conectarDB();
 
-$id = (int)$_GET['id'];
-$db = // Datos generales del insumo con ubicación
+// Datos generales del insumo con ubicación
 $stmt = $db->prepare("
     SELECT i.*, ps.nombre_punto, ar.nombre_area, s.nombre_sede, l.nombre_localidad, z.nombre_zona,
-           lic.cod_expediente AS licitacion_expediente
+           ing.nro_referencia AS ingreso_referencia, ing.tipo_ingreso
     FROM insumos i
     LEFT JOIN puntos_stock ps ON i.id_punto_stock_actual = ps.id_punto_stock
     LEFT JOIN areas ar ON i.id_area_asignacion_actual = ar.id_area
     LEFT JOIN sedes s ON i.id_sede_actual = s.id_sede
     LEFT JOIN localidades l ON s.id_localidad = l.id_localidad
     LEFT JOIN zonas z ON l.id_zona = z.id_zona
-    LEFT JOIN licitaciones lic ON i.id_licitacion = lic.id_licitacion
+    LEFT JOIN ingresos ing ON i.id_ingreso = ing.id_ingreso
     WHERE i.id_insumo = ?
-"); WHERE i.id_insumo = ?
+");_insumo = ?
 ");
 $stmt->execute([$id]);
 $insumo = $stmt->fetch();
