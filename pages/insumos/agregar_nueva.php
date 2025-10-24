@@ -182,10 +182,10 @@ include '../../includes/header.php';
                         <h6 class="mb-3 section-title">Ubicación</h6>
                         <div class="mb-3">
                             <label class="form-label">Localidad *</label>
-                            <select class="form-select" id="id_localidad" required>
+                            <select class="form-select" id="id_localidad">
                                 <option value="">Seleccione una localidad</option>
                                 <?php foreach ($localidades as $loc): ?>
-                                <option value="<?php echo $loc['id_localidad']; ?>"><?php echo htmlspecialchars($loc['nombre_localidad']); ?></option>
+                                    <option value="<?php echo $loc['id_localidad']; ?>"><?php echo htmlspecialchars($loc['nombre_localidad']); ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
