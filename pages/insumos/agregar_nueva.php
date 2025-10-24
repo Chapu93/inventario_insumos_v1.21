@@ -210,27 +210,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 include '../../includes/header.php';
 ?>
-           ->execute([$numero, $idSede, $idArea, $nombre, $apellido, $fechaAsig, $obs]);
-        $idRemito = (int)$db->lastInsertId();
-        $db->prepare("INSERT INTO remitos_detalle (id_remito, id_insumo, cantidad) VALUES (?,?,?)")
-           ->execute([$idRemito, $idInsumo, ($tipo==='Varios'? max(1, (int)($_POST['cantidad_asignar'] ?? $cantidad)) : 1)]);
-
-        $db->commit();
-        $_SESSION['mensaje'] = 'Insumo creado y asignado correctamente';
-        $_SESSION['tipo_mensaje'] = 'success';
-        header('Location: ' . app_base_url() . '/pages/insumos/listar.php');
-        exit;
-    } catch (Exception $e) {
-        if ($db->inTransaction()) { $db->rollBack(); }
-        $_SESSION['mensaje'] = 'Error: ' . $e->getMessage();
-        $_SESSION['tipo_mensaje'] = 'danger';
-        header('Location: agregar_nueva.php');
-        exit;
-    }
-}
-
-include '../../includes/header.php';
-?>
 
 <div class="row">
     <div class="col-12">
