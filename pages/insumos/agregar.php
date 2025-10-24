@@ -205,8 +205,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
             header('Location: ' . $url);
         } elseif ($from === 'licitacion') {
-            // Compatibilidad con archivo antiguo
-            header('Location: ' . app_base_url() . '/pages/insumos/licitaciones_nueva_pasos.php?from=agregar&added_id=' . urlencode($id_insumo));
+            // Compatibilidad: redirigir a ingresos (nombre actualizado)
+            header('Location: ' . app_base_url() . '/pages/insumos/ingresos_editar.php?from=agregar&added_id=' . urlencode($id_insumo));
         } else {
             header('Location: listar.php');
         }
