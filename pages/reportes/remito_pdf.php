@@ -199,7 +199,9 @@ if (!empty($cab['observaciones'])) {
 $pdf->SetXY($leftMargin, $y += 10);
 $pdf->SetFont('Arial', '', 10);
 
-$cols = 3; $colPad = 6; $colW = ($contentWidth - ($colPad * ($cols - 1))) / $cols; $xStart = $leftMargin; $yStart = $y;
+// Calcular offset de 3 caracteres para mover columnas a la derecha
+$offsetTresCaracteres = $pdf->GetStringWidth('000');
+$cols = 3; $colPad = 6; $colW = ($contentWidth - ($colPad * ($cols - 1))) / $cols; $xStart = $leftMargin + $offsetTresCaracteres; $yStart = $y;
 $colHeights = array_fill(0, $cols, $yStart);
 $colIndex = 0;
 
