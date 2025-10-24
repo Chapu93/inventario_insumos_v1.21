@@ -513,6 +513,8 @@ function toggleCampos() {
     $('#campos-varios, #campos-especificos, #campos-pc, #campos-notebook, #campos-impresora, #campos-monitor, #campos-escaner').hide();
     // Deshabilitar campos requeridos cuando están ocultos
     $('#numero_serie, #id_fisico, #id_patrimonio').prop('required', false);
+    // Deshabilitar todos los campos required de especificaciones
+    $('#campos-pc, #campos-notebook, #campos-impresora, #campos-monitor, #campos-escaner').find('input, select').prop('required', false);
     return;
   }
   // Mostrar grilla principal cuando hay tipo seleccionado
@@ -524,14 +526,21 @@ function toggleCampos() {
     $('#columna-especificaciones').hide();
     // Deshabilitar required en campos ocultos
     $('#numero_serie, #id_fisico, #id_patrimonio').prop('required', false);
+    // Deshabilitar todos los campos required de especificaciones
+    $('#campos-pc, #campos-notebook, #campos-impresora, #campos-monitor, #campos-escaner').find('input, select').prop('required', false);
   } else {
     $('#campos-varios').hide();
     $('#campos-especificos').show();
-    $('#campos-pc, #campos-notebook, #campos-impresora, #campos-monitor, #campos-escaner').hide();
     // Mostrar columna de especificaciones para tipos unitarios
     $('#columna-especificaciones').show();
     // Habilitar required en campos visibles
     $('#numero_serie, #id_fisico, #id_patrimonio').prop('required', true);
+    
+    // Primero ocultar y deshabilitar required de TODOS los tipos
+    $('#campos-pc, #campos-notebook, #campos-impresora, #campos-monitor, #campos-escaner').hide();
+    $('#campos-pc, #campos-notebook, #campos-impresora, #campos-monitor, #campos-escaner').find('input, select').prop('required', false);
+    
+    // Luego mostrar solo el tipo seleccionado
     if (t === 'PC Completa') $('#campos-pc').show();
     if (t === 'Notebook') $('#campos-notebook').show();
     if (t === 'Impresora') $('#campos-impresora').show();
