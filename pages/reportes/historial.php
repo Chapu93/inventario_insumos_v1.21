@@ -51,20 +51,25 @@ require_once '../../includes/config.php';
   <div class="tab-pane fade" id="devoluciones" role="tabpanel" aria-labelledby="devoluciones-tab">
     <div class="card">
       <div class="card-header d-flex align-items-center justify-content-between">
-        <h5 class="mb-0"><i class="fas fa-undo me-2"></i>Devoluciones</h5>
+        <h5 class="mb-0"><i class="fas fa-undo me-2"></i>Devoluciones por Remito</h5>
       </div>
       <div class="card-body">
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle me-2"></i>Listado agrupado por remito. Cada fila representa un remito con devoluciones.
+        </div>
         <div class="table-responsive">
           <table class="table table-striped datatable" id="tablaDevoluciones" data-ssp="1">
             <thead>
               <tr>
                 <th>Remito</th>
-                <th>Fecha</th>
-                <th>Insumo</th>
-                <th>Asignados</th>
-                <th>Devueltos</th>
-                <th>Pendientes</th>
-                <th>Ver Remito</th>
+                <th>Fecha Asignación</th>
+                <th>Fecha Devolución</th>
+                <th>Persona</th>
+                <th>N° Items</th>
+                <th>Tot. Asignados</th>
+                <th>Tot. Devueltos</th>
+                <th>Tot. Pendientes</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -130,16 +135,18 @@ $(function(){
       processing: true,
       serverSide: true,
       ajax: { url: getAppBase() + '/ajax/historial_devoluciones_ssp.php', type: 'GET' },
-      order: [[1, 'desc']],
+      order: [[2, 'desc']], // Ordenar por fecha de devolución DESC
       pageLength: 25,
       columns: [
-        { data: 0 },
-        { data: 1 },
-        { data: 2 },
-        { data: 3 },
-        { data: 4 },
-        { data: 5 },
-        { data: 6, orderable: false, searchable: false }
+        { data: 0 }, // Remito
+        { data: 1 }, // Fecha Asignación
+        { data: 2 }, // Fecha Devolución
+        { data: 3 }, // Persona
+        { data: 4 }, // N° Items
+        { data: 5 }, // Tot. Asignados
+        { data: 6 }, // Tot. Devueltos
+        { data: 7 }, // Tot. Pendientes
+        { data: 8, orderable: false, searchable: false } // Acciones
       ],
       drawCallback: function(){ inicializarTooltips(); }
     });
