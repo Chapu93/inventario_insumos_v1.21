@@ -7,7 +7,10 @@ try {
     if (!verify_csrf()) { throw new Exception('CSRF inválido'); }
     $input = json_decode(file_get_contents('php://input'), true);
     $remito = isset($input['remito']) ? trim((string)$input['remito']) : '';
+    $motivo = isset($input['motivo']) ? trim((string)$input['motivo']) : '';
+    
     if ($remito === '') { throw new Exception('Remito inválido'); }
+    if ($motivo === '') { throw new Exception('Debe especificar un motivo de anulación'); }
 
     $db = conectarDB();
     $db->beginTransaction();
@@ -18,6 +21,11 @@ try {
     $r = $cab->fetch();
     if (!$r) { throw new Exception('Remito no encontrado'); }
     $idRemito = (int)$r['id_remito'];
+    
+    // No se puede anular un remito ya anulado
+    if (strcasecmp((string)$r['estado'], 'Anulado') === 0) {
+        throw new Exception('El remito ya se encuentra anulado');
+    }
 
     // Revertir estado de insumos solo si el remito está Activa; si ya está Devuelta, no tocar stock/estado
     $items = $db->prepare('SELECT d.id_insumo, d.cantidad, i.tipo_insumo, i.cantidad AS stock_actual, COALESCE(d.cantidad_devuelta,0) AS cantidad_devuelta FROM remitos_detalle d JOIN insumos i ON i.id_insumo = d.id_insumo WHERE d.id_remito = ?');
@@ -35,12 +43,13 @@ try {
         }
     }
 
-    // Eliminar detalle y cabecera
-    $db->prepare('DELETE FROM remitos_detalle WHERE id_remito = ?')->execute([$idRemito]);
-    $db->prepare('DELETE FROM remitos WHERE id_remito = ?')->execute([$idRemito]);
+    // Anular el remito en lugar de eliminarlo
+    $fechaAnulacion = date('Y-m-d H:i:s');
+    $db->prepare("UPDATE remitos SET estado = 'Anulado', motivo_anulacion = ?, fecha_anulacion = ? WHERE id_remito = ?")
+       ->execute([$motivo, $fechaAnulacion, $idRemito]);
 
     $db->commit();
-    echo json_encode(['success' => true]);
+    echo json_encode(['success' => true, 'mensaje' => 'Remito anulado correctamente']);
 } catch (Exception $e) {
     if (isset($db) && $db instanceof PDO && $db->inTransaction()) { $db->rollBack(); }
     http_response_code(400);

@@ -141,7 +141,7 @@ function conectarDB() {
 }
 
 // Función para generar números de remito únicos con formato nnnn_yyyy
-// Reutiliza números de remitos eliminados para evitar saltos en la numeración
+// Los números de remito son consecutivos y nunca se reutilizan, incluso si un remito es anulado
 function generarNumeroRemito($dbParam = null) {
     $db = $dbParam instanceof PDO ? $dbParam : conectarDB();
     $anio = (int)date('Y');
@@ -149,50 +149,20 @@ function generarNumeroRemito($dbParam = null) {
         $ownTxn = !$db->inTransaction();
         if ($ownTxn) { $db->beginTransaction(); }
         
-        // PASO 1: Buscar el número más bajo que NO esté en uso (hueco por remito eliminado)
-        // Obtener todos los números de remito existentes del año actual
-        $stmt = $db->prepare("SELECT numero_remito FROM remitos WHERE numero_remito LIKE ? ORDER BY numero_remito");
-        $stmt->execute(["%_{$anio}"]);
-        $existentes = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        // Crear fila si no existe
+        $stmtIns = $db->prepare("INSERT INTO remito_secuencia (anio, ultimo) VALUES (?, 0) ON DUPLICATE KEY UPDATE ultimo = ultimo");
+        $stmtIns->execute([$anio]);
         
-        // Extraer solo los números (sin el _año)
-        $numerosUsados = [];
-        foreach ($existentes as $numCompleto) {
-            if (preg_match('/^(\d+)_/', $numCompleto, $matches)) {
-                $numerosUsados[] = (int)$matches[1];
-            }
-        }
-        sort($numerosUsados);
+        // Obtener el último número y bloquearlo para evitar duplicados
+        $stmtSel = $db->prepare("SELECT ultimo FROM remito_secuencia WHERE anio = ? FOR UPDATE");
+        $stmtSel->execute([$anio]);
+        $row = $stmtSel->fetch();
+        $actual = $row && isset($row['ultimo']) ? (int)$row['ultimo'] : 0;
+        $numeroAUsar = $actual + 1;
         
-        // Buscar el primer hueco en la secuencia
-        $numeroAUsar = null;
-        if (!empty($numerosUsados)) {
-            // Buscar hueco entre 1 y el máximo
-            for ($i = 1; $i <= max($numerosUsados); $i++) {
-                if (!in_array($i, $numerosUsados)) {
-                    $numeroAUsar = $i; // Encontramos un hueco
-                    break;
-                }
-            }
-        }
-        
-        // PASO 2: Si no hay huecos, usar el siguiente en secuencia
-        if ($numeroAUsar === null) {
-            // Crear fila si no existe
-            $stmtIns = $db->prepare("INSERT INTO remito_secuencia (anio, ultimo) VALUES (?, 0) ON DUPLICATE KEY UPDATE ultimo = ultimo");
-            $stmtIns->execute([$anio]);
-            
-            // Obtener el último número
-            $stmtSel = $db->prepare("SELECT ultimo FROM remito_secuencia WHERE anio = ? FOR UPDATE");
-            $stmtSel->execute([$anio]);
-            $row = $stmtSel->fetch();
-            $actual = $row && isset($row['ultimo']) ? (int)$row['ultimo'] : 0;
-            $numeroAUsar = $actual + 1;
-            
-            // Actualizar secuencia
-            $stmtUpd = $db->prepare("UPDATE remito_secuencia SET ultimo = ? WHERE anio = ?");
-            $stmtUpd->execute([$numeroAUsar, $anio]);
-        }
+        // Actualizar secuencia
+        $stmtUpd = $db->prepare("UPDATE remito_secuencia SET ultimo = ? WHERE anio = ?");
+        $stmtUpd->execute([$numeroAUsar, $anio]);
 
         if ($ownTxn) { $db->commit(); }
         
@@ -202,7 +172,7 @@ function generarNumeroRemito($dbParam = null) {
     } catch (Throwable $e) {
         if (isset($ownTxn) && $ownTxn && $db->inTransaction()) { $db->rollBack(); }
         error_log("Error en generarNumeroRemito: " . $e->getMessage());
-        // Fallback defensivo al método previo
+        // Fallback: obtener el máximo número existente y sumar 1
         $stmt = $db->prepare("SELECT numero_remito FROM remitos WHERE numero_remito LIKE ? ORDER BY numero_remito DESC LIMIT 1");
         $stmt->execute(["%_{$anio}"]);
         $ultimo = $stmt->fetch();

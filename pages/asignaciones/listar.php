@@ -9,7 +9,7 @@ $filtro_insumo = isset($_GET['insumo']) ? $_GET['insumo'] : '';
 $filtro_estado = isset($_GET['estado']) ? $_GET['estado'] : '';
 $filtro_area = isset($_GET['area']) ? $_GET['area'] : '';
 
-// Consulta agrupada por remito (esquema nuevo)
+// Consulta agrupada por remito (esquema nuevo) - Excluye remitos anulados
 $sql = "SELECT 
             r.numero_remito,
             r.fecha_asignacion,
@@ -27,7 +27,7 @@ $sql = "SELECT
         JOIN areas ar ON r.id_area = ar.id_area 
         JOIN sedes s ON r.id_sede = s.id_sede 
         JOIN localidades l ON s.id_localidad = l.id_localidad 
-        WHERE 1=1";
+        WHERE r.estado != 'Anulado'";
 
 $params = [];
 
@@ -193,20 +193,36 @@ function cambiarEstadoPorRemito(remito, estado) {
 // Eliminar asignación (remito completo)
 window.eliminarAsignacion = function(remito) {
   if (!remito) return;
-  if (!confirm(`¿Eliminar la asignación ${remito}? Se revertirán estados de insumos y se eliminará el remito.`)) return;
+  // Mostrar modal para pedir motivo de anulación
+  $('#remitoAnular').val(remito);
+  $('#numeroRemitoAnular').text(remito);
+  $('#motivoAnulacion').val('');
+  $('#modalAnulacion').modal('show');
+}
+
+window.confirmarAnulacion = function() {
+  const remito = $('#remitoAnular').val();
+  const motivo = $('#motivoAnulacion').val().trim();
+  
+  if (!motivo) {
+    showToast('Debe especificar un motivo de anulación', 'error');
+    return;
+  }
+  
   const token = (document.querySelector('meta[name="csrf-token"]')||{}).content || '';
   fetch(`${getAppBase()}/ajax/asignacion_eliminar.php`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': token },
-    body: JSON.stringify({ remito })
+    body: JSON.stringify({ remito, motivo })
   })
   .then(r => r.json())
   .then(resp => {
-    if (!resp.success) { throw new Error(resp.error || 'Error al eliminar asignación'); }
-    showToast('Asignación eliminada correctamente', 'success');
+    if (!resp.success) { throw new Error(resp.error || 'Error al anular remito'); }
+    $('#modalAnulacion').modal('hide');
+    showToast(resp.mensaje || 'Remito anulado correctamente', 'success');
     try { $('#tablaAsignaciones').DataTable().ajax.reload(); } catch(e) { location.reload(); }
   })
-  .catch(err => showToast(err.message || 'Error al eliminar asignación', 'error'));
+  .catch(err => showToast(err.message || 'Error al anular remito', 'error'));
 }
 </script>
 
@@ -431,6 +447,39 @@ function abrirVerAsignacion(remito) {
   modal.show();
 }
 </script>
+
+<!-- Modal Anulación de Remito -->
+<div class="modal fade" id="modalAnulacion" tabindex="-1" aria-labelledby="modalAnulacionLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="modalAnulacionLabel">
+                    <i class="fas fa-times-circle me-2"></i>Anular Remito
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="remitoAnular">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>¿Está seguro de anular el remito <span id="numeroRemitoAnular"></span>?</strong>
+                    <p class="mb-0 mt-2 small">Se revertirán los estados de los insumos y el remito quedará marcado como anulado. Esta acción no se puede deshacer.</p>
+                </div>
+                <div class="mb-3">
+                    <label for="motivoAnulacion" class="form-label">Motivo de anulación <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="motivoAnulacion" rows="4" required placeholder="Ingrese el motivo por el cual se anula este remito..."></textarea>
+                    <small class="form-text text-muted">El motivo será registrado en el historial del remito.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" onclick="confirmarAnulacion()">
+                    <i class="fas fa-ban me-1"></i>Anular Remito
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <?php include '../../includes/footer.php'; ?>
 

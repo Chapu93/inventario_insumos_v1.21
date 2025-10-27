@@ -14,6 +14,7 @@ try {
     // Cabecera del remito
     $stmt = $db->prepare("SELECT r.id_remito, r.numero_remito, r.fecha_asignacion, r.estado, r.fecha_devolucion, r.observaciones,
                                  r.nombre_persona_asignada, r.apellido_persona_asignada,
+                                 r.motivo_anulacion, r.fecha_anulacion,
                                  ar.nombre_area, s.nombre_sede, l.nombre_localidad, z.nombre_zona
                           FROM remitos r
                           JOIN areas ar ON r.id_area = ar.id_area

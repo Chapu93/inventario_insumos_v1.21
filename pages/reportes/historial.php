@@ -19,6 +19,9 @@ require_once '../../includes/config.php';
   <li class="nav-item" role="presentation">
     <button class="nav-link" id="devoluciones-tab" data-bs-toggle="tab" data-bs-target="#devoluciones" type="button" role="tab" aria-controls="devoluciones" aria-selected="false">Devoluciones</button>
   </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="anulados-tab" data-bs-toggle="tab" data-bs-target="#anulados" type="button" role="tab" aria-controls="anulados" aria-selected="false">Anulados</button>
+  </li>
 </ul>
 <div class="tab-content pt-3" id="historialTabsContent">
   <div class="tab-pane fade show active" id="bajas" role="tabpanel" aria-labelledby="bajas-tab">
@@ -70,6 +73,35 @@ require_once '../../includes/config.php';
       </div>
     </div>
   </div>
+  <div class="tab-pane fade" id="anulados" role="tabpanel" aria-labelledby="anulados-tab">
+    <div class="card">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <h5 class="mb-0"><i class="fas fa-times-circle me-2"></i>Remitos Anulados</h5>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle me-2"></i>Los remitos anulados se conservan en el sistema para mantener el historial completo. La numeración continúa sin reutilizar números de remitos anulados.
+        </div>
+        <div class="table-responsive">
+          <table class="table table-striped datatable" id="tablaAnulados" data-ssp="1">
+            <thead>
+              <tr>
+                <th>Remito</th>
+                <th>Fecha Asignación</th>
+                <th>Fecha Anulación</th>
+                <th>Persona</th>
+                <th>Sede</th>
+                <th>Área</th>
+                <th>Motivo</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <?php include '../../includes/footer.php'; ?>
@@ -112,11 +144,32 @@ $(function(){
       drawCallback: function(){ inicializarTooltips(); }
     });
 
+    var dtAnulados = $('#tablaAnulados').DataTable({
+      processing: true,
+      serverSide: true,
+      ajax: { url: getAppBase() + '/ajax/remitos_anulados_ssp.php', type: 'GET' },
+      order: [[2, 'desc']],
+      pageLength: 25,
+      columns: [
+        { data: 0 },
+        { data: 1 },
+        { data: 2 },
+        { data: 3 },
+        { data: 4 },
+        { data: 5 },
+        { data: 6 },
+        { data: 7, orderable: false, searchable: false }
+      ],
+      drawCallback: function(){ inicializarTooltips(); }
+    });
+
     // Ajustar columnas al cambiar de pestaña (DataTables en tabs ocultos)
     $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function(e){
       var target = $(e.target).attr('data-bs-target');
       if (target === '#devoluciones') {
         try { dtDev.columns.adjust().responsive?.recalc?.(); } catch(e){}
+      } else if (target === '#anulados') {
+        try { dtAnulados.columns.adjust().responsive?.recalc?.(); } catch(e){}
       }
     });
   }
@@ -155,6 +208,12 @@ function mostrarRemitoResumen(numeroRemito) {
     html += '<div class="mb-2"><strong>Área:</strong> ' + (c.nombre_area || '-') + '</div>';
     html += '<div class="mb-2"><strong>Estado:</strong> ' + (c.estado || '-') + '</div>';
     html += '<div class="mb-2"><strong>Observaciones:</strong> ' + (c.observaciones || '-') + '</div>';
+    if (c.estado === 'Anulado' && c.motivo_anulacion) {
+      html += '<div class="alert alert-warning mt-3"><strong>Motivo de Anulación:</strong><br>' + (c.motivo_anulacion || '-') + '</div>';
+      if (c.fecha_anulacion) {
+        html += '<div class="text-muted small"><strong>Fecha de Anulación:</strong> ' + c.fecha_anulacion + '</div>';
+      }
+    }
     $('#remitoResumenBody').html(html);
   }, 'json');
 }

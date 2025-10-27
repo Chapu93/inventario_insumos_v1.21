@@ -34,8 +34,8 @@ try {
                    JOIN sedes s ON r.id_sede = s.id_sede
                    JOIN localidades l ON s.id_localidad = l.id_localidad ";
 
-    // WHERE
-    $where = [];
+    // WHERE - Excluye remitos anulados
+    $where = ["r.estado != 'Anulado'"];
     $params = [];
     if ($filtro_localidad !== '') { $where[] = 'l.id_localidad = ?'; $params[] = $filtro_localidad; }
     if ($filtro_insumo !== '') { $where[] = 'i.tipo_insumo = ?'; $params[] = $filtro_insumo; }
@@ -46,10 +46,10 @@ try {
         array_push($params, $like, $like, $like);
     }
     if ($filtro_remito !== '') { $where[] = 'r.numero_remito = ?'; $params[] = $filtro_remito; }
-    $whereSql = count($where) ? (' WHERE ' . implode(' AND ', $where)) : '';
+    $whereSql = ' WHERE ' . implode(' AND ', $where);
 
-    // Total (por remito)
-    $total = (int)$db->query('SELECT COUNT(*) FROM remitos')->fetchColumn();
+    // Total (por remito) - Excluye remitos anulados
+    $total = (int)$db->query("SELECT COUNT(*) FROM remitos WHERE estado != 'Anulado'")->fetchColumn();
 
     // Filtrado y agrupado por remito
     $sqlGroup = "SELECT r.numero_remito,
