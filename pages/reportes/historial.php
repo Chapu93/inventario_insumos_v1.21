@@ -185,14 +185,17 @@ $(function(){
 
 <!-- Modal Remito -->
 <div class="modal fade" id="modalRemitoResumen" tabindex="-1" aria-labelledby="modalRemitoResumenLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="modalRemitoResumenLabel"><i class="fas fa-file-alt me-2"></i>Resumen de Remito</h5>
+        <h5 class="modal-title" id="modalRemitoResumenLabel"><i class="fas fa-file-alt me-2"></i>Detalle de Remito</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body" id="remitoResumenBody">
         <div class="text-center text-muted"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
   </div>
@@ -208,21 +211,100 @@ function mostrarRemitoResumen(numeroRemito) {
       return;
     }
     var c = resp.cab;
-    var html = '<div class="mb-2"><strong>Número:</strong> ' + c.numero_remito + '</div>';
-    html += '<div class="mb-2"><strong>Fecha:</strong> ' + (c.fecha_asignacion ? c.fecha_asignacion.substr(0,10) : '-') + '</div>';
-    html += '<div class="mb-2"><strong>Persona:</strong> ' + (c.nombre_persona_asignada || '') + ' ' + (c.apellido_persona_asignada || '') + '</div>';
-    html += '<div class="mb-2"><strong>Sede:</strong> ' + (c.nombre_sede || '-') + '</div>';
-    html += '<div class="mb-2"><strong>Área:</strong> ' + (c.nombre_area || '-') + '</div>';
-    html += '<div class="mb-2"><strong>Estado:</strong> ' + (c.estado || '-') + '</div>';
-    html += '<div class="mb-2"><strong>Observaciones:</strong> ' + (c.observaciones || '-') + '</div>';
-    if (c.estado === 'Anulado' && c.motivo_anulacion) {
-      html += '<div class="alert alert-warning mt-3"><strong>Motivo de Anulación:</strong><br>' + (c.motivo_anulacion || '-') + '</div>';
-      if (c.fecha_anulacion) {
-        html += '<div class="text-muted small"><strong>Fecha de Anulación:</strong> ' + c.fecha_anulacion + '</div>';
-      }
+    var items = resp.items || [];
+    
+    // Información del remito
+    var html = '<div class="card mb-3">';
+    html += '<div class="card-header bg-primary text-white"><strong>Información del Remito</strong></div>';
+    html += '<div class="card-body">';
+    html += '<div class="row">';
+    html += '<div class="col-md-6 mb-2"><strong>Número:</strong> ' + c.numero_remito + '</div>';
+    html += '<div class="col-md-6 mb-2"><strong>Fecha Asignación:</strong> ' + (c.fecha_asignacion ? c.fecha_asignacion.substr(0,10) : '-') + '</div>';
+    html += '<div class="col-md-6 mb-2"><strong>Persona:</strong> ' + (c.nombre_persona_asignada || '') + ' ' + (c.apellido_persona_asignada || '') + '</div>';
+    html += '<div class="col-md-6 mb-2"><strong>Estado:</strong> <span class="badge bg-' + (c.estado === 'Activa' ? 'success' : c.estado === 'Devuelta' ? 'secondary' : 'danger') + '">' + (c.estado || '-') + '</span></div>';
+    html += '<div class="col-md-6 mb-2"><strong>Sede:</strong> ' + (c.nombre_sede || '-') + '</div>';
+    html += '<div class="col-md-6 mb-2"><strong>Área:</strong> ' + (c.nombre_area || '-') + '</div>';
+    if (c.observaciones) {
+      html += '<div class="col-12 mb-2"><strong>Observaciones:</strong> ' + (c.observaciones || '-') + '</div>';
     }
+    html += '</div>';
+    html += '</div></div>';
+    
+    // Información de anulación si aplica
+    if (c.estado === 'Anulado' && c.motivo_anulacion) {
+      html += '<div class="alert alert-warning">';
+      html += '<strong><i class="fas fa-exclamation-triangle me-2"></i>Remito Anulado</strong><br>';
+      html += '<strong>Motivo:</strong> ' + (c.motivo_anulacion || '-') + '<br>';
+      if (c.fecha_anulacion) {
+        html += '<small class="text-muted"><strong>Fecha de Anulación:</strong> ' + c.fecha_anulacion + '</small>';
+      }
+      html += '</div>';
+    }
+    
+    // Información de devolución si aplica
+    if (c.estado === 'Devuelta' && c.fecha_devolucion) {
+      html += '<div class="alert alert-info">';
+      html += '<strong><i class="fas fa-info-circle me-2"></i>Devolución</strong><br>';
+      html += '<strong>Fecha de Devolución:</strong> ' + c.fecha_devolucion.substr(0,10);
+      html += '</div>';
+    }
+    
+    // Insumos del remito
+    html += '<div class="card">';
+    html += '<div class="card-header bg-secondary text-white"><strong>Insumos del Remito (' + items.length + ')</strong></div>';
+    html += '<div class="card-body p-0">';
+    
+    if (items.length > 0) {
+      html += '<div class="table-responsive">';
+      html += '<table class="table table-sm table-hover mb-0">';
+      html += '<thead class="table-light">';
+      html += '<tr>';
+      html += '<th>Insumo</th>';
+      html += '<th>Tipo</th>';
+      html += '<th class="text-center">Cantidad</th>';
+      html += '<th class="text-center">Devueltos</th>';
+      html += '<th>N° Serie / ID</th>';
+      html += '</tr>';
+      html += '</thead>';
+      html += '<tbody>';
+      
+      items.forEach(function(item) {
+        var cantidadDev = parseInt(item.cantidad_devuelta) || 0;
+        var cantidad = parseInt(item.cantidad) || 0;
+        var pendiente = cantidad - cantidadDev;
+        var serie = item.numero_serie || item.id_fisico || '-';
+        
+        html += '<tr>';
+        html += '<td><strong>' + (item.nombre_insumo || '-') + '</strong></td>';
+        html += '<td><span class="badge bg-info">' + (item.tipo_insumo || '-') + '</span></td>';
+        html += '<td class="text-center"><span class="badge bg-dark">' + cantidad + '</span></td>';
+        html += '<td class="text-center">';
+        if (cantidadDev > 0) {
+          html += '<span class="badge bg-success">' + cantidadDev + '</span>';
+          if (pendiente > 0) {
+            html += ' <span class="badge bg-warning">' + pendiente + ' pend.</span>';
+          }
+        } else {
+          html += '<span class="text-muted">-</span>';
+        }
+        html += '</td>';
+        html += '<td><small class="text-muted">' + serie + '</small></td>';
+        html += '</tr>';
+      });
+      
+      html += '</tbody>';
+      html += '</table>';
+      html += '</div>';
+    } else {
+      html += '<div class="p-3 text-center text-muted">No hay insumos registrados</div>';
+    }
+    
+    html += '</div></div>';
+    
     $('#remitoResumenBody').html(html);
-  }, 'json');
+  }, 'json').fail(function() {
+    $('#remitoResumenBody').html('<div class="alert alert-danger">Error al cargar el remito.</div>');
+  });
 }
 </script>
 
