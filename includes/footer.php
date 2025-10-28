@@ -170,22 +170,7 @@
         try { if (lastFocus && typeof lastFocus.focus === 'function') { lastFocus.focus(); } } catch(e) {}
       });
       
-      // Ocultar todos los tooltips al hacer click en cualquier parte
-      document.addEventListener('click', function(e) {
-        // No ocultar si el click es en un elemento con tooltip
-        if (!e.target.closest('[data-bs-toggle="tooltip"]')) {
-          try {
-            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function(el) {
-              const tooltip = bootstrap.Tooltip.getInstance(el);
-              if (tooltip) {
-                tooltip.hide();
-              }
-            });
-          } catch(e) {}
-        }
-      });
-      
-      // Ocultar tooltips antes de navegación
+      // Limpiar tooltips antes de navegación
       window.addEventListener('beforeunload', function() {
         try {
           document.querySelectorAll('.tooltip').forEach(function(el) {

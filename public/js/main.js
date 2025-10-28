@@ -362,48 +362,76 @@ function actualizarContadores() {
     });
 }
 
-// Función para inicializar tooltips
+// Función mejorada para inicializar tooltips de forma robusta
 function inicializarTooltips() {
-    // Destruir tooltips existentes primero para evitar duplicados
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.forEach(function (tooltipTriggerEl) {
-        // Destruir instancia anterior si existe
-        const existingTooltip = bootstrap.Tooltip.getInstance(tooltipTriggerEl);
-        if (existingTooltip) {
-            existingTooltip.dispose();
-        }
-        
-        // Crear nuevo tooltip con configuración optimizada
-        const tooltip = new bootstrap.Tooltip(tooltipTriggerEl, {
-            trigger: 'hover focus',
-            delay: { show: 500, hide: 100 },  // Mostrar después de 500ms, ocultar rápido
-            animation: true,
-            html: false,
-            placement: 'top',
-            container: 'body'
-        });
-        
-        // Asegurar que se oculte al hacer mouseleave
-        tooltipTriggerEl.addEventListener('mouseleave', function() {
-            tooltip.hide();
-        });
-        
-        // Ocultar al hacer click en cualquier parte
-        tooltipTriggerEl.addEventListener('click', function() {
-            tooltip.hide();
-        });
-    });
-    
-    // Ocultar todos los tooltips al hacer scroll
-    window.addEventListener('scroll', function() {
-        tooltipTriggerList.forEach(function(el) {
-            const tooltip = bootstrap.Tooltip.getInstance(el);
-            if (tooltip) {
-                tooltip.hide();
+    // Destruir todos los tooltips existentes para evitar duplicados
+    try {
+        const existingTooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+        existingTooltips.forEach(function(el) {
+            const instance = bootstrap.Tooltip.getInstance(el);
+            if (instance) {
+                instance.dispose();
             }
         });
-    }, { passive: true });
+    } catch(e) {
+        console.warn('Error al destruir tooltips existentes:', e);
+    }
+    
+    // Crear nuevos tooltips con configuración unificada
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    
+    tooltipTriggerList.forEach(function(tooltipTriggerEl) {
+        try {
+            // Configuración unificada para todos los tooltips
+            new bootstrap.Tooltip(tooltipTriggerEl, {
+                trigger: 'hover',
+                delay: { show: 300, hide: 100 },
+                animation: true,
+                html: false,
+                placement: 'top',
+                container: 'body',
+                boundary: 'viewport',
+                fallbackPlacements: ['bottom', 'left', 'right'],
+                customClass: 'custom-tooltip',
+                sanitize: true
+            });
+        } catch(e) {
+            console.warn('Error al crear tooltip:', e);
+        }
+    });
 }
+
+// Ocultar todos los tooltips al hacer scroll (mejor performance)
+let scrollTimeout;
+window.addEventListener('scroll', function() {
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(function() {
+        try {
+            const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            tooltips.forEach(function(el) {
+                const instance = bootstrap.Tooltip.getInstance(el);
+                if (instance) {
+                    instance.hide();
+                }
+            });
+        } catch(e) {}
+    }, 50);
+}, { passive: true });
+
+// Ocultar tooltips al hacer click fuera
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('[data-bs-toggle="tooltip"]')) {
+        try {
+            const tooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            tooltips.forEach(function(el) {
+                const instance = bootstrap.Tooltip.getInstance(el);
+                if (instance) {
+                    instance.hide();
+                }
+            });
+        } catch(e) {}
+    }
+}, { passive: true });
 
 // Función para mostrar loading
 function mostrarLoading(elemento) {
