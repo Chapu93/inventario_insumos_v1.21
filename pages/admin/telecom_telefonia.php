@@ -49,9 +49,9 @@ include '../../includes/header.php';
         <tbody>
           <?php foreach ($rows as $r): ?>
           <tr>
-            <td><?php echo htmlspecialchars($r['nombre_localidad']); ?></td>
+            <td><strong><?php echo htmlspecialchars($r['nombre_localidad']); ?></strong></td>
             <td>
-              <strong><?php echo htmlspecialchars($r['nombre_sede']); ?></strong>
+              <?php echo htmlspecialchars($r['nombre_sede']); ?>
               <?php if (!empty($r['observaciones'])): ?>
                 <br><small class="text-muted"><i class="fas fa-comment-dots me-1"></i><?php echo htmlspecialchars($r['observaciones']); ?></small>
               <?php endif; ?>

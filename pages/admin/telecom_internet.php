@@ -111,9 +111,9 @@ include '../../includes/header.php';
                     <tbody>
                         <?php foreach ($internet as $row): ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($row['nombre_localidad']); ?></td>
+                                <td><strong><?php echo htmlspecialchars($row['nombre_localidad']); ?></strong></td>
                                 <td>
-                                    <strong><?php echo htmlspecialchars($row['nombre_sede']); ?></strong>
+                                    <?php echo htmlspecialchars($row['nombre_sede']); ?>
                                     <?php if (!empty($row['observaciones'])): ?>
                                         <br><small class="text-muted"><i class="fas fa-comment-dots me-1"></i><?php echo htmlspecialchars($row['observaciones']); ?></small>
                                     <?php endif; ?>
