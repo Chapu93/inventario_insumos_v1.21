@@ -14,7 +14,7 @@
     right: 0;
     background: linear-gradient(135deg, var(--menu-start) 0%, var(--menu-end) 100%);
     color: #fff;
-    padding: 8px 0;
+    padding: 8px 15px;
     font-size: 0.75rem;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.15);
     z-index: 1020;
@@ -31,20 +31,72 @@
 
 /* Agregar padding al contenido para que no quede detrás del footer */
 #content {
-    padding-bottom: 80px;
+    padding-bottom: 85px;
 }
 
-/* Responsive: Ajustar footer en móviles */
+/* Responsive: Tablets y móviles grandes */
 @media (max-width: 991px) {
     .app-footer {
-        left: 0;
+        left: 0; /* Sin sidebar en móvil */
         font-size: 0.7rem;
-        padding: 6px 0;
+        padding: 6px 12px;
+    }
+    
+    #content {
+        padding-bottom: 75px;
+    }
+}
+
+/* Responsive: Móviles medianos */
+@media (max-width: 768px) {
+    .app-footer {
+        font-size: 0.65rem;
+        padding: 5px 10px;
+    }
+    
+    .app-footer p {
+        margin-bottom: 0.2rem;
+        line-height: 1.3;
     }
     
     #content {
         padding-bottom: 70px;
     }
+}
+
+/* Responsive: Móviles pequeños */
+@media (max-width: 576px) {
+    .app-footer {
+        font-size: 0.6rem;
+        padding: 4px 8px;
+    }
+    
+    .app-footer p {
+        margin-bottom: 0.15rem;
+        line-height: 1.2;
+    }
+    
+    /* Ocultar texto extenso en pantallas muy pequeñas */
+    .app-footer .footer-full-text {
+        display: none;
+    }
+    
+    .app-footer .footer-short-text {
+        display: block;
+    }
+    
+    #content {
+        padding-bottom: 55px;
+    }
+}
+
+/* Mostrar texto completo en pantallas normales */
+.app-footer .footer-full-text {
+    display: block;
+}
+
+.app-footer .footer-short-text {
+    display: none;
 }
 /* Estilos personalizados para el sistema de inventario */
 
