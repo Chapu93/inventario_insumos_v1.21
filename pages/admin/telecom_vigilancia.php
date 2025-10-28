@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 }
 
-$servicios = $db->query("SELECT v.*, s.nombre_sede, l.nombre_localidad FROM sedes_vigilancia v JOIN sedes s ON s.id_sede=v.id_sede JOIN localidades l ON l.id_localidad=s.id_localidad ORDER BY l.nombre_localidad, s.nombre_sede, v.proveedor")->fetchAll();
+$servicios = $db->query("SELECT v.*, s.nombre_sede, l.id_localidad, l.nombre_localidad FROM sedes_vigilancia v JOIN sedes s ON s.id_sede=v.id_sede JOIN localidades l ON l.id_localidad=s.id_localidad ORDER BY l.nombre_localidad, s.nombre_sede, v.proveedor")->fetchAll();
 $sedes = $db->query("SELECT s.id_sede, s.nombre_sede, l.nombre_localidad FROM sedes s JOIN localidades l ON l.id_localidad=s.id_localidad ORDER BY l.nombre_localidad, s.nombre_sede")->fetchAll();
 // Conteo de dispositivos por servicio para mostrar en la lista maestra
 $rowsDispCount = $db->query("SELECT id_vigilancia, COALESCE(SUM(cantidad),0) AS total_dispositivos FROM sedes_vigilancia_dispositivos GROUP BY id_vigilancia")->fetchAll();
@@ -140,7 +140,22 @@ include '../../includes/header.php';
 <script>
 function editServ(v){ 
   console.log('editServ llamado', v);
-  $('#modalServTitle').text('Editar Servicio'); $('#accionServ').val('editar_serv'); $('#id_vigilancia').val(v.id_vigilancia); $('#id_sede_serv').val(v.id_sede).trigger('change'); $('#proveedor').val(v.proveedor); $('#estado_servicio').val(v.estado_servicio); $('#observaciones_serv').val(v.observaciones||''); new bootstrap.Modal(document.getElementById('modalServ')).show(); 
+  $('#modalServTitle').text('Editar Servicio'); 
+  $('#accionServ').val('editar_serv'); 
+  $('#id_vigilancia').val(v.id_vigilancia); 
+  $('#proveedor').val(v.proveedor); 
+  $('#estado_servicio').val(v.estado_servicio); 
+  $('#observaciones_serv').val(v.observaciones||''); 
+  
+  // Cargar localidad y luego sedes
+  $('#id_localidad_serv').val(v.id_localidad);
+  cargarSedesServ(v.id_localidad);
+  
+  // Esperar a que las sedes se carguen antes de preseleccionar
+  setTimeout(function() {
+    $('#id_sede_serv').val(v.id_sede);
+    new bootstrap.Modal(document.getElementById('modalServ')).show();
+  }, 300);
 }
 function delServ(id){ if(confirm('¿Eliminar servicio y sus dispositivos?')){ $('#del_serv').val(id); $('#formDelServ').submit(); } }
 $('#modalServ').on('hidden.bs.modal', function(){ $('#modalServTitle').text('Agregar Servicio'); $('#accionServ').val('agregar_serv'); $('#formServ')[0].reset(); $('#id_sede_serv').val('').trigger('change'); $('#formServ').removeClass('was-validated'); });
