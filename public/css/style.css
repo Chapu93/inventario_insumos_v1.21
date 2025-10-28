@@ -5,6 +5,30 @@
     background-color: var(--info-color) !important;
     color: #fff !important;
 }
+
+/* Footer Styles */
+.app-footer {
+    background: linear-gradient(135deg, var(--menu-start) 0%, var(--menu-end) 100%);
+    color: #fff;
+    padding: 20px 0;
+    margin-top: 50px;
+    font-size: 0.875rem;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.app-footer p {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+}
+
+.app-footer strong {
+    font-weight: 600;
+}
+
+/* Ajustar el wrapper para que el footer quede al final */
+.wrapper {
+    min-height: calc(100vh - 140px);
+}
 /* Estilos personalizados para el sistema de inventario */
 
 :root {

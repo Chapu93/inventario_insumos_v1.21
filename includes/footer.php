@@ -133,6 +133,24 @@
     <!-- Toast container (Bootstrap 5) -->
     <div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1080;" aria-live="polite" aria-atomic="true"></div>
 
+    </div> <!-- Cierre del wrapper -->
+    
+    <!-- Footer -->
+    <footer class="app-footer">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <p class="mb-2">
+                        Sistema desarrollado íntegramente por el equipo de <strong>Dirección de Informática, Telecomunicación y Administración de Run</strong> de la <strong>Secretaría de Niñez, Adolescencia y Familia (SENAF)</strong>, Gobierno de Río Negro.
+                    </p>
+                    <p class="mb-0">
+                        © <?php echo date("Y"); ?>. Todos los derechos reservados.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
     <script>
     (function(){
       var lastFocus = null;
