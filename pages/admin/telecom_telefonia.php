@@ -44,13 +44,18 @@ include '../../includes/header.php';
   <div class="card-header"><h5 class="mb-0"><i class="fas fa-list me-2"></i>Listado (<?php echo count($rows); ?>)</h5></div>
   <div class="card-body">
     <div class="table-responsive">
-      <table class="table table-striped datatable">
-        <thead><tr><th>Sede</th><th>Localidad</th><th>Tipo</th><th>Operador</th><th>Número</th><th>Dispositivo</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <table class="table table-striped datatable" id="tablaTelefonia">
+        <thead><tr><th>Localidad</th><th>Sede</th><th>Tipo</th><th>Operador</th><th>Número</th><th>Dispositivo</th><th>Estado</th><th>Acciones</th></tr></thead>
         <tbody>
           <?php foreach ($rows as $r): ?>
           <tr>
-            <td><strong><?php echo htmlspecialchars($r['nombre_sede']); ?></strong></td>
             <td><?php echo htmlspecialchars($r['nombre_localidad']); ?></td>
+            <td>
+              <strong><?php echo htmlspecialchars($r['nombre_sede']); ?></strong>
+              <?php if (!empty($r['observaciones'])): ?>
+                <br><small class="text-muted"><i class="fas fa-comment-dots me-1"></i><?php echo htmlspecialchars($r['observaciones']); ?></small>
+              <?php endif; ?>
+            </td>
             <td><span class="badge bg-info"><?php echo htmlspecialchars($r['tipo_linea']); ?></span></td>
             <td><?php echo htmlspecialchars($r['operador'] ?: '-'); ?></td>
             <td><?php echo htmlspecialchars($r['numero'] ?: ($r['interno_ext'] ?: '-')); ?></td>
@@ -78,6 +83,20 @@ include '../../includes/header.php';
           <?php endforeach; ?>
         </tbody>
       </table>
+    </div>
+  </div>
+</div>
+
+<!-- Botones de exportación -->
+<div class="row mt-3">
+  <div class="col-12">
+    <div class="d-flex justify-content-end gap-2">
+      <button type="button" class="btn btn-success" onclick="exportarExcel('tablaTelefonia', 'telefonia')">
+        <i class="fas fa-file-excel me-2"></i>Exportar Excel
+      </button>
+      <button type="button" class="btn btn-secondary" onclick="imprimirTabla('tablaTelefonia', 'telefonia')">
+        <i class="fas fa-print me-2"></i>Imprimir
+      </button>
     </div>
   </div>
 </div>

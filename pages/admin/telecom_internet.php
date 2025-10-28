@@ -97,8 +97,8 @@ include '../../includes/header.php';
                 <table class="table table-striped datatable" id="tablaInternet" data-default-order-col="0" data-default-order-dir="asc">
                     <thead>
                         <tr>
-                            <th>Sede</th>
                             <th>Localidad</th>
+                            <th>Sede</th>
                             <th>Proveedor</th>
                             <th>Tipo</th>
                             <th>Velocidad (Mbps)</th>
@@ -111,8 +111,13 @@ include '../../includes/header.php';
                     <tbody>
                         <?php foreach ($internet as $row): ?>
                             <tr>
-                                <td><strong><?php echo htmlspecialchars($row['nombre_sede']); ?></strong></td>
                                 <td><?php echo htmlspecialchars($row['nombre_localidad']); ?></td>
+                                <td>
+                                    <strong><?php echo htmlspecialchars($row['nombre_sede']); ?></strong>
+                                    <?php if (!empty($row['observaciones'])): ?>
+                                        <br><small class="text-muted"><i class="fas fa-comment-dots me-1"></i><?php echo htmlspecialchars($row['observaciones']); ?></small>
+                                    <?php endif; ?>
+                                </td>
                                 <td><?php echo htmlspecialchars($row['proveedor']); ?></td>
                                 <td><span class="badge bg-info"><?php echo htmlspecialchars($row['tipo_conexion']); ?></span></td>
                                 <td><span class="badge bg-primary"><?php echo (int)($row['velocidad_mbps'] ?? 0); ?></span></td>
@@ -140,6 +145,20 @@ include '../../includes/header.php';
                 </table>
             </div>
         <?php endif; ?>
+    </div>
+</div>
+
+<!-- Botones de exportación -->
+<div class="row mt-3">
+    <div class="col-12">
+        <div class="d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-success" onclick="exportarExcel('tablaInternet', 'internet')">
+                <i class="fas fa-file-excel me-2"></i>Exportar Excel
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="imprimirTabla('tablaInternet', 'internet')">
+                <i class="fas fa-print me-2"></i>Imprimir
+            </button>
+        </div>
     </div>
 </div>
 
