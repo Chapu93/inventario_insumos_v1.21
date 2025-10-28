@@ -6,15 +6,18 @@
     color: #fff !important;
 }
 
-/* Footer Styles - Al final del contenido */
+/* Footer Styles - Sticky al borde inferior */
 .app-footer {
+    position: fixed;
+    bottom: 0;
+    left: 250px; /* Después del sidebar */
+    right: 0;
     background: linear-gradient(135deg, var(--menu-start) 0%, var(--menu-end) 100%);
     color: #fff;
     padding: 12px 15px;
     font-size: 0.85rem;
     box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.2);
-    margin-top: 40px;
-    width: 100%;
+    z-index: 1020;
 }
 
 .app-footer p {
@@ -26,12 +29,21 @@
     font-weight: 600;
 }
 
+/* Padding al contenido para que no quede tapado por el footer */
+#content {
+    padding-bottom: 110px;
+}
+
 /* Responsive: Tablets y móviles grandes */
 @media (max-width: 991px) {
     .app-footer {
+        left: 0; /* Sin sidebar en móvil */
         font-size: 0.8rem;
         padding: 10px 12px;
-        margin-top: 35px;
+    }
+    
+    #content {
+        padding-bottom: 100px;
     }
 }
 
@@ -40,12 +52,15 @@
     .app-footer {
         font-size: 0.75rem;
         padding: 8px 10px;
-        margin-top: 30px;
     }
     
     .app-footer p {
         margin-bottom: 0.25rem;
         line-height: 1.4;
+    }
+    
+    #content {
+        padding-bottom: 95px;
     }
 }
 
@@ -54,12 +69,15 @@
     .app-footer {
         font-size: 0.7rem;
         padding: 7px 8px;
-        margin-top: 25px;
     }
     
     .app-footer p {
         margin-bottom: 0.2rem;
         line-height: 1.3;
+    }
+    
+    #content {
+        padding-bottom: 90px;
     }
 }
 /* Estilos personalizados para el sistema de inventario */
