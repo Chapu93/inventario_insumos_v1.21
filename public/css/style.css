@@ -6,7 +6,7 @@
     color: #fff !important;
 }
 
-/* Footer Styles - Al final del contenido con separación */
+/* Footer Styles - Sticky footer con flexbox */
 .app-footer {
     background: linear-gradient(135deg, var(--menu-start) 0%, var(--menu-end) 100%);
     color: #fff;
@@ -24,6 +24,17 @@
 
 .app-footer strong {
     font-weight: 600;
+}
+
+/* Flexbox para sticky footer (se pega al fondo si hay poco contenido) */
+#content {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#content > .container-fluid {
+    flex: 1 0 auto; /* Crece para tomar espacio disponible */
 }
 
 /* Responsive: Tablets y móviles grandes */
