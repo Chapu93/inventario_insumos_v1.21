@@ -173,6 +173,14 @@ $(function(){
       new bootstrap.Modal(document.getElementById('modalServ')).show();
     }
   }
+  
+  // Asegurar que tooltips no bloqueen clicks en botones de acción
+  $(document).on('click', '[data-bs-toggle="tooltip"]', function() {
+    var tooltip = bootstrap.Tooltip.getInstance(this);
+    if (tooltip) {
+      tooltip.hide();
+    }
+  });
 });
 // No select2 para igualar estilo de otros modales
 </script>
