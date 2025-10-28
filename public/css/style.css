@@ -14,17 +14,17 @@
     right: 0;
     background: linear-gradient(135deg, var(--menu-start) 0%, var(--menu-end) 100%);
     color: #fff;
-    padding: 8px 15px;
+    padding: 10px 15px;
     padding-top: 15px; /* Espacio superior adicional */
-    font-size: 0.75rem;
+    font-size: 0.85rem;
     box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.2);
     z-index: 1050;
     margin: 0;
 }
 
 .app-footer p {
-    margin-bottom: 0.25rem;
-    line-height: 1.4;
+    margin-bottom: 0.3rem;
+    line-height: 1.5;
 }
 
 .app-footer strong {
@@ -33,7 +33,7 @@
 
 /* Agregar padding al contenido para que no quede detrás del footer */
 #content {
-    padding-bottom: 95px;
+    padding-bottom: 120px;
     position: relative;
 }
 
@@ -42,26 +42,49 @@
     margin-bottom: 0;
 }
 
+/* Espacio adicional en tablas DataTables para evitar superposición con footer */
+.dataTables_wrapper {
+    margin-bottom: 20px;
+}
+
 /* Responsive: Tablets y móviles grandes */
 @media (max-width: 991px) {
     .app-footer {
         left: 0 !important; /* Sin sidebar en móvil */
-        font-size: 0.7rem;
-        padding: 6px 12px;
+        font-size: 0.8rem;
+        padding: 8px 12px;
         padding-top: 12px;
     }
     
     #content {
-        padding-bottom: 85px;
+        padding-bottom: 110px;
     }
 }
 
 /* Responsive: Móviles medianos */
 @media (max-width: 768px) {
     .app-footer {
-        font-size: 0.65rem;
-        padding: 5px 10px;
+        font-size: 0.75rem;
+        padding: 6px 10px;
         padding-top: 10px;
+    }
+    
+    .app-footer p {
+        margin-bottom: 0.25rem;
+        line-height: 1.4;
+    }
+    
+    #content {
+        padding-bottom: 100px;
+    }
+}
+
+/* Responsive: Móviles pequeños */
+@media (max-width: 576px) {
+    .app-footer {
+        font-size: 0.7rem;
+        padding: 5px 8px;
+        padding-top: 8px;
     }
     
     .app-footer p {
@@ -70,25 +93,7 @@
     }
     
     #content {
-        padding-bottom: 80px;
-    }
-}
-
-/* Responsive: Móviles pequeños */
-@media (max-width: 576px) {
-    .app-footer {
-        font-size: 0.6rem;
-        padding: 4px 8px;
-        padding-top: 8px;
-    }
-    
-    .app-footer p {
-        margin-bottom: 0.15rem;
-        line-height: 1.2;
-    }
-    
-    #content {
-        padding-bottom: 65px;
+        padding-bottom: 90px;
     }
 }
 /* Estilos personalizados para el sistema de inventario */
