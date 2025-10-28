@@ -62,6 +62,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // NO validamos id_patrimonio en backend para agregar_nueva
         // Los campos se envían correctamente desde el formulario
         
+        // Validar que no existan duplicados de número de serie, ID físico o ID patrimonio
+        $numero_serie = ($tipo_insumo != 'Varios') ? ($_POST['numero_serie'] ?: null) : null;
+        $id_fisico = ($tipo_insumo != 'Varios') ? ($_POST['id_fisico'] ?: null) : null;
+        $id_patrimonio = ($tipo_insumo != 'Varios') ? ($_POST['id_patrimonio'] ?: null) : null;
+        
+        $validacion = validarInsumoUnico($numero_serie, $id_fisico, $id_patrimonio, null, $conexion);
+        if (!$validacion['valido']) {
+            $_SESSION['mensaje'] = 'Error: ' . implode('. ', $validacion['errores']);
+            $_SESSION['tipo_mensaje'] = 'danger';
+            header('Location: agregar_nueva.php');
+            exit;
+        }
+        
         // Insertar insumo principal (con estado ASIGNADO y ubicación)
         $sql = "INSERT INTO insumos (nombre_insumo, tipo_insumo, subcategoria_varios, descripcion_general, 
                                    numero_serie, id_fisico, id_patrimonio, cantidad, fecha_adquisicion, estado, 
@@ -443,6 +456,9 @@ include '../../includes/header.php';
                             </div>
                         </div>
 
+                        <!-- Contenedor para errores de duplicados -->
+                        <div id="error-duplicados" class="mt-3" style="display:none;"></div>
+                        
                         <div class="d-flex justify-content-between mt-3">
                             <button type="button" class="btn btn-outline-secondary" id="btnVolver"><i class="fas fa-arrow-left me-1"></i>Volver</button>
                             <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Guardar y Asignar</button>
@@ -565,6 +581,55 @@ $(document).on('change', '#micro_sd', function(){
   $('#micro_sd_gb').prop('disabled', !on);
   if (!on) { $('#micro_sd_gb').val(''); }
 });
+
+// Validación en tiempo real de duplicados
+let timeoutValidacion = null;
+function validarDuplicados() {
+    clearTimeout(timeoutValidacion);
+    
+    const numeroSerie = $('#numero_serie').val()?.trim() || '';
+    const idFisico = $('#id_fisico').val()?.trim() || '';
+    const idPatrimonio = $('#id_patrimonio').val()?.trim() || '';
+    
+    // Si todos están vacíos, no validar
+    if (!numeroSerie && !idFisico && !idPatrimonio) {
+        $('#error-duplicados').hide();
+        $('button[type="submit"]').prop('disabled', false);
+        return;
+    }
+    
+    timeoutValidacion = setTimeout(function() {
+        $.ajax({
+            url: getAppBase() + '/ajax/validar_insumo_unico.php',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                numero_serie: numeroSerie,
+                id_fisico: idFisico,
+                id_patrimonio: idPatrimonio
+            }),
+            success: function(resp) {
+                if (!resp.valido) {
+                    $('#error-duplicados').html(
+                        '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i>' +
+                        resp.errores.join('<br>') +
+                        '</div>'
+                    ).show();
+                    $('button[type="submit"]').prop('disabled', true);
+                } else {
+                    $('#error-duplicados').hide();
+                    $('button[type="submit"]').prop('disabled', false);
+                }
+            },
+            error: function() {
+                console.error('Error al validar duplicados');
+            }
+        });
+    }, 500); // Esperar 500ms después de que el usuario deje de escribir
+}
+
+// Aplicar validación cuando el usuario escriba en los campos
+$('#numero_serie, #id_fisico, #id_patrimonio').on('input blur', validarDuplicados);
 
 // Función para cambiar label según tipo de ingreso
 function cambiarTipoIngresoNueva() {

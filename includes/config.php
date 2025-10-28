@@ -206,4 +206,80 @@ function remitoExiste($numero_remito, $pdo = null) {
     $resultado = $stmt->fetch();
     return $resultado && (int)$resultado['total'] > 0;
 }
+
+/**
+ * Valida que no existan duplicados de numero_serie, id_fisico o id_patrimonio
+ * @param string|null $numero_serie
+ * @param string|null $id_fisico
+ * @param string|null $id_patrimonio
+ * @param int|null $id_insumo_excluir - ID del insumo a excluir en ediciones
+ * @param PDO|null $pdo
+ * @return array ['valido' => bool, 'errores' => array]
+ */
+function validarInsumoUnico($numero_serie, $id_fisico, $id_patrimonio, $id_insumo_excluir = null, $pdo = null) {
+    $conexion = $pdo instanceof PDO ? $pdo : conectarDB();
+    $errores = [];
+    
+    // Validar número de serie si está presente
+    if (!empty($numero_serie)) {
+        $sql = "SELECT COUNT(*) as total FROM insumos WHERE numero_serie = ?";
+        $params = [$numero_serie];
+        
+        if ($id_insumo_excluir !== null) {
+            $sql .= " AND id_insumo != ?";
+            $params[] = $id_insumo_excluir;
+        }
+        
+        $stmt = $conexion->prepare($sql);
+        $stmt->execute($params);
+        $resultado = $stmt->fetch();
+        
+        if ($resultado && (int)$resultado['total'] > 0) {
+            $errores[] = "El número de serie '$numero_serie' ya existe en otro insumo";
+        }
+    }
+    
+    // Validar ID físico si está presente
+    if (!empty($id_fisico)) {
+        $sql = "SELECT COUNT(*) as total FROM insumos WHERE id_fisico = ?";
+        $params = [$id_fisico];
+        
+        if ($id_insumo_excluir !== null) {
+            $sql .= " AND id_insumo != ?";
+            $params[] = $id_insumo_excluir;
+        }
+        
+        $stmt = $conexion->prepare($sql);
+        $stmt->execute($params);
+        $resultado = $stmt->fetch();
+        
+        if ($resultado && (int)$resultado['total'] > 0) {
+            $errores[] = "El ID físico '$id_fisico' ya existe en otro insumo";
+        }
+    }
+    
+    // Validar ID patrimonio si está presente
+    if (!empty($id_patrimonio)) {
+        $sql = "SELECT COUNT(*) as total FROM insumos WHERE id_patrimonio = ?";
+        $params = [$id_patrimonio];
+        
+        if ($id_insumo_excluir !== null) {
+            $sql .= " AND id_insumo != ?";
+            $params[] = $id_insumo_excluir;
+        }
+        
+        $stmt = $conexion->prepare($sql);
+        $stmt->execute($params);
+        $resultado = $stmt->fetch();
+        
+        if ($resultado && (int)$resultado['total'] > 0) {
+            $errores[] = "El ID patrimonio '$id_patrimonio' ya existe en otro insumo";
+        }
+    }
+    
+    return [
+        'valido' => empty($errores),
+        'errores' => $errores
+    ];
+}
 ?> 
