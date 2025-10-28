@@ -193,6 +193,19 @@ $(function(){
     }
   });
   $('#id_localidad').on('change', function(){ cargarSedes($(this).val()); });
+  
+  // Event delegation para botones de editar (evita problema con tooltips)
+  $(document).on('click', '.btn-edit-tel', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      var data = $(this).data('row');
+      console.log('Botón editar clickeado', data);
+      editTel(data);
+    } catch(err) {
+      console.error('Error al editar:', err);
+    }
+  });
   // sin select2 en este modal para igualar estilo
 });
 </script>
