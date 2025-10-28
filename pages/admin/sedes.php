@@ -143,9 +143,9 @@ $localidades = $stmt->fetchAll();
                                 <td><strong><?php echo htmlspecialchars($sede['nombre_sede']); ?></strong></td>
                                 <td><?php echo htmlspecialchars($sede['nombre_localidad']); ?></td>
                                 <!--< Zona column removed -->
-                                <td><?php echo htmlspecialchars(trim(($sede['delegado_nombre'] ?? '').' '.($sede['delegado_apellido'] ?? '')) ?: '-'); ?></td>
-                                <td><?php echo htmlspecialchars($sede['delegado_telefono'] ?? '-'); ?></td>
-                                <td><?php echo htmlspecialchars(trim(($sede['responsable_nombre'] ?? '').' '.($sede['responsable_apellido'] ?? '')) ?: '-'); ?></td>
+                                <td><?php echo htmlspecialchars(trim(($sede['delegado_nombre'] ?? '').' '.($sede['delegado                                <td><?php echo htmlspecialchars(trim(($sede['responsable_nombre'] ?? '').' '.($sede['responsable_apellido'] ?? '')) ?: '-'); ?></td>
+                                <td><?php echo htmlspecialchars($sede['responsable_telefono'] ?? '-'); ?></td>
+                                <td>
                                     <div class="btn-group" role="group">
                                         <button type="button" 
                                                 class="btn btn-sm btn-warning" 
@@ -169,8 +169,9 @@ $localidades = $stmt->fetchAll();
                                                 title="Eliminar sede"
                                                 aria-label="Eliminar sede">
                                             <i class="fas fa-trash" aria-hidden="true"></i>
-                                        </button>                         title="Eliminar">
-                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>fas fa-trash"></i>
                                         </button>
                                     </div>
                                 </td>
