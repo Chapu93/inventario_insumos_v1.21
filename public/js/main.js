@@ -310,7 +310,14 @@ function actualizarValidacionCampos(tipo) {
 
 // Función para exportar tabla a Excel (sin columna Acciones)
 function exportarExcel(tablaId, nombreArchivo) {
+    console.log('Exportando Excel:', tablaId, nombreArchivo);
     const tabla = document.getElementById(tablaId);
+    
+    if (!tabla) {
+        console.error('Tabla no encontrada:', tablaId);
+        alert('Error: No se encontró la tabla');
+        return;
+    }
     
     // Clonar la tabla para no modificar el original
     const tablaClonada = tabla.cloneNode(true);
@@ -320,13 +327,16 @@ function exportarExcel(tablaId, nombreArchivo) {
     theadRows.forEach(function(row) {
         const ths = row.querySelectorAll('th');
         if (ths.length > 0) {
+            console.log('Columnas thead antes:', ths.length);
             // Eliminar el último th (Acciones)
             ths[ths.length - 1].remove();
+            console.log('Columnas thead después:', ths.length - 1);
         }
     });
     
     // Eliminar última columna (Acciones) del tbody
     const tbodyRows = tablaClonada.querySelectorAll('tbody tr');
+    console.log('Filas encontradas:', tbodyRows.length);
     tbodyRows.forEach(function(row) {
         const tds = row.querySelectorAll('td');
         if (tds.length > 0) {
@@ -336,13 +346,22 @@ function exportarExcel(tablaId, nombreArchivo) {
     });
     
     // Exportar la tabla sin la columna de acciones
+    console.log('Generando Excel...');
     const wb = XLSX.utils.table_to_book(tablaClonada, {sheet: "Sheet1"});
     XLSX.writeFile(wb, `${nombreArchivo}_${new Date().toISOString().split('T')[0]}.xlsx`);
+    console.log('Excel exportado correctamente');
 }
 
 // Función para imprimir tabla (sin columna Acciones)
 function imprimirTabla(tablaId, nombreArchivo) {
+    console.log('Imprimiendo tabla:', tablaId, nombreArchivo);
     const tabla = document.getElementById(tablaId);
+    
+    if (!tabla) {
+        console.error('Tabla no encontrada:', tablaId);
+        alert('Error: No se encontró la tabla');
+        return;
+    }
     
     // Clonar la tabla para no modificar el original
     const tablaClonada = tabla.cloneNode(true);
@@ -352,13 +371,16 @@ function imprimirTabla(tablaId, nombreArchivo) {
     theadRows.forEach(function(row) {
         const ths = row.querySelectorAll('th');
         if (ths.length > 0) {
+            console.log('Columnas thead antes:', ths.length);
             // Eliminar el último th (Acciones)
             ths[ths.length - 1].remove();
+            console.log('Columnas thead después:', ths.length - 1);
         }
     });
     
     // Eliminar última columna (Acciones) del tbody
     const tbodyRows = tablaClonada.querySelectorAll('tbody tr');
+    console.log('Filas encontradas:', tbodyRows.length);
     tbodyRows.forEach(function(row) {
         const tds = row.querySelectorAll('td');
         if (tds.length > 0) {
@@ -370,6 +392,7 @@ function imprimirTabla(tablaId, nombreArchivo) {
     // Determinar el título
     const titulo = nombreArchivo ? nombreArchivo.charAt(0).toUpperCase() + nombreArchivo.slice(1) : tablaId;
     
+    console.log('Abriendo ventana de impresión...');
     const ventana = window.open('', '_blank');
     ventana.document.write(`
         <html>
@@ -395,6 +418,7 @@ function imprimirTabla(tablaId, nombreArchivo) {
     `);
     ventana.document.close();
     ventana.print();
+    console.log('Ventana de impresión abierta');
 }
 
 // Función para actualizar contadores del dashboard
