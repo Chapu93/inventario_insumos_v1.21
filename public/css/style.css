@@ -8,16 +8,18 @@
 
 /* Footer Styles - Sticky al fondo, siempre visible */
 .app-footer {
-    position: fixed;
-    bottom: 0;
+    position: fixed !important;
+    bottom: 0 !important;
     left: 250px; /* Ancho del sidebar */
     right: 0;
     background: linear-gradient(135deg, var(--menu-start) 0%, var(--menu-end) 100%);
     color: #fff;
     padding: 8px 15px;
+    padding-top: 15px; /* Espacio superior adicional */
     font-size: 0.75rem;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.15);
-    z-index: 1020;
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1050;
+    margin: 0;
 }
 
 .app-footer p {
@@ -31,19 +33,26 @@
 
 /* Agregar padding al contenido para que no quede detrás del footer */
 #content {
-    padding-bottom: 85px;
+    padding-bottom: 95px;
+    position: relative;
+}
+
+/* Asegurar que el contenido no interfiera con el footer */
+#content .container-fluid {
+    margin-bottom: 0;
 }
 
 /* Responsive: Tablets y móviles grandes */
 @media (max-width: 991px) {
     .app-footer {
-        left: 0; /* Sin sidebar en móvil */
+        left: 0 !important; /* Sin sidebar en móvil */
         font-size: 0.7rem;
         padding: 6px 12px;
+        padding-top: 12px;
     }
     
     #content {
-        padding-bottom: 75px;
+        padding-bottom: 85px;
     }
 }
 
@@ -52,6 +61,7 @@
     .app-footer {
         font-size: 0.65rem;
         padding: 5px 10px;
+        padding-top: 10px;
     }
     
     .app-footer p {
@@ -60,7 +70,7 @@
     }
     
     #content {
-        padding-bottom: 70px;
+        padding-bottom: 80px;
     }
 }
 
@@ -69,6 +79,7 @@
     .app-footer {
         font-size: 0.6rem;
         padding: 4px 8px;
+        padding-top: 8px;
     }
     
     .app-footer p {
@@ -77,7 +88,7 @@
     }
     
     #content {
-        padding-bottom: 55px;
+        padding-bottom: 65px;
     }
 }
 /* Estilos personalizados para el sistema de inventario */
