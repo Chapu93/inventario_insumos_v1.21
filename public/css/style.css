@@ -87,33 +87,73 @@
 .tooltip .tooltip-inner {
     background-color: #2c3e50;
     color: #ffffff;
-    padding: 6px 12px;
-    border-radius: 4px;
+    padding: 8px 14px;
+    border-radius: 6px;
     font-size: 0.875rem;
     font-weight: 500;
     max-width: 250px;
     text-align: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
-.tooltip .tooltip-arrow::before {
+/* Flechas del tooltip - MEJORADAS para que sean visibles y puntiagudas */
+.tooltip .tooltip-arrow {
+    width: 0.8rem;
+    height: 0.4rem;
+}
+
+/* Flecha superior (tooltip abajo del elemento) */
+.tooltip.bs-tooltip-top .tooltip-arrow::before,
+.tooltip.bs-tooltip-auto[data-popper-placement^="top"] .tooltip-arrow::before {
     border-top-color: #2c3e50 !important;
+    border-width: 0.4rem 0.4rem 0 !important;
+}
+
+/* Flecha inferior (tooltip arriba del elemento) - LA MÁS IMPORTANTE */
+.tooltip.bs-tooltip-bottom .tooltip-arrow::before,
+.tooltip.bs-tooltip-auto[data-popper-placement^="bottom"] .tooltip-arrow::before {
     border-bottom-color: #2c3e50 !important;
+    border-width: 0 0.4rem 0.4rem !important;
+}
+
+/* Flecha izquierda (tooltip a la derecha del elemento) */
+.tooltip.bs-tooltip-start .tooltip-arrow::before,
+.tooltip.bs-tooltip-auto[data-popper-placement^="left"] .tooltip-arrow::before {
     border-left-color: #2c3e50 !important;
+    border-width: 0.4rem 0 0.4rem 0.4rem !important;
+}
+
+/* Flecha derecha (tooltip a la izquierda del elemento) */
+.tooltip.bs-tooltip-end .tooltip-arrow::before,
+.tooltip.bs-tooltip-auto[data-popper-placement^="right"] .tooltip-arrow::before {
     border-right-color: #2c3e50 !important;
+    border-width: 0.4rem 0.4rem 0.4rem 0 !important;
 }
 
 /* Tooltip personalizado con clase custom-tooltip */
 .custom-tooltip .tooltip-inner {
     background-color: #2c3e50;
     color: #ffffff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
-.custom-tooltip .tooltip-arrow::before {
+.custom-tooltip.bs-tooltip-top .tooltip-arrow::before,
+.custom-tooltip.bs-tooltip-auto[data-popper-placement^="top"] .tooltip-arrow::before {
     border-top-color: #2c3e50 !important;
+}
+
+.custom-tooltip.bs-tooltip-bottom .tooltip-arrow::before,
+.custom-tooltip.bs-tooltip-auto[data-popper-placement^="bottom"] .tooltip-arrow::before {
     border-bottom-color: #2c3e50 !important;
+}
+
+.custom-tooltip.bs-tooltip-start .tooltip-arrow::before,
+.custom-tooltip.bs-tooltip-auto[data-popper-placement^="left"] .tooltip-arrow::before {
     border-left-color: #2c3e50 !important;
+}
+
+.custom-tooltip.bs-tooltip-end .tooltip-arrow::before,
+.custom-tooltip.bs-tooltip-auto[data-popper-placement^="right"] .tooltip-arrow::before {
     border-right-color: #2c3e50 !important;
 }
 

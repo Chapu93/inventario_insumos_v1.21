@@ -168,9 +168,27 @@ $(function(){
       { data: null, orderable:false, searchable:false, render: function(data, type, row){
           return `
             <div class="btn-group">
-              <button class="btn btn-sm btn-info" onclick="verDetalleIngreso(${row.id_ingreso})" title="Ver"><i class="fas fa-eye"></i></button>
-              <a class="btn btn-sm btn-warning" href="ingresos_editar.php?id=${row.id_ingreso}" title="Editar"><i class="fas fa-edit"></i></a>
-              <button class="btn btn-sm btn-danger" onclick="eliminarIngreso(${row.id_ingreso})" title="Eliminar"><i class="fas fa-trash"></i></button>
+              <button class="btn btn-sm btn-info" 
+                      onclick="verDetalleIngreso(${row.id_ingreso})" 
+                      data-bs-toggle="tooltip" 
+                      title="Ver detalles"
+                      aria-label="Ver detalles del ingreso">
+                <i class="fas fa-eye"></i>
+              </button>
+              <a class="btn btn-sm btn-warning" 
+                 href="ingresos_editar.php?id=${row.id_ingreso}" 
+                 data-bs-toggle="tooltip" 
+                 title="Editar ingreso"
+                 aria-label="Editar ingreso">
+                <i class="fas fa-edit"></i>
+              </a>
+              <button class="btn btn-sm btn-danger" 
+                      onclick="eliminarIngreso(${row.id_ingreso})" 
+                      data-bs-toggle="tooltip" 
+                      title="Eliminar ingreso"
+                      aria-label="Eliminar ingreso">
+                <i class="fas fa-trash"></i>
+              </button>
             </div>`;
         } }
     ],
