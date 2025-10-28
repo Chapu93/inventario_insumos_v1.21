@@ -167,11 +167,9 @@ $localidades = $stmt->fetchAll();
                                                 onclick="eliminarItem(<?php echo $sede['id_sede']; ?>, 'sede')"
                                                 data-bs-toggle="tooltip" 
                                                 title="Eliminar sede"
-                                                aria-label="Eliminar sede">
-                                            <i class="fas fa-trash" aria-hidden="true"></i>
-                                        </button>
+                                                               </button>
                                     </div>
-                                </td>fas fa-trash"></i>
+                                </td>fa-trash"></i>
                                         </button>
                                     </div>
                                 </td>
