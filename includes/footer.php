@@ -34,7 +34,7 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     
     <!-- Custom JS -->
-    <script src="<?php echo app_base_url(); ?>/public/js/main.js"></script>
+    <script src="<?php echo app_base_url(); ?>/public/js/main.js?v=<?php echo filemtime(__DIR__ . '/../public/js/main.js'); ?>"></script>
     
     <script>
         // Toggle sidebar
