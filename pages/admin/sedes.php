@@ -146,30 +146,25 @@ $localidades = $stmt->fetchAll();
                                 <td><?php echo htmlspecialchars(trim(($sede['delegado_nombre'] ?? '').' '.($sede['delegado_apellido'] ?? '')) ?: '-'); ?></td>
                                 <td><?php echo htmlspecialchars($sede['delegado_telefono'] ?? '-'); ?></td>
                                 <td><?php echo htmlspecialchars(trim(($sede['responsable_nombre'] ?? '').' '.($sede['responsable_apellido'] ?? '')) ?: '-'); ?></td>
-                                <td><?php echo htmlspecialchars($sede['re                                        <button type="button" 
+                                <td><?php echo htmlspecialchars($sede['responsable_telefono'] ?? '-'); ?></td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" 
                                                 class="btn btn-sm btn-warning" 
                                                 onclick="editarSede(<?php echo htmlspecialchars(json_encode($sede)); ?>)"
                                                 data-bs-toggle="tooltip" 
-                                                title="Editar sede"
-                                                aria-label="Editar sede">
+                                                title="Editar sede" aria-label="Editar sede">
                                             <i class="fas fa-edit" aria-hidden="true"></i>
                                         </button>
-                                        <a class="btn btn-sm btn-info" 
-                                           href="<?php echo app_base_url(); ?>/pages/admin/sede_detalle.php?id_localidad=<?php echo (int)$sede['id_localidad']; ?>&id_sede=<?php echo (int)$sede['id_sede']; ?>" 
-                                           data-bs-toggle="tooltip" 
-                                           title="Ver detalles"
-                                           aria-label="Ver detalles de la sede">
+                                        <a class="btn btn-sm btn-info" href="<?php echo app_base_url(); ?>/pages/admin/sede_detalle.php?id_localidad=<?php echo (int)$sede['id_localidad']; ?>&id_sede=<?php echo (int)$sede['id_sede']; ?>" data-bs-toggle="tooltip" title="Ver detalles" aria-label="Ver detalles de la sede">
                                             <i class="fas fa-eye" aria-hidden="true"></i>
                                         </a>
                                         <button type="button" 
                                                 class="btn btn-sm btn-danger" 
                                                 onclick="eliminarItem(<?php echo $sede['id_sede']; ?>, 'sede')"
                                                 data-bs-toggle="tooltip" 
-                                                title="Eliminar sede"
-                                                aria-label="Eliminar sede">
+                                                title="Eliminar sede" aria-label="Eliminar sede">
                                             <i class="fas fa-trash" aria-hidden="true"></i>
-                                        </button>                         title="Eliminar">
-                                            <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
                                 </td>
