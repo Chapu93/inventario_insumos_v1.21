@@ -74,9 +74,27 @@ include '../../includes/header.php';
               <td><span class="badge bg-success"><?php echo (int)($camActivas[(int)$v['id_vigilancia']] ?? 0); ?></span></td>
               <td>
                 <div class="btn-group" role="group">
-                  <a class="btn btn-sm btn-info" href="<?php echo app_base_url(); ?>/pages/admin/telecom_vigilancia_servicio.php?id_vigilancia=<?php echo (int)$v['id_vigilancia']; ?>" title="Ver detalle" aria-label="Ver detalle"><i class="fas fa-eye" aria-hidden="true"></i></a>
-                  <button class="btn btn-sm btn-warning" aria-label="Editar servicio" onclick='editServ(<?php echo json_encode($v, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT); ?>)'><i class="fas fa-edit" aria-hidden="true"></i></button>
-                  <button class="btn btn-sm btn-danger" aria-label="Eliminar servicio" onclick="delServ(<?php echo (int)$v['id_vigilancia']; ?>)"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                  <a class="btn btn-sm btn-info" 
+                     href="<?php echo app_base_url(); ?>/pages/admin/telecom_vigilancia_servicio.php?id_vigilancia=<?php echo (int)$v['id_vigilancia']; ?>" 
+                     data-bs-toggle="tooltip" 
+                     title="Ver detalle"
+                     aria-label="Ver detalle">
+                    <i class="fas fa-eye" aria-hidden="true"></i>
+                  </a>
+                  <button class="btn btn-sm btn-warning" 
+                          data-bs-toggle="tooltip" 
+                          title="Editar servicio"
+                          aria-label="Editar servicio" 
+                          onclick='editServ(<?php echo json_encode($v, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT); ?>'>
+                    <i class="fas fa-edit" aria-hidden="true"></i>
+                  </button>
+                  <button class="btn btn-sm btn-danger" 
+                          data-bs-toggle="tooltip" 
+                          title="Eliminar servicio"
+                          aria-label="Eliminar servicio" 
+                          onclick="delServ(<?php echo (int)$v['id_vigilancia']; ?>)">
+                    <i class="fas fa-trash" aria-hidden="true"></i>
+                  </button>
                 </div>
               </td>
             </tr>

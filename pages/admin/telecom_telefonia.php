@@ -58,8 +58,20 @@ include '../../includes/header.php';
             <td><?php $e=$r['estado']; $cls=$e==='Activa'?'estado-activa':($e==='Pendiente'?'estado-asignado':'estado-baja'); ?><span class="badge <?php echo $cls; ?>"><?php echo $e; ?></span></td>
             <td>
               <div class="btn-group" role="group">
-                <button class="btn btn-sm btn-warning" aria-label="Editar línea" onclick='editTel(<?php echo json_encode($r, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT); ?>)'><i class="fas fa-edit" aria-hidden="true"></i></button>
-                <button class="btn btn-sm btn-danger" aria-label="Eliminar línea" onclick="delTel(<?php echo (int)$r['id_linea']; ?>)"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                <button class="btn btn-sm btn-warning" 
+                        data-bs-toggle="tooltip" 
+                        title="Editar línea"
+                        aria-label="Editar línea" 
+                        onclick='editTel(<?php echo json_encode($r, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT); ?>'>
+                  <i class="fas fa-edit" aria-hidden="true"></i>
+                </button>
+                <button class="btn btn-sm btn-danger" 
+                        data-bs-toggle="tooltip" 
+                        title="Eliminar línea"
+                        aria-label="Eliminar línea" 
+                        onclick="delTel(<?php echo (int)$r['id_linea']; ?>)">
+                  <i class="fas fa-trash" aria-hidden="true"></i>
+                </button>
               </div>
             </td>
           </tr>

@@ -90,12 +90,27 @@ include '../../includes/header.php';
             <td><span class="badge bg-info"><?php echo htmlspecialchars($p['tipo_plano']); ?></span></td>
             <td><?php echo htmlspecialchars($p['descripcion'] ?: '-'); ?></td>
             <td><?php echo date('d/m/Y H:i', strtotime($p['fecha_subida'])); ?></td>
-            <td><a class="btn btn-sm btn-outline-primary" href="<?php echo app_base_url() . '/' . $p['archivo']; ?>" target="_blank"><i class="fas fa-file"></i> Abrir</a></td>
+            <td>
+              <a class="btn btn-sm btn-outline-primary" 
+                 href="<?php echo app_base_url() . '/' . $p['archivo']; ?>" 
+                 target="_blank"
+                 data-bs-toggle="tooltip" 
+                 title="Abrir plano"
+                 aria-label="Abrir plano">
+                <i class="fas fa-file" aria-hidden="true"></i> Abrir
+              </a>
+            </td>
             <td>
               <form method="POST" onsubmit="return confirm('¿Eliminar plano?');" style="display:inline">
                 <input type="hidden" name="accion" value="eliminar">
                 <input type="hidden" name="id_plano" value="<?php echo (int)$p['id_plano']; ?>">
-                <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
+                <?php echo csrf_input(); ?>
+                <button class="btn btn-sm btn-danger" 
+                        data-bs-toggle="tooltip" 
+                        title="Eliminar plano"
+                        aria-label="Eliminar plano">
+                  <i class="fas fa-trash" aria-hidden="true"></i>
+                </button>
               </form>
             </td>
           </tr>
