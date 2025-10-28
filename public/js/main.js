@@ -308,33 +308,88 @@ function actualizarValidacionCampos(tipo) {
     }
 }
 
-// Función para exportar tabla a Excel
+// Función para exportar tabla a Excel (sin columna Acciones)
 function exportarExcel(tablaId, nombreArchivo) {
     const tabla = document.getElementById(tablaId);
-    const wb = XLSX.utils.table_to_book(tabla, {sheet: "Sheet1"});
+    
+    // Clonar la tabla para no modificar el original
+    const tablaClonada = tabla.cloneNode(true);
+    
+    // Eliminar última columna (Acciones) del thead
+    const theadRows = tablaClonada.querySelectorAll('thead tr');
+    theadRows.forEach(function(row) {
+        const ths = row.querySelectorAll('th');
+        if (ths.length > 0) {
+            // Eliminar el último th (Acciones)
+            ths[ths.length - 1].remove();
+        }
+    });
+    
+    // Eliminar última columna (Acciones) del tbody
+    const tbodyRows = tablaClonada.querySelectorAll('tbody tr');
+    tbodyRows.forEach(function(row) {
+        const tds = row.querySelectorAll('td');
+        if (tds.length > 0) {
+            // Eliminar el último td (Acciones)
+            tds[tds.length - 1].remove();
+        }
+    });
+    
+    // Exportar la tabla sin la columna de acciones
+    const wb = XLSX.utils.table_to_book(tablaClonada, {sheet: "Sheet1"});
     XLSX.writeFile(wb, `${nombreArchivo}_${new Date().toISOString().split('T')[0]}.xlsx`);
 }
 
-// Función para imprimir tabla
-function imprimirTabla(tablaId) {
+// Función para imprimir tabla (sin columna Acciones)
+function imprimirTabla(tablaId, nombreArchivo) {
     const tabla = document.getElementById(tablaId);
+    
+    // Clonar la tabla para no modificar el original
+    const tablaClonada = tabla.cloneNode(true);
+    
+    // Eliminar última columna (Acciones) del thead
+    const theadRows = tablaClonada.querySelectorAll('thead tr');
+    theadRows.forEach(function(row) {
+        const ths = row.querySelectorAll('th');
+        if (ths.length > 0) {
+            // Eliminar el último th (Acciones)
+            ths[ths.length - 1].remove();
+        }
+    });
+    
+    // Eliminar última columna (Acciones) del tbody
+    const tbodyRows = tablaClonada.querySelectorAll('tbody tr');
+    tbodyRows.forEach(function(row) {
+        const tds = row.querySelectorAll('td');
+        if (tds.length > 0) {
+            // Eliminar el último td (Acciones)
+            tds[tds.length - 1].remove();
+        }
+    });
+    
+    // Determinar el título
+    const titulo = nombreArchivo ? nombreArchivo.charAt(0).toUpperCase() + nombreArchivo.slice(1) : tablaId;
+    
     const ventana = window.open('', '_blank');
     ventana.document.write(`
         <html>
             <head>
-                <title>Imprimir ${tablaId}</title>
+                <title>Imprimir ${titulo}</title>
                 <style>
-                    body { font-family: Arial, sans-serif; }
-                    table { width: 100%; border-collapse: collapse; }
-                    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                    th { background-color: #f2f2f2; }
+                    body { font-family: Arial, sans-serif; padding: 20px; }
+                    h2 { color: #2c3e50; margin-bottom: 20px; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px; }
+                    th { background-color: #f2f2f2; font-weight: bold; }
                     @media print {
                         .no-print { display: none; }
+                        body { padding: 10px; }
                     }
                 </style>
             </head>
             <body>
-                ${tabla.outerHTML}
+                <h2>Listado de ${titulo}</h2>
+                ${tablaClonada.outerHTML}
             </body>
         </html>
     `);

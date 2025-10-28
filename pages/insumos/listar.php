@@ -160,7 +160,7 @@ $tipos_insumo = $stmt->fetchAll();
             <button type="button" class="btn btn-success" onclick="exportarExcel('tablaInsumos', 'insumos')">
                 <i class="fas fa-file-excel me-2"></i>Exportar Excel
             </button>
-            <button type="button" class="btn btn-secondary" onclick="imprimirTabla('tablaInsumos')">
+            <button type="button" class="btn btn-secondary" onclick="imprimirTabla('tablaInsumos', 'insumos')">
                 <i class="fas fa-print me-2"></i>Imprimir
             </button>
         </div>

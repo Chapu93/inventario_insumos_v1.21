@@ -172,7 +172,7 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
             <button type="button" class="btn btn-success" onclick="exportarExcel('tablaAsignaciones', 'asignaciones')">
                 <i class="fas fa-file-excel me-2"></i>Exportar Excel
             </button>
-            <button type="button" class="btn btn-secondary" onclick="imprimirTabla('tablaAsignaciones')">
+            <button type="button" class="btn btn-secondary" onclick="imprimirTabla('tablaAsignaciones', 'asignaciones')">
                 <i class="fas fa-print me-2"></i>Imprimir
             </button>
         </div>
