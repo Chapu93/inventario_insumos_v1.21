@@ -76,27 +76,9 @@
         line-height: 1.2;
     }
     
-    /* Ocultar texto extenso en pantallas muy pequeñas */
-    .app-footer .footer-full-text {
-        display: none;
-    }
-    
-    .app-footer .footer-short-text {
-        display: block;
-    }
-    
     #content {
         padding-bottom: 55px;
     }
-}
-
-/* Mostrar texto completo en pantallas normales */
-.app-footer .footer-full-text {
-    display: block;
-}
-
-.app-footer .footer-short-text {
-    display: none;
 }
 /* Estilos personalizados para el sistema de inventario */
 
