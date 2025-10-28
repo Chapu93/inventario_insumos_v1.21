@@ -203,7 +203,10 @@ include '../../includes/header.php';
 <script>
 function editServ(v){ $('#modalServTitle').text('Editar Servicio'); $('#accionServ').val('editar_serv'); $('#id_vigilancia').val(v.id_vigilancia); $('#proveedor').val(v.proveedor); $('#estado_servicio').val(v.estado_servicio); $('#observaciones_serv').val(v.observaciones||''); new bootstrap.Modal(document.getElementById('modalServ')).show(); }
 function delServ(){ if(confirm('¿Eliminar servicio y sus dispositivos?')){ document.getElementById('formDelServ').submit(); } }
-function editDisp(d){ $('#modalDispTitle').text('Editar Dispositivo'); $('#accionDisp').val('editar_disp'); $('#id_vigilancia_dispositivo').val(d.id_vigilancia_dispositivo); $('#tipo_dispositivo').val(d.tipo_dispositivo); $('#marca').val(d.marca||''); $('#modelo').val(d.modelo||''); $('#cantidad').val(d.cantidad||1); $('#ubicacion').val(d.ubicacion||''); $('#estado').val(d.estado); new bootstrap.Modal(document.getElementById('modalDisp')).show(); }
+function editDisp(d){ 
+  console.log('editDisp llamado', d);
+  $('#modalDispTitle').text('Editar Dispositivo'); $('#accionDisp').val('editar_disp'); $('#id_vigilancia_dispositivo').val(d.id_vigilancia_dispositivo); $('#tipo_dispositivo').val(d.tipo_dispositivo); $('#marca').val(d.marca||''); $('#modelo').val(d.modelo||''); $('#cantidad').val(d.cantidad||1); $('#ubicacion').val(d.ubicacion||''); $('#estado').val(d.estado); new bootstrap.Modal(document.getElementById('modalDisp')).show(); 
+}
 function delDisp(id){ if(confirm('¿Eliminar dispositivo?')){ $('#del_disp').val(id); $('#formDelDisp').submit(); } }
 $('#modalDisp').on('hidden.bs.modal', function(){ $('#modalDispTitle').text('Agregar Dispositivo'); $('#accionDisp').val('agregar_disp'); $('#formDisp')[0].reset(); $('#formDisp').removeClass('was-validated'); });
 $('#formServ, #formDisp').on('submit', function(e){ if(!this.checkValidity()){ e.preventDefault(); e.stopPropagation(); } $(this).addClass('was-validated'); });
@@ -220,6 +223,14 @@ window.addEventListener('load', function(){
       dt.draw();
     }
     $('#filterTipo, #filterEstado').on('change', applyFilters);
+    
+    // Asegurar que tooltips no bloqueen clicks en botones de acción
+    $(document).on('click', '[data-bs-toggle="tooltip"]', function() {
+      var tooltip = bootstrap.Tooltip.getInstance(this);
+      if (tooltip) {
+        tooltip.hide();
+      }
+    });
   } catch(e) {}
 });
 
