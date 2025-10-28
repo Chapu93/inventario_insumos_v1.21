@@ -133,11 +133,11 @@ include '../../includes/header.php';
               <td><?php $e=$d['estado']; $cls=$e==='Activo'?'estado-activa':'estado-baja'; ?><span class="badge <?php echo $cls; ?>"><?php echo $e; ?></span></td>
               <td>
                 <div class="btn-group" role="group">
-                  <button class="btn btn-sm btn-warning" 
+                  <button class="btn btn-sm btn-warning btn-edit-disp" 
                           data-bs-toggle="tooltip" 
                           title="Editar dispositivo"
                           aria-label="Editar dispositivo" 
-                          onclick='editDisp(<?php echo json_encode($d, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT); ?>'>
+                          data-row='<?php echo json_encode($d, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT); ?>'>
                     <i class="fas fa-edit" aria-hidden="true"></i>
                   </button>
                   <button class="btn btn-sm btn-danger" 
@@ -223,15 +223,20 @@ window.addEventListener('load', function(){
       dt.draw();
     }
     $('#filterTipo, #filterEstado').on('change', applyFilters);
-    
-    // Asegurar que tooltips no bloqueen clicks en botones de acción
-    $(document).on('click', '[data-bs-toggle="tooltip"]', function() {
-      var tooltip = bootstrap.Tooltip.getInstance(this);
-      if (tooltip) {
-        tooltip.hide();
-      }
-    });
   } catch(e) {}
+  
+  // Event delegation para botones de editar (evita problema con tooltips)
+  $(document).on('click', '.btn-edit-disp', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      var data = $(this).data('row');
+      console.log('Botón editar clickeado', data);
+      editDisp(data);
+    } catch(err) {
+      console.error('Error al editar:', err);
+    }
+  });
 });
 
 // Exportar CSV simple desde la tabla

@@ -60,11 +60,11 @@ include '../../includes/header.php';
             <td><?php $e=$r['estado']; $cls=$e==='Activo'?'estado-activa':'estado-baja'; ?><span class="badge <?php echo $cls; ?>"><?php echo $e; ?></span></td>
             <td>
               <div class="btn-group" role="group">
-                <button class="btn btn-sm btn-warning" 
+                <button class="btn btn-sm btn-warning btn-edit-red" 
                         data-bs-toggle="tooltip" 
                         title="Editar dispositivo"
                         aria-label="Editar dispositivo" 
-                        onclick='editRed(<?php echo json_encode($r, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT); ?>'>
+                        data-row='<?php echo json_encode($r, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT); ?>'>
                   <i class="fas fa-edit" aria-hidden="true"></i>
                 </button>
                 <button class="btn btn-sm btn-danger" 
@@ -181,11 +181,16 @@ $(function(){
   cargarLocalidades();
   $('#id_localidad').on('change', function(){ cargarSedes($(this).val()); });
   
-  // Asegurar que tooltips no bloqueen clicks en botones de acción
-  $(document).on('click', '[data-bs-toggle="tooltip"]', function() {
-    var tooltip = bootstrap.Tooltip.getInstance(this);
-    if (tooltip) {
-      tooltip.hide();
+  // Event delegation para botones de editar (evita problema con tooltips)
+  $(document).on('click', '.btn-edit-red', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      var data = $(this).data('row');
+      console.log('Botón editar clickeado', data);
+      editRed(data);
+    } catch(err) {
+      console.error('Error al editar:', err);
     }
   });
 });

@@ -81,11 +81,11 @@ include '../../includes/header.php';
                      aria-label="Ver detalle">
                     <i class="fas fa-eye" aria-hidden="true"></i>
                   </a>
-                  <button class="btn btn-sm btn-warning" 
+                  <button class="btn btn-sm btn-warning btn-edit-serv" 
                           data-bs-toggle="tooltip" 
                           title="Editar servicio"
                           aria-label="Editar servicio" 
-                          onclick='editServ(<?php echo json_encode($v, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT); ?>'>
+                          data-row='<?php echo json_encode($v, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT); ?>'>
                     <i class="fas fa-edit" aria-hidden="true"></i>
                   </button>
                   <button class="btn btn-sm btn-danger" 
@@ -174,11 +174,16 @@ $(function(){
     }
   }
   
-  // Asegurar que tooltips no bloqueen clicks en botones de acción
-  $(document).on('click', '[data-bs-toggle="tooltip"]', function() {
-    var tooltip = bootstrap.Tooltip.getInstance(this);
-    if (tooltip) {
-      tooltip.hide();
+  // Event delegation para botones de editar (evita problema con tooltips)
+  $(document).on('click', '.btn-edit-serv', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      var data = $(this).data('row');
+      console.log('Botón editar clickeado', data);
+      editServ(data);
+    } catch(err) {
+      console.error('Error al editar:', err);
     }
   });
 });
