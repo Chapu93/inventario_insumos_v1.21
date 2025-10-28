@@ -146,6 +146,7 @@ include '../../includes/header.php';
 
 <script>
 function editTel(r){
+  console.log('editTel llamado', r);
   $('#modalTelTitle').text('Editar Línea'); $('#accion').val('editar');
   $('#id_linea').val(r.id_linea);
   if (r.id_localidad) { $('#id_localidad').val(r.id_localidad); }

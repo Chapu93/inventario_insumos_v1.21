@@ -145,6 +145,7 @@ include '../../includes/header.php';
 
 <script>
 function editRed(r){
+  console.log('editRed llamado', r);
   $('#modalRedTitle').text('Editar Dispositivo'); $('#accion').val('editar');
   $('#id_dispositivo').val(r.id_dispositivo);
   if (r.id_localidad) { $('#id_localidad').val(r.id_localidad); }
@@ -179,6 +180,14 @@ function cargarSedes(localidad){
 $(function(){
   cargarLocalidades();
   $('#id_localidad').on('change', function(){ cargarSedes($(this).val()); });
+  
+  // Asegurar que tooltips no bloqueen clicks en botones de acción
+  $(document).on('click', '[data-bs-toggle="tooltip"]', function() {
+    var tooltip = bootstrap.Tooltip.getInstance(this);
+    if (tooltip) {
+      tooltip.hide();
+    }
+  });
 });
 </script>
 

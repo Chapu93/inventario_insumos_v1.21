@@ -138,7 +138,10 @@ include '../../includes/header.php';
 </form>
 
 <script>
-function editServ(v){ $('#modalServTitle').text('Editar Servicio'); $('#accionServ').val('editar_serv'); $('#id_vigilancia').val(v.id_vigilancia); $('#id_sede_serv').val(v.id_sede).trigger('change'); $('#proveedor').val(v.proveedor); $('#estado_servicio').val(v.estado_servicio); $('#observaciones_serv').val(v.observaciones||''); new bootstrap.Modal(document.getElementById('modalServ')).show(); }
+function editServ(v){ 
+  console.log('editServ llamado', v);
+  $('#modalServTitle').text('Editar Servicio'); $('#accionServ').val('editar_serv'); $('#id_vigilancia').val(v.id_vigilancia); $('#id_sede_serv').val(v.id_sede).trigger('change'); $('#proveedor').val(v.proveedor); $('#estado_servicio').val(v.estado_servicio); $('#observaciones_serv').val(v.observaciones||''); new bootstrap.Modal(document.getElementById('modalServ')).show(); 
+}
 function delServ(id){ if(confirm('¿Eliminar servicio y sus dispositivos?')){ $('#del_serv').val(id); $('#formDelServ').submit(); } }
 $('#modalServ').on('hidden.bs.modal', function(){ $('#modalServTitle').text('Agregar Servicio'); $('#accionServ').val('agregar_serv'); $('#formServ')[0].reset(); $('#id_sede_serv').val('').trigger('change'); $('#formServ').removeClass('was-validated'); });
 $('#formServ').on('submit', function(e){ if(!this.checkValidity()){ e.preventDefault(); e.stopPropagation(); } $(this).addClass('was-validated'); });
