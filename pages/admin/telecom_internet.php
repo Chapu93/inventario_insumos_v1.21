@@ -19,28 +19,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $accion = $_POST['accion'] ?? '';
         
         if ($accion === 'agregar' || $accion === 'editar') {
+            // Obtener valores actuales si es edición (para preservar datos históricos)
+            $valoresActuales = null;
+            if ($accion === 'editar') {
+                $stmtActual = $db->prepare("SELECT instancia_pendiente, fecha_solicitud_autorizacion, archivo_autorizacion, fecha_instalacion, fecha_baja FROM sedes_internet WHERE id_internet = ?");
+                $stmtActual->execute([(int)$_POST['id_internet']]);
+                $valoresActuales = $stmtActual->fetch();
+            }
+            
             // Procesar campos comunes
             $estado_servicio = trim($_POST['estado_servicio']);
-            $instancia_pendiente = null;
-            $fecha_solicitud = null;
-            $archivo_autorizacion = null;
-            $fecha_instalacion = null;
-            $fecha_baja = null;
+            
+            // Inicializar con valores actuales (preservar histórico) o null si es nuevo
+            $instancia_pendiente = $valoresActuales['instancia_pendiente'] ?? null;
+            $fecha_solicitud = $valoresActuales['fecha_solicitud_autorizacion'] ?? null;
+            $archivo_autorizacion = $valoresActuales['archivo_autorizacion'] ?? null;
+            $fecha_instalacion = $valoresActuales['fecha_instalacion'] ?? null;
+            $fecha_baja = $valoresActuales['fecha_baja'] ?? null;
             
             // Procesar campos según el estado seleccionado
             if ($estado_servicio === 'Activo') {
                 // Estado Activo: solo fecha de instalación obligatoria
-                $fecha_instalacion = !empty($_POST['fecha_instalacion']) ? $_POST['fecha_instalacion'] : null;
+                if (!empty($_POST['fecha_instalacion'])) {
+                    $fecha_instalacion = $_POST['fecha_instalacion'];
+                }
                 
             } elseif ($estado_servicio === 'Pendiente') {
-                // Estado Pendiente: solo instancia obligatoria
-                $instancia_pendiente = trim($_POST['instancia_pendiente']);
+                // Estado Pendiente: actualizar instancia y fecha de solicitud
+                if (!empty($_POST['instancia_pendiente'])) {
+                    $instancia_pendiente = trim($_POST['instancia_pendiente']);
+                }
                 
-                // Si la instancia es "Autorización superior", procesar fecha de solicitud y archivo PDF
+                if (!empty($_POST['fecha_solicitud_autorizacion'])) {
+                    $fecha_solicitud = $_POST['fecha_solicitud_autorizacion'];
+                }
+                
+                // Si la instancia es "Autorización superior", procesar archivo PDF
                 if ($instancia_pendiente === 'Autorización superior') {
-                    $fecha_solicitud = !empty($_POST['fecha_solicitud_autorizacion']) ? $_POST['fecha_solicitud_autorizacion'] : null;
-                    
-                    // Procesar archivo PDF si se sube
+                    // Procesar archivo PDF si se sube uno nuevo
                     if (isset($_FILES['archivo_autorizacion']) && $_FILES['archivo_autorizacion']['error'] === UPLOAD_ERR_OK) {
                         $file = $_FILES['archivo_autorizacion'];
                         $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
@@ -78,16 +94,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
                         
                         $archivo_autorizacion = 'public/uploads/autorizaciones_internet/' . $nombreArchivo;
-                    } elseif ($accion === 'editar' && !empty($_POST['archivo_autorizacion_actual'])) {
-                        // Mantener archivo actual si no se sube uno nuevo
-                        $archivo_autorizacion = $_POST['archivo_autorizacion_actual'];
                     }
+                    // Si no se sube archivo nuevo, el valor ya está preservado de $valoresActuales
                 }
                 
             } elseif ($estado_servicio === 'De Baja') {
                 // Estado De Baja: fecha de baja obligatoria (ingresada manualmente)
-                $fecha_baja = !empty($_POST['fecha_baja']) ? $_POST['fecha_baja'] : null;
+                if (!empty($_POST['fecha_baja'])) {
+                    $fecha_baja = $_POST['fecha_baja'];
+                }
             }
+            
+            // IMPORTANTE: Los valores históricos ya están preservados desde $valoresActuales
+            // Solo se sobrescriben si el usuario ingresa nuevos valores
             
             if ($accion === 'agregar') {
                 $stmt = $db->prepare("INSERT INTO sedes_internet (id_sede, proveedor, tipo_conexion, velocidad_mbps, simetrico, tiene_wifi, estado_servicio, instancia_pendiente, fecha_solicitud_autorizacion, archivo_autorizacion, fecha_instalacion, fecha_baja, observaciones) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
