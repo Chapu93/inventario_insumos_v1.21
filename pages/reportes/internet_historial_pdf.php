@@ -95,11 +95,6 @@ $pdf->SetXY($leftMargin, $y);
 $pdf->Cell($contentWidth, 8, $enc('HISTORIAL DE SERVICIO DE INTERNET'), 0, 1, 'C');
 $y += 12;
 
-// ID del registro (pequeño, esquina derecha)
-$pdf->SetFont('Arial', '', 9);
-$pdf->SetXY($leftMargin + $contentWidth - 40, $y - 10);
-$pdf->Cell(40, 5, $enc('ID: ' . $servicio['id_internet']), 0, 1, 'R');
-
 // ============================================
 // SECCIÓN: UBICACIÓN
 // ============================================
@@ -219,12 +214,30 @@ if (!empty($servicio['observaciones'])) {
 }
 
 // ============================================
-// PIE DE PÁGINA
+// AGREGAR ARCHIVO PDF DE AUTORIZACIÓN COMO PÁGINA ADICIONAL
 // ============================================
-$pdf->SetFont('Arial', 'I', 9);
-$pdf->SetTextColor(100, 100, 100);
-$pdf->SetXY($leftMargin, $pageHeight - 20);
-$pdf->Cell($contentWidth, 5, $enc('Documento generado el ' . date('d/m/Y H:i') . ' hs'), 0, 0, 'C');
+if (!empty($servicio['archivo_autorizacion'])) {
+    $archivoAutorizacionPath = __DIR__ . '/../../' . $servicio['archivo_autorizacion'];
+    
+    if (file_exists($archivoAutorizacionPath)) {
+        try {
+            // Importar el archivo PDF de autorización
+            $pageCount = $pdf->setSourceFile($archivoAutorizacionPath);
+            
+            // Agregar todas las páginas del PDF de autorización
+            for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+                $tplIdx = $pdf->importPage($pageNo);
+                $size = $pdf->getTemplateSize($tplIdx);
+                
+                // Agregar nueva página con el tamaño del documento original
+                $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
+                $pdf->useTemplate($tplIdx);
+            }
+        } catch (Throwable $e) {
+            error_log('[internet_historial_pdf] Error al incluir archivo de autorización: ' . $e->getMessage());
+        }
+    }
+}
 
 // Generar PDF
 $nombreArchivo = 'Historial_Internet_' . $servicio['nombre_sede'] . '_' . date('Ymd') . '.pdf';
