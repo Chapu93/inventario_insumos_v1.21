@@ -8,20 +8,9 @@ try { $db->query("SELECT simetrico FROM sedes_internet LIMIT 1"); }
 catch (Exception $e) { try { $db->exec("ALTER TABLE sedes_internet ADD COLUMN simetrico TINYINT(1) NOT NULL DEFAULT 0"); } catch (Exception $e2) {} }
 try { $db->query("SELECT velocidad_mbps FROM sedes_internet LIMIT 1"); }
 catch (Exception $e) { try { $db->exec("ALTER TABLE sedes_internet ADD COLUMN velocidad_mbps INT NULL"); } catch (Exception $e2) {} }
-try { $db->query("SELECT instancia_pendiente FROM sedes_internet LIMIT 1"); }
-catch (Exception $e) { 
-    try { 
-        $db->exec("ALTER TABLE sedes_internet ADD COLUMN instancia_pendiente ENUM('Solicitud de presupuesto', 'Autorización superior', 'Servicio tarifado') NULL DEFAULT NULL AFTER estado_servicio");
-        $db->exec("ALTER TABLE sedes_internet ADD COLUMN fecha_solicitud_autorizacion DATE NULL DEFAULT NULL AFTER instancia_pendiente");
-        $db->exec("ALTER TABLE sedes_internet ADD COLUMN archivo_autorizacion VARCHAR(255) NULL DEFAULT NULL AFTER fecha_solicitud_autorizacion");
-    } catch (Exception $e2) {} 
-}
-try { $db->query("SELECT fecha_instalacion FROM sedes_internet LIMIT 1"); }
-catch (Exception $e) { 
-    try { 
-        $db->exec("ALTER TABLE sedes_internet ADD COLUMN fecha_instalacion DATE NULL DEFAULT NULL AFTER archivo_autorizacion");
-    } catch (Exception $e2) {} 
-}
+// NOTA: Las migraciones de instancia_pendiente y fecha_instalacion se ejecutan manualmente desde los archivos SQL
+// Ver: sql/migracion_internet_instancias_pendientes.sql
+// Ver: sql/agregar_fecha_instalacion_internet.sql
 
 // Procesar POST (agregar/editar/eliminar)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
