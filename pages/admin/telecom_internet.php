@@ -16,6 +16,12 @@ catch (Exception $e) {
         $db->exec("ALTER TABLE sedes_internet ADD COLUMN archivo_autorizacion VARCHAR(255) NULL DEFAULT NULL AFTER fecha_solicitud_autorizacion");
     } catch (Exception $e2) {} 
 }
+try { $db->query("SELECT fecha_instalacion FROM sedes_internet LIMIT 1"); }
+catch (Exception $e) { 
+    try { 
+        $db->exec("ALTER TABLE sedes_internet ADD COLUMN fecha_instalacion DATE NULL DEFAULT NULL AFTER archivo_autorizacion");
+    } catch (Exception $e2) {} 
+}
 
 // Procesar POST (agregar/editar/eliminar)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -29,9 +35,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $instancia_pendiente = null;
             $fecha_solicitud = null;
             $archivo_autorizacion = null;
+            $fecha_instalacion = null;
             
-            // Si el estado es Pendiente, procesar instancia
-            if ($estado_servicio === 'Pendiente' && !empty($_POST['instancia_pendiente'])) {
+            // Si el estado es Pendiente, procesar instancia y fecha de instalación
+            if ($estado_servicio === 'Pendiente') {
+                // Fecha de instalación (siempre requerida cuando es Pendiente)
+                $fecha_instalacion = !empty($_POST['fecha_instalacion']) ? $_POST['fecha_instalacion'] : null;
+                
+                // Procesar instancia si se especifica
+                if (!empty($_POST['instancia_pendiente'])) {
                 $instancia_pendiente = trim($_POST['instancia_pendiente']);
                 
                 // Si la instancia es "Autorización superior", procesar fecha y archivo
@@ -68,10 +80,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $archivo_autorizacion = $_POST['archivo_autorizacion_actual'];
                     }
                 }
+                }
             }
             
             if ($accion === 'agregar') {
-                $stmt = $db->prepare("INSERT INTO sedes_internet (id_sede, proveedor, tipo_conexion, velocidad_mbps, simetrico, tiene_wifi, estado_servicio, instancia_pendiente, fecha_solicitud_autorizacion, archivo_autorizacion, observaciones) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
+                $stmt = $db->prepare("INSERT INTO sedes_internet (id_sede, proveedor, tipo_conexion, velocidad_mbps, simetrico, tiene_wifi, estado_servicio, instancia_pendiente, fecha_solicitud_autorizacion, archivo_autorizacion, fecha_instalacion, observaciones) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
                 $stmt->execute([
                     (int)$_POST['id_sede'],
                     trim($_POST['proveedor']),
@@ -83,12 +96,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $instancia_pendiente,
                     $fecha_solicitud,
                     $archivo_autorizacion,
+                    $fecha_instalacion,
                     ($_POST['observaciones'] ?? null) ?: null,
                 ]);
                 $_SESSION['mensaje'] = 'Servicio de Internet agregado.';
                 $_SESSION['tipo_mensaje'] = 'success';
             } else {
-                $stmt = $db->prepare("UPDATE sedes_internet SET id_sede=?, proveedor=?, tipo_conexion=?, velocidad_mbps=?, simetrico=?, tiene_wifi=?, estado_servicio=?, instancia_pendiente=?, fecha_solicitud_autorizacion=?, archivo_autorizacion=?, observaciones=? WHERE id_internet=?");
+                $stmt = $db->prepare("UPDATE sedes_internet SET id_sede=?, proveedor=?, tipo_conexion=?, velocidad_mbps=?, simetrico=?, tiene_wifi=?, estado_servicio=?, instancia_pendiente=?, fecha_solicitud_autorizacion=?, archivo_autorizacion=?, fecha_instalacion=?, observaciones=? WHERE id_internet=?");
                 $stmt->execute([
                     (int)$_POST['id_sede'],
                     trim($_POST['proveedor']),
@@ -100,6 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $instancia_pendiente,
                     $fecha_solicitud,
                     $archivo_autorizacion,
+                    $fecha_instalacion,
                     ($_POST['observaciones'] ?? null) ?: null,
                     (int)$_POST['id_internet']
                 ]);
@@ -207,12 +222,20 @@ include '../../includes/header.php';
                                     <?php $est = $row['estado_servicio']; $cls = ($est==='Activo'?'estado-activa':($est==='Pendiente'?'estado-asignado':'estado-baja')); ?>
                                     <span class="badge <?php echo $cls; ?>"><?php echo $est; ?></span>
                                     
-                                    <?php if ($est === 'Pendiente' && !empty($row['instancia_pendiente'])): ?>
-                                        <br><small class="text-muted mt-1 d-block">
-                                            <i class="fas fa-clock me-1"></i><?php echo htmlspecialchars($row['instancia_pendiente']); ?>
-                                        </small>
+                                    <?php if ($est === 'Pendiente'): ?>
+                                        <?php if (!empty($row['fecha_instalacion'])): ?>
+                                            <br><small class="text-muted mt-1 d-block">
+                                                <i class="fas fa-calendar-check me-1"></i>Instalación: <?php echo date('d/m/Y', strtotime($row['fecha_instalacion'])); ?>
+                                            </small>
+                                        <?php endif; ?>
                                         
-                                        <?php if ($row['instancia_pendiente'] === 'Autorización superior'): ?>
+                                        <?php if (!empty($row['instancia_pendiente'])): ?>
+                                            <small class="text-muted d-block">
+                                                <i class="fas fa-clock me-1"></i><?php echo htmlspecialchars($row['instancia_pendiente']); ?>
+                                            </small>
+                                        <?php endif; ?>
+                                        
+                                        <?php if (!empty($row['instancia_pendiente']) && $row['instancia_pendiente'] === 'Autorización superior'): ?>
                                             <?php if (!empty($row['fecha_solicitud_autorizacion'])): ?>
                                                 <small class="text-muted d-block">
                                                     <i class="fas fa-calendar me-1"></i><?php echo date('d/m/Y', strtotime($row['fecha_solicitud_autorizacion'])); ?>
@@ -340,18 +363,29 @@ include '../../includes/header.php';
           <!-- Campos condicionales para estado Pendiente -->
           <div id="campos_instancia_pendiente" style="display:none;">
             <div class="alert alert-info mb-3">
-              <i class="fas fa-info-circle me-2"></i>El servicio está en estado <strong>Pendiente</strong>. Por favor, especifique la instancia:
+              <i class="fas fa-info-circle me-2"></i>El servicio está en estado <strong>Pendiente</strong>. Complete la información adicional:
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Instancia del Pendiente *</label>
+              <label class="form-label">Fecha de Instalación *</label>
+              <input type="date" class="form-control" name="fecha_instalacion" id="fecha_instalacion" min="<?php echo date('Y-m-d'); ?>">
+              <small class="form-text text-muted">
+                <i class="fas fa-calendar-check me-1"></i>Fecha programada para la instalación del servicio
+              </small>
+              <div class="invalid-feedback">Ingrese la fecha de instalación programada</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Instancia del Pendiente</label>
               <select name="instancia_pendiente" id="instancia_pendiente" class="form-select">
-                <option value="">Seleccione una instancia</option>
+                <option value="">Ninguna (opcional)</option>
                 <option value="Solicitud de presupuesto">Solicitud de presupuesto</option>
                 <option value="Autorización superior">Autorización superior</option>
                 <option value="Servicio tarifado">Servicio tarifado</option>
               </select>
-              <div class="invalid-feedback">Seleccione una instancia cuando el estado es Pendiente</div>
+              <small class="form-text text-muted">
+                <i class="fas fa-layer-group me-1"></i>Especifique la etapa del proceso si corresponde
+              </small>
             </div>
 
             <!-- Campos específicos para Autorización superior -->
@@ -447,6 +481,9 @@ function editarInternet(row){
   $('#observaciones').val(row.observaciones || '');
   
   // Cargar datos de instancia si existe
+  if (row.fecha_instalacion) {
+    $('#fecha_instalacion').val(row.fecha_instalacion);
+  }
   if (row.instancia_pendiente) {
     $('#instancia_pendiente').val(row.instancia_pendiente);
   }
@@ -478,14 +515,15 @@ function eliminarInternet(id){
 function toggleCamposInstancia() {
   const estado = $('#estado_servicio').val();
   const $camposInstancia = $('#campos_instancia_pendiente');
-  const $selectInstancia = $('#instancia_pendiente');
+  const $fechaInstalacion = $('#fecha_instalacion');
   
   if (estado === 'Pendiente') {
     $camposInstancia.slideDown(200);
-    $selectInstancia.prop('required', true);
+    $fechaInstalacion.prop('required', true);
   } else {
     $camposInstancia.slideUp(200);
-    $selectInstancia.prop('required', false).val('');
+    $fechaInstalacion.prop('required', false).val('');
+    $('#instancia_pendiente').val('');
     $('#campos_autorizacion_superior').hide();
     limpiarCamposAutorizacion();
   }
