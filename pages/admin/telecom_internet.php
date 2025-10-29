@@ -25,6 +25,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $fecha_solicitud = null;
             $archivo_autorizacion = null;
             $fecha_instalacion = null;
+            $fecha_baja = null;
+            
+            // Si el estado es De Baja, registrar fecha de baja automáticamente
+            if ($estado_servicio === 'De Baja') {
+                // Solo establecer fecha_baja si no existe (para mantener la fecha original)
+                if ($accion === 'editar') {
+                    // Verificar si ya tiene fecha_baja
+                    $stmt_check = $db->prepare("SELECT fecha_baja FROM sedes_internet WHERE id_internet = ?");
+                    $stmt_check->execute([(int)$_POST['id_internet']]);
+                    $current = $stmt_check->fetch();
+                    if (empty($current['fecha_baja'])) {
+                        $fecha_baja = date('Y-m-d');
+                    } else {
+                        $fecha_baja = $current['fecha_baja'];
+                    }
+                } else {
+                    // Nuevo registro en estado De Baja
+                    $fecha_baja = date('Y-m-d');
+                }
+            }
             
             // Si el estado es Pendiente, procesar instancia y fecha de instalación
             if ($estado_servicio === 'Pendiente') {
@@ -73,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             
             if ($accion === 'agregar') {
-                $stmt = $db->prepare("INSERT INTO sedes_internet (id_sede, proveedor, tipo_conexion, velocidad_mbps, simetrico, tiene_wifi, estado_servicio, instancia_pendiente, fecha_solicitud_autorizacion, archivo_autorizacion, fecha_instalacion, observaciones) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
+                $stmt = $db->prepare("INSERT INTO sedes_internet (id_sede, proveedor, tipo_conexion, velocidad_mbps, simetrico, tiene_wifi, estado_servicio, instancia_pendiente, fecha_solicitud_autorizacion, archivo_autorizacion, fecha_instalacion, fecha_baja, observaciones) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
                 $stmt->execute([
                     (int)$_POST['id_sede'],
                     trim($_POST['proveedor']),
@@ -86,12 +106,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $fecha_solicitud,
                     $archivo_autorizacion,
                     $fecha_instalacion,
+                    $fecha_baja,
                     ($_POST['observaciones'] ?? null) ?: null,
                 ]);
                 $_SESSION['mensaje'] = 'Servicio de Internet agregado.';
                 $_SESSION['tipo_mensaje'] = 'success';
             } else {
-                $stmt = $db->prepare("UPDATE sedes_internet SET id_sede=?, proveedor=?, tipo_conexion=?, velocidad_mbps=?, simetrico=?, tiene_wifi=?, estado_servicio=?, instancia_pendiente=?, fecha_solicitud_autorizacion=?, archivo_autorizacion=?, fecha_instalacion=?, observaciones=? WHERE id_internet=?");
+                $stmt = $db->prepare("UPDATE sedes_internet SET id_sede=?, proveedor=?, tipo_conexion=?, velocidad_mbps=?, simetrico=?, tiene_wifi=?, estado_servicio=?, instancia_pendiente=?, fecha_solicitud_autorizacion=?, archivo_autorizacion=?, fecha_instalacion=?, fecha_baja=?, observaciones=? WHERE id_internet=?");
                 $stmt->execute([
                     (int)$_POST['id_sede'],
                     trim($_POST['proveedor']),
@@ -104,6 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $fecha_solicitud,
                     $archivo_autorizacion,
                     $fecha_instalacion,
+                    $fecha_baja,
                     ($_POST['observaciones'] ?? null) ?: null,
                     (int)$_POST['id_internet']
                 ]);
@@ -243,6 +265,12 @@ include '../../includes/header.php';
                                                 </small>
                                             <?php endif; ?>
                                         <?php endif; ?>
+                                    <?php endif; ?>
+                                    
+                                    <?php if ($est === 'De Baja' && !empty($row['fecha_baja'])): ?>
+                                        <br><small class="text-muted mt-1 d-block">
+                                            <i class="fas fa-calendar-times me-1"></i>Baja: <?php echo date('d/m/Y', strtotime($row['fecha_baja'])); ?>
+                                        </small>
                                     <?php endif; ?>
                                 </td>
                                 <td>
