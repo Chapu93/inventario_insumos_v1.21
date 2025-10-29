@@ -371,10 +371,12 @@ include '../../includes/header.php';
           <div class="mb-3 mt-2">
             <label class="form-label">Estado *</label>
             <select name="estado_servicio" id="estado_servicio" class="form-select" required>
-              <option>Activo</option>
-              <option>Pendiente</option>
-              <option>De Baja</option>
+              <option value="">Seleccione un estado</option>
+              <option value="Activo">Activo</option>
+              <option value="Pendiente">Pendiente</option>
+              <option value="De Baja">De Baja</option>
             </select>
+            <div class="invalid-feedback">Seleccione un estado</div>
           </div>
 
           <!-- Campos condicionales para estado Pendiente -->
@@ -538,7 +540,10 @@ function toggleCamposInstancia() {
     $camposInstancia.slideDown(200);
     $fechaInstalacion.prop('required', true);
   } else {
-    $camposInstancia.slideUp(200);
+    // Ocultar campos de Pendiente si el estado es otro (Activo, De Baja, o vacío)
+    if ($camposInstancia.is(':visible')) {
+      $camposInstancia.slideUp(200);
+    }
     $fechaInstalacion.prop('required', false).val('');
     $('#instancia_pendiente').val('');
     $('#campos_autorizacion_superior').hide();
@@ -578,6 +583,7 @@ $('#modalInternet').on('hidden.bs.modal', function(){
   $('#formInternet')[0].reset();
   $('#id_localidad').val('');
   $('#id_sede').html('<option value="">Seleccione una sede</option>');
+  $('#estado_servicio').val(''); // Asegurar que no haya estado preseleccionado
   $('#formInternet').removeClass('was-validated');
   $('#campos_instancia_pendiente').hide();
   $('#campos_autorizacion_superior').hide();
