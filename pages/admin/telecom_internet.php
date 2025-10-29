@@ -264,6 +264,12 @@ include '../../includes/header.php';
                                         <?php endif; ?>
                                     <?php endif; ?>
                                     
+                                    <?php if ($est === 'De Baja' && !empty($row['fecha_baja'])): ?>
+                                        <br><small class="text-muted mt-1 d-block">
+                                            <i class="fas fa-calendar-times me-1"></i>Baja: <?php echo date('d/m/Y', strtotime($row['fecha_baja'])); ?>
+                                        </small>
+                                    <?php endif; ?>
+                                    
                                     <?php // Mostrar archivo de autorización siempre que exista, independiente del estado ?>
                                     <?php if (!empty($row['archivo_autorizacion'])): ?>
                                         <small class="d-block mt-1">
@@ -275,12 +281,6 @@ include '../../includes/header.php';
                                                aria-label="Ver PDF">
                                                 <i class="fas fa-file-pdf me-1"></i>PDF
                                             </a>
-                                        </small>
-                                    <?php endif; ?>
-                                    
-                                    <?php if ($est === 'De Baja' && !empty($row['fecha_baja'])): ?>
-                                        <br><small class="text-muted mt-1 d-block">
-                                            <i class="fas fa-calendar-times me-1"></i>Baja: <?php echo date('d/m/Y', strtotime($row['fecha_baja'])); ?>
                                         </small>
                                     <?php endif; ?>
                                 </td>
