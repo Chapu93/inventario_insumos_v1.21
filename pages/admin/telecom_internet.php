@@ -258,6 +258,7 @@ include '../../includes/header.php';
                                 </td>
                                 <td>
                                     <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Ver detalles" aria-label="Ver detalles del servicio" onclick='verDetallesInternet(<?php echo json_encode($row, JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT); ?>)'><i class="fas fa-eye" aria-hidden="true"></i></button>
                                         <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Editar" aria-label="Editar servicio" onclick='editarInternet(<?php echo json_encode($row, JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT); ?>)'><i class="fas fa-edit" aria-hidden="true"></i></button>
                                         <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Eliminar" aria-label="Eliminar servicio" onclick="eliminarInternet(<?php echo (int)$row['id_internet']; ?>)"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </div>
@@ -472,6 +473,128 @@ include '../../includes/header.php';
   <input type="hidden" name="id_internet" id="del_id">
 </form>
 
+<!-- Modal Ver Detalles -->
+<div class="modal fade" id="modalVerDetalles" tabindex="-1" aria-labelledby="modalVerDetallesLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title" id="modalVerDetallesLabel">
+          <i class="fas fa-info-circle me-2"></i>Detalles del Servicio de Internet
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <!-- Columna izquierda -->
+          <div class="col-md-6">
+            <h6 class="text-primary border-bottom pb-2 mb-3">
+              <i class="fas fa-map-marker-alt me-2"></i>Ubicación
+            </h6>
+            
+            <div class="mb-3">
+              <label class="text-muted small">Localidad:</label>
+              <p class="mb-1" id="detalle_localidad"></p>
+            </div>
+            
+            <div class="mb-3">
+              <label class="text-muted small">Sede:</label>
+              <p class="mb-1" id="detalle_sede"></p>
+            </div>
+            
+            <h6 class="text-primary border-bottom pb-2 mb-3 mt-4">
+              <i class="fas fa-network-wired me-2"></i>Información Técnica
+            </h6>
+            
+            <div class="mb-3">
+              <label class="text-muted small">Proveedor:</label>
+              <p class="mb-1" id="detalle_proveedor"></p>
+            </div>
+            
+            <div class="mb-3">
+              <label class="text-muted small">Tipo de Conexión:</label>
+              <p class="mb-1" id="detalle_tipo_conexion"></p>
+            </div>
+            
+            <div class="mb-3">
+              <label class="text-muted small">Velocidad:</label>
+              <p class="mb-1" id="detalle_velocidad"></p>
+            </div>
+            
+            <div class="mb-3">
+              <label class="text-muted small">Simétrico:</label>
+              <p class="mb-1" id="detalle_simetrico"></p>
+            </div>
+            
+            <div class="mb-3">
+              <label class="text-muted small">WiFi:</label>
+              <p class="mb-1" id="detalle_wifi"></p>
+            </div>
+          </div>
+          
+          <!-- Columna derecha -->
+          <div class="col-md-6">
+            <h6 class="text-primary border-bottom pb-2 mb-3">
+              <i class="fas fa-info-circle me-2"></i>Estado del Servicio
+            </h6>
+            
+            <div class="mb-3">
+              <label class="text-muted small">Estado:</label>
+              <p class="mb-1" id="detalle_estado"></p>
+            </div>
+            
+            <!-- Fecha de instalación (Activo) -->
+            <div class="mb-3" id="detalle_fecha_instalacion_container" style="display:none;">
+              <label class="text-muted small">Fecha de Instalación:</label>
+              <p class="mb-1" id="detalle_fecha_instalacion"></p>
+            </div>
+            
+            <!-- Instancia (Pendiente) -->
+            <div class="mb-3" id="detalle_instancia_container" style="display:none;">
+              <label class="text-muted small">Instancia:</label>
+              <p class="mb-1" id="detalle_instancia"></p>
+            </div>
+            
+            <!-- Fecha de solicitud (Pendiente - Autorización) -->
+            <div class="mb-3" id="detalle_fecha_solicitud_container" style="display:none;">
+              <label class="text-muted small">Fecha de Solicitud:</label>
+              <p class="mb-1" id="detalle_fecha_solicitud"></p>
+            </div>
+            
+            <!-- Archivo de autorización (Pendiente - Autorización) -->
+            <div class="mb-3" id="detalle_archivo_container" style="display:none;">
+              <label class="text-muted small">Archivo de Autorización:</label>
+              <p class="mb-1">
+                <a href="#" id="detalle_archivo_link" target="_blank" class="btn btn-sm btn-outline-danger">
+                  <i class="fas fa-file-pdf me-1"></i>Descargar PDF
+                </a>
+              </p>
+            </div>
+            
+            <!-- Fecha de baja (De Baja) -->
+            <div class="mb-3" id="detalle_fecha_baja_container" style="display:none;">
+              <label class="text-muted small">Fecha de Baja:</label>
+              <p class="mb-1" id="detalle_fecha_baja"></p>
+            </div>
+            
+            <!-- Observaciones -->
+            <div class="mb-3" id="detalle_observaciones_container" style="display:none;">
+              <h6 class="text-primary border-bottom pb-2 mb-3 mt-4">
+                <i class="fas fa-comment-dots me-2"></i>Observaciones
+              </h6>
+              <p class="mb-1" id="detalle_observaciones"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 const BASE = '<?php echo app_base_url(); ?>';
 function cargarLocalidades(){
@@ -541,6 +664,86 @@ function editarInternet(row){
   var m = new bootstrap.Modal(document.getElementById('modalInternet'));
   m.show();
 }
+function verDetallesInternet(row) {
+  console.log('Ver detalles:', row);
+  
+  // Información básica
+  $('#detalle_localidad').text(row.nombre_localidad || '-');
+  $('#detalle_sede').text(row.nombre_sede || '-');
+  $('#detalle_proveedor').text(row.proveedor || '-');
+  $('#detalle_tipo_conexion').html('<span class="badge bg-info">' + (row.tipo_conexion || '-') + '</span>');
+  $('#detalle_velocidad').html('<span class="badge bg-primary">' + (row.velocidad_mbps ? row.velocidad_mbps + ' Mbps' : 'No especificada') + '</span>');
+  
+  // Simétrico
+  const simetrico = parseInt(row.simetrico) === 1;
+  $('#detalle_simetrico').html('<span class="badge ' + (simetrico ? 'bg-success' : 'bg-secondary') + '">' + (simetrico ? 'Sí' : 'No') + '</span>');
+  
+  // WiFi
+  const wifi = parseInt(row.tiene_wifi) === 1;
+  $('#detalle_wifi').html('<span class="badge ' + (wifi ? 'bg-success' : 'bg-secondary') + '">' + (wifi ? 'Sí' : 'No') + '</span>');
+  
+  // Estado
+  const estado = row.estado_servicio;
+  let estadoClass = 'estado-activa';
+  if (estado === 'Pendiente') estadoClass = 'estado-asignado';
+  else if (estado === 'De Baja') estadoClass = 'estado-baja';
+  $('#detalle_estado').html('<span class="badge ' + estadoClass + '">' + estado + '</span>');
+  
+  // Ocultar todos los campos condicionales primero
+  $('#detalle_fecha_instalacion_container').hide();
+  $('#detalle_instancia_container').hide();
+  $('#detalle_fecha_solicitud_container').hide();
+  $('#detalle_archivo_container').hide();
+  $('#detalle_fecha_baja_container').hide();
+  $('#detalle_observaciones_container').hide();
+  
+  // Mostrar campos según el estado
+  if (estado === 'Activo' && row.fecha_instalacion) {
+    $('#detalle_fecha_instalacion').html('<i class="fas fa-calendar-check text-success me-2"></i>' + formatearFecha(row.fecha_instalacion));
+    $('#detalle_fecha_instalacion_container').show();
+  }
+  
+  if (estado === 'Pendiente') {
+    if (row.instancia_pendiente) {
+      $('#detalle_instancia').html('<i class="fas fa-clock text-warning me-2"></i>' + row.instancia_pendiente);
+      $('#detalle_instancia_container').show();
+    }
+    
+    if (row.fecha_solicitud_autorizacion) {
+      $('#detalle_fecha_solicitud').html('<i class="fas fa-calendar text-primary me-2"></i>' + formatearFecha(row.fecha_solicitud_autorizacion));
+      $('#detalle_fecha_solicitud_container').show();
+    }
+    
+    if (row.archivo_autorizacion) {
+      $('#detalle_archivo_link').attr('href', BASE + '/' + row.archivo_autorizacion);
+      $('#detalle_archivo_container').show();
+    }
+  }
+  
+  if (estado === 'De Baja' && row.fecha_baja) {
+    $('#detalle_fecha_baja').html('<i class="fas fa-calendar-times text-danger me-2"></i>' + formatearFecha(row.fecha_baja));
+    $('#detalle_fecha_baja_container').show();
+  }
+  
+  // Observaciones
+  if (row.observaciones) {
+    $('#detalle_observaciones').text(row.observaciones);
+    $('#detalle_observaciones_container').show();
+  }
+  
+  // Mostrar el modal
+  new bootstrap.Modal(document.getElementById('modalVerDetalles')).show();
+}
+
+function formatearFecha(fecha) {
+  if (!fecha) return '-';
+  const partes = fecha.split('-');
+  if (partes.length === 3) {
+    return partes[2] + '/' + partes[1] + '/' + partes[0];
+  }
+  return fecha;
+}
+
 function eliminarInternet(id){
   if(confirm('¿Eliminar servicio de Internet?')){
     $('#del_id').val(id);
