@@ -477,7 +477,7 @@ include '../../includes/header.php';
 <div class="modal fade" id="modalVerDetalles" tabindex="-1" aria-labelledby="modalVerDetallesLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <div class="modal-header bg-info text-white">
+      <div class="modal-header bg-success text-white">
         <h5 class="modal-title" id="modalVerDetallesLabel">
           <i class="fas fa-info-circle me-2"></i>Detalles del Servicio de Internet
         </h5>
