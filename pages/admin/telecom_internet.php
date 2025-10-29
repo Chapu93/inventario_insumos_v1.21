@@ -55,13 +55,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             throw new Exception('El archivo no debe superar 5MB');
                         }
                         
+                        // Asegurar que el directorio existe y tiene permisos
+                        $directorioDestino = __DIR__ . '/../../public/uploads/autorizaciones_internet';
+                        if (!is_dir($directorioDestino)) {
+                            if (!mkdir($directorioDestino, 0755, true)) {
+                                throw new Exception('No se pudo crear el directorio de destino');
+                            }
+                        }
+                        
+                        if (!is_writable($directorioDestino)) {
+                            throw new Exception('El directorio no tiene permisos de escritura. Contacte al administrador.');
+                        }
+                        
                         // Generar nombre único
                         $nombreArchivo = 'autorizacion_' . date('Ymd_His') . '_' . uniqid() . '.pdf';
-                        $rutaDestino = __DIR__ . '/../../public/uploads/autorizaciones_internet/' . $nombreArchivo;
+                        $rutaDestino = $directorioDestino . '/' . $nombreArchivo;
                         
                         // Mover archivo
                         if (!move_uploaded_file($file['tmp_name'], $rutaDestino)) {
-                            throw new Exception('Error al guardar el archivo');
+                            $error = error_get_last();
+                            throw new Exception('Error al guardar el archivo: ' . ($error['message'] ?? 'Desconocido'));
                         }
                         
                         $archivo_autorizacion = 'public/uploads/autorizaciones_internet/' . $nombreArchivo;
