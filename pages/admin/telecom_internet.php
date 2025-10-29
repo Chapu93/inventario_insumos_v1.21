@@ -720,25 +720,23 @@ function verDetallesInternet(row) {
   $('#detalle_archivo_global_container').hide();
   $('#detalle_observaciones_container').hide();
   
-  // Mostrar campos según el estado
-  if (estado === 'Activo' && row.fecha_instalacion) {
+  // Mostrar TODAS las fechas que tengan valor, sin importar el estado actual
+  if (row.fecha_instalacion) {
     $('#detalle_fecha_instalacion').html('<i class="fas fa-calendar-check text-success me-2"></i>' + formatearFecha(row.fecha_instalacion));
     $('#detalle_fecha_instalacion_container').show();
   }
   
-  if (estado === 'Pendiente') {
-    if (row.instancia_pendiente) {
-      $('#detalle_instancia').html('<i class="fas fa-clock text-warning me-2"></i>' + row.instancia_pendiente);
-      $('#detalle_instancia_container').show();
-    }
-    
-    if (row.fecha_solicitud_autorizacion) {
-      $('#detalle_fecha_solicitud').html('<i class="fas fa-calendar text-primary me-2"></i>' + formatearFecha(row.fecha_solicitud_autorizacion));
-      $('#detalle_fecha_solicitud_container').show();
-    }
+  if (row.instancia_pendiente) {
+    $('#detalle_instancia').html('<i class="fas fa-clock text-warning me-2"></i>' + row.instancia_pendiente);
+    $('#detalle_instancia_container').show();
   }
   
-  if (estado === 'De Baja' && row.fecha_baja) {
+  if (row.fecha_solicitud_autorizacion) {
+    $('#detalle_fecha_solicitud').html('<i class="fas fa-calendar text-primary me-2"></i>' + formatearFecha(row.fecha_solicitud_autorizacion));
+    $('#detalle_fecha_solicitud_container').show();
+  }
+  
+  if (row.fecha_baja) {
     $('#detalle_fecha_baja').html('<i class="fas fa-calendar-times text-danger me-2"></i>' + formatearFecha(row.fecha_baja));
     $('#detalle_fecha_baja_container').show();
   }
