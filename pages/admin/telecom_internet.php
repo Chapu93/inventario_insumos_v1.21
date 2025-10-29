@@ -8,42 +8,116 @@ try { $db->query("SELECT simetrico FROM sedes_internet LIMIT 1"); }
 catch (Exception $e) { try { $db->exec("ALTER TABLE sedes_internet ADD COLUMN simetrico TINYINT(1) NOT NULL DEFAULT 0"); } catch (Exception $e2) {} }
 try { $db->query("SELECT velocidad_mbps FROM sedes_internet LIMIT 1"); }
 catch (Exception $e) { try { $db->exec("ALTER TABLE sedes_internet ADD COLUMN velocidad_mbps INT NULL"); } catch (Exception $e2) {} }
+try { $db->query("SELECT instancia_pendiente FROM sedes_internet LIMIT 1"); }
+catch (Exception $e) { 
+    try { 
+        $db->exec("ALTER TABLE sedes_internet ADD COLUMN instancia_pendiente ENUM('Solicitud de presupuesto', 'Autorización superior', 'Servicio tarifado') NULL DEFAULT NULL AFTER estado_servicio");
+        $db->exec("ALTER TABLE sedes_internet ADD COLUMN fecha_solicitud_autorizacion DATE NULL DEFAULT NULL AFTER instancia_pendiente");
+        $db->exec("ALTER TABLE sedes_internet ADD COLUMN archivo_autorizacion VARCHAR(255) NULL DEFAULT NULL AFTER fecha_solicitud_autorizacion");
+    } catch (Exception $e2) {} 
+}
 
 // Procesar POST (agregar/editar/eliminar)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         if (!verify_csrf()) { throw new Exception('CSRF inválido'); }
         $accion = $_POST['accion'] ?? '';
-        if ($accion === 'agregar') {
-      $stmt = $db->prepare("INSERT INTO sedes_internet (id_sede, proveedor, tipo_conexion, velocidad_mbps, simetrico, tiene_wifi, estado_servicio, observaciones) VALUES (?,?,?,?,?,?,?,?)");
-      $stmt->execute([
-        (int)$_POST['id_sede'],
-        trim($_POST['proveedor']),
-        trim($_POST['tipo_conexion']),
-        ($_POST['velocidad_mbps'] !== '' ? (int)$_POST['velocidad_mbps'] : null),
-        (isset($_POST['simetrico']) ? 1 : 0),
-        (isset($_POST['tiene_wifi']) ? 1 : 0),
-        trim($_POST['estado_servicio']),
-        ($_POST['observaciones'] ?? null) ?: null,
-      ]);
-            $_SESSION['mensaje'] = 'Servicio de Internet agregado.';
-            $_SESSION['tipo_mensaje'] = 'success';
-        } elseif ($accion === 'editar') {
-      $stmt = $db->prepare("UPDATE sedes_internet SET id_sede=?, proveedor=?, tipo_conexion=?, velocidad_mbps=?, simetrico=?, tiene_wifi=?, estado_servicio=?, observaciones=? WHERE id_internet=?");
-      $stmt->execute([
-        (int)$_POST['id_sede'],
-        trim($_POST['proveedor']),
-        trim($_POST['tipo_conexion']),
-        ($_POST['velocidad_mbps'] !== '' ? (int)$_POST['velocidad_mbps'] : null),
-        (isset($_POST['simetrico']) ? 1 : 0),
-        (isset($_POST['tiene_wifi']) ? 1 : 0),
-        trim($_POST['estado_servicio']),
-        ($_POST['observaciones'] ?? null) ?: null,
-        (int)$_POST['id_internet']
-      ]);
-            $_SESSION['mensaje'] = 'Servicio de Internet actualizado.';
-            $_SESSION['tipo_mensaje'] = 'success';
+        
+        if ($accion === 'agregar' || $accion === 'editar') {
+            // Procesar campos comunes
+            $estado_servicio = trim($_POST['estado_servicio']);
+            $instancia_pendiente = null;
+            $fecha_solicitud = null;
+            $archivo_autorizacion = null;
+            
+            // Si el estado es Pendiente, procesar instancia
+            if ($estado_servicio === 'Pendiente' && !empty($_POST['instancia_pendiente'])) {
+                $instancia_pendiente = trim($_POST['instancia_pendiente']);
+                
+                // Si la instancia es "Autorización superior", procesar fecha y archivo
+                if ($instancia_pendiente === 'Autorización superior') {
+                    $fecha_solicitud = !empty($_POST['fecha_solicitud_autorizacion']) ? $_POST['fecha_solicitud_autorizacion'] : null;
+                    
+                    // Procesar archivo PDF si se sube
+                    if (isset($_FILES['archivo_autorizacion']) && $_FILES['archivo_autorizacion']['error'] === UPLOAD_ERR_OK) {
+                        $file = $_FILES['archivo_autorizacion'];
+                        $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+                        
+                        // Validar que sea PDF
+                        if ($extension !== 'pdf') {
+                            throw new Exception('Solo se permiten archivos PDF');
+                        }
+                        
+                        // Validar tamaño (5MB máximo)
+                        if ($file['size'] > 5 * 1024 * 1024) {
+                            throw new Exception('El archivo no debe superar 5MB');
+                        }
+                        
+                        // Generar nombre único
+                        $nombreArchivo = 'autorizacion_' . date('Ymd_His') . '_' . uniqid() . '.pdf';
+                        $rutaDestino = __DIR__ . '/../../public/uploads/autorizaciones_internet/' . $nombreArchivo;
+                        
+                        // Mover archivo
+                        if (!move_uploaded_file($file['tmp_name'], $rutaDestino)) {
+                            throw new Exception('Error al guardar el archivo');
+                        }
+                        
+                        $archivo_autorizacion = 'public/uploads/autorizaciones_internet/' . $nombreArchivo;
+                    } elseif ($accion === 'editar' && !empty($_POST['archivo_autorizacion_actual'])) {
+                        // Mantener archivo actual si no se sube uno nuevo
+                        $archivo_autorizacion = $_POST['archivo_autorizacion_actual'];
+                    }
+                }
+            }
+            
+            if ($accion === 'agregar') {
+                $stmt = $db->prepare("INSERT INTO sedes_internet (id_sede, proveedor, tipo_conexion, velocidad_mbps, simetrico, tiene_wifi, estado_servicio, instancia_pendiente, fecha_solicitud_autorizacion, archivo_autorizacion, observaciones) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
+                $stmt->execute([
+                    (int)$_POST['id_sede'],
+                    trim($_POST['proveedor']),
+                    trim($_POST['tipo_conexion']),
+                    ($_POST['velocidad_mbps'] !== '' ? (int)$_POST['velocidad_mbps'] : null),
+                    (isset($_POST['simetrico']) ? 1 : 0),
+                    (isset($_POST['tiene_wifi']) ? 1 : 0),
+                    $estado_servicio,
+                    $instancia_pendiente,
+                    $fecha_solicitud,
+                    $archivo_autorizacion,
+                    ($_POST['observaciones'] ?? null) ?: null,
+                ]);
+                $_SESSION['mensaje'] = 'Servicio de Internet agregado.';
+                $_SESSION['tipo_mensaje'] = 'success';
+            } else {
+                $stmt = $db->prepare("UPDATE sedes_internet SET id_sede=?, proveedor=?, tipo_conexion=?, velocidad_mbps=?, simetrico=?, tiene_wifi=?, estado_servicio=?, instancia_pendiente=?, fecha_solicitud_autorizacion=?, archivo_autorizacion=?, observaciones=? WHERE id_internet=?");
+                $stmt->execute([
+                    (int)$_POST['id_sede'],
+                    trim($_POST['proveedor']),
+                    trim($_POST['tipo_conexion']),
+                    ($_POST['velocidad_mbps'] !== '' ? (int)$_POST['velocidad_mbps'] : null),
+                    (isset($_POST['simetrico']) ? 1 : 0),
+                    (isset($_POST['tiene_wifi']) ? 1 : 0),
+                    $estado_servicio,
+                    $instancia_pendiente,
+                    $fecha_solicitud,
+                    $archivo_autorizacion,
+                    ($_POST['observaciones'] ?? null) ?: null,
+                    (int)$_POST['id_internet']
+                ]);
+                $_SESSION['mensaje'] = 'Servicio de Internet actualizado.';
+                $_SESSION['tipo_mensaje'] = 'success';
+            }
         } elseif ($accion === 'eliminar') {
+            // Obtener y eliminar archivo si existe
+            $stmt = $db->prepare("SELECT archivo_autorizacion FROM sedes_internet WHERE id_internet = ?");
+            $stmt->execute([(int)$_POST['id_internet']]);
+            $row = $stmt->fetch();
+            if ($row && !empty($row['archivo_autorizacion'])) {
+                $rutaArchivo = __DIR__ . '/../../' . $row['archivo_autorizacion'];
+                if (file_exists($rutaArchivo)) {
+                    @unlink($rutaArchivo);
+                }
+            }
+            
             $stmt = $db->prepare("DELETE FROM sedes_internet WHERE id_internet = ?");
             $stmt->execute([(int)$_POST['id_internet']]);
             $_SESSION['mensaje'] = 'Servicio de Internet eliminado.';
@@ -132,6 +206,32 @@ include '../../includes/header.php';
                                 <td>
                                     <?php $est = $row['estado_servicio']; $cls = ($est==='Activo'?'estado-activa':($est==='Pendiente'?'estado-asignado':'estado-baja')); ?>
                                     <span class="badge <?php echo $cls; ?>"><?php echo $est; ?></span>
+                                    
+                                    <?php if ($est === 'Pendiente' && !empty($row['instancia_pendiente'])): ?>
+                                        <br><small class="text-muted mt-1 d-block">
+                                            <i class="fas fa-clock me-1"></i><?php echo htmlspecialchars($row['instancia_pendiente']); ?>
+                                        </small>
+                                        
+                                        <?php if ($row['instancia_pendiente'] === 'Autorización superior'): ?>
+                                            <?php if (!empty($row['fecha_solicitud_autorizacion'])): ?>
+                                                <small class="text-muted d-block">
+                                                    <i class="fas fa-calendar me-1"></i><?php echo date('d/m/Y', strtotime($row['fecha_solicitud_autorizacion'])); ?>
+                                                </small>
+                                            <?php endif; ?>
+                                            <?php if (!empty($row['archivo_autorizacion'])): ?>
+                                                <small class="d-block mt-1">
+                                                    <a href="<?php echo app_base_url() . '/' . htmlspecialchars($row['archivo_autorizacion']); ?>" 
+                                                       target="_blank" 
+                                                       class="btn btn-sm btn-outline-danger"
+                                                       data-bs-toggle="tooltip" 
+                                                       title="Ver archivo de autorización"
+                                                       aria-label="Ver PDF">
+                                                        <i class="fas fa-file-pdf me-1"></i>PDF
+                                                    </a>
+                                                </small>
+                                            <?php endif; ?>
+                                        <?php endif; ?>
+                                    <?php endif; ?>
                                 </td>
                                 <td>
                                     <div class="btn-group" role="group">
@@ -170,11 +270,12 @@ include '../../includes/header.php';
         <h5 class="modal-title" id="modalInternetTitle">Agregar Servicio</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <form method="POST" id="formInternet" class="needs-validation" novalidate>
+      <form method="POST" id="formInternet" class="needs-validation" enctype="multipart/form-data" novalidate>
         <div class="modal-body">
           <input type="hidden" name="_csrf" value="<?php echo htmlspecialchars(csrf_token()); ?>">
           <input type="hidden" name="accion" id="accion" value="agregar">
           <input type="hidden" name="id_internet" id="id_internet">
+          <input type="hidden" name="archivo_autorizacion_actual" id="archivo_autorizacion_actual">
 
           <div class="mb-3">
             <label class="form-label">Localidad *</label>
@@ -236,6 +337,58 @@ include '../../includes/header.php';
             </select>
           </div>
 
+          <!-- Campos condicionales para estado Pendiente -->
+          <div id="campos_instancia_pendiente" style="display:none;">
+            <div class="alert alert-info mb-3">
+              <i class="fas fa-info-circle me-2"></i>El servicio está en estado <strong>Pendiente</strong>. Por favor, especifique la instancia:
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Instancia del Pendiente *</label>
+              <select name="instancia_pendiente" id="instancia_pendiente" class="form-select">
+                <option value="">Seleccione una instancia</option>
+                <option value="Solicitud de presupuesto">Solicitud de presupuesto</option>
+                <option value="Autorización superior">Autorización superior</option>
+                <option value="Servicio tarifado">Servicio tarifado</option>
+              </select>
+              <div class="invalid-feedback">Seleccione una instancia cuando el estado es Pendiente</div>
+            </div>
+
+            <!-- Campos específicos para Autorización superior -->
+            <div id="campos_autorizacion_superior" style="display:none;">
+              <div class="alert alert-warning mb-3">
+                <i class="fas fa-exclamation-triangle me-2"></i>Requiere <strong>Autorización Superior</strong>. Complete los siguientes datos:
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Fecha de Solicitud *</label>
+                <input type="date" class="form-control" name="fecha_solicitud_autorizacion" id="fecha_solicitud_autorizacion" max="<?php echo date('Y-m-d'); ?>">
+                <div class="invalid-feedback">Ingrese la fecha de solicitud</div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Archivo de Autorización (PDF) *</label>
+                <input type="file" class="form-control" name="archivo_autorizacion" id="archivo_autorizacion" accept=".pdf">
+                <small class="form-text text-muted">
+                  <i class="fas fa-file-pdf me-1"></i>Solo archivos PDF. Tamaño máximo: 5MB
+                </small>
+                <div class="invalid-feedback">Adjunte el archivo PDF de autorización</div>
+                
+                <!-- Mostrar archivo actual si existe -->
+                <div id="archivo_actual_info" style="display:none;" class="mt-2">
+                  <div class="alert alert-success py-2 px-3 mb-0">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <span id="archivo_actual_nombre"></span>
+                    <a href="#" id="archivo_actual_link" target="_blank" class="ms-2 btn btn-sm btn-outline-primary">
+                      <i class="fas fa-download me-1"></i>Ver archivo
+                    </a>
+                    <small class="d-block mt-1 text-muted">Puede subir un nuevo archivo para reemplazarlo</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="mb-3">
             <label class="form-label">Observaciones</label>
             <textarea class="form-control" name="observaciones" id="observaciones" rows="2"></textarea>
@@ -292,6 +445,26 @@ function editarInternet(row){
   $('#tiene_wifi').prop('checked', (String(row.tiene_wifi) === '1'));
   $('#estado_servicio').val(row.estado_servicio);
   $('#observaciones').val(row.observaciones || '');
+  
+  // Cargar datos de instancia si existe
+  if (row.instancia_pendiente) {
+    $('#instancia_pendiente').val(row.instancia_pendiente);
+  }
+  if (row.fecha_solicitud_autorizacion) {
+    $('#fecha_solicitud_autorizacion').val(row.fecha_solicitud_autorizacion);
+  }
+  if (row.archivo_autorizacion) {
+    $('#archivo_autorizacion_actual').val(row.archivo_autorizacion);
+    const nombreArchivo = row.archivo_autorizacion.split('/').pop();
+    $('#archivo_actual_nombre').text(nombreArchivo);
+    $('#archivo_actual_link').attr('href', BASE + '/' + row.archivo_autorizacion);
+    $('#archivo_actual_info').show();
+  }
+  
+  // Trigger para mostrar campos condicionales
+  toggleCamposInstancia();
+  toggleCamposAutorizacion();
+  
   var m = new bootstrap.Modal(document.getElementById('modalInternet'));
   m.show();
 }
@@ -301,6 +474,49 @@ function eliminarInternet(id){
     $('#formEliminar').submit();
   }
 }
+// Funciones para mostrar/ocultar campos condicionales
+function toggleCamposInstancia() {
+  const estado = $('#estado_servicio').val();
+  const $camposInstancia = $('#campos_instancia_pendiente');
+  const $selectInstancia = $('#instancia_pendiente');
+  
+  if (estado === 'Pendiente') {
+    $camposInstancia.slideDown(200);
+    $selectInstancia.prop('required', true);
+  } else {
+    $camposInstancia.slideUp(200);
+    $selectInstancia.prop('required', false).val('');
+    $('#campos_autorizacion_superior').hide();
+    limpiarCamposAutorizacion();
+  }
+}
+
+function toggleCamposAutorizacion() {
+  const instancia = $('#instancia_pendiente').val();
+  const $camposAutorizacion = $('#campos_autorizacion_superior');
+  const $fechaSolicitud = $('#fecha_solicitud_autorizacion');
+  const $archivoAutorizacion = $('#archivo_autorizacion');
+  
+  if (instancia === 'Autorización superior') {
+    $camposAutorizacion.slideDown(200);
+    $fechaSolicitud.prop('required', true);
+    // Archivo requerido solo si no hay archivo actual
+    if (!$('#archivo_autorizacion_actual').val()) {
+      $archivoAutorizacion.prop('required', true);
+    }
+  } else {
+    $camposAutorizacion.slideUp(200);
+    limpiarCamposAutorizacion();
+  }
+}
+
+function limpiarCamposAutorizacion() {
+  $('#fecha_solicitud_autorizacion').prop('required', false).val('');
+  $('#archivo_autorizacion').prop('required', false).val('');
+  $('#archivo_autorizacion_actual').val('');
+  $('#archivo_actual_info').hide();
+}
+
 $('#modalInternet').on('hidden.bs.modal', function(){
   $('#modalInternetTitle').text('Agregar Servicio');
   $('#accion').val('agregar');
@@ -308,6 +524,9 @@ $('#modalInternet').on('hidden.bs.modal', function(){
   $('#id_localidad').val('');
   $('#id_sede').html('<option value="">Seleccione una sede</option>');
   $('#formInternet').removeClass('was-validated');
+  $('#campos_instancia_pendiente').hide();
+  $('#campos_autorizacion_superior').hide();
+  limpiarCamposAutorizacion();
 });
 $('#formInternet').on('submit', function(e){
   if(!this.checkValidity()){ e.preventDefault(); e.stopPropagation(); }
@@ -330,6 +549,31 @@ $(function(){
     }
   });
   $('#id_localidad').on('change', function(){ cargarSedes($(this).val(), null); });
+  
+  // Event listeners para campos condicionales
+  $('#estado_servicio').on('change', toggleCamposInstancia);
+  $('#instancia_pendiente').on('change', toggleCamposAutorizacion);
+  
+  // Validación adicional del archivo
+  $('#archivo_autorizacion').on('change', function() {
+    const file = this.files[0];
+    if (file) {
+      // Validar extensión
+      const extension = file.name.split('.').pop().toLowerCase();
+      if (extension !== 'pdf') {
+        alert('Solo se permiten archivos PDF');
+        $(this).val('');
+        return;
+      }
+      // Validar tamaño (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('El archivo no debe superar 5MB');
+        $(this).val('');
+        return;
+      }
+    }
+  });
+  
   // sin select2 en este modal para igualar estilo
 });
 </script>
