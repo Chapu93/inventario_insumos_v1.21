@@ -12,6 +12,222 @@ catch (Exception $e) { try { $db->exec("ALTER TABLE sedes_internet ADD COLUMN ve
 // Ver: sql/migracion_internet_instancias_pendientes.sql
 // Ver: sql/agregar_fecha_instalacion_internet.sql
 
+// ========================================
+// PASO 1: MARCAR SERVICIO COMO "BAJA POR TRASLADO"
+// ========================================
+if (isset($_POST['marcar_baja_traslado']) && $_POST['marcar_baja_traslado'] === '1') {
+    header('Content-Type: application/json');
+    
+    $id_servicio = (int)$_POST['id_servicio'];
+    
+    if (empty($id_servicio)) {
+        echo json_encode(['success' => false, 'message' => 'ID de servicio no proporcionado']);
+        exit;
+    }
+    
+    try {
+        // Verificar que el servicio existe y está activo o pendiente
+        $stmtCheck = $db->prepare("
+            SELECT estado_servicio 
+            FROM sedes_internet 
+            WHERE id_internet = ?
+        ");
+        $stmtCheck->execute([$id_servicio]);
+        $servicio = $stmtCheck->fetch();
+        
+        if (!$servicio) {
+            echo json_encode(['success' => false, 'message' => 'Servicio no encontrado']);
+            exit;
+        }
+        
+        if ($servicio['estado_servicio'] === 'Baja por Traslado') {
+            echo json_encode(['success' => false, 'message' => 'Este servicio ya fue trasladado']);
+            exit;
+        }
+        
+        if ($servicio['estado_servicio'] === 'De Baja') {
+            echo json_encode(['success' => false, 'message' => 'Este servicio ya está dado de baja']);
+            exit;
+        }
+        
+        // Marcar como "Baja por Traslado" (sin fecha ni PDF aún)
+        $stmtUpdate = $db->prepare("
+            UPDATE sedes_internet 
+            SET estado_servicio = 'Baja por Traslado'
+            WHERE id_internet = ?
+        ");
+        $stmtUpdate->execute([$id_servicio]);
+        
+        echo json_encode([
+            'success' => true,
+            'message' => 'Servicio marcado como baja por traslado'
+        ]);
+        exit;
+        
+    } catch (Exception $e) {
+        echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        exit;
+    }
+}
+
+// ========================================
+// PASO 2: CREAR NUEVO SERVICIO POR TRASLADO
+// ========================================
+if (isset($_POST['crear_servicio_traslado']) && $_POST['crear_servicio_traslado'] === '1') {
+    
+    $id_servicio_anterior = (int)$_POST['id_servicio_anterior'];
+    $id_sede = (int)$_POST['id_sede_traslado'];
+    
+    // Validaciones
+    if (empty($id_servicio_anterior) || empty($id_sede)) {
+        $_SESSION['mensaje'] = 'Datos incompletos para crear el servicio';
+        $_SESSION['tipo_mensaje'] = 'danger';
+        header('Location: ' . $_SERVER['PHP_SELF']);
+        exit;
+    }
+    
+    if (empty($_POST['fecha_traslado'])) {
+        $_SESSION['mensaje'] = 'La fecha del traslado es obligatoria';
+        $_SESSION['tipo_mensaje'] = 'danger';
+        header('Location: ' . $_SERVER['PHP_SELF']);
+        exit;
+    }
+    
+    // Procesar PDF de autorización (OBLIGATORIO)
+    $archivoPdfTraslado = null;
+    if (isset($_FILES['pdf_traslado']) && $_FILES['pdf_traslado']['error'] === UPLOAD_ERR_OK) {
+        
+        $file = $_FILES['pdf_traslado'];
+        
+        // Validar tipo
+        if (strtolower(pathinfo($file['name'], PATHINFO_EXTENSION)) !== 'pdf') {
+            $_SESSION['mensaje'] = 'El archivo debe ser PDF';
+            $_SESSION['tipo_mensaje'] = 'danger';
+            header('Location: ' . $_SERVER['PHP_SELF']);
+            exit;
+        }
+        
+        // Validar tamaño (5MB)
+        if ($file['size'] > 5 * 1024 * 1024) {
+            $_SESSION['mensaje'] = 'El archivo no puede superar 5 MB';
+            $_SESSION['tipo_mensaje'] = 'danger';
+            header('Location: ' . $_SERVER['PHP_SELF']);
+            exit;
+        }
+        
+        // Crear directorio si no existe
+        $directorioTraslados = __DIR__ . '/../../public/uploads/autorizaciones_internet';
+        if (!is_dir($directorioTraslados)) {
+            mkdir($directorioTraslados, 0755, true);
+        }
+        
+        // Generar nombre único
+        $nombreArchivo = 'traslado_' . date('Ymd_His') . '_' . uniqid() . '.pdf';
+        $rutaCompleta = $directorioTraslados . '/' . $nombreArchivo;
+        
+        // Mover archivo
+        if (move_uploaded_file($file['tmp_name'], $rutaCompleta)) {
+            $archivoPdfTraslado = 'public/uploads/autorizaciones_internet/' . $nombreArchivo;
+        } else {
+            $lastError = error_get_last();
+            $_SESSION['mensaje'] = 'Error al guardar el archivo: ' . ($lastError['message'] ?? 'desconocido');
+            $_SESSION['tipo_mensaje'] = 'danger';
+            header('Location: ' . $_SERVER['PHP_SELF']);
+            exit;
+        }
+    } else {
+        $_SESSION['mensaje'] = 'El PDF de autorización del traslado es obligatorio';
+        $_SESSION['tipo_mensaje'] = 'danger';
+        header('Location: ' . $_SERVER['PHP_SELF']);
+        exit;
+    }
+    
+    try {
+        $db->beginTransaction();
+        
+        // 1. CREAR NUEVO SERVICIO
+        $stmtNuevo = $db->prepare("
+            INSERT INTO sedes_internet (
+                id_sede,
+                proveedor,
+                tipo_conexion,
+                velocidad_mbps,
+                simetrico,
+                tiene_wifi,
+                estado_servicio,
+                fecha_instalacion,
+                observaciones,
+                id_servicio_trasladado_desde
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ");
+        
+        $nuevoEstado = $_POST['estado_nuevo'];
+        $nuevaFechaInstalacion = null;
+        
+        if ($nuevoEstado === 'Activo' && !empty($_POST['fecha_instalacion_nueva'])) {
+            $nuevaFechaInstalacion = $_POST['fecha_instalacion_nueva'];
+        }
+        
+        // Construir observaciones
+        $observacionesNuevas = trim($_POST['observaciones_nuevas'] ?? '');
+        $notaTraslado = "\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
+        $notaTraslado .= "[ORIGEN DEL SERVICIO]\n";
+        $notaTraslado .= "Traslado desde servicio #{$id_servicio_anterior}\n";
+        $notaTraslado .= "Fecha: " . date('d/m/Y', strtotime($_POST['fecha_traslado']));
+        
+        if (!empty($_POST['motivo_traslado'])) {
+            $notaTraslado .= "\nMotivo: " . $_POST['motivo_traslado'];
+        }
+        
+        $observacionesNuevas .= $notaTraslado;
+        
+        $stmtNuevo->execute([
+            $id_sede, // MISMA SEDE
+            $_POST['proveedor_nuevo'],
+            $_POST['tipo_conexion_nuevo'],
+            !empty($_POST['velocidad_nueva']) ? (int)$_POST['velocidad_nueva'] : null,
+            isset($_POST['simetrico_nuevo']) ? 1 : 0,
+            isset($_POST['wifi_nuevo']) ? 1 : 0,
+            $nuevoEstado,
+            $nuevaFechaInstalacion,
+            trim($observacionesNuevas),
+            $id_servicio_anterior // Vínculo con servicio anterior
+        ]);
+        
+        $idNuevoServicio = $db->lastInsertId();
+        
+        // 2. ACTUALIZAR SERVICIO ANTERIOR (completar la baja por traslado)
+        $stmtBaja = $db->prepare("
+            UPDATE sedes_internet SET
+                fecha_traslado = ?,
+                archivo_autorizacion_traslado = ?,
+                id_servicio_trasladado_a = ?
+            WHERE id_internet = ?
+        ");
+        
+        $stmtBaja->execute([
+            $_POST['fecha_traslado'],
+            $archivoPdfTraslado,
+            $idNuevoServicio,
+            $id_servicio_anterior
+        ]);
+        
+        $db->commit();
+        
+        $_SESSION['mensaje'] = "Traslado completado. Servicio #{$id_servicio_anterior} dado de baja. Nuevo servicio #{$idNuevoServicio} creado.";
+        $_SESSION['tipo_mensaje'] = 'success';
+        header('Location: ' . $_SERVER['PHP_SELF']);
+        exit;
+        
+    } catch (Exception $e) {
+        $db->rollBack();
+        $_SESSION['mensaje'] = 'Error al crear servicio por traslado: ' . $e->getMessage();
+        $_SESSION['tipo_mensaje'] = 'danger';
+        header('Location: ' . $_SERVER['PHP_SELF']);
+        exit;
+    }
+}
+
 // Procesar POST (agregar/editar/eliminar)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
@@ -488,6 +704,11 @@ include '../../includes/header.php';
           </div>
         </div>
         <div class="modal-footer">
+          <!-- Botón Traslado a la izquierda (solo visible en modo edición) -->
+          <button type="button" class="btn btn-warning me-auto" id="btnIniciarTraslado" style="display:none;">
+            <i class="fas fa-exchange-alt"></i> Traslado
+          </button>
+          
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
           <button type="submit" class="btn btn-primary">Guardar</button>
         </div>
@@ -501,6 +722,146 @@ include '../../includes/header.php';
   <input type="hidden" name="accion" value="eliminar">
   <input type="hidden" name="id_internet" id="del_id">
 </form>
+
+<!-- Modal Crear Servicio por Traslado -->
+<div class="modal fade" id="modalTrasladoInternet" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form id="formTrasladoInternet" method="POST" enctype="multipart/form-data">
+        <?php echo csrf_input(); ?>
+        <input type="hidden" name="crear_servicio_traslado" value="1">
+        <input type="hidden" name="id_servicio_anterior" id="traslado_id_servicio_anterior">
+        <input type="hidden" name="id_sede_traslado" id="traslado_id_sede">
+        
+        <div class="modal-header bg-warning">
+          <h5 class="modal-title">
+            <i class="fas fa-exchange-alt"></i>
+            Crear Nuevo Servicio por Traslado
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        
+        <div class="modal-body">
+          <!-- Información del servicio anterior -->
+          <div class="alert alert-info mb-4">
+            <h6 class="mb-2"><i class="fas fa-info-circle"></i> Información</h6>
+            <p class="mb-0">
+              Se dará de baja el servicio <strong id="traslado_servicio_anterior_id"></strong> y se creará uno nuevo en la misma sede con los datos actualizados.
+            </p>
+          </div>
+          
+          <!-- Sede (solo lectura) -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">Sede</label>
+            <input type="text" class="form-control bg-light" id="traslado_sede_nombre" disabled>
+            <small class="text-muted">La sede permanece igual</small>
+          </div>
+          
+          <hr>
+          
+          <!-- DATOS DEL TRASLADO -->
+          <h6 class="fw-bold mb-3 text-danger">
+            <i class="fas fa-file-pdf"></i> 
+            DATOS DEL TRASLADO (Obligatorios)
+          </h6>
+          
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Fecha del Traslado <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="fecha_traslado" id="traslado_fecha" required>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+              <label class="form-label">PDF de Autorización <span class="text-danger">*</span></label>
+              <input type="file" class="form-control" name="pdf_traslado" id="traslado_pdf" accept=".pdf" required>
+              <small class="text-muted">Máximo 5 MB</small>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Motivo del Traslado</label>
+            <textarea class="form-control" name="motivo_traslado" id="traslado_motivo" rows="2" 
+                      placeholder="Ej: Migración a fibra óptica, Cambio de proveedor, etc."></textarea>
+          </div>
+          
+          <hr>
+          
+          <!-- DATOS DEL NUEVO SERVICIO -->
+          <h6 class="fw-bold mb-3 text-success">
+            <i class="fas fa-edit"></i> 
+            DATOS DEL NUEVO SERVICIO
+            <small class="fw-normal text-muted">(modificar si es necesario)</small>
+          </h6>
+          
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Proveedor <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" name="proveedor_nuevo" id="traslado_proveedor" required>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Tipo de conexión <span class="text-danger">*</span></label>
+              <select class="form-select" name="tipo_conexion_nuevo" id="traslado_tipo_conexion" required>
+                <option value="">Seleccione</option>
+                <option>ADSL</option>
+                <option>Fibra óptica</option>
+                <option>4G</option>
+                <option>5G</option>
+                <option>Satelital</option>
+                <option>Radioenlace</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Velocidad (Mbps) <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" name="velocidad_nueva" id="traslado_velocidad" min="0" required>
+            </div>
+            
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Estado del Nuevo Servicio <span class="text-danger">*</span></label>
+              <select class="form-select" name="estado_nuevo" id="traslado_estado_nuevo" required>
+                <option value="Pendiente">Pendiente (aún no instalado)</option>
+                <option value="Activo">Activo (ya instalado)</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-check form-switch my-2">
+                <input class="form-check-input" type="checkbox" id="traslado_simetrico" name="simetrico_nuevo" value="1">
+                <label class="form-check-label" for="traslado_simetrico">Simétrico</label>
+              </div>
+              <div class="form-check form-switch my-2">
+                <input class="form-check-input" type="checkbox" id="traslado_wifi" name="wifi_nuevo" value="1">
+                <label class="form-check-label" for="traslado_wifi">¿Tiene WiFi?</label>
+              </div>
+            </div>
+            
+            <div class="col-md-6 mb-3" id="traslado_contenedor_fecha_instalacion" style="display:none;">
+              <label class="form-label">Fecha de Instalación <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="fecha_instalacion_nueva" id="traslado_fecha_instalacion">
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Observaciones</label>
+            <textarea class="form-control" name="observaciones_nuevas" id="traslado_observaciones" rows="3"></textarea>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-success">
+            <i class="fas fa-check"></i> Crear Nuevo Servicio
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
 <!-- Modal Ver Detalles -->
 <div class="modal fade" id="modalVerDetalles" tabindex="-1" aria-labelledby="modalVerDetallesLabel" aria-hidden="true">
@@ -662,6 +1023,9 @@ function editarInternet(row){
   $('#modalInternetTitle').text('Editar Servicio');
   $('#accion').val('editar');
   $('#id_internet').val(row.id_internet);
+  
+  // Mostrar botón de traslado (solo en modo edición)
+  $('#btnIniciarTraslado').show();
   if (row.id_localidad) {
     $('#id_localidad').val(row.id_localidad);
     cargarSedes(row.id_localidad, function($s){ $s.val(String(row.id_sede)); });
@@ -857,6 +1221,9 @@ $('#modalInternet').on('hidden.bs.modal', function(){
   $('#estado_servicio').val(''); // Asegurar que no haya estado preseleccionado
   $('#formInternet').removeClass('was-validated');
   
+  // Ocultar botón de traslado (solo visible en modo edición)
+  $('#btnIniciarTraslado').hide();
+  
   // Ocultar todos los campos condicionales
   $('#campos_activo').hide();
   $('#campos_pendiente').hide();
@@ -919,6 +1286,117 @@ $(function(){
   });
   
   // sin select2 en este modal para igualar estilo
+  
+  // ========================================
+  // FLUJO DE TRASLADO
+  // ========================================
+  
+  // Al hacer clic en botón "Traslado" del modal de edición
+  $('#btnIniciarTraslado').on('click', function() {
+    // Obtener datos del servicio actual desde el formulario de edición
+    const idServicio = $('#id_internet').val();
+    const idSede = $('#id_sede').val();
+    const sedeTexto = $('#id_sede option:selected').text();
+    const proveedor = $('#proveedor').val();
+    const tipoConexion = $('#tipo_conexion').val();
+    const velocidad = $('#velocidad_mbps').val();
+    const simetrico = $('#simetrico').is(':checked');
+    const wifi = $('#tiene_wifi').is(':checked');
+    const observaciones = $('#observaciones').val();
+    
+    // Validar que haya un servicio seleccionado
+    if (!idServicio) {
+      alert('Error: No se pudo identificar el servicio');
+      return;
+    }
+    
+    // Confirmar acción
+    if (!confirm('¿Está seguro de realizar un traslado/migración de este servicio?\n\n' +
+                 'Se dará de baja el servicio actual y se abrirá un formulario para crear el nuevo servicio.')) {
+      return;
+    }
+    
+    // Enviar solicitud para marcar como "Baja por Traslado"
+    const formData = new FormData();
+    formData.append('_csrf', $('input[name="_csrf"]').first().val());
+    formData.append('marcar_baja_traslado', '1');
+    formData.append('id_servicio', idServicio);
+    
+    fetch(window.location.href, {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Cerrar modal de edición
+        bootstrap.Modal.getInstance(document.getElementById('modalInternet')).hide();
+        
+        // Pre-cargar datos en el modal de traslado
+        $('#traslado_id_servicio_anterior').val(idServicio);
+        $('#traslado_id_sede').val(idSede);
+        $('#traslado_servicio_anterior_id').text('#' + idServicio);
+        $('#traslado_sede_nombre').val(sedeTexto);
+        $('#traslado_proveedor').val(proveedor);
+        $('#traslado_tipo_conexion').val(tipoConexion);
+        $('#traslado_velocidad').val(velocidad);
+        $('#traslado_simetrico').prop('checked', simetrico);
+        $('#traslado_wifi').prop('checked', wifi);
+        $('#traslado_observaciones').val(observaciones);
+        
+        // Abrir modal de traslado
+        new bootstrap.Modal(document.getElementById('modalTrasladoInternet')).show();
+      } else {
+        alert('Error: ' + (data.message || 'No se pudo marcar el servicio como baja por traslado'));
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Error al procesar la solicitud');
+    });
+  });
+  
+  // Mostrar campo fecha instalación si estado es Activo
+  $('#traslado_estado_nuevo').on('change', function() {
+    const contenedor = $('#traslado_contenedor_fecha_instalacion');
+    const input = $('#traslado_fecha_instalacion');
+    
+    if (this.value === 'Activo') {
+      contenedor.show();
+      input.prop('required', true);
+    } else {
+      contenedor.hide();
+      input.prop('required', false);
+      input.val('');
+    }
+  });
+  
+  // Validación de archivo PDF
+  $('#traslado_pdf').on('change', function() {
+    const file = this.files[0];
+    
+    if (file) {
+      // Validar tipo
+      if (file.type !== 'application/pdf') {
+        alert('El archivo debe ser un PDF');
+        this.value = '';
+        return;
+      }
+      
+      // Validar tamaño (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('El archivo no puede superar 5 MB');
+        this.value = '';
+        return;
+      }
+    }
+  });
+  
+  // Limpiar modal al cerrarlo
+  $('#modalTrasladoInternet').on('hidden.bs.modal', function() {
+    $('#formTrasladoInternet')[0].reset();
+    $('#traslado_contenedor_fecha_instalacion').hide();
+  });
 });
 </script>
 
