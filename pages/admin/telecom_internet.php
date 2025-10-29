@@ -477,11 +477,11 @@ include '../../includes/header.php';
 <div class="modal fade" id="modalVerDetalles" tabindex="-1" aria-labelledby="modalVerDetallesLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <div class="modal-header bg-success text-white">
+      <div class="modal-header">
         <h5 class="modal-title" id="modalVerDetallesLabel">
           <i class="fas fa-info-circle me-2"></i>Detalles del Servicio de Internet
         </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body">
         <div class="row">
