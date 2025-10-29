@@ -33,12 +33,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $fecha_instalacion = !empty($_POST['fecha_instalacion']) ? $_POST['fecha_instalacion'] : null;
                 
             } elseif ($estado_servicio === 'Pendiente') {
-                // Estado Pendiente: instancia obligatoria + fecha de solicitud obligatoria
+                // Estado Pendiente: solo instancia obligatoria
                 $instancia_pendiente = trim($_POST['instancia_pendiente']);
-                $fecha_solicitud = !empty($_POST['fecha_solicitud_autorizacion']) ? $_POST['fecha_solicitud_autorizacion'] : null;
                 
-                // Si la instancia es "Autorización superior", procesar archivo PDF
+                // Si la instancia es "Autorización superior", procesar fecha de solicitud y archivo PDF
                 if ($instancia_pendiente === 'Autorización superior') {
+                    $fecha_solicitud = !empty($_POST['fecha_solicitud_autorizacion']) ? $_POST['fecha_solicitud_autorizacion'] : null;
                     
                     // Procesar archivo PDF si se sube
                     if (isset($_FILES['archivo_autorizacion']) && $_FILES['archivo_autorizacion']['error'] === UPLOAD_ERR_OK) {
@@ -381,7 +381,7 @@ include '../../includes/header.php';
           <!-- Campos condicionales para estado PENDIENTE -->
           <div id="campos_pendiente" style="display:none;">
             <div class="alert alert-warning mb-3">
-              <i class="fas fa-clock me-2"></i>El servicio está en estado <strong>Pendiente</strong>. Complete la información requerida:
+              <i class="fas fa-clock me-2"></i>El servicio está en estado <strong>Pendiente</strong>. Seleccione la instancia del proceso:
             </div>
 
             <div class="mb-3">
@@ -398,19 +398,19 @@ include '../../includes/header.php';
               <div class="invalid-feedback">Seleccione una instancia</div>
             </div>
 
-            <div class="mb-3">
-              <label class="form-label">Fecha de Solicitud *</label>
-              <input type="date" class="form-control" name="fecha_solicitud_autorizacion" id="fecha_solicitud_pendiente" max="<?php echo date('Y-m-d'); ?>">
-              <small class="form-text text-muted">
-                <i class="fas fa-calendar me-1"></i>Fecha en que se solicitó el servicio o presupuesto
-              </small>
-              <div class="invalid-feedback">Ingrese la fecha de solicitud</div>
-            </div>
-
             <!-- Campos específicos para Autorización superior -->
             <div id="campos_autorizacion_superior" style="display:none;">
               <div class="alert alert-info mb-3">
-                <i class="fas fa-exclamation-triangle me-2"></i>La instancia <strong>Autorización Superior</strong> requiere adjuntar el documento:
+                <i class="fas fa-exclamation-triangle me-2"></i>La instancia <strong>Autorización Superior</strong> requiere información adicional:
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Fecha de Solicitud de Autorización *</label>
+                <input type="date" class="form-control" name="fecha_solicitud_autorizacion" id="fecha_solicitud_pendiente" max="<?php echo date('Y-m-d'); ?>">
+                <small class="form-text text-muted">
+                  <i class="fas fa-calendar me-1"></i>Fecha en que se solicitó la autorización
+                </small>
+                <div class="invalid-feedback">Ingrese la fecha de solicitud</div>
               </div>
 
               <div class="mb-3">
@@ -561,6 +561,7 @@ function toggleCamposPorEstado() {
   $('#fecha_instalacion_activo').prop('required', false);
   $('#instancia_pendiente').prop('required', false);
   $('#fecha_solicitud_pendiente').prop('required', false);
+  $('#archivo_autorizacion').prop('required', false);
   $('#fecha_baja_input').prop('required', false);
   
   // Mostrar campos según el estado seleccionado
@@ -571,7 +572,6 @@ function toggleCamposPorEstado() {
   } else if (estado === 'Pendiente') {
     $('#campos_pendiente').slideDown(200);
     $('#instancia_pendiente').prop('required', true);
-    $('#fecha_solicitud_pendiente').prop('required', true);
     // Verificar si necesita mostrar campos de autorización
     toggleCamposAutorizacion();
     
@@ -584,16 +584,19 @@ function toggleCamposPorEstado() {
 function toggleCamposAutorizacion() {
   const instancia = $('#instancia_pendiente').val();
   const $camposAutorizacion = $('#campos_autorizacion_superior');
+  const $fechaSolicitud = $('#fecha_solicitud_pendiente');
   const $archivoAutorizacion = $('#archivo_autorizacion');
   
   if (instancia === 'Autorización superior') {
     $camposAutorizacion.slideDown(200);
+    $fechaSolicitud.prop('required', true);
     // Archivo requerido solo si no hay archivo actual
     if (!$('#archivo_autorizacion_actual').val()) {
       $archivoAutorizacion.prop('required', true);
     }
   } else {
     $camposAutorizacion.slideUp(200);
+    $fechaSolicitud.prop('required', false).val('');
     $archivoAutorizacion.prop('required', false).val('');
     $('#archivo_autorizacion_actual').val('');
     $('#archivo_actual_info').hide();
