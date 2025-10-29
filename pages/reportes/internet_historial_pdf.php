@@ -179,13 +179,6 @@ if ($servicio['estado_servicio'] === 'Pendiente') {
         $pdf->Cell($contentWidth - 10, 6, $enc('• Fecha de Solicitud: ' . $formatFecha($servicio['fecha_solicitud_autorizacion'])), 0, 1, 'L');
         $y += 6;
     }
-    
-    if ($servicio['archivo_autorizacion']) {
-        $nombreArchivo = basename($servicio['archivo_autorizacion']);
-        $pdf->SetXY($leftMargin + 10, $y);
-        $pdf->Cell($contentWidth - 10, 6, $enc('• Archivo de Autorización: ' . $nombreArchivo), 0, 1, 'L');
-        $y += 6;
-    }
 }
 
 if ($servicio['estado_servicio'] === 'De Baja' && $servicio['fecha_baja']) {
@@ -229,9 +222,20 @@ if (!empty($servicio['archivo_autorizacion'])) {
                 $tplIdx = $pdf->importPage($pageNo);
                 $size = $pdf->getTemplateSize($tplIdx);
                 
-                // Agregar nueva página con el tamaño del documento original
-                $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
-                $pdf->useTemplate($tplIdx);
+                // Forzar orientación vertical (Portrait) y tamaño A4 para impresión estándar
+                $pdf->AddPage('P', 'A4');
+                
+                // Calcular escalado para ajustar al A4 vertical
+                $a4Width = 210; // mm
+                $a4Height = 297; // mm
+                $scale = min($a4Width / $size['width'], $a4Height / $size['height']);
+                
+                // Centrar en la página
+                $x = ($a4Width - ($size['width'] * $scale)) / 2;
+                $y_page = ($a4Height - ($size['height'] * $scale)) / 2;
+                
+                // Usar el template escalado y centrado
+                $pdf->useTemplate($tplIdx, $x, $y_page, $size['width'] * $scale, $size['height'] * $scale);
             }
         } catch (Throwable $e) {
             error_log('[internet_historial_pdf] Error al incluir archivo de autorización: ' . $e->getMessage());
