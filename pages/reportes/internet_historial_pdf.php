@@ -167,13 +167,6 @@ $pdf->Cell($contentWidth, 6, $enc('HISTORIAL Y TRAZABILIDAD'), 0, 1, 'L');
 $pdf->Line($leftMargin, $y + 6, $leftMargin + $contentWidth, $y + 6);
 $y += 10;
 
-$pdf->SetFont('Arial', 'I', 10);
-$pdf->SetTextColor(80, 80, 80);
-$pdf->SetXY($leftMargin, $y);
-$pdf->Cell($contentWidth, 5, $enc('Registro cronológico de eventos del servicio:'), 0, 1, 'L');
-$pdf->SetTextColor(0, 0, 0);
-$y += 8;
-
 // Construir timeline de eventos
 $eventos = [];
 
@@ -222,59 +215,18 @@ if (empty($eventos)) {
     $y += 8;
 } else {
     foreach ($eventos as $idx => $evento) {
-        // Icono y fecha
-        $pdf->SetFont('Arial', 'B', 11);
-        $pdf->SetXY($leftMargin + 5, $y);
+        // Viñeta simple y fecha
+        $pdf->SetFont('Arial', '', 11);
+        $pdf->SetXY($leftMargin, $y);
+        $pdf->Cell(10, 6, $enc('•'), 0, 0, 'C');
         
-        // Icono según tipo de evento
-        $icono = '•';
-        if ($evento['tipo'] === 'Solicitud') $icono = '→';
-        elseif ($evento['tipo'] === 'Instalación') $icono = '✓';
-        elseif ($evento['tipo'] === 'Baja') $icono = '✗';
-        
-        $pdf->Cell(15, 6, $enc($icono), 0, 0, 'C');
         $pdf->SetFont('Arial', 'B', 11);
         $pdf->Cell(30, 6, $enc($formatFecha($evento['fecha'])), 0, 0, 'L');
         
         $pdf->SetFont('Arial', '', 11);
-        $pdf->Cell($contentWidth - 45, 6, $enc($evento['descripcion']), 0, 1, 'L');
+        $pdf->Cell($contentWidth - 40, 6, $enc($evento['descripcion']), 0, 1, 'L');
         $y += 6;
-        
-        // Instancia (si existe)
-        if ($evento['instancia']) {
-            $pdf->SetFont('Arial', 'I', 10);
-            $pdf->SetTextColor(100, 100, 100);
-            $pdf->SetXY($leftMargin + 20, $y);
-            $pdf->Cell($contentWidth - 20, 5, $enc('Instancia: ' . $evento['instancia']), 0, 1, 'L');
-            $pdf->SetTextColor(0, 0, 0);
-            $y += 5;
-        }
-        
-        // Línea punteada entre eventos (excepto el último)
-        if ($idx < count($eventos) - 1) {
-            $pdf->SetLineWidth(0.2);
-            $pdf->SetDrawColor(200, 200, 200);
-            for ($i = 0; $i < ($contentWidth - 20); $i += 2) {
-                $pdf->Line($leftMargin + 15 + $i, $y + 1, $leftMargin + 15 + $i + 1, $y + 1);
-            }
-            $pdf->SetDrawColor(0, 0, 0);
-            $pdf->SetLineWidth(0.5);
-            $y += 4;
-        }
     }
-    $y += 6;
-}
-
-// Si hay archivo de autorización, mencionarlo en el historial
-if ($servicio['archivo_autorizacion']) {
-    $pdf->SetFont('Arial', 'B', 11);
-    $pdf->SetXY($leftMargin, $y);
-    $pdf->Cell($contentWidth, 6, $enc('Documentación Adjunta:'), 0, 1, 'L');
-    $y += 6;
-    
-    $pdf->SetFont('Arial', '', 11);
-    $pdf->SetXY($leftMargin + 10, $y);
-    $pdf->Cell($contentWidth - 10, 6, $enc('• Archivo de Autorización Superior (ver página siguiente)'), 0, 1, 'L');
     $y += 6;
 }
 
