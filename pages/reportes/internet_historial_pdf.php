@@ -143,11 +143,11 @@ foreach ($datos as $row) {
 $y += 4;
 
 // ============================================
-// SECCIÓN: ESTADO Y FECHAS
+// SECCIÓN: ESTADO ACTUAL
 // ============================================
 $pdf->SetFont('Arial', 'B', 12);
 $pdf->SetXY($leftMargin, $y);
-$pdf->Cell($contentWidth, 6, $enc('ESTADO Y FECHAS'), 0, 1, 'L');
+$pdf->Cell($contentWidth, 6, $enc('ESTADO ACTUAL'), 0, 1, 'L');
 $pdf->Line($leftMargin, $y + 6, $leftMargin + $contentWidth, $y + 6);
 $y += 10;
 
@@ -156,35 +156,125 @@ $pdf->SetXY($leftMargin, $y);
 $pdf->Cell(30, 6, $enc('Estado:'), 0, 0, 'L');
 $pdf->SetFont('Arial', '', 11);
 $pdf->Cell($contentWidth - 30, 6, $enc($servicio['estado_servicio']), 0, 1, 'L');
+$y += 10;
+
+// ============================================
+// SECCIÓN: HISTORIAL DEL SERVICIO
+// ============================================
+$pdf->SetFont('Arial', 'B', 12);
+$pdf->SetXY($leftMargin, $y);
+$pdf->Cell($contentWidth, 6, $enc('HISTORIAL Y TRAZABILIDAD'), 0, 1, 'L');
+$pdf->Line($leftMargin, $y + 6, $leftMargin + $contentWidth, $y + 6);
+$y += 10;
+
+$pdf->SetFont('Arial', 'I', 10);
+$pdf->SetTextColor(80, 80, 80);
+$pdf->SetXY($leftMargin, $y);
+$pdf->Cell($contentWidth, 5, $enc('Registro cronológico de eventos del servicio:'), 0, 1, 'L');
+$pdf->SetTextColor(0, 0, 0);
 $y += 8;
 
-// Mostrar datos según el estado
-if ($servicio['estado_servicio'] === 'Activo' && $servicio['fecha_instalacion']) {
-    $pdf->SetFont('Arial', '', 11);
+// Construir timeline de eventos
+$eventos = [];
+
+// Evento: Solicitud (si existe fecha de solicitud)
+if ($servicio['fecha_solicitud_autorizacion']) {
+    $eventos[] = [
+        'fecha' => $servicio['fecha_solicitud_autorizacion'],
+        'tipo' => 'Solicitud',
+        'descripcion' => 'Solicitud del servicio',
+        'instancia' => $servicio['instancia_pendiente'] ?: null
+    ];
+}
+
+// Evento: Instalación (si existe fecha de instalación)
+if ($servicio['fecha_instalacion']) {
+    $eventos[] = [
+        'fecha' => $servicio['fecha_instalacion'],
+        'tipo' => 'Instalación',
+        'descripcion' => 'Instalación del servicio completada',
+        'instancia' => null
+    ];
+}
+
+// Evento: Baja (si existe fecha de baja)
+if ($servicio['fecha_baja']) {
+    $eventos[] = [
+        'fecha' => $servicio['fecha_baja'],
+        'tipo' => 'Baja',
+        'descripcion' => 'Servicio dado de baja',
+        'instancia' => null
+    ];
+}
+
+// Ordenar eventos por fecha
+usort($eventos, function($a, $b) {
+    return strtotime($a['fecha']) - strtotime($b['fecha']);
+});
+
+// Mostrar timeline de eventos
+if (empty($eventos)) {
+    $pdf->SetFont('Arial', 'I', 10);
+    $pdf->SetTextColor(150, 150, 150);
     $pdf->SetXY($leftMargin + 10, $y);
-    $pdf->Cell($contentWidth - 10, 6, $enc('• Fecha de Instalación: ' . $formatFecha($servicio['fecha_instalacion'])), 0, 1, 'L');
+    $pdf->Cell($contentWidth - 10, 6, $enc('No hay eventos registrados en el historial'), 0, 1, 'L');
+    $pdf->SetTextColor(0, 0, 0);
+    $y += 8;
+} else {
+    foreach ($eventos as $idx => $evento) {
+        // Icono y fecha
+        $pdf->SetFont('Arial', 'B', 11);
+        $pdf->SetXY($leftMargin + 5, $y);
+        
+        // Icono según tipo de evento
+        $icono = '•';
+        if ($evento['tipo'] === 'Solicitud') $icono = '→';
+        elseif ($evento['tipo'] === 'Instalación') $icono = '✓';
+        elseif ($evento['tipo'] === 'Baja') $icono = '✗';
+        
+        $pdf->Cell(15, 6, $enc($icono), 0, 0, 'C');
+        $pdf->SetFont('Arial', 'B', 11);
+        $pdf->Cell(30, 6, $enc($formatFecha($evento['fecha'])), 0, 0, 'L');
+        
+        $pdf->SetFont('Arial', '', 11);
+        $pdf->Cell($contentWidth - 45, 6, $enc($evento['descripcion']), 0, 1, 'L');
+        $y += 6;
+        
+        // Instancia (si existe)
+        if ($evento['instancia']) {
+            $pdf->SetFont('Arial', 'I', 10);
+            $pdf->SetTextColor(100, 100, 100);
+            $pdf->SetXY($leftMargin + 20, $y);
+            $pdf->Cell($contentWidth - 20, 5, $enc('Instancia: ' . $evento['instancia']), 0, 1, 'L');
+            $pdf->SetTextColor(0, 0, 0);
+            $y += 5;
+        }
+        
+        // Línea punteada entre eventos (excepto el último)
+        if ($idx < count($eventos) - 1) {
+            $pdf->SetLineWidth(0.2);
+            $pdf->SetDrawColor(200, 200, 200);
+            for ($i = 0; $i < ($contentWidth - 20); $i += 2) {
+                $pdf->Line($leftMargin + 15 + $i, $y + 1, $leftMargin + 15 + $i + 1, $y + 1);
+            }
+            $pdf->SetDrawColor(0, 0, 0);
+            $pdf->SetLineWidth(0.5);
+            $y += 4;
+        }
+    }
     $y += 6;
 }
 
-if ($servicio['estado_servicio'] === 'Pendiente') {
-    if ($servicio['instancia_pendiente']) {
-        $pdf->SetFont('Arial', '', 11);
-        $pdf->SetXY($leftMargin + 10, $y);
-        $pdf->Cell($contentWidth - 10, 6, $enc('• Instancia: ' . $servicio['instancia_pendiente']), 0, 1, 'L');
-        $y += 6;
-    }
+// Si hay archivo de autorización, mencionarlo en el historial
+if ($servicio['archivo_autorizacion']) {
+    $pdf->SetFont('Arial', 'B', 11);
+    $pdf->SetXY($leftMargin, $y);
+    $pdf->Cell($contentWidth, 6, $enc('Documentación Adjunta:'), 0, 1, 'L');
+    $y += 6;
     
-    if ($servicio['fecha_solicitud_autorizacion']) {
-        $pdf->SetXY($leftMargin + 10, $y);
-        $pdf->Cell($contentWidth - 10, 6, $enc('• Fecha de Solicitud: ' . $formatFecha($servicio['fecha_solicitud_autorizacion'])), 0, 1, 'L');
-        $y += 6;
-    }
-}
-
-if ($servicio['estado_servicio'] === 'De Baja' && $servicio['fecha_baja']) {
     $pdf->SetFont('Arial', '', 11);
     $pdf->SetXY($leftMargin + 10, $y);
-    $pdf->Cell($contentWidth - 10, 6, $enc('• Fecha de Baja: ' . $formatFecha($servicio['fecha_baja'])), 0, 1, 'L');
+    $pdf->Cell($contentWidth - 10, 6, $enc('• Archivo de Autorización Superior (ver página siguiente)'), 0, 1, 'L');
     $y += 6;
 }
 
