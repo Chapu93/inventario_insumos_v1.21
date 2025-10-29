@@ -21,10 +21,38 @@ ADD COLUMN `archivo_autorizacion` VARCHAR(255) NULL DEFAULT NULL
 COMMENT 'Ruta del archivo PDF de autorización superior' 
 AFTER `fecha_solicitud_autorizacion`;
 
--- 4. Crear índice para mejorar búsquedas por instancia
-ALTER TABLE `sedes_internet` 
-ADD INDEX `idx_instancia_pendiente` (`instancia_pendiente`);
+-- 4. Crear índice para mejorar búsquedas por instancia (solo si no existe)
+SET @exist_idx_instancia := (
+    SELECT COUNT(*) 
+    FROM INFORMATION_SCHEMA.STATISTICS 
+    WHERE table_schema = DATABASE() 
+    AND table_name = 'sedes_internet' 
+    AND index_name = 'idx_instancia_pendiente'
+);
 
--- 5. Crear índice para mejorar búsquedas por estado
-ALTER TABLE `sedes_internet` 
-ADD INDEX `idx_estado_servicio` (`estado_servicio`);
+SET @sql_idx_instancia := IF(@exist_idx_instancia = 0, 
+    'ALTER TABLE `sedes_internet` ADD INDEX `idx_instancia_pendiente` (`instancia_pendiente`)', 
+    'SELECT "El índice idx_instancia_pendiente ya existe" AS mensaje'
+);
+
+PREPARE stmt_idx_instancia FROM @sql_idx_instancia;
+EXECUTE stmt_idx_instancia;
+DEALLOCATE PREPARE stmt_idx_instancia;
+
+-- 5. Crear índice para mejorar búsquedas por estado (solo si no existe)
+SET @exist_idx_estado := (
+    SELECT COUNT(*) 
+    FROM INFORMATION_SCHEMA.STATISTICS 
+    WHERE table_schema = DATABASE() 
+    AND table_name = 'sedes_internet' 
+    AND index_name = 'idx_estado_servicio'
+);
+
+SET @sql_idx_estado := IF(@exist_idx_estado = 0, 
+    'ALTER TABLE `sedes_internet` ADD INDEX `idx_estado_servicio` (`estado_servicio`)', 
+    'SELECT "El índice idx_estado_servicio ya existe" AS mensaje'
+);
+
+PREPARE stmt_idx_estado FROM @sql_idx_estado;
+EXECUTE stmt_idx_estado;
+DEALLOCATE PREPARE stmt_idx_estado;
