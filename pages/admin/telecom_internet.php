@@ -196,12 +196,7 @@ include '../../includes/header.php';
                         <?php foreach ($internet as $row): ?>
                             <tr>
                                 <td><strong><?php echo htmlspecialchars($row['nombre_localidad']); ?></strong></td>
-                                <td>
-                                    <?php echo htmlspecialchars($row['nombre_sede']); ?>
-                                    <?php if (!empty($row['observaciones'])): ?>
-                                        <br><small class="text-muted"><i class="fas fa-comment-dots me-1"></i><?php echo htmlspecialchars($row['observaciones']); ?></small>
-                                    <?php endif; ?>
-                                </td>
+                                <td><?php echo htmlspecialchars($row['nombre_sede']); ?></td>
                                 <td><?php echo htmlspecialchars($row['proveedor']); ?></td>
                                 <td><span class="badge bg-info"><?php echo htmlspecialchars($row['tipo_conexion']); ?></span></td>
                                 <td><span class="badge bg-primary"><?php echo (int)($row['velocidad_mbps'] ?? 0); ?></span></td>
