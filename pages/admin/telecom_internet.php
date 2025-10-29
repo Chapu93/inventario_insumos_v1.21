@@ -745,7 +745,8 @@ function verDetallesInternet(row) {
     $('#detalle_fecha_instalacion_container').show();
   }
   
-  if (row.instancia_pendiente) {
+  // La instancia solo se muestra si el estado actual es Pendiente
+  if (estado === 'Pendiente' && row.instancia_pendiente) {
     $('#detalle_instancia').html('<i class="fas fa-clock text-warning me-2"></i>' + row.instancia_pendiente);
     $('#detalle_instancia_container').show();
   }
