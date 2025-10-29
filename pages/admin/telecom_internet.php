@@ -243,19 +243,20 @@ include '../../includes/header.php';
                                                 <i class="fas fa-calendar me-1"></i>Solicitud: <?php echo date('d/m/Y', strtotime($row['fecha_solicitud_autorizacion'])); ?>
                                             </small>
                                         <?php endif; ?>
-                                        
-                                        <?php if ($row['instancia_pendiente'] === 'Autorización superior' && !empty($row['archivo_autorizacion'])): ?>
-                                            <small class="d-block mt-1">
-                                                <a href="<?php echo app_base_url() . '/' . htmlspecialchars($row['archivo_autorizacion']); ?>" 
-                                                   target="_blank" 
-                                                   class="btn btn-sm btn-outline-danger"
-                                                   data-bs-toggle="tooltip" 
-                                                   title="Ver archivo de autorización"
-                                                   aria-label="Ver PDF">
-                                                    <i class="fas fa-file-pdf me-1"></i>PDF
-                                                </a>
-                                            </small>
-                                        <?php endif; ?>
+                                    <?php endif; ?>
+                                    
+                                    <?php // Mostrar archivo de autorización siempre que exista, independiente del estado ?>
+                                    <?php if (!empty($row['archivo_autorizacion'])): ?>
+                                        <small class="d-block mt-1">
+                                            <a href="<?php echo app_base_url() . '/' . htmlspecialchars($row['archivo_autorizacion']); ?>" 
+                                               target="_blank" 
+                                               class="btn btn-sm btn-outline-danger"
+                                               data-bs-toggle="tooltip" 
+                                               title="Ver archivo de autorización"
+                                               aria-label="Ver PDF">
+                                                <i class="fas fa-file-pdf me-1"></i>PDF
+                                            </a>
+                                        </small>
                                     <?php endif; ?>
                                     
                                     <?php if ($est === 'De Baja' && !empty($row['fecha_baja'])): ?>
@@ -585,6 +586,19 @@ include '../../includes/header.php';
               <p class="mb-1" id="detalle_fecha_baja"></p>
             </div>
             
+            <!-- Archivo de autorización (si existe, siempre visible) -->
+            <div class="mb-3" id="detalle_archivo_global_container" style="display:none;">
+              <h6 class="text-primary border-bottom pb-2 mb-3 mt-4">
+                <i class="fas fa-file-pdf me-2"></i>Documentación
+              </h6>
+              <label class="text-muted small">Archivo de Autorización:</label>
+              <p class="mb-1">
+                <a href="#" id="detalle_archivo_global_link" target="_blank" class="btn btn-sm btn-outline-danger">
+                  <i class="fas fa-file-pdf me-1"></i>Descargar PDF
+                </a>
+              </p>
+            </div>
+            
             <!-- Observaciones -->
             <div class="mb-3" id="detalle_observaciones_container" style="display:none;">
               <h6 class="text-primary border-bottom pb-2 mb-3 mt-4">
@@ -702,8 +716,8 @@ function verDetallesInternet(row) {
   $('#detalle_fecha_instalacion_container').hide();
   $('#detalle_instancia_container').hide();
   $('#detalle_fecha_solicitud_container').hide();
-  $('#detalle_archivo_container').hide();
   $('#detalle_fecha_baja_container').hide();
+  $('#detalle_archivo_global_container').hide();
   $('#detalle_observaciones_container').hide();
   
   // Mostrar campos según el estado
@@ -722,16 +736,17 @@ function verDetallesInternet(row) {
       $('#detalle_fecha_solicitud').html('<i class="fas fa-calendar text-primary me-2"></i>' + formatearFecha(row.fecha_solicitud_autorizacion));
       $('#detalle_fecha_solicitud_container').show();
     }
-    
-    if (row.archivo_autorizacion) {
-      $('#detalle_archivo_link').attr('href', BASE + '/' + row.archivo_autorizacion);
-      $('#detalle_archivo_container').show();
-    }
   }
   
   if (estado === 'De Baja' && row.fecha_baja) {
     $('#detalle_fecha_baja').html('<i class="fas fa-calendar-times text-danger me-2"></i>' + formatearFecha(row.fecha_baja));
     $('#detalle_fecha_baja_container').show();
+  }
+  
+  // Mostrar archivo de autorización SIEMPRE que exista (independiente del estado)
+  if (row.archivo_autorizacion) {
+    $('#detalle_archivo_global_link').attr('href', BASE + '/' + row.archivo_autorizacion);
+    $('#detalle_archivo_global_container').show();
   }
   
   // Observaciones
