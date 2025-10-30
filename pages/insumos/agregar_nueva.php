@@ -342,33 +342,60 @@ include '../../includes/header.php';
                                     </div>
                                     <div class="card-body p-3">
                                         <div class="mb-2">
-                                            <label class="form-label">Nombre del Insumo *</label>
-                                            <input type="text" class="form-control form-control-sm w-100" name="nombre_insumo" required>
+                                            <label id="label-nombre-insumo" class="form-label">Nombre del Insumo *</label>
+                                            <input type="text" class="form-control form-control-sm w-100" id="nombre_insumo" name="nombre_insumo" required>
+                                            <div id="invalid-nombre-insumo" class="invalid-feedback">El nombre del insumo es obligatorio</div>
                                         </div>
+                                        
+                                        <!-- Campos específicos para tipo "Varios" -->
                                         <div id="campos-varios" style="display: none;">
                                             <div class="mb-2">
-                                                <label class="form-label">Subcategoría</label>
-                                                <select class="form-select form-select-sm w-100" name="subcategoria_varios">
+                                                <label for="subcategoria_varios" class="form-label">Subcategoría</label>
+                                                <select class="form-select form-select-sm w-100" id="subcategoria_varios" name="subcategoria_varios">
                                                     <option value="">Seleccione subcategoría</option>
                                                     <option value="Hardware">Hardware</option>
                                                     <option value="Periféricos">Periféricos</option>
                                                     <option value="Red">Red</option>
                                                 </select>
                                             </div>
+                                            
                                             <div class="mb-2">
-                                                <label class="form-label">Cantidad *</label>
-                                                <input type="number" class="form-control form-control-sm w-100" name="cantidad" value="1" min="1" required>
+                                                <label for="cantidad" class="form-label">Cantidad *</label>
+                                                <input type="number" class="form-control form-control-sm w-100" id="cantidad" name="cantidad" value="1" min="1" required>
+                                                <div class="invalid-feedback">La cantidad es obligatoria</div>
                                             </div>
+                                            
                                             <div class="mb-2">
-                                                <label class="form-label">Descripción General</label>
-                                                <textarea class="form-control form-control-sm w-100" name="descripcion_general" rows="2"></textarea>
+                                                <label for="descripcion_general" class="form-label">Descripción General</label>
+                                                <textarea class="form-control form-control-sm w-100" id="descripcion_general" name="descripcion_general" rows="2"></textarea>
                                             </div>
                                         </div>
+                                        
+                                        <!-- Campos específicos para otros tipos -->
                                         <div id="campos-especificos" style="display: none;">
-                                            <div class="mb-2"><label class="form-label">Número de Serie *</label><input type="text" class="form-control form-control-sm w-100" name="numero_serie" id="numero_serie"></div>
-                                            <div class="mb-2"><label class="form-label">ID Físico *</label><input type="text" class="form-control form-control-sm w-100" name="id_fisico" id="id_fisico"></div>
-                                            <div class="mb-2"><label class="form-label">ID Patrimonio *</label><input type="text" class="form-control form-control-sm w-100" name="id_patrimonio" id="id_patrimonio"></div>
-                                            <div class="mb-2"><label class="form-label">Cantidad</label><input type="number" class="form-control form-control-sm w-100" name="cantidad_especifica" value="1" min="1" readonly><small class="form-text text-muted">Para este tipo de insumo, la cantidad siempre es 1 (carga unitaria)</small></div>
+                                            <div class="mb-2">
+                                                <label for="numero_serie" class="form-label">Número de Serie *</label>
+                                                <input type="text" class="form-control form-control-sm w-100" id="numero_serie" name="numero_serie" required>
+                                                <div class="invalid-feedback">El número de serie es obligatorio</div>
+                                            </div>
+                                            
+                                            <div class="mb-2">
+                                                <label for="id_fisico" class="form-label">ID Físico *</label>
+                                                <input type="text" class="form-control form-control-sm w-100" id="id_fisico" name="id_fisico" required>
+                                                <div class="invalid-feedback">El ID físico es obligatorio</div>
+                                            </div>
+                                            
+                                            <div class="mb-2">
+                                                <label for="id_patrimonio" class="form-label">ID Patrimonio *</label>
+                                                <input type="text" class="form-control form-control-sm w-100" id="id_patrimonio" name="id_patrimonio" required>
+                                                <div class="invalid-feedback">El ID patrimonio es obligatorio</div>
+                                            </div>
+                                            
+                                            <div class="mb-2">
+                                                <label for="cantidad_especifica" class="form-label">Cantidad</label>
+                                                <input type="number" class="form-control form-control-sm w-100" id="cantidad_especifica" name="cantidad_especifica" value="1" min="1" readonly>
+                                                <small class="form-text text-muted">Para este tipo de insumo, la cantidad siempre es 1 (carga unitaria)</small>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -547,6 +574,17 @@ function toggleCampos() {
   
   // IMPORTANTE: descripcion_general siempre opcional
   $('textarea[name="descripcion_general"]').prop('required', false);
+  
+  // Ajustar label y validación para nombre_insumo según tipo
+  if (t === 'Varios') {
+    $('#label-nombre-insumo').text('Nombre del Insumo *');
+    $('#invalid-nombre-insumo').text('El nombre del insumo es obligatorio');
+    $('#nombre_insumo').prop('required', true);
+  } else if (t !== '') {
+    $('#label-nombre-insumo').text('Descripción');
+    $('#invalid-nombre-insumo').text('La descripción es opcional');
+    $('#nombre_insumo').prop('required', false);
+  }
   
   if (t === 'Varios') {
     $('#campos-varios').show();
