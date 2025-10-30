@@ -633,6 +633,7 @@ $('#id_sede').on('change', function(){
 // Dinámica del tipo de insumo
 function toggleCampos() {
   const t = $('#tipo_insumo').val();
+  console.log('toggleCampos llamado, tipo:', t);
   if (!t) {
     // Ocultar todo cuando no hay selección
     $('#formulario-campos').hide();
@@ -670,10 +671,12 @@ function toggleCampos() {
     // Deshabilitar todos los campos required de especificaciones
     $('#campos-pc, #campos-notebook, #campos-impresora, #campos-monitor, #campos-escaner').find('input, select').prop('required', false);
   } else {
+    console.log('Tipo NO varios, mostrando campos específicos');
     $('#campos-varios').hide();
     $('#campos-especificos').show();
     // Mostrar columna de especificaciones para tipos unitarios
     $('#columna-especificaciones').show();
+    console.log('Columna especificaciones mostrada');
     // Habilitar required en campos visibles
     $('#numero_serie, #id_fisico, #id_patrimonio').prop('required', true);
     
@@ -682,11 +685,28 @@ function toggleCampos() {
     $('#campos-pc, #campos-notebook, #campos-impresora, #campos-monitor, #campos-escaner').find('input, select').prop('required', false);
     
     // Luego mostrar solo el tipo seleccionado
-    if (t === 'PC Escritorio') $('#campos-pc').show();
-    if (t === 'Notebook') $('#campos-notebook').show();
-    if (t === 'Impresora') $('#campos-impresora').show();
-    if (t === 'Monitor') $('#campos-monitor').show();
-    if (t === 'Escaner') $('#campos-escaner').show();
+    console.log('Mostrando especificaciones para tipo:', t);
+    if (t === 'PC Escritorio') {
+      console.log('Intentando mostrar #campos-pc');
+      $('#campos-pc').show();
+      console.log('Estado de #campos-pc después de .show():', $('#campos-pc').is(':visible'));
+    }
+    if (t === 'Notebook') {
+      console.log('Mostrando #campos-notebook');
+      $('#campos-notebook').show();
+    }
+    if (t === 'Impresora') {
+      console.log('Mostrando #campos-impresora');
+      $('#campos-impresora').show();
+    }
+    if (t === 'Monitor') {
+      console.log('Mostrando #campos-monitor');
+      $('#campos-monitor').show();
+    }
+    if (t === 'Escaner') {
+      console.log('Mostrando #campos-escaner');
+      $('#campos-escaner').show();
+    }
   }
   // Mostrar accesorios notebook en la segunda columna
   if (t === 'Notebook') {
