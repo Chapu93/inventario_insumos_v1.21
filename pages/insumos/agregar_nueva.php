@@ -32,15 +32,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     
     // Verificar campos de insumo
-    $campos_requeridos = ['nombre_insumo', 'tipo_insumo'];
-    foreach ($campos_requeridos as $campo) {
-        if (!isset($_POST[$campo]) || empty($_POST[$campo])) {
-            error_log('Campo requerido faltante: ' . $campo);
-            $_SESSION['mensaje'] = "Error: Campo requerido faltante: " . $campo;
-            $_SESSION['tipo_mensaje'] = "danger";
-            header("Location: agregar_nueva.php");
-            exit;
-        }
+    // tipo_insumo siempre es obligatorio
+    if (!isset($_POST['tipo_insumo']) || empty($_POST['tipo_insumo'])) {
+        error_log('Campo requerido faltante: tipo_insumo');
+        $_SESSION['mensaje'] = "Error: Debe seleccionar un tipo de insumo";
+        $_SESSION['tipo_mensaje'] = "danger";
+        header("Location: agregar_nueva.php");
+        exit;
+    }
+    
+    $tipo_insumo = $_POST['tipo_insumo'];
+    
+    // nombre_insumo solo es obligatorio para tipo "Varios"
+    if ($tipo_insumo === 'Varios' && (!isset($_POST['nombre_insumo']) || empty($_POST['nombre_insumo']))) {
+        error_log('Campo requerido faltante: nombre_insumo (tipo Varios)');
+        $_SESSION['mensaje'] = "Error: El nombre del insumo es obligatorio para tipo Varios";
+        $_SESSION['tipo_mensaje'] = "danger";
+        header("Location: agregar_nueva.php");
+        exit;
     }
     
     try {
@@ -98,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         $stmt = $conexion->prepare($sql);
         $stmt->execute([
-            $_POST['nombre_insumo'],
+            $_POST['nombre_insumo'] ?: null,
             $tipo_insumo,
             ($tipo_insumo == 'Varios') ? ($_POST['subcategoria_varios'] ?: null) : null,
             $_POST['descripcion_general'] ?: null,

@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // NO permitir cambiar tipo
         $tipo_fijo = $tipo_insumo;
 
-        $nombre = trim($_POST['nombre_insumo'] ?? '');
+        $nombre = trim($_POST['nombre_insumo'] ?? '') ?: null;
         $fecha = $_POST['fecha_adquisicion'] ?: null;
         $estado = $_POST['estado'] ?? 'Disponible';
         $punto = $_POST['id_punto_stock_actual'] ?: null;
