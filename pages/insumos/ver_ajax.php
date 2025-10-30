@@ -38,7 +38,7 @@ try {
     $datos_especificos = [];
     if ($insumo['tipo_insumo'] !== 'Varios') {
         switch ($insumo['tipo_insumo']) {
-            case 'PC Completa':
+            case 'PC Escritorio':
                 $stmt = $conexion->prepare("SELECT * FROM pcs_completas WHERE id_insumo = ?");
                 $stmt->execute([$id]);
                 $datos_especificos = $stmt->fetch();
@@ -211,7 +211,7 @@ try {
                     </h6>
                 </div>
                 <div class="card-body">
-                    <?php if ($insumo['tipo_insumo'] === 'PC Completa'): ?>
+                    <?php if ($insumo['tipo_insumo'] === 'PC Escritorio'): ?>
                         <div class="row">
                             <div class="col-md-6">
                                 <?php if ($datos_especificos['procesador']): ?>

@@ -127,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_POST['nombre_insumo'],
             $tipo_insumo,
             ($tipo_insumo == 'Varios') ? ($_POST['subcategoria_varios'] ?: null) : null,
-            ($tipo_insumo == 'Varios') ? ($_POST['descripcion_general'] ?: null) : null,
+            $_POST['descripcion_general'] ?: null,
             ($tipo_insumo != 'Varios') ? ($_POST['numero_serie'] ?: null) : null,
             ($tipo_insumo != 'Varios') ? ($_POST['id_fisico'] ?: null) : null,
             ($tipo_insumo != 'Varios') ? ($_POST['id_patrimonio'] ?: null) : null,
@@ -144,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Insertar datos específicos según el tipo (solo para tipos que no son "Varios")
         if ($tipo_insumo != 'Varios') {
             switch ($tipo_insumo) {
-                case 'PC Completa':
+                case 'PC Escritorio':
                     if (!empty($_POST['procesador']) || !empty($_POST['ram_gb']) || !empty($_POST['almacenamiento_gb']) || !empty($_POST['mother'])) {
                         $sql = "INSERT INTO pcs_completas (id_insumo, procesador, ram_gb, almacenamiento_gb, mother) VALUES (?, ?, ?, ?, ?)";
                         $stmt = $conexion->prepare($sql);
@@ -303,7 +303,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <select class="form-select" id="tipo_insumo" name="tipo_insumo" required>
                                     <option value="">Seleccione un tipo</option>
                                     <option value="Varios">Varios</option>
-                                    <option value="PC Completa">PC Completa</option>
+                                    <option value="PC Escritorio">PC Escritorio</option>
                                     <option value="Notebook">Notebook</option>
                                     <option value="Impresora">Impresora</option>
                                     <option value="Monitor">Monitor</option>
@@ -533,7 +533,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             </h6>
                         </div>
                         <div class="card-body p-3">
-                            <!-- Campos para PC Completa -->
+                            <!-- Campos para PC Escritorio -->
                             <div class="campos-especificos" id="campos-pc" style="display: none;">
                                 <div class="mb-2">
                                     <label for="procesador" class="form-label">Procesador *</label>
@@ -695,7 +695,7 @@ $(document).ready(function() {
             
             // Mostrar campos específicos según tipo
             switch(tipo) {
-                case 'PC Completa':
+                case 'PC Escritorio':
                     $('#campos-pc').show();
                     break;
                 case 'Notebook':
@@ -766,7 +766,7 @@ $(document).ready(function() {
             
             // Campos específicos según tipo
             switch(tipo) {
-                case 'PC Completa':
+                case 'PC Escritorio':
                     $('#procesador, #ram_gb, #almacenamiento_gb, #mother').prop('required', true);
                     break;
                 case 'Notebook':

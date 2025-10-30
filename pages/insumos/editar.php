@@ -33,7 +33,7 @@ $tipo_insumo = $insumo['tipo_insumo'];
 // Tablas específicas
 $esp = [];
 switch ($tipo_insumo) {
-    case 'PC Completa':
+    case 'PC Escritorio':
         $q = $db->prepare("SELECT * FROM pcs_completas WHERE id_insumo = ?");
         $q->execute([$id]); $esp = $q->fetch() ?: [];
         break;
@@ -118,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Actualizar tabla específica
         switch ($tipo_fijo) {
-            case 'PC Completa':
+            case 'PC Escritorio':
                 $db->prepare("DELETE FROM pcs_completas WHERE id_insumo = ?")->execute([$id]);
                 $db->prepare("INSERT INTO pcs_completas (id_insumo, procesador, ram_gb, almacenamiento_gb, mother) VALUES (?,?,?,?,?)")
                    ->execute([
@@ -405,7 +405,7 @@ include '../../includes/header.php';
                             <h6 class="mb-0"><i class="fas fa-cogs me-2 text-primary"></i>Especificaciones</h6>
                         </div>
                         <div class="card-body p-3">
-                            <?php if ($tipo_insumo === 'PC Completa'): ?>
+                            <?php if ($tipo_insumo === 'PC Escritorio'): ?>
                                 <div class="mb-2">
                                     <label class="form-label">Procesador</label>
                                     <input type="text" class="form-control form-control-sm" name="procesador" value="<?php echo htmlspecialchars($esp['procesador'] ?? ''); ?>">

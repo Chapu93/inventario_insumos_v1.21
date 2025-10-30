@@ -215,7 +215,7 @@ include '../../includes/header.php';
                                             <select class="form-select form-select-sm" id="filtro_tipo" style="min-width: 280px;">
                                                 <option value="">Todos los tipos</option>
                                                 <option value="Varios">Varios</option>
-                                                <option value="PC Completa">PC Completa</option>
+                                                <option value="PC Escritorio">PC Escritorio</option>
                                                 <option value="Notebook">Notebook</option>
                                                 <option value="Impresora">Impresora</option>
                                                 <option value="Monitor">Monitor</option>
