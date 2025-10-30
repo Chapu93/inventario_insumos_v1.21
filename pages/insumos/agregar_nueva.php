@@ -535,6 +535,10 @@ function toggleCampos() {
   }
   // Mostrar grilla principal cuando hay tipo seleccionado
   $('#formulario-campos').show();
+  
+  // IMPORTANTE: descripcion_general siempre opcional
+  $('textarea[name="descripcion_general"]').prop('required', false);
+  
   if (t === 'Varios') {
     $('#campos-varios').show();
     $('#campos-especificos, #campos-pc, #campos-notebook, #campos-impresora, #campos-monitor, #campos-escaner').hide();

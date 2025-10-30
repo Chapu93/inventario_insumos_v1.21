@@ -85,12 +85,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Campos específicos según tipo
-        $subcat = $desc = $numero_serie = $id_fisico = $id_patrimonio = null;
+        $subcat = $numero_serie = $id_fisico = $id_patrimonio = null;
         $cantidad = 1;
+        
+        // Descripción general es OPCIONAL para TODOS los tipos
+        $desc = ($_POST['descripcion_general'] ?? '') ?: null;
 
         if ($tipo_fijo === 'Varios') {
             $subcat = ($_POST['subcategoria_varios'] ?? '') ?: null;
-            $desc = ($_POST['descripcion_general'] ?? '') ?: null;
             $cantidad = max(1, (int)($_POST['cantidad'] ?? 1));
         } else {
             $numero_serie = ($_POST['numero_serie'] ?? '') ?: null;
