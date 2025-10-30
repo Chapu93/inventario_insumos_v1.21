@@ -26,11 +26,9 @@ ADD COLUMN `fecha_traslado` DATE NULL DEFAULT NULL
 COMMENT 'Fecha en que se dio de baja por traslado'
 AFTER `fecha_baja`;
 
--- 5. PDF de autorización del traslado
-ALTER TABLE `sedes_internet` 
-ADD COLUMN `archivo_autorizacion_traslado` VARCHAR(255) NULL DEFAULT NULL 
-COMMENT 'PDF de autorización del traslado'
-AFTER `archivo_autorizacion`;
+-- NOTA: NO se agrega campo archivo_autorizacion_traslado
+-- El PDF del traslado se guarda en archivo_autorizacion del NUEVO servicio
+-- El servicio anterior conserva su archivo_autorizacion original
 
 -- 6. Crear índices para mejorar performance
 -- Verificar si no existen antes de crear (idempotente)

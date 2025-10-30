@@ -196,17 +196,16 @@ if (isset($_POST['crear_servicio_traslado']) && $_POST['crear_servicio_traslado'
         $idNuevoServicio = $db->lastInsertId();
         
         // 2. ACTUALIZAR SERVICIO ANTERIOR (completar la baja por traslado)
+        // NOTA: NO se guarda el PDF en el servicio anterior, conserva su archivo_autorizacion original
         $stmtBaja = $db->prepare("
             UPDATE sedes_internet SET
                 fecha_traslado = ?,
-                archivo_autorizacion_traslado = ?,
                 id_servicio_trasladado_a = ?
             WHERE id_internet = ?
         ");
         
         $stmtBaja->execute([
             $_POST['fecha_traslado'],
-            $archivoPdfTraslado,
             $idNuevoServicio,
             $id_servicio_anterior
         ]);
@@ -523,31 +522,18 @@ include '../../includes/header.php';
                                                 <i class="fas fa-arrow-right me-1"></i>Nuevo servicio #<?php echo $row['id_trasladado_a']; ?>
                                             </small>
                                         <?php endif; ?>
-                                        
-                                        <?php if (!empty($row['archivo_autorizacion_traslado'])): ?>
-                                            <small class="d-block mt-1">
-                                                <a href="<?php echo app_base_url() . '/' . htmlspecialchars($row['archivo_autorizacion_traslado']); ?>" 
-                                                   target="_blank" 
-                                                   class="btn btn-sm btn-outline-danger"
-                                                   data-bs-toggle="tooltip" 
-                                                   title="Ver PDF de autorización del traslado"
-                                                   aria-label="Ver PDF traslado">
-                                                    <i class="fas fa-file-pdf me-1"></i>PDF
-                                                </a>
-                                            </small>
-                                        <?php endif; ?>
                                     <?php endif; ?>
                                     
-                                    <?php // Mostrar archivo de autorización siempre que exista, independiente del estado ?>
-                                    <?php if (!empty($row['archivo_autorizacion']) && $est !== 'Baja por Traslado'): ?>
+                                    <?php // Mostrar archivo de autorización original siempre que exista ?>
+                                    <?php if (!empty($row['archivo_autorizacion'])): ?>
                                         <small class="d-block mt-1">
                                             <a href="<?php echo app_base_url() . '/' . htmlspecialchars($row['archivo_autorizacion']); ?>" 
                                                target="_blank" 
                                                class="btn btn-sm btn-outline-danger"
                                                data-bs-toggle="tooltip" 
-                                               title="Ver archivo de autorización"
+                                               title="Ver archivo de autorización<?php echo ($est === 'Baja por Traslado') ? ' original' : ''; ?>"
                                                aria-label="Ver PDF">
-                                                <i class="fas fa-file-pdf me-1"></i>PDF
+                                                <i class="fas fa-file-pdf me-1"></i>PDF<?php echo ($est === 'Baja por Traslado') ? ' original' : ''; ?>
                                             </a>
                                         </small>
                                     <?php endif; ?>
@@ -828,9 +814,9 @@ include '../../includes/header.php';
             </div>
             
             <div class="col-md-6 mb-3">
-              <label class="form-label">PDF de Autorización del Traslado <span class="text-danger">*</span></label>
+              <label class="form-label">PDF de Autorización (Nuevo Servicio) <span class="text-danger">*</span></label>
               <input type="file" class="form-control" name="pdf_traslado" id="traslado_pdf" accept=".pdf" required>
-              <small class="text-muted">Este PDF se guardará en ambos servicios - Máximo 5 MB</small>
+              <small class="text-muted">PDF del nuevo servicio - Máximo 5 MB</small>
             </div>
           </div>
           
