@@ -220,10 +220,9 @@ if (count($cadenaCompleta) > 1) {
     $pdf->SetFont('Arial', 'B', 9);
     $pdf->SetFillColor(240, 240, 240);
     $pdf->SetXY($leftMargin, $y);
-    $pdf->Cell(20, 6, $enc('Servicio'), 1, 0, 'C', true);
-    $pdf->Cell(40, 6, $enc('Proveedor'), 1, 0, 'C', true);
-    $pdf->Cell(35, 6, $enc('Tecnología'), 1, 0, 'C', true);
-    $pdf->Cell(30, 6, $enc('Velocidad'), 1, 0, 'C', true);
+    $pdf->Cell(50, 6, $enc('Proveedor'), 1, 0, 'C', true);
+    $pdf->Cell(40, 6, $enc('Tecnología'), 1, 0, 'C', true);
+    $pdf->Cell(35, 6, $enc('Velocidad'), 1, 0, 'C', true);
     $pdf->Cell(30, 6, $enc('Fecha Traslado'), 1, 1, 'C', true);
     $y += 6;
     
@@ -239,10 +238,16 @@ if (count($cadenaCompleta) > 1) {
         }
         
         $pdf->SetXY($leftMargin, $y);
-        $pdf->Cell(20, 6, $enc('#' . $srv['id_internet']), 1, 0, 'C', true);
-        $pdf->Cell(40, 6, $enc($srv['proveedor'] ?: '-'), 1, 0, 'L', true);
-        $pdf->Cell(35, 6, $enc($srv['tipo_conexion'] ?: '-'), 1, 0, 'L', true);
-        $pdf->Cell(30, 6, $enc($srv['velocidad_mbps'] ? $srv['velocidad_mbps'] . ' Mbps' : '-'), 1, 0, 'C', true);
+        
+        // Proveedor con badge "Actual" si es el último
+        $textoProveedor = $srv['proveedor'] ?: '-';
+        if ($esActual) {
+            $textoProveedor .= ' [ACTUAL]';
+        }
+        
+        $pdf->Cell(50, 6, $enc($textoProveedor), 1, 0, 'L', true);
+        $pdf->Cell(40, 6, $enc($srv['tipo_conexion'] ?: '-'), 1, 0, 'L', true);
+        $pdf->Cell(35, 6, $enc($srv['velocidad_mbps'] ? $srv['velocidad_mbps'] . ' Mbps' : '-'), 1, 0, 'C', true);
         $pdf->Cell(30, 6, $enc($srv['fecha_traslado'] ? $formatFecha($srv['fecha_traslado']) : '-'), 1, 1, 'C', true);
         $y += 6;
     }

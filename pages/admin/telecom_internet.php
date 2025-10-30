@@ -1081,6 +1081,9 @@ function editarInternet(row){
 function verDetallesInternet(row) {
   console.log('Ver detalles:', row);
   
+  // Limpiar historial previo (evitar duplicación)
+  $('#detalle_historial_traslados').remove();
+  
   // Información básica
   $('#detalle_localidad').text(row.nombre_localidad || '-');
   $('#detalle_sede').text(row.nombre_sede || '-');
@@ -1152,7 +1155,7 @@ function verDetallesInternet(row) {
       // Si hay más de un servicio en la cadena, mostrar historial de traslados
       if (cadena.length > 1) {
         let htmlHistorial = `
-          <div class="mt-4">
+          <div class="mt-4" id="detalle_historial_traslados">
             <h6 class="text-primary border-bottom pb-2 mb-3">
               <i class="fas fa-history me-2"></i>Historial de Traslados
             </h6>
@@ -1160,7 +1163,6 @@ function verDetallesInternet(row) {
               <table class="table table-sm table-bordered">
                 <thead class="table-light">
                   <tr>
-                    <th>Servicio</th>
                     <th>Proveedor</th>
                     <th>Tecnología</th>
                     <th>Velocidad</th>
@@ -1177,10 +1179,9 @@ function verDetallesInternet(row) {
           htmlHistorial += `
             <tr class="${rowClass}">
               <td>
-                <strong>#${servicio.id_internet}</strong>
+                ${servicio.proveedor || '-'}
                 ${esActual ? '<span class="badge bg-success ms-2">Actual</span>' : ''}
               </td>
-              <td>${servicio.proveedor || '-'}</td>
               <td>${servicio.tipo_conexion || '-'}</td>
               <td>${servicio.velocidad_mbps ? servicio.velocidad_mbps + ' Mbps' : '-'}</td>
               <td>${servicio.fecha_traslado ? formatearFecha(servicio.fecha_traslado) : '-'}</td>
