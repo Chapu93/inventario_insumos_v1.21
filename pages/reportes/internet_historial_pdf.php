@@ -167,7 +167,90 @@ $pdf->Cell($contentWidth, 6, $enc('HISTORIAL Y TRAZABILIDAD'), 0, 1, 'L');
 $pdf->Line($leftMargin, $y + 6, $leftMargin + $contentWidth, $y + 6);
 $y += 10;
 
-// Construir timeline de eventos
+// Obtener toda la cadena de traslados
+$stmtCadenaHistorial = $conexion->prepare("
+    WITH RECURSIVE cadena_traslados AS (
+        -- Servicio actual
+        SELECT 
+            id_internet,
+            proveedor,
+            tipo_conexion,
+            velocidad_mbps,
+            fecha_solicitud_autorizacion,
+            fecha_instalacion,
+            fecha_traslado,
+            fecha_baja,
+            id_servicio_trasladado_desde,
+            0 as nivel
+        FROM sedes_internet
+        WHERE id_internet = ?
+        
+        UNION ALL
+        
+        -- Servicios anteriores (ir hacia atrás)
+        SELECT 
+            i.id_internet,
+            i.proveedor,
+            i.tipo_conexion,
+            i.velocidad_mbps,
+            i.fecha_solicitud_autorizacion,
+            i.fecha_instalacion,
+            i.fecha_traslado,
+            i.fecha_baja,
+            i.id_servicio_trasladado_desde,
+            c.nivel - 1
+        FROM sedes_internet i
+        INNER JOIN cadena_traslados c ON i.id_internet = c.id_servicio_trasladado_desde
+    )
+    SELECT * FROM cadena_traslados
+    ORDER BY nivel ASC
+");
+
+$stmtCadenaHistorial->execute([$id_internet]);
+$cadenaCompleta = $stmtCadenaHistorial->fetchAll();
+
+// Si hay más de un servicio, mostrar tabla de traslados
+if (count($cadenaCompleta) > 1) {
+    $pdf->SetFont('Arial', 'B', 11);
+    $pdf->SetXY($leftMargin, $y);
+    $pdf->Cell($contentWidth, 6, $enc('Historial de Traslados (' . (count($cadenaCompleta) - 1) . ' traslado' . (count($cadenaCompleta) > 2 ? 's' : '') . ')'), 0, 1, 'L');
+    $y += 8;
+    
+    // Encabezados de tabla
+    $pdf->SetFont('Arial', 'B', 9);
+    $pdf->SetFillColor(240, 240, 240);
+    $pdf->SetXY($leftMargin, $y);
+    $pdf->Cell(20, 6, $enc('Servicio'), 1, 0, 'C', true);
+    $pdf->Cell(40, 6, $enc('Proveedor'), 1, 0, 'C', true);
+    $pdf->Cell(35, 6, $enc('Tecnología'), 1, 0, 'C', true);
+    $pdf->Cell(30, 6, $enc('Velocidad'), 1, 0, 'C', true);
+    $pdf->Cell(30, 6, $enc('Fecha Traslado'), 1, 1, 'C', true);
+    $y += 6;
+    
+    // Filas de datos
+    $pdf->SetFont('Arial', '', 9);
+    foreach ($cadenaCompleta as $idx => $srv) {
+        $esActual = ($idx === count($cadenaCompleta) - 1);
+        
+        if ($esActual) {
+            $pdf->SetFillColor(220, 250, 220);
+        } else {
+            $pdf->SetFillColor(255, 255, 255);
+        }
+        
+        $pdf->SetXY($leftMargin, $y);
+        $pdf->Cell(20, 6, $enc('#' . $srv['id_internet']), 1, 0, 'C', true);
+        $pdf->Cell(40, 6, $enc($srv['proveedor'] ?: '-'), 1, 0, 'L', true);
+        $pdf->Cell(35, 6, $enc($srv['tipo_conexion'] ?: '-'), 1, 0, 'L', true);
+        $pdf->Cell(30, 6, $enc($srv['velocidad_mbps'] ? $srv['velocidad_mbps'] . ' Mbps' : '-'), 1, 0, 'C', true);
+        $pdf->Cell(30, 6, $enc($srv['fecha_traslado'] ? $formatFecha($srv['fecha_traslado']) : '-'), 1, 1, 'C', true);
+        $y += 6;
+    }
+    
+    $y += 8;
+}
+
+// Construir timeline de eventos del servicio actual
 $eventos = [];
 
 // Evento: Solicitud (si existe fecha de solicitud)
@@ -205,15 +288,13 @@ usort($eventos, function($a, $b) {
     return strtotime($a['fecha']) - strtotime($b['fecha']);
 });
 
-// Mostrar timeline de eventos
-if (empty($eventos)) {
-    $pdf->SetFont('Arial', 'I', 10);
-    $pdf->SetTextColor(150, 150, 150);
-    $pdf->SetXY($leftMargin + 10, $y);
-    $pdf->Cell($contentWidth - 10, 6, $enc('No hay eventos registrados en el historial'), 0, 1, 'L');
-    $pdf->SetTextColor(0, 0, 0);
+// Mostrar timeline de eventos solo si hay eventos
+if (!empty($eventos)) {
+    $pdf->SetFont('Arial', 'B', 11);
+    $pdf->SetXY($leftMargin, $y);
+    $pdf->Cell($contentWidth, 6, $enc('Eventos del Servicio Actual'), 0, 1, 'L');
     $y += 8;
-} else {
+    
     foreach ($eventos as $idx => $evento) {
         // Viñeta simple y fecha
         $pdf->SetFont('Arial', '', 11);

@@ -165,18 +165,9 @@ if (isset($_POST['crear_servicio_traslado']) && $_POST['crear_servicio_traslado'
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         
-        // Construir observaciones
+        // NO agregar observaciones automáticas si es creado por traslado
+        // Solo usar las observaciones que ingrese el usuario
         $observacionesNuevas = trim($_POST['observaciones_nuevas'] ?? '');
-        $notaTraslado = "\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n";
-        $notaTraslado .= "[ORIGEN DEL SERVICIO]\n";
-        $notaTraslado .= "Traslado desde servicio #{$id_servicio_anterior}\n";
-        $notaTraslado .= "Fecha: " . date('d/m/Y', strtotime($_POST['fecha_traslado']));
-        
-        if (!empty($_POST['motivo_traslado'])) {
-            $notaTraslado .= "\nMotivo: " . $_POST['motivo_traslado'];
-        }
-        
-        $observacionesNuevas .= $notaTraslado;
         
         $stmtNuevo->execute([
             $id_sede, // MISMA SEDE
@@ -1153,6 +1144,68 @@ function verDetallesInternet(row) {
     $('#detalle_observaciones').text(row.observaciones);
     $('#detalle_observaciones_container').show();
   }
+  
+  // Obtener y mostrar historial completo de traslados
+  fetch('<?php echo app_base_url(); ?>/ajax/obtener_cadena_traslados.php?id_internet=' + row.id_internet)
+    .then(response => response.json())
+    .then(cadena => {
+      // Si hay más de un servicio en la cadena, mostrar historial de traslados
+      if (cadena.length > 1) {
+        let htmlHistorial = `
+          <div class="mt-4">
+            <h6 class="text-primary border-bottom pb-2 mb-3">
+              <i class="fas fa-history me-2"></i>Historial de Traslados
+            </h6>
+            <div class="table-responsive">
+              <table class="table table-sm table-bordered">
+                <thead class="table-light">
+                  <tr>
+                    <th>Servicio</th>
+                    <th>Proveedor</th>
+                    <th>Tecnología</th>
+                    <th>Velocidad</th>
+                    <th>Fecha Traslado</th>
+                  </tr>
+                </thead>
+                <tbody>
+        `;
+        
+        cadena.forEach((servicio, index) => {
+          const esActual = (index === cadena.length - 1);
+          const rowClass = esActual ? 'table-success' : '';
+          
+          htmlHistorial += `
+            <tr class="${rowClass}">
+              <td>
+                <strong>#${servicio.id_internet}</strong>
+                ${esActual ? '<span class="badge bg-success ms-2">Actual</span>' : ''}
+              </td>
+              <td>${servicio.proveedor || '-'}</td>
+              <td>${servicio.tipo_conexion || '-'}</td>
+              <td>${servicio.velocidad_mbps ? servicio.velocidad_mbps + ' Mbps' : '-'}</td>
+              <td>${servicio.fecha_traslado ? formatearFecha(servicio.fecha_traslado) : '-'}</td>
+            </tr>
+          `;
+        });
+        
+        htmlHistorial += `
+                </tbody>
+              </table>
+            </div>
+            <small class="text-muted">
+              <i class="fas fa-info-circle me-1"></i>
+              Total de traslados: <strong>${cadena.length - 1}</strong>
+            </small>
+          </div>
+        `;
+        
+        // Agregar al modal
+        document.querySelector('#modalVerDetalles .modal-body').insertAdjacentHTML('beforeend', htmlHistorial);
+      }
+    })
+    .catch(error => {
+      console.error('Error al obtener historial de traslados:', error);
+    });
   
   // Mostrar el modal
   new bootstrap.Modal(document.getElementById('modalVerDetalles')).show();
