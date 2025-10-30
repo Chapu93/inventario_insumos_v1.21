@@ -461,31 +461,105 @@ include '../../includes/header.php';
                                     <div class="card-header bg-light py-2"><h6 class="mb-0"><i class="fas fa-microchip me-2 text-primary"></i>Especificaciones</h6></div>
                                     <div class="card-body p-3">
                                         <div class="campos-especificos" id="campos-pc" style="display: none;">
-                                            <div class="mb-2"><label class="form-label">Procesador *</label><input type="text" class="form-control form-control-sm w-100" name="procesador"></div>
-                                            <div class="mb-2"><label class="form-label">RAM (GB) *</label><input type="number" class="form-control form-control-sm w-100" name="ram_gb" min="1"></div>
-                                            <div class="mb-2"><label class="form-label">Almacenamiento (GB) *</label><input type="number" class="form-control form-control-sm w-100" name="almacenamiento_gb" min="1"></div>
-                                            <div class="mb-2"><label class="form-label">Motherboard *</label><input type="text" class="form-control form-control-sm w-100" name="mother"></div>
+                                            <div class="mb-2">
+                                                <label for="procesador" class="form-label">Procesador *</label>
+                                                <input type="text" class="form-control form-control-sm w-100" id="procesador" name="procesador" required>
+                                                <div class="invalid-feedback">El procesador es obligatorio</div>
+                                            </div>
+                                            <div class="mb-2">
+                                                <label for="ram_gb" class="form-label">RAM (GB) *</label>
+                                                <input type="number" class="form-control form-control-sm w-100" id="ram_gb" name="ram_gb" min="1" required>
+                                                <div class="invalid-feedback">La RAM es obligatoria</div>
+                                            </div>
+                                            <div class="mb-2">
+                                                <label for="almacenamiento_gb" class="form-label">Almacenamiento (GB) *</label>
+                                                <input type="number" class="form-control form-control-sm w-100" id="almacenamiento_gb" name="almacenamiento_gb" min="1" required>
+                                                <div class="invalid-feedback">El almacenamiento es obligatorio</div>
+                                            </div>
+                                            <div class="mb-2">
+                                                <label for="mother" class="form-label">Motherboard *</label>
+                                                <input type="text" class="form-control form-control-sm w-100" id="mother" name="mother" required>
+                                                <div class="invalid-feedback">La motherboard es obligatoria</div>
+                                            </div>
                                         </div>
                                         <div class="campos-especificos" id="campos-notebook" style="display: none;">
-                                            <div class="mb-2"><label class="form-label">Marca *</label><input type="text" class="form-control form-control-sm w-100" name="marca_notebook"></div>
-                                            <div class="mb-2"><label class="form-label">Modelo *</label><input type="text" class="form-control form-control-sm w-100" name="modelo_notebook"></div>
-                                            <div class="mb-2"><label class="form-label">Procesador *</label><input type="text" class="form-control form-control-sm w-100" name="procesador_notebook"></div>
-                                            <div class="mb-2"><label class="form-label">RAM (GB) *</label><input type="number" class="form-control form-control-sm w-100" name="ram_gb_notebook" min="1"></div>
-                                            <div class="mb-2"><label class="form-label">Almacenamiento (GB) *</label><input type="number" class="form-control form-control-sm w-100" name="almacenamiento_gb_notebook" min="1"></div>
+                                            <div class="mb-2">
+                                                <label for="marca_notebook" class="form-label">Marca *</label>
+                                                <input type="text" class="form-control form-control-sm w-100" id="marca_notebook" name="marca_notebook" required>
+                                                <div class="invalid-feedback">La marca es obligatoria</div>
+                                            </div>
+                                            <div class="mb-2">
+                                                <label for="modelo_notebook" class="form-label">Modelo *</label>
+                                                <input type="text" class="form-control form-control-sm w-100" id="modelo_notebook" name="modelo_notebook" required>
+                                                <div class="invalid-feedback">El modelo es obligatorio</div>
+                                            </div>
+                                            <div class="mb-2">
+                                                <label for="procesador_notebook" class="form-label">Procesador *</label>
+                                                <input type="text" class="form-control form-control-sm w-100" id="procesador_notebook" name="procesador_notebook" required>
+                                                <div class="invalid-feedback">El procesador es obligatorio</div>
+                                            </div>
+                                            <div class="mb-2">
+                                                <label for="ram_gb_notebook" class="form-label">RAM (GB) *</label>
+                                                <input type="number" class="form-control form-control-sm w-100" id="ram_gb_notebook" name="ram_gb_notebook" min="1" required>
+                                                <div class="invalid-feedback">La RAM es obligatoria</div>
+                                            </div>
+                                            <div class="mb-2">
+                                                <label for="almacenamiento_gb_notebook" class="form-label">Almacenamiento (GB) *</label>
+                                                <input type="number" class="form-control form-control-sm w-100" id="almacenamiento_gb_notebook" name="almacenamiento_gb_notebook" min="1" required>
+                                                <div class="invalid-feedback">El almacenamiento es obligatorio</div>
+                                            </div>
                                         </div>
                                         <div class="campos-especificos" id="campos-impresora" style="display: none;">
-                                            <div class="mb-2"><label class="form-label">Marca *</label><input type="text" class="form-control form-control-sm w-100" name="marca_impresora"></div>
-                                            <div class="mb-2"><label class="form-label">Modelo *</label><input type="text" class="form-control form-control-sm w-100" name="modelo_impresora"></div>
+                                            <div class="mb-2">
+                                                <label for="marca_impresora" class="form-label">Marca *</label>
+                                                <input type="text" class="form-control form-control-sm w-100" id="marca_impresora" name="marca_impresora" required>
+                                                <div class="invalid-feedback">La marca es obligatoria</div>
+                                            </div>
+                                            <div class="mb-2">
+                                                <label for="modelo_impresora" class="form-label">Modelo *</label>
+                                                <input type="text" class="form-control form-control-sm w-100" id="modelo_impresora" name="modelo_impresora" required>
+                                                <div class="invalid-feedback">El modelo es obligatorio</div>
+                                            </div>
                                         </div>
                                         <div class="campos-especificos" id="campos-monitor" style="display: none;">
-                                            <div class="mb-2"><label class="form-label">Marca *</label><input type="text" class="form-control form-control-sm w-100" name="marca_monitor"></div>
-                                            <div class="mb-2"><label class="form-label">Modelo *</label><input type="text" class="form-control form-control-sm w-100" name="modelo_monitor"></div>
-                                            <div class="mb-2"><label class="form-label">Pulgadas *</label><input type="number" class="form-control form-control-sm w-100" name="pulgadas" step="0.1" min="1"></div>
-                                            <div class="mb-2"><label class="form-label">Conexión *</label><select class="form-select form-select-sm w-100" name="conexion_monitor" required><option value="">Seleccione conexión</option><option value="VGA">VGA</option><option value="HDMI">HDMI</option></select></div>
+                                            <div class="mb-2">
+                                                <label for="marca_monitor" class="form-label">Marca *</label>
+                                                <input type="text" class="form-control form-control-sm w-100" id="marca_monitor" name="marca_monitor" required>
+                                                <div class="invalid-feedback">La marca es obligatoria</div>
+                                            </div>
+                                            <div class="mb-2">
+                                                <label for="modelo_monitor" class="form-label">Modelo *</label>
+                                                <input type="text" class="form-control form-control-sm w-100" id="modelo_monitor" name="modelo_monitor" required>
+                                                <div class="invalid-feedback">El modelo es obligatorio</div>
+                                            </div>
+                                            <div class="mb-2">
+                                                <label for="pulgadas" class="form-label">Pulgadas *</label>
+                                                <input type="number" class="form-control form-control-sm w-100" id="pulgadas" name="pulgadas" step="0.1" min="1" required>
+                                                <div class="invalid-feedback">Las pulgadas son obligatorias</div>
+                                            </div>
+                                            <div class="mb-2">
+                                                <label for="conexion_monitor" class="form-label">Conexión *</label>
+                                                <select class="form-select form-select-sm w-100" id="conexion_monitor" name="conexion_monitor" required>
+                                                    <option value="">Seleccione conexión</option>
+                                                    <option value="VGA">VGA</option>
+                                                    <option value="HDMI">HDMI</option>
+                                                    <option value="DisplayPort">DisplayPort</option>
+                                                    <option value="DVI">DVI</option>
+                                                </select>
+                                                <div class="invalid-feedback">La conexión es obligatoria</div>
+                                            </div>
                                         </div>
                                         <div class="campos-especificos" id="campos-escaner" style="display: none;">
-                                            <div class="mb-2"><label class="form-label">Marca *</label><input type="text" class="form-control form-control-sm w-100" name="marca_escaner"></div>
-                                            <div class="mb-2"><label class="form-label">Modelo *</label><input type="text" class="form-control form-control-sm w-100" name="modelo_escaner"></div>
+                                            <div class="mb-2">
+                                                <label for="marca_escaner" class="form-label">Marca *</label>
+                                                <input type="text" class="form-control form-control-sm w-100" id="marca_escaner" name="marca_escaner" required>
+                                                <div class="invalid-feedback">La marca es obligatoria</div>
+                                            </div>
+                                            <div class="mb-2">
+                                                <label for="modelo_escaner" class="form-label">Modelo *</label>
+                                                <input type="text" class="form-control form-control-sm w-100" id="modelo_escaner" name="modelo_escaner" required>
+                                                <div class="invalid-feedback">El modelo es obligatorio</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
