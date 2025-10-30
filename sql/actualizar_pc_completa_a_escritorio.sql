@@ -7,19 +7,13 @@
 -- (Mantener 'PC Completa' temporalmente para no perder datos)
 ALTER TABLE `insumos` 
 MODIFY COLUMN `tipo_insumo` ENUM(
-    'Monitor',
-    'Notebook',
-    'PC Escritorio',
+    'Varios',
     'PC Completa',
+    'PC Escritorio',
+    'Notebook',
     'Impresora',
-    'Escaner',
-    'Mouse',
-    'Teclado',
-    'Parlantes',
-    'Cables',
-    'Pendrive',
-    'Disco Externo',
-    'Varios'
+    'Monitor',
+    'Escaner'
 ) NOT NULL;
 
 -- PASO 2: Actualizar todos los registros existentes
@@ -30,18 +24,12 @@ WHERE `tipo_insumo` = 'PC Completa';
 -- PASO 3: Eliminar 'PC Completa' del ENUM (ya no se usa)
 ALTER TABLE `insumos` 
 MODIFY COLUMN `tipo_insumo` ENUM(
-    'Monitor',
-    'Notebook',
+    'Varios',
     'PC Escritorio',
+    'Notebook',
     'Impresora',
-    'Escaner',
-    'Mouse',
-    'Teclado',
-    'Parlantes',
-    'Cables',
-    'Pendrive',
-    'Disco Externo',
-    'Varios'
+    'Monitor',
+    'Escaner'
 ) NOT NULL;
 
 -- Verificar cambios realizados
