@@ -249,17 +249,68 @@ if (!empty($servicio['observaciones'])) {
 }
 
 // ============================================
-// AGREGAR ARCHIVO PDF DE AUTORIZACIÓN COMO PÁGINA ADICIONAL
+// OBTENER TODOS LOS PDFs DE LA CADENA DE TRASLADOS
 // ============================================
-if (!empty($servicio['archivo_autorizacion'])) {
-    $archivoAutorizacionPath = __DIR__ . '/../../' . $servicio['archivo_autorizacion'];
+$todosLosPdfs = [];
+
+// Obtener toda la cadena de servicios (desde el más antiguo hasta el actual)
+// Primero ir hacia atrás hasta encontrar el servicio original
+$stmtCadena = $conexion->prepare("
+    WITH RECURSIVE cadena_traslados AS (
+        -- Servicio actual
+        SELECT 
+            id_internet,
+            archivo_autorizacion,
+            fecha_solicitud_autorizacion,
+            fecha_instalacion,
+            id_servicio_trasladado_desde,
+            0 as nivel
+        FROM sedes_internet
+        WHERE id_internet = ?
+        
+        UNION ALL
+        
+        -- Servicios anteriores (ir hacia atrás)
+        SELECT 
+            i.id_internet,
+            i.archivo_autorizacion,
+            i.fecha_solicitud_autorizacion,
+            i.fecha_instalacion,
+            i.id_servicio_trasladado_desde,
+            c.nivel - 1
+        FROM sedes_internet i
+        INNER JOIN cadena_traslados c ON i.id_internet = c.id_servicio_trasladado_desde
+    )
+    SELECT * FROM cadena_traslados
+    ORDER BY nivel ASC
+");
+
+$stmtCadena->execute([$id_internet]);
+$cadenaServicios = $stmtCadena->fetchAll();
+
+// Recolectar todos los PDFs en orden cronológico
+foreach ($cadenaServicios as $srv) {
+    if (!empty($srv['archivo_autorizacion'])) {
+        $todosLosPdfs[] = [
+            'ruta' => $srv['archivo_autorizacion'],
+            'fecha' => $srv['fecha_solicitud_autorizacion'] ?: $srv['fecha_instalacion'],
+            'id_servicio' => $srv['id_internet']
+        ];
+    }
+}
+
+// ============================================
+// AGREGAR TODOS LOS PDFs COMO PÁGINAS ADICIONALES
+// ============================================
+foreach ($todosLosPdfs as $pdfInfo) {
+    $archivoPath = __DIR__ . '/../../' . $pdfInfo['ruta'];
     
-    if (file_exists($archivoAutorizacionPath)) {
+    if (file_exists($archivoPath)) {
         try {
-            // Importar el archivo PDF de autorización
-            $pageCount = $pdf->setSourceFile($archivoAutorizacionPath);
+            // Importar el archivo PDF
+            $pageCount = $pdf->setSourceFile($archivoPath);
             
-            // Agregar todas las páginas del PDF de autorización
+            // Agregar todas las páginas del PDF
             for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
                 $tplIdx = $pdf->importPage($pageNo);
                 $size = $pdf->getTemplateSize($tplIdx);
@@ -280,7 +331,7 @@ if (!empty($servicio['archivo_autorizacion'])) {
                 $pdf->useTemplate($tplIdx, $x, $y_page, $size['width'] * $scale, $size['height'] * $scale);
             }
         } catch (Throwable $e) {
-            error_log('[internet_historial_pdf] Error al incluir archivo de autorización: ' . $e->getMessage());
+            error_log('[internet_historial_pdf] Error al incluir PDF (servicio #' . $pdfInfo['id_servicio'] . '): ' . $e->getMessage());
         }
     }
 }

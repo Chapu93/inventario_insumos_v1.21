@@ -495,13 +495,6 @@ include '../../includes/header.php';
                                                 <i class="fas fa-calendar me-1"></i>Solicitud: <?php echo date('d/m/Y', strtotime($row['fecha_solicitud_autorizacion'])); ?>
                                             </small>
                                         <?php endif; ?>
-                                        
-                                        <?php // Mostrar si proviene de traslado ?>
-                                        <?php if (!empty($row['id_trasladado_desde'])): ?>
-                                            <small class="text-secondary d-block mt-1">
-                                                <i class="fas fa-history me-1"></i>Desde servicio #<?php echo $row['id_trasladado_desde']; ?>
-                                            </small>
-                                        <?php endif; ?>
                                     <?php endif; ?>
                                     
                                     <?php if ($est === 'De Baja' && !empty($row['fecha_baja'])): ?>
@@ -516,24 +509,18 @@ include '../../includes/header.php';
                                                 <i class="fas fa-calendar-times me-1"></i>Traslado: <?php echo date('d/m/Y', strtotime($row['fecha_traslado'])); ?>
                                             </small>
                                         <?php endif; ?>
-                                        
-                                        <?php if (!empty($row['id_trasladado_a'])): ?>
-                                            <small class="text-primary d-block mt-1">
-                                                <i class="fas fa-arrow-right me-1"></i>Nuevo servicio #<?php echo $row['id_trasladado_a']; ?>
-                                            </small>
-                                        <?php endif; ?>
                                     <?php endif; ?>
                                     
-                                    <?php // Mostrar archivo de autorización original siempre que exista ?>
+                                    <?php // Mostrar archivo de autorización siempre que exista ?>
                                     <?php if (!empty($row['archivo_autorizacion'])): ?>
                                         <small class="d-block mt-1">
                                             <a href="<?php echo app_base_url() . '/' . htmlspecialchars($row['archivo_autorizacion']); ?>" 
                                                target="_blank" 
                                                class="btn btn-sm btn-outline-danger"
                                                data-bs-toggle="tooltip" 
-                                               title="Ver archivo de autorización<?php echo ($est === 'Baja por Traslado') ? ' original' : ''; ?>"
+                                               title="Ver archivo de autorización"
                                                aria-label="Ver PDF">
-                                                <i class="fas fa-file-pdf me-1"></i>PDF<?php echo ($est === 'Baja por Traslado') ? ' original' : ''; ?>
+                                                <i class="fas fa-file-pdf me-1"></i>PDF
                                             </a>
                                         </small>
                                     <?php endif; ?>
@@ -543,7 +530,7 @@ include '../../includes/header.php';
                                         <button type="button" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Ver detalles" aria-label="Ver detalles del servicio" onclick='verDetallesInternet(<?php echo json_encode($row, JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT); ?>)'><i class="fas fa-eye" aria-hidden="true"></i></button>
                                         <a href="<?php echo app_base_url(); ?>/pages/reportes/internet_historial_pdf.php?id=<?php echo (int)$row['id_internet']; ?>" target="_blank" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" title="Generar PDF" aria-label="Generar PDF del historial"><i class="fas fa-file-pdf" aria-hidden="true"></i></a>
                                         <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Editar" aria-label="Editar servicio" onclick='editarInternet(<?php echo json_encode($row, JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT); ?>)'><i class="fas fa-edit" aria-hidden="true"></i></button>
-                                        <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Eliminar" aria-label="Eliminar servicio" onclick="eliminarInternet(<?php echo (int)$row['id_internet']; ?>)"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                        <button type="button" class="btn btn-sm btn-danger btn-eliminar-internet" data-bs-toggle="tooltip" title="Eliminar" aria-label="Eliminar servicio" data-id="<?php echo (int)$row['id_internet']; ?>"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </div>
                                 </td>
                             </tr>
@@ -771,7 +758,7 @@ include '../../includes/header.php';
         <input type="hidden" name="id_servicio_anterior" id="traslado_id_servicio_anterior">
         <input type="hidden" name="id_sede_traslado" id="traslado_id_sede">
         
-        <div class="modal-header bg-warning">
+        <div class="modal-header">
           <h5 class="modal-title">
             <i class="fas fa-exchange-alt"></i>
             Crear Nuevo Servicio por Traslado
@@ -1410,6 +1397,14 @@ $(function(){
   // Limpiar modal al cerrarlo
   $('#modalTrasladoInternet').on('hidden.bs.modal', function() {
     $('#formTrasladoInternet')[0].reset();
+  });
+  
+  // Event delegation para botón eliminar (evitar conflicto con tooltips)
+  $(document).on('click', '.btn-eliminar-internet', function() {
+    const id = $(this).data('id');
+    if (id) {
+      eliminarInternet(id);
+    }
   });
 });
 </script>
