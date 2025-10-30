@@ -746,6 +746,9 @@ $(document).ready(function() {
         // Campos básicos siempre requeridos
         $('#nombre_insumo').prop('required', true);
         $('#tipo_insumo').prop('required', true);
+        
+        // IMPORTANTE: descripcion_general siempre opcional
+        $('#descripcion_general').prop('required', false);
 
         // Ajustar label y mensaje para nombre_insumo según tipo
         if (tipo === 'Varios') {
