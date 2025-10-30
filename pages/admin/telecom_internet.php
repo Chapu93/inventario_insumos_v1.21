@@ -520,7 +520,16 @@ include '../../includes/header.php';
                                     <div class="btn-group" role="group">
                                         <button type="button" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Ver detalles" aria-label="Ver detalles del servicio" onclick='verDetallesInternet(<?php echo json_encode($row, JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT); ?>)'><i class="fas fa-eye" aria-hidden="true"></i></button>
                                         <a href="<?php echo app_base_url(); ?>/pages/reportes/internet_historial_pdf.php?id=<?php echo (int)$row['id_internet']; ?>" target="_blank" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" title="Generar PDF" aria-label="Generar PDF del historial"><i class="fas fa-file-pdf" aria-hidden="true"></i></a>
-                                        <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Editar" aria-label="Editar servicio" onclick='editarInternet(<?php echo json_encode($row, JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT); ?>)'><i class="fas fa-edit" aria-hidden="true"></i></button>
+                                        
+                                        <?php if ($row['estado_servicio'] === 'Baja por Traslado'): ?>
+                                            <!-- Botón Editar deshabilitado para servicios trasladados -->
+                                            <button type="button" class="btn btn-sm btn-secondary" disabled data-bs-toggle="tooltip" title="No se puede editar un servicio trasladado" aria-label="Editar deshabilitado">
+                                                <i class="fas fa-edit" aria-hidden="true"></i>
+                                            </button>
+                                        <?php else: ?>
+                                            <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Editar" aria-label="Editar servicio" onclick='editarInternet(<?php echo json_encode($row, JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT); ?>)'><i class="fas fa-edit" aria-hidden="true"></i></button>
+                                        <?php endif; ?>
+                                        
                                         <button type="button" class="btn btn-sm btn-danger btn-eliminar-internet" data-bs-toggle="tooltip" title="Eliminar" aria-label="Eliminar servicio" data-id="<?php echo (int)$row['id_internet']; ?>"><i class="fas fa-trash" aria-hidden="true"></i></button>
                                     </div>
                                 </td>
