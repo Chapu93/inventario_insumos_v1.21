@@ -146,6 +146,8 @@ if (isset($_POST['crear_servicio_traslado']) && $_POST['crear_servicio_traslado'
         $db->beginTransaction();
         
         // 1. CREAR NUEVO SERVICIO
+        // El nuevo servicio SIEMPRE es "Pendiente - Autorización superior"
+        // con la misma fecha de solicitud y el mismo PDF
         $stmtNuevo = $db->prepare("
             INSERT INTO sedes_internet (
                 id_sede,
@@ -155,18 +157,13 @@ if (isset($_POST['crear_servicio_traslado']) && $_POST['crear_servicio_traslado'
                 simetrico,
                 tiene_wifi,
                 estado_servicio,
-                fecha_instalacion,
+                instancia_pendiente,
+                fecha_solicitud_autorizacion,
+                archivo_autorizacion,
                 observaciones,
                 id_servicio_trasladado_desde
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
-        
-        $nuevoEstado = $_POST['estado_nuevo'];
-        $nuevaFechaInstalacion = null;
-        
-        if ($nuevoEstado === 'Activo' && !empty($_POST['fecha_instalacion_nueva'])) {
-            $nuevaFechaInstalacion = $_POST['fecha_instalacion_nueva'];
-        }
         
         // Construir observaciones
         $observacionesNuevas = trim($_POST['observaciones_nuevas'] ?? '');
@@ -188,8 +185,10 @@ if (isset($_POST['crear_servicio_traslado']) && $_POST['crear_servicio_traslado'
             !empty($_POST['velocidad_nueva']) ? (int)$_POST['velocidad_nueva'] : null,
             isset($_POST['simetrico_nuevo']) ? 1 : 0,
             isset($_POST['wifi_nuevo']) ? 1 : 0,
-            $nuevoEstado,
-            $nuevaFechaInstalacion,
+            'Pendiente', // SIEMPRE Pendiente
+            'Autorización superior', // SIEMPRE Autorización superior
+            $_POST['fecha_traslado'], // Misma fecha que el traslado
+            $archivoPdfTraslado, // Mismo PDF que el traslado
             trim($observacionesNuevas),
             $id_servicio_anterior // Vínculo con servicio anterior
         ]);
@@ -391,12 +390,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Listado
-$sql = "SELECT si.*, s.nombre_sede, l.nombre_localidad, l.id_localidad
+// Listado (incluir datos de traslados)
+$sql = "SELECT si.*, 
+        s.nombre_sede, 
+        l.nombre_localidad, 
+        l.id_localidad,
+        -- Servicio trasladado A (nuevo)
+        si_nuevo.id_internet AS id_trasladado_a,
+        s_nuevo.nombre_sede AS sede_trasladado_a,
+        -- Servicio trasladado DESDE (anterior)
+        si_anterior.id_internet AS id_trasladado_desde,
+        s_anterior.nombre_sede AS sede_trasladado_desde
         FROM sedes_internet si
         JOIN sedes s ON s.id_sede = si.id_sede
         JOIN localidades l ON l.id_localidad = s.id_localidad
-        ORDER BY l.nombre_localidad, s.nombre_sede";
+        LEFT JOIN sedes_internet si_nuevo ON si.id_servicio_trasladado_a = si_nuevo.id_internet
+        LEFT JOIN sedes s_nuevo ON si_nuevo.id_sede = s_nuevo.id_sede
+        LEFT JOIN sedes_internet si_anterior ON si.id_servicio_trasladado_desde = si_anterior.id_internet
+        LEFT JOIN sedes s_anterior ON si_anterior.id_sede = s_anterior.id_sede
+        ORDER BY l.nombre_localidad, s.nombre_sede, si.id_internet DESC";
 $internet = $db->query($sql)->fetchAll();
 
 // Sedes para select
@@ -457,7 +469,13 @@ include '../../includes/header.php';
                   <span class="badge <?php echo $wifi ? 'bg-success' : 'bg-secondary'; ?>"><?php echo $wifi ? 'Sí' : 'No'; ?></span>
                 </td>
                                 <td>
-                                    <?php $est = $row['estado_servicio']; $cls = ($est==='Activo'?'estado-activa':($est==='Pendiente'?'estado-asignado':'estado-baja')); ?>
+                                    <?php 
+                                    $est = $row['estado_servicio']; 
+                                    if ($est === 'Activo') $cls = 'estado-activa';
+                                    elseif ($est === 'Pendiente') $cls = 'estado-asignado';
+                                    elseif ($est === 'Baja por Traslado') $cls = 'bg-info text-dark';
+                                    else $cls = 'estado-baja';
+                                    ?>
                                     <span class="badge <?php echo $cls; ?>"><?php echo $est; ?></span>
                                     
                                     <?php if ($est === 'Activo' && !empty($row['fecha_instalacion'])): ?>
@@ -478,6 +496,13 @@ include '../../includes/header.php';
                                                 <i class="fas fa-calendar me-1"></i>Solicitud: <?php echo date('d/m/Y', strtotime($row['fecha_solicitud_autorizacion'])); ?>
                                             </small>
                                         <?php endif; ?>
+                                        
+                                        <?php // Mostrar si proviene de traslado ?>
+                                        <?php if (!empty($row['id_trasladado_desde'])): ?>
+                                            <small class="text-secondary d-block mt-1">
+                                                <i class="fas fa-history me-1"></i>Desde servicio #<?php echo $row['id_trasladado_desde']; ?>
+                                            </small>
+                                        <?php endif; ?>
                                     <?php endif; ?>
                                     
                                     <?php if ($est === 'De Baja' && !empty($row['fecha_baja'])): ?>
@@ -486,8 +511,35 @@ include '../../includes/header.php';
                                         </small>
                                     <?php endif; ?>
                                     
+                                    <?php if ($est === 'Baja por Traslado'): ?>
+                                        <?php if (!empty($row['fecha_traslado'])): ?>
+                                            <br><small class="text-muted mt-1 d-block">
+                                                <i class="fas fa-calendar-times me-1"></i>Traslado: <?php echo date('d/m/Y', strtotime($row['fecha_traslado'])); ?>
+                                            </small>
+                                        <?php endif; ?>
+                                        
+                                        <?php if (!empty($row['id_trasladado_a'])): ?>
+                                            <small class="text-primary d-block mt-1">
+                                                <i class="fas fa-arrow-right me-1"></i>Nuevo servicio #<?php echo $row['id_trasladado_a']; ?>
+                                            </small>
+                                        <?php endif; ?>
+                                        
+                                        <?php if (!empty($row['archivo_autorizacion_traslado'])): ?>
+                                            <small class="d-block mt-1">
+                                                <a href="<?php echo app_base_url() . '/' . htmlspecialchars($row['archivo_autorizacion_traslado']); ?>" 
+                                                   target="_blank" 
+                                                   class="btn btn-sm btn-outline-danger"
+                                                   data-bs-toggle="tooltip" 
+                                                   title="Ver PDF de autorización del traslado"
+                                                   aria-label="Ver PDF traslado">
+                                                    <i class="fas fa-file-pdf me-1"></i>PDF
+                                                </a>
+                                            </small>
+                                        <?php endif; ?>
+                                    <?php endif; ?>
+                                    
                                     <?php // Mostrar archivo de autorización siempre que exista, independiente del estado ?>
-                                    <?php if (!empty($row['archivo_autorizacion'])): ?>
+                                    <?php if (!empty($row['archivo_autorizacion']) && $est !== 'Baja por Traslado'): ?>
                                         <small class="d-block mt-1">
                                             <a href="<?php echo app_base_url() . '/' . htmlspecialchars($row['archivo_autorizacion']); ?>" 
                                                target="_blank" 
@@ -745,8 +797,11 @@ include '../../includes/header.php';
           <!-- Información del servicio anterior -->
           <div class="alert alert-info mb-4">
             <h6 class="mb-2"><i class="fas fa-info-circle"></i> Información</h6>
-            <p class="mb-0">
+            <p class="mb-2">
               Se dará de baja el servicio <strong id="traslado_servicio_anterior_id"></strong> y se creará uno nuevo en la misma sede con los datos actualizados.
+            </p>
+            <p class="mb-0">
+              <strong>El nuevo servicio se creará en estado:</strong> <span class="badge bg-warning text-dark">Pendiente - Autorización superior</span>
             </p>
           </div>
           
@@ -767,14 +822,15 @@ include '../../includes/header.php';
           
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label class="form-label">Fecha del Traslado <span class="text-danger">*</span></label>
-              <input type="date" class="form-control" name="fecha_traslado" id="traslado_fecha" required>
+              <label class="form-label">Fecha de Solicitud de Autorización <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="fecha_traslado" id="traslado_fecha" required max="<?php echo date('Y-m-d'); ?>">
+              <small class="text-muted">Esta fecha se guardará como inicio del nuevo servicio</small>
             </div>
             
             <div class="col-md-6 mb-3">
-              <label class="form-label">PDF de Autorización <span class="text-danger">*</span></label>
+              <label class="form-label">PDF de Autorización del Traslado <span class="text-danger">*</span></label>
               <input type="file" class="form-control" name="pdf_traslado" id="traslado_pdf" accept=".pdf" required>
-              <small class="text-muted">Máximo 5 MB</small>
+              <small class="text-muted">Este PDF se guardará en ambos servicios - Máximo 5 MB</small>
             </div>
           </div>
           
@@ -813,19 +869,9 @@ include '../../includes/header.php';
             </div>
           </div>
           
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label class="form-label">Velocidad (Mbps) <span class="text-danger">*</span></label>
-              <input type="number" class="form-control" name="velocidad_nueva" id="traslado_velocidad" min="0" required>
-            </div>
-            
-            <div class="col-md-6 mb-3">
-              <label class="form-label">Estado del Nuevo Servicio <span class="text-danger">*</span></label>
-              <select class="form-select" name="estado_nuevo" id="traslado_estado_nuevo" required>
-                <option value="Pendiente">Pendiente (aún no instalado)</option>
-                <option value="Activo">Activo (ya instalado)</option>
-              </select>
-            </div>
+          <div class="mb-3">
+            <label class="form-label">Velocidad (Mbps) <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" name="velocidad_nueva" id="traslado_velocidad" min="0" required>
           </div>
           
           <div class="row">
@@ -834,15 +880,13 @@ include '../../includes/header.php';
                 <input class="form-check-input" type="checkbox" id="traslado_simetrico" name="simetrico_nuevo" value="1">
                 <label class="form-check-label" for="traslado_simetrico">Simétrico</label>
               </div>
+            </div>
+            
+            <div class="col-md-6">
               <div class="form-check form-switch my-2">
                 <input class="form-check-input" type="checkbox" id="traslado_wifi" name="wifi_nuevo" value="1">
                 <label class="form-check-label" for="traslado_wifi">¿Tiene WiFi?</label>
               </div>
-            </div>
-            
-            <div class="col-md-6 mb-3" id="traslado_contenedor_fecha_instalacion" style="display:none;">
-              <label class="form-label">Fecha de Instalación <span class="text-danger">*</span></label>
-              <input type="date" class="form-control" name="fecha_instalacion_nueva" id="traslado_fecha_instalacion">
             </div>
           </div>
           
@@ -1356,21 +1400,6 @@ $(function(){
     });
   });
   
-  // Mostrar campo fecha instalación si estado es Activo
-  $('#traslado_estado_nuevo').on('change', function() {
-    const contenedor = $('#traslado_contenedor_fecha_instalacion');
-    const input = $('#traslado_fecha_instalacion');
-    
-    if (this.value === 'Activo') {
-      contenedor.show();
-      input.prop('required', true);
-    } else {
-      contenedor.hide();
-      input.prop('required', false);
-      input.val('');
-    }
-  });
-  
   // Validación de archivo PDF
   $('#traslado_pdf').on('change', function() {
     const file = this.files[0];
@@ -1395,7 +1424,6 @@ $(function(){
   // Limpiar modal al cerrarlo
   $('#modalTrasladoInternet').on('hidden.bs.modal', function() {
     $('#formTrasladoInternet')[0].reset();
-    $('#traslado_contenedor_fecha_instalacion').hide();
   });
 });
 </script>
