@@ -62,6 +62,7 @@ try {
                        i.es_nuevo,
                        i.cantidad,
                        i.estado,
+                       pc.sist_op AS pc_sist_op,
                        nb.marca AS nb_marca,
                        nb.modelo AS nb_modelo,
                        imp.marca AS imp_marca,
@@ -73,6 +74,7 @@ try {
                 FROM insumos i
                 LEFT JOIN sedes s ON i.id_sede_actual = s.id_sede
                 LEFT JOIN localidades l ON s.id_localidad = l.id_localidad
+                LEFT JOIN pcs_completas pc ON pc.id_insumo = i.id_insumo
                 LEFT JOIN notebooks nb ON nb.id_insumo = i.id_insumo
                 LEFT JOIN impresoras imp ON imp.id_insumo = i.id_insumo
                 LEFT JOIN monitores mon ON mon.id_insumo = i.id_insumo
@@ -87,9 +89,19 @@ try {
     // Mapear a columnas esperadas por la tabla actual
     $data = array_map(function($r){
         $tipo = (string)$r['tipo_insumo'];
-        $displayName = (string)$r['nombre_insumo'];
+        $esPc = ($tipo === 'PC Escritorio' || $tipo === 'PC Completa');
+        $originalName = (string)$r['nombre_insumo'];
+        $displayName = $originalName;
+        $extraLine = '';
 
-        if ($tipo !== 'Varios' && $tipo !== 'PC Escritorio') {
+        if ($esPc) {
+            $sistOp = trim((string)($r['pc_sist_op'] ?? ''));
+            if ($sistOp !== '') {
+                $displayName = $sistOp;
+            }
+        }
+
+        if ($tipo !== 'Varios' && !$esPc) {
             $marca = '';
             $modelo = '';
             switch ($tipo) {
@@ -122,6 +134,10 @@ try {
             }
         }
 
+        if ($displayName !== $originalName && $originalName !== '') {
+            $extraLine = '<div class="text-muted small">' . htmlspecialchars($originalName) . '</div>';
+        }
+
         $tipoBadge = '<span class="badge bg-info">' . htmlspecialchars($tipo) . '</span>';
         $esNuevo = isset($r['es_nuevo']) ? (int)$r['es_nuevo'] : 1;
         $condicionBadge = '<span class="badge ' . ($esNuevo ? 'bg-success' : 'bg-warning') . '">' . ($esNuevo ? 'Nuevo' : 'Usado') . '</span>';
@@ -135,7 +151,7 @@ try {
                   . ' <button type="button" class="btn btn-sm btn-danger btn-eliminar-insumo" aria-label="Eliminar insumo" data-id="' . (int)$r['id_insumo'] . '" data-bs-toggle="tooltip" title="Eliminar"><i class="fas fa-trash" aria-hidden="true"></i></button>'
                   . '</div>';
         return [
-            '<strong>' . htmlspecialchars($displayName) . '</strong>',
+            '<strong>' . htmlspecialchars($displayName) . '</strong>' . $extraLine,
             $tipoBadge,
             $condicionBadge,
             $cantBadge,

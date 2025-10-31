@@ -45,6 +45,7 @@ if ($numero_remito !== '') {
                                        FROM remitos_detalle d
                                        JOIN insumos i ON d.id_insumo = i.id_insumo
                                        JOIN remitos r ON r.id_remito = d.id_remito
+                                       LEFT JOIN pcs_completas pc ON pc.id_insumo = i.id_insumo
                                        LEFT JOIN notebooks nb ON nb.id_insumo = i.id_insumo
                                        LEFT JOIN impresoras imp ON imp.id_insumo = i.id_insumo
                                        LEFT JOIN monitores mon ON mon.id_insumo = i.id_insumo
@@ -128,7 +129,10 @@ $asignaciones_recientes = $stmt->fetchAll();
                         $tipo = trim((string)($it['tipo_insumo'] ?? ''));
                         $originalNombre = $it['nombre_insumo'] ?? '';
                         $displayNombre = $originalNombre;
-                        if ($tipo !== 'Varios' && $tipo !== 'PC Escritorio') {
+                        $esPc = ($tipo === 'PC Escritorio' || $tipo === 'PC Completa');
+                        if ($esPc && !empty($it['pc_sist_op'])) {
+                            $displayNombre = $it['pc_sist_op'];
+                        } elseif ($tipo !== 'Varios' && !$esPc) {
                             $marca = '';
                             $modelo = '';
                             if (!empty($it['nb_marca']) || !empty($it['nb_modelo'])) {

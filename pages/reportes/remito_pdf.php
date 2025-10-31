@@ -44,6 +44,7 @@ if ($cab) {
                                         pc.ram_gb     AS pc_ram,
                                         pc.almacenamiento_gb AS pc_alm,
                                         pc.mother     AS pc_mother,
+                                        pc.sist_op    AS pc_sist_op,
                                         nb.procesador AS nb_procesador,
                                         nb.ram_gb     AS nb_ram,
                                         nb.almacenamiento_gb AS nb_alm,
@@ -227,11 +228,12 @@ foreach ($items as $it) {
         if (!empty($it['accesorios'])) { $bullets[] = '- Accesorios: ' . $it['accesorios']; }
     }
     // Especificaciones técnicas para PC y Notebook (lista)
-    if ($it['tipo_insumo'] === 'PC Completa') {
+    if ($it['tipo_insumo'] === 'PC Completa' || $it['tipo_insumo'] === 'PC Escritorio') {
         if (!empty($it['pc_procesador'])) { $bullets[] = '- Proc.: ' . $it['pc_procesador']; }
         if (!empty($it['pc_ram'])) { $bullets[] = '- RAM: ' . $it['pc_ram'] . ' GB'; }
         if (!empty($it['pc_alm'])) { $bullets[] = '- Almacenamiento: ' . $it['pc_alm'] . ' GB'; }
         if (!empty($it['pc_mother'])) { $bullets[] = '- Mother: ' . $it['pc_mother']; }
+        if (!empty($it['pc_sist_op'])) { $bullets[] = '- Sistema operativo: ' . $it['pc_sist_op']; }
     } elseif ($it['tipo_insumo'] === 'Notebook') {
         if (!empty($it['nb_procesador'])) { $bullets[] = '- Proc.: ' . $it['nb_procesador']; }
         if (!empty($it['nb_ram'])) { $bullets[] = '- RAM: ' . $it['nb_ram'] . ' GB'; }

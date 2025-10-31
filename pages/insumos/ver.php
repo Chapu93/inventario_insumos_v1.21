@@ -39,6 +39,7 @@ if (!$insumo) {
 // Especificaciones según tipo
 $esp = [];
 switch ($insumo['tipo_insumo']) {
+    case 'PC Completa':
     case 'PC Escritorio':
         $q = $db->prepare("SELECT * FROM pcs_completas WHERE id_insumo = ?");
         $q->execute([$id]); $esp = $q->fetch() ?: [];
@@ -159,11 +160,12 @@ include '../../includes/header.php';
             <div class="card mb-4">
                 <div class="card-header"><h5 class="mb-0"><i class="fas fa-cogs me-2"></i>Especificaciones Técnicas</h5></div>
                 <div class="card-body">
-                    <?php if ($insumo['tipo_insumo'] === 'PC Escritorio'): ?>
+                    <?php if ($insumo['tipo_insumo'] === 'PC Escritorio' || $insumo['tipo_insumo'] === 'PC Completa'): ?>
                         <p><strong>Procesador:</strong> <?php echo htmlspecialchars($esp['procesador'] ?? ''); ?></p>
                         <p><strong>RAM:</strong> <?php echo htmlspecialchars($esp['ram_gb'] ?? ''); ?> GB</p>
                         <p><strong>Almacenamiento:</strong> <?php echo htmlspecialchars($esp['almacenamiento_gb'] ?? ''); ?> GB</p>
                         <p><strong>Mother:</strong> <?php echo htmlspecialchars($esp['mother'] ?? ''); ?></p>
+                        <p><strong>Sistema Operativo:</strong> <?php echo htmlspecialchars($esp['sist_op'] ?? ''); ?></p>
                     <?php elseif ($insumo['tipo_insumo'] === 'Notebook'): ?>
                         <p><strong>Marca:</strong> <?php echo htmlspecialchars($esp['marca'] ?? ''); ?></p>
                         <p><strong>Modelo:</strong> <?php echo htmlspecialchars($esp['modelo'] ?? ''); ?></p>

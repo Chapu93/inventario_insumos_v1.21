@@ -274,7 +274,15 @@ function safeTrim(value) {
 function buildInsumoDisplay(item) {
   const original = safeTrim(item && item.nombre_insumo) || '-';
   const tipo = safeTrim(item && item.tipo_insumo);
-  if (tipo === 'Varios' || tipo === 'PC Escritorio') {
+  const esPc = (tipo === 'PC Escritorio' || tipo === 'PC Completa');
+  if (tipo === 'Varios') {
+    return { display: original, original };
+  }
+  if (esPc) {
+    const sistOp = safeTrim(item && (item.pc_sist_op ?? item.sist_op));
+    if (sistOp) {
+      return { display: sistOp, original };
+    }
     return { display: original, original };
   }
   const marca = safeTrim(item && item.nb_marca) || safeTrim(item && item.imp_marca) || safeTrim(item && item.mon_marca) || safeTrim(item && item.esc_marca);

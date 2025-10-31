@@ -47,6 +47,7 @@ try {
                    i.id_fisico,
                    d.cantidad,
                    {$selectCantidadDevuelta} AS cantidad_devuelta,
+                   pc.sist_op AS pc_sist_op,
                    nb.marca AS nb_marca,
                    nb.modelo AS nb_modelo,
                    imp.marca AS imp_marca,
@@ -57,6 +58,7 @@ try {
                    esc.modelo AS esc_modelo
             FROM remitos_detalle d
             JOIN insumos i ON i.id_insumo = d.id_insumo
+            LEFT JOIN pcs_completas pc ON pc.id_insumo = i.id_insumo
             LEFT JOIN notebooks nb ON nb.id_insumo = i.id_insumo
             LEFT JOIN impresoras imp ON imp.id_insumo = i.id_insumo
             LEFT JOIN monitores mon ON mon.id_insumo = i.id_insumo

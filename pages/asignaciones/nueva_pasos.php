@@ -15,6 +15,7 @@ $stmt = $db->query("SELECT i.id_insumo,
                            i.id_fisico,
                            i.cantidad,
                            ps.nombre_punto AS punto_stock,
+                           pc.sist_op AS pc_sist_op,
                            nb.marca AS nb_marca,
                            nb.modelo AS nb_modelo,
                            imp.marca AS imp_marca,
@@ -25,6 +26,7 @@ $stmt = $db->query("SELECT i.id_insumo,
                            esc.modelo AS esc_modelo
                     FROM insumos i
                     LEFT JOIN puntos_stock ps ON i.id_punto_stock_actual = ps.id_punto_stock
+                    LEFT JOIN pcs_completas pc ON pc.id_insumo = i.id_insumo
                     LEFT JOIN notebooks nb ON nb.id_insumo = i.id_insumo
                     LEFT JOIN impresoras imp ON imp.id_insumo = i.id_insumo
                     LEFT JOIN monitores mon ON mon.id_insumo = i.id_insumo
@@ -259,7 +261,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <?php
                                                 $tipo = (string)$ins['tipo_insumo'];
                                                 $displayName = (string)$ins['nombre_insumo'];
-                                                if ($tipo !== 'Varios' && $tipo !== 'PC Escritorio') {
+                                                $esPc = ($tipo === 'PC Escritorio' || $tipo === 'PC Completa');
+                                                if ($esPc) {
+                                                    if (!empty($ins['pc_sist_op'])) {
+                                                        $displayName = $ins['pc_sist_op'];
+                                                    }
+                                                } elseif ($tipo !== 'Varios') {
                                                     $marca = '';
                                                     $modelo = '';
                                                     switch ($tipo) {
@@ -293,6 +300,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                 }
                                                 $originalName = (string)$ins['nombre_insumo'];
                                                 $filterSource = $displayName;
+                                                if (!empty($ins['pc_sist_op'])) {
+                                                    $filterSource .= ' ' . $ins['pc_sist_op'];
+                                                }
                                                 if ($displayName !== $originalName) {
                                                     $filterSource .= ' ' . $originalName;
                                                 }

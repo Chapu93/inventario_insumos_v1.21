@@ -128,11 +128,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Insertar datos específicos según el tipo (solo para tipos que no son "Varios")
         if ($tipo_insumo != 'Varios') {
             switch ($tipo_insumo) {
+                case 'PC Completa':
                 case 'PC Escritorio':
-                    if (!empty($_POST['procesador']) || !empty($_POST['ram_gb']) || !empty($_POST['almacenamiento_gb']) || !empty($_POST['mother'])) {
-                        $sql = "INSERT INTO pcs_completas (id_insumo, procesador, ram_gb, almacenamiento_gb, mother) VALUES (?, ?, ?, ?, ?)";
+                    if (!empty($_POST['procesador']) || !empty($_POST['ram_gb']) || !empty($_POST['almacenamiento_gb']) || !empty($_POST['mother']) || !empty($_POST['sist_op'])) {
+                        $sql = "INSERT INTO pcs_completas (id_insumo, procesador, ram_gb, almacenamiento_gb, mother, sist_op) VALUES (?, ?, ?, ?, ?, ?)";
                         $stmt = $conexion->prepare($sql);
-                        $stmt->execute([$id_insumo, $_POST['procesador'] ?: null, $_POST['ram_gb'] ?: null, $_POST['almacenamiento_gb'] ?: null, $_POST['mother'] ?: null]);
+                        $stmt->execute([
+                            $id_insumo,
+                            $_POST['procesador'] ?: null,
+                            $_POST['ram_gb'] ?: null,
+                            $_POST['almacenamiento_gb'] ?: null,
+                            $_POST['mother'] ?: null,
+                            $_POST['sist_op'] ?: null
+                        ]);
                     }
                     break;
                     
@@ -480,6 +488,10 @@ include '../../includes/header.php';
                                                 <label for="mother" class="form-label">Motherboard *</label>
                                                 <input type="text" class="form-control form-control-sm w-100" id="mother" name="mother" required>
                                                 <div class="invalid-feedback">La motherboard es obligatoria</div>
+                                            </div>
+                                            <div class="mb-2">
+                                                <label for="sist_op" class="form-label">Sistema Operativo</label>
+                                                <input type="text" class="form-control form-control-sm w-100" id="sist_op" name="sist_op" placeholder="Ej: Windows 11 Pro">
                                             </div>
                                         </div>
                                         <div class="campos-especificos" id="campos-notebook" style="display: none;">

@@ -120,15 +120,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Actualizar tabla específica
         switch ($tipo_fijo) {
+            case 'PC Completa':
             case 'PC Escritorio':
                 $db->prepare("DELETE FROM pcs_completas WHERE id_insumo = ?")->execute([$id]);
-                $db->prepare("INSERT INTO pcs_completas (id_insumo, procesador, ram_gb, almacenamiento_gb, mother) VALUES (?,?,?,?,?)")
+                $db->prepare("INSERT INTO pcs_completas (id_insumo, procesador, ram_gb, almacenamiento_gb, mother, sist_op) VALUES (?,?,?,?,?,?)")
                    ->execute([
                        $id,
                        ($_POST['procesador'] ?? null),
                        ($_POST['ram_gb'] ?? null),
                        ($_POST['almacenamiento_gb'] ?? null),
-                       ($_POST['mother'] ?? null)
+                       ($_POST['mother'] ?? null),
+                       ($_POST['sist_op'] ?? null)
                    ]);
                 break;
             case 'Notebook':
@@ -423,6 +425,10 @@ include '../../includes/header.php';
                                 <div class="mb-2">
                                     <label class="form-label">Mother</label>
                                     <input type="text" class="form-control form-control-sm" name="mother" value="<?php echo htmlspecialchars($esp['mother'] ?? ''); ?>">
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">Sistema Operativo</label>
+                                    <input type="text" class="form-control form-control-sm" id="sist_op" name="sist_op" value="<?php echo htmlspecialchars($esp['sist_op'] ?? ''); ?>">
                                 </div>
                             <?php elseif ($tipo_insumo === 'Notebook'): ?>
                                 <div class="mb-2"><label class="form-label">Marca</label><input type="text" class="form-control form-control-sm" name="marca_notebook" value="<?php echo htmlspecialchars($esp['marca'] ?? ''); ?>"></div>

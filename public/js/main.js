@@ -240,6 +240,10 @@ function mostrarCamposEspecificos(tipoInsumo) {
     } else {
         $('#cantidad').prop('readonly', false);
     }
+
+    if (tipoInsumo !== 'PC Escritorio' && tipoInsumo !== 'PC Completa') {
+        $('#sist_op').val('');
+    }
     
     if (tipoInsumo === 'Varios') {
         console.log('Mostrando campos para Varios');
@@ -253,6 +257,7 @@ function mostrarCamposEspecificos(tipoInsumo) {
         // Mostrar campos específicos según tipo
         switch(tipoInsumo) {
             case 'PC Completa':
+            case 'PC Escritorio':
                 $('#campos-pc').show();
                 break;
             case 'Notebook':
@@ -286,6 +291,7 @@ function actualizarValidacionCampos(tipo) {
         // Hacer obligatorios los campos específicos según tipo
         switch(tipo) {
             case 'PC Completa':
+            case 'PC Escritorio':
                 $('#procesador, #ram_gb, #almacenamiento_gb, #mother').prop('required', true);
                 break;
             case 'Notebook':
