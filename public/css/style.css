@@ -9,7 +9,7 @@
 /* Footer Styles - Sticky footer con flexbox */
 .app-footer {
     background: linear-gradient(135deg, var(--menu-start) 0%, var(--menu-end) 100%);
-    color: #fff;
+    color: #000;
     padding: 12px 15px;
     font-size: 0.85rem;
     box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.2);
