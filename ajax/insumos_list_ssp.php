@@ -56,10 +56,27 @@ try {
     $filtered = (int)$stmt->fetchColumn();
 
     // Página de datos
-    $dataSql = "SELECT i.id_insumo, i.nombre_insumo, i.tipo_insumo, i.es_nuevo, i.cantidad, i.estado
+    $dataSql = "SELECT i.id_insumo,
+                       i.nombre_insumo,
+                       i.tipo_insumo,
+                       i.es_nuevo,
+                       i.cantidad,
+                       i.estado,
+                       nb.marca AS nb_marca,
+                       nb.modelo AS nb_modelo,
+                       imp.marca AS imp_marca,
+                       imp.modelo AS imp_modelo,
+                       mon.marca AS mon_marca,
+                       mon.modelo AS mon_modelo,
+                       esc.marca AS esc_marca,
+                       esc.modelo AS esc_modelo
                 FROM insumos i
                 LEFT JOIN sedes s ON i.id_sede_actual = s.id_sede
                 LEFT JOIN localidades l ON s.id_localidad = l.id_localidad
+                LEFT JOIN notebooks nb ON nb.id_insumo = i.id_insumo
+                LEFT JOIN impresoras imp ON imp.id_insumo = i.id_insumo
+                LEFT JOIN monitores mon ON mon.id_insumo = i.id_insumo
+                LEFT JOIN escaneres esc ON esc.id_insumo = i.id_insumo
                 $whereSql
                 ORDER BY $orderBy $orderDir
                 LIMIT $start, $length";
@@ -69,7 +86,43 @@ try {
 
     // Mapear a columnas esperadas por la tabla actual
     $data = array_map(function($r){
-        $tipoBadge = '<span class="badge bg-info">' . htmlspecialchars($r['tipo_insumo']) . '</span>';
+        $tipo = (string)$r['tipo_insumo'];
+        $displayName = (string)$r['nombre_insumo'];
+
+        if ($tipo !== 'Varios' && $tipo !== 'PC Escritorio') {
+            $marca = '';
+            $modelo = '';
+            switch ($tipo) {
+                case 'Notebook':
+                    $marca = $r['nb_marca'] ?? '';
+                    $modelo = $r['nb_modelo'] ?? '';
+                    break;
+                case 'Impresora':
+                    $marca = $r['imp_marca'] ?? '';
+                    $modelo = $r['imp_modelo'] ?? '';
+                    break;
+                case 'Monitor':
+                    $marca = $r['mon_marca'] ?? '';
+                    $modelo = $r['mon_modelo'] ?? '';
+                    break;
+                case 'Escaner':
+                    $marca = $r['esc_marca'] ?? '';
+                    $modelo = $r['esc_modelo'] ?? '';
+                    break;
+                default:
+                    $marca = $r['nb_marca'] ?? $r['imp_marca'] ?? $r['mon_marca'] ?? $r['esc_marca'] ?? '';
+                    $modelo = $r['nb_modelo'] ?? $r['imp_modelo'] ?? $r['mon_modelo'] ?? $r['esc_modelo'] ?? '';
+                    break;
+            }
+            $marca = trim((string)$marca);
+            $modelo = trim((string)$modelo);
+            if ($marca !== '' || $modelo !== '') {
+                $separator = ($marca !== '' && $modelo !== '') ? ' - ' : '';
+                $displayName = trim($marca . $separator . $modelo);
+            }
+        }
+
+        $tipoBadge = '<span class="badge bg-info">' . htmlspecialchars($tipo) . '</span>';
         $esNuevo = isset($r['es_nuevo']) ? (int)$r['es_nuevo'] : 1;
         $condicionBadge = '<span class="badge ' . ($esNuevo ? 'bg-success' : 'bg-warning') . '">' . ($esNuevo ? 'Nuevo' : 'Usado') . '</span>';
         $cantBadge = '<span class="badge ' . ((int)$r['cantidad'] > 0 ? 'bg-success' : 'bg-danger') . '">' . (int)$r['cantidad'] . '</span>';
@@ -82,7 +135,7 @@ try {
                   . ' <button type="button" class="btn btn-sm btn-danger btn-eliminar-insumo" aria-label="Eliminar insumo" data-id="' . (int)$r['id_insumo'] . '" data-bs-toggle="tooltip" title="Eliminar"><i class="fas fa-trash" aria-hidden="true"></i></button>'
                   . '</div>';
         return [
-            '<strong>' . htmlspecialchars($r['nombre_insumo']) . '</strong>',
+            '<strong>' . htmlspecialchars($displayName) . '</strong>',
             $tipoBadge,
             $condicionBadge,
             $cantBadge,
