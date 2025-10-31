@@ -39,11 +39,18 @@ require_once '../../includes/config.php';
                 <th>Tipo</th>
                 <th>Cantidad</th>
                 <th>Observación</th>
-                <th>Remito</th>
               </tr>
             </thead>
             <tbody></tbody>
           </table>
+        </div>
+        <div class="d-flex justify-content-end gap-2 mt-3">
+          <button type="button" class="btn btn-success" onclick="exportarExcelSinColumnas('tablaBajas', 'bajas', [])">
+            <i class="fas fa-file-excel me-2"></i>Exportar Excel
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="imprimirTablaSinColumnas('tablaBajas', 'bajas', [])">
+            <i class="fas fa-print me-2"></i>Imprimir
+          </button>
         </div>
       </div>
     </div>
@@ -75,6 +82,14 @@ require_once '../../includes/config.php';
             <tbody></tbody>
           </table>
         </div>
+        <div class="d-flex justify-content-end gap-2 mt-3">
+          <button type="button" class="btn btn-success" onclick="exportarExcelSinColumnas('tablaDevoluciones', 'devoluciones', [0])">
+            <i class="fas fa-file-excel me-2"></i>Exportar Excel
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="imprimirTablaSinColumnas('tablaDevoluciones', 'devoluciones', [0])">
+            <i class="fas fa-print me-2"></i>Imprimir
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -104,6 +119,14 @@ require_once '../../includes/config.php';
             <tbody></tbody>
           </table>
         </div>
+        <div class="d-flex justify-content-end gap-2 mt-3">
+          <button type="button" class="btn btn-success" onclick="exportarExcelSinColumnas('tablaAnulados', 'remitos_anulados', [0])">
+            <i class="fas fa-file-excel me-2"></i>Exportar Excel
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="imprimirTablaSinColumnas('tablaAnulados', 'remitos_anulados', [0])">
+            <i class="fas fa-print me-2"></i>Imprimir
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -125,8 +148,7 @@ $(function(){
         { data: 1 },
         { data: 2 },
         { data: 3 },
-        { data: 4 },
-        { data: 5, orderable: false, searchable: false }
+        { data: 4 }
       ],
       drawCallback: function(){ inicializarTooltips(); }
     });

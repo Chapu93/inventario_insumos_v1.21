@@ -358,6 +358,36 @@ function exportarExcel(tablaId, nombreArchivo) {
     console.log('Excel exportado correctamente');
 }
 
+function exportarExcelSinColumnas(tablaId, nombreArchivo, indicesExcluir = []) {
+    console.log('Exportando Excel con exclusiones:', tablaId, nombreArchivo, indicesExcluir);
+    const tabla = document.getElementById(tablaId);
+
+    if (!tabla) {
+        console.error('Tabla no encontrada:', tablaId);
+        alert('Error: No se encontró la tabla');
+        return;
+    }
+
+    const tablaClonada = tabla.cloneNode(true);
+
+    const removerColumnas = (selectorFila) => {
+        tablaClonada.querySelectorAll(selectorFila).forEach(row => {
+            const celdas = Array.from(row.children);
+            indicesExcluir.slice().sort((a, b) => b - a).forEach(idx => {
+                if (celdas[idx]) { celdas[idx].remove(); }
+            });
+        });
+    };
+
+    removerColumnas('thead tr');
+    removerColumnas('tbody tr');
+
+    console.log('Generando Excel (sin columnas)...');
+    const wb = XLSX.utils.table_to_book(tablaClonada, {sheet: "Sheet1"});
+    XLSX.writeFile(wb, `${nombreArchivo}_${new Date().toISOString().split('T')[0]}.xlsx`);
+    console.log('Excel exportado correctamente (sin columnas)');
+}
+
 // Función para imprimir tabla (sin columna Acciones)
 function imprimirTabla(tablaId, nombreArchivo) {
     console.log('Imprimiendo tabla:', tablaId, nombreArchivo);
@@ -425,6 +455,61 @@ function imprimirTabla(tablaId, nombreArchivo) {
     ventana.document.close();
     ventana.print();
     console.log('Ventana de impresión abierta');
+}
+
+function imprimirTablaSinColumnas(tablaId, nombreArchivo, indicesExcluir = []) {
+    console.log('Imprimiendo tabla con exclusiones:', tablaId, nombreArchivo, indicesExcluir);
+    const tabla = document.getElementById(tablaId);
+
+    if (!tabla) {
+        console.error('Tabla no encontrada:', tablaId);
+        alert('Error: No se encontró la tabla');
+        return;
+    }
+
+    const tablaClonada = tabla.cloneNode(true);
+
+    const removerColumnas = (selectorFila) => {
+        tablaClonada.querySelectorAll(selectorFila).forEach(row => {
+            const celdas = Array.from(row.children);
+            indicesExcluir.slice().sort((a, b) => b - a).forEach(idx => {
+                if (celdas[idx]) { celdas[idx].remove(); }
+            });
+        });
+    };
+
+    removerColumnas('thead tr');
+    removerColumnas('tbody tr');
+
+    const titulo = nombreArchivo ? nombreArchivo.charAt(0).toUpperCase() + nombreArchivo.slice(1) : tablaId;
+
+    console.log('Abriendo ventana de impresión (sin columnas)...');
+    const ventana = window.open('', '_blank');
+    ventana.document.write(`
+        <html>
+            <head>
+                <title>Imprimir ${titulo}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; padding: 20px; }
+                    h2 { color: #2c3e50; margin-bottom: 20px; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px; }
+                    th { background-color: #f2f2f2; font-weight: bold; }
+                    @media print {
+                        .no-print { display: none; }
+                        body { padding: 10px; }
+                    }
+                </style>
+            </head>
+            <body>
+                <h2>Listado de ${titulo}</h2>
+                ${tablaClonada.outerHTML}
+            </body>
+        </html>
+    `);
+    ventana.document.close();
+    ventana.print();
+    console.log('Ventana de impresión abierta (sin columnas)');
 }
 
 // Función para actualizar contadores del dashboard

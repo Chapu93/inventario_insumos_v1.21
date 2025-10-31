@@ -209,6 +209,14 @@ $asignaciones_recientes = $stmt->fetchAll();
                     <tbody></tbody>
                 </table>
             </div>
+            <div class="d-flex justify-content-end gap-2 mt-3">
+                <button type="button" class="btn btn-success" onclick="exportarExcelSinColumnas('tablaRemitos', 'remitos', [0])">
+                    <i class="fas fa-file-excel me-2"></i>Exportar Excel
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="imprimirTablaSinColumnas('tablaRemitos', 'remitos', [0])">
+                    <i class="fas fa-print me-2"></i>Imprimir
+                </button>
+            </div>
         <?php endif; ?>
     </div>
 </div>
