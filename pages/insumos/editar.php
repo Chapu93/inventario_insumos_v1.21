@@ -238,8 +238,17 @@ include '../../includes/header.php';
                         </div>
                         <div class="card-body p-3">
                             <div class="mb-2">
-                                <label class="form-label">Nombre del Insumo *</label>
-                                <input type="text" class="form-control form-control-sm" name="nombre_insumo" value="<?php echo htmlspecialchars($insumo['nombre_insumo']); ?>" required>
+                                <label class="form-label" for="nombre_insumo">
+                                    <?php echo $tipo_insumo === 'Varios' ? 'Nombre del Insumo *' : 'Descripción'; ?>
+                                </label>
+                                <input
+                                    type="text"
+                                    class="form-control form-control-sm"
+                                    id="nombre_insumo"
+                                    name="nombre_insumo"
+                                    value="<?php echo htmlspecialchars($insumo['nombre_insumo']); ?>"
+                                    <?php echo $tipo_insumo === 'Varios' ? 'required' : ''; ?>
+                                >
                             </div>
 
                             <?php if ($tipo_insumo === 'Varios'): ?>
