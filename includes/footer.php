@@ -6,11 +6,8 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12 text-center">
-                    <p class="mb-2">
-                        Sistema desarrollado íntegramente por el equipo de <strong>Dirección de Informática, Telecomunicación y Administración de Run</strong> de la <strong>Secretaría de Niñez, Adolescencia y Familia (SENAF)</strong>, Gobierno de Río Negro.
-                    </p>
                     <p class="mb-0">
-                        © <?php echo date("Y"); ?>. Todos los derechos reservados.
+                        Sistema desarrollado por Dirección de Informática, Telecomunicación y Administración de RUN - SeNAF, R.N. © 2025. Todos los derechos reservados.
                     </p>
                 </div>
             </div>
