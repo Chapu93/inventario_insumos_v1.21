@@ -8,9 +8,27 @@ $localidades = $db->query("SELECT id_localidad, nombre_localidad FROM localidade
 $areas = $db->query("SELECT id_area, nombre_area FROM areas ORDER BY nombre_area")->fetchAll();
 
 // Insumos disponibles (para la tabla del paso 2)
-$stmt = $db->query("SELECT i.id_insumo, i.nombre_insumo, i.tipo_insumo, i.numero_serie, i.id_fisico, i.cantidad, ps.nombre_punto AS punto_stock
+$stmt = $db->query("SELECT i.id_insumo,
+                           i.nombre_insumo,
+                           i.tipo_insumo,
+                           i.numero_serie,
+                           i.id_fisico,
+                           i.cantidad,
+                           ps.nombre_punto AS punto_stock,
+                           nb.marca AS nb_marca,
+                           nb.modelo AS nb_modelo,
+                           imp.marca AS imp_marca,
+                           imp.modelo AS imp_modelo,
+                           mon.marca AS mon_marca,
+                           mon.modelo AS mon_modelo,
+                           esc.marca AS esc_marca,
+                           esc.modelo AS esc_modelo
                     FROM insumos i
                     LEFT JOIN puntos_stock ps ON i.id_punto_stock_actual = ps.id_punto_stock
+                    LEFT JOIN notebooks nb ON nb.id_insumo = i.id_insumo
+                    LEFT JOIN impresoras imp ON imp.id_insumo = i.id_insumo
+                    LEFT JOIN monitores mon ON mon.id_insumo = i.id_insumo
+                    LEFT JOIN escaneres esc ON esc.id_insumo = i.id_insumo
                     WHERE i.estado = 'Disponible' AND (i.tipo_insumo <> 'Varios' OR i.cantidad > 0)
                     ORDER BY i.nombre_insumo");
 $insumos = $stmt->fetchAll();
@@ -238,28 +256,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <table class="table table-flat table-hover" id="tablaInsumos">
                                         <tbody>
                                             <?php foreach ($insumos as $ins): ?>
-                                            <tr class="fila-insumo" data-tipo="<?php echo htmlspecialchars($ins['tipo_insumo']); ?>" data-texto="<?php echo strtolower(htmlspecialchars($ins['nombre_insumo'])); ?>">
+                                            <?php
+                                                $tipo = (string)$ins['tipo_insumo'];
+                                                $displayName = (string)$ins['nombre_insumo'];
+                                                if ($tipo !== 'Varios' && $tipo !== 'PC Escritorio') {
+                                                    $marca = '';
+                                                    $modelo = '';
+                                                    switch ($tipo) {
+                                                        case 'Notebook':
+                                                            $marca = $ins['nb_marca'] ?? '';
+                                                            $modelo = $ins['nb_modelo'] ?? '';
+                                                            break;
+                                                        case 'Impresora':
+                                                            $marca = $ins['imp_marca'] ?? '';
+                                                            $modelo = $ins['imp_modelo'] ?? '';
+                                                            break;
+                                                        case 'Monitor':
+                                                            $marca = $ins['mon_marca'] ?? '';
+                                                            $modelo = $ins['mon_modelo'] ?? '';
+                                                            break;
+                                                        case 'Escaner':
+                                                            $marca = $ins['esc_marca'] ?? '';
+                                                            $modelo = $ins['esc_modelo'] ?? '';
+                                                            break;
+                                                        default:
+                                                            $marca = $ins['nb_marca'] ?? $ins['imp_marca'] ?? $ins['mon_marca'] ?? $ins['esc_marca'] ?? '';
+                                                            $modelo = $ins['nb_modelo'] ?? $ins['imp_modelo'] ?? $ins['mon_modelo'] ?? $ins['esc_modelo'] ?? '';
+                                                            break;
+                                                    }
+                                                    $marca = trim((string)$marca);
+                                                    $modelo = trim((string)$modelo);
+                                                    if ($marca !== '' || $modelo !== '') {
+                                                            $separator = ($marca !== '' && $modelo !== '') ? ' - ' : '';
+                                                            $displayName = trim($marca . $separator . $modelo);
+                                                    }
+                                                }
+                                                $originalName = (string)$ins['nombre_insumo'];
+                                                $filterSource = $displayName;
+                                                if ($displayName !== $originalName) {
+                                                    $filterSource .= ' ' . $originalName;
+                                                }
+                                                $filterText = function_exists('mb_strtolower') ? mb_strtolower($filterSource, 'UTF-8') : strtolower($filterSource);
+                                            ?>
+                                            <tr class="fila-insumo" data-tipo="<?php echo htmlspecialchars($tipo); ?>" data-texto="<?php echo htmlspecialchars($filterText); ?>">
                                                 <td>
                                                     <div>
-                                                        <strong><?php echo htmlspecialchars($ins['nombre_insumo']); ?></strong>
+                                                        <strong><?php echo htmlspecialchars($displayName); ?></strong>
+                                                        <?php if ($displayName !== $originalName): ?>
+                                                            <div class="text-muted small"><?php echo htmlspecialchars($originalName); ?></div>
+                                                        <?php endif; ?>
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <span class="badge bg-info"><?php echo htmlspecialchars($ins['tipo_insumo']); ?></span>
+                                                    <span class="badge bg-info"><?php echo htmlspecialchars($tipo); ?></span>
                                                 </td>
-                                                <td><?php echo ($ins['tipo_insumo'] === 'Varios') ? (int)$ins['cantidad'] : 1; ?></td>
+                                                <td><?php echo ($tipo === 'Varios') ? (int)$ins['cantidad'] : 1; ?></td>
                                                 <td><?php echo $ins['punto_stock'] ? htmlspecialchars($ins['punto_stock']) : '<span class="text-muted">Sin punto</span>'; ?></td>
                                                 <td>
                                                     <div class="d-flex gap-2 align-items-center justify-content-end flex-wrap">
-                                                        <input type="hidden" name="id_insumo[]" value="<?php echo $ins['id_insumo']; ?>" class="hidden-insumo-input" data-tipo="<?php echo htmlspecialchars($ins['tipo_insumo']); ?>" data-max="<?php echo ($ins['tipo_insumo'] === 'Varios') ? (int)$ins['cantidad'] : 1; ?>" disabled style="display:none;">
-                                                        <?php if ($ins['tipo_insumo'] === 'Varios' && $ins['cantidad'] > 1): ?>
+                                                        <input type="hidden" name="id_insumo[]" value="<?php echo $ins['id_insumo']; ?>" class="hidden-insumo-input" data-tipo="<?php echo htmlspecialchars($tipo); ?>" data-max="<?php echo ($tipo === 'Varios') ? (int)$ins['cantidad'] : 1; ?>" disabled style="display:none;">
+                                                        <?php if ($tipo === 'Varios' && $ins['cantidad'] > 1): ?>
                                                         <div class="cantidad-input" style="display:none;">
                                                             <?php $cid = 'cantidad_varios_' . (int)$ins['id_insumo']; ?>
                                                             <label for="<?php echo $cid; ?>" class="small text-muted mb-0">Cant.</label>
                                                             <input id="<?php echo $cid; ?>" type="number" class="form-control form-control-sm" name="cantidad_varios[<?php echo $ins['id_insumo']; ?>]" min="1" max="<?php echo (int)$ins['cantidad']; ?>" value="1" style="width:84px;">
                                                         </div>
                                                         <?php endif; ?>
-                                                        <button type="button" class="btn btn-sm btn-outline-primary btn-seleccionar" data-insumo-id="<?php echo $ins['id_insumo']; ?>" onclick="toggleSeleccionInsumo(<?php echo $ins['id_insumo']; ?>)" title="Seleccionar" aria-label="Seleccionar insumo <?php echo htmlspecialchars($ins['nombre_insumo']); ?>"><i class="fas fa-plus" aria-hidden="true"></i><span class="d-none d-sm-inline"> Seleccionar</span></button>
+                                                        <button type="button" class="btn btn-sm btn-outline-primary btn-seleccionar" data-insumo-id="<?php echo $ins['id_insumo']; ?>" onclick="toggleSeleccionInsumo(<?php echo $ins['id_insumo']; ?>)" title="Seleccionar" aria-label="Seleccionar insumo <?php echo htmlspecialchars($displayName); ?>"><i class="fas fa-plus" aria-hidden="true"></i><span class="d-none d-sm-inline"> Seleccionar</span></button>
                                                     </div>
                                                 </td>
                                             </tr>
