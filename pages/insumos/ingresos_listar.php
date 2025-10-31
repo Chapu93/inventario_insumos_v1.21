@@ -19,7 +19,7 @@ include '../../includes/header.php';
       <table class="table table-striped datatable" id="tablaIngresos">
         <thead>
           <tr>
-            <th>Nro. Referencia</th>
+            <th>Nro. Exp./Notas/Referencia</th>
             <th>Tipo</th>
             <th>Finalización</th>
             <th>Insumos</th>
@@ -56,7 +56,7 @@ include '../../includes/header.php';
           </div>
           
           <div class="mb-3">
-            <label for="nuevo_nro_referencia" class="form-label" id="label_nro_referencia">Nro. de Referencia *</label>
+            <label for="nuevo_nro_referencia" class="form-label" id="label_nro_referencia">Nro. Exp./Notas/Referencia *</label>
             <input type="text" class="form-control" id="nuevo_nro_referencia" name="nro_referencia" required>
             <small class="text-muted" id="help_nro_referencia">Ingrese el número de referencia</small>
           </div>
@@ -252,7 +252,7 @@ function actualizarLabelReferencia() {
       if (help) help.textContent = 'Ingrese el número de referencia';
       break;
     default:
-      label.textContent = 'Nro. de Referencia *';
+      label.textContent = 'Nro. Exp./Notas/Referencia *';
       if (help) help.textContent = 'Ingrese el número de referencia';
   }
 }

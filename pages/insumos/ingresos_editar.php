@@ -23,6 +23,65 @@ if (isset($_GET['id']) && $_GET['id']) {
     }
 }
 
+$tipoIngreso = $ingresoData['tipo_ingreso'] ?? ($_GET['tipo'] ?? 'otros');
+$tipoIngreso = is_string($tipoIngreso) ? strtolower($tipoIngreso) : 'otros';
+
+$uiDefaults = [
+    'ref_label' => 'Nro. Exp./Notas/Referencia',
+    'ref_placeholder' => 'Ej: REF-2025-001',
+    'ref_help' => 'Ingrese el número correspondiente',
+    'invalid_msg' => 'El número es obligatorio',
+    'desc_title' => 'Descripción del ingreso',
+    'desc_placeholder' => 'Descripción detallada del ingreso...',
+    'summary_label' => 'Nro. Exp./Notas/Referencia',
+    'toast_msg' => 'Complete el número correspondiente'
+];
+
+$uiByTipo = [
+    'licitacion' => [
+        'ref_label' => 'Nro. de Expediente',
+        'ref_placeholder' => 'Ej: EXP-2025-001',
+        'ref_help' => 'Ingrese el número de expediente de licitación',
+        'invalid_msg' => 'El número de expediente es obligatorio',
+        'desc_title' => 'Descripción de la licitación',
+        'desc_placeholder' => 'Descripción detallada de la licitación...',
+        'summary_label' => 'Nro. de Expediente',
+        'toast_msg' => 'Complete el número de expediente'
+    ],
+    'compra_directa' => [
+        'ref_label' => 'Nro. de Expediente',
+        'ref_placeholder' => 'Ej: EXP-CD-2025-015',
+        'ref_help' => 'Ingrese el número de expediente de la compra directa',
+        'invalid_msg' => 'El número de expediente es obligatorio',
+        'desc_title' => 'Descripción de la compra directa',
+        'desc_placeholder' => 'Detalle de la compra directa...',
+        'summary_label' => 'Nro. de Expediente',
+        'toast_msg' => 'Complete el número de expediente'
+    ],
+    'fondos' => [
+        'ref_label' => 'Nro. de Nota',
+        'ref_placeholder' => 'Ej: NOTA-2025-015',
+        'ref_help' => 'Ingrese el número de nota de fondos',
+        'invalid_msg' => 'El número de nota es obligatorio',
+        'desc_title' => 'Descripción de la nota',
+        'desc_placeholder' => 'Detalle de la nota de fondos...',
+        'summary_label' => 'Nro. de Nota',
+        'toast_msg' => 'Complete el número de nota'
+    ],
+    'otros' => [
+        'ref_label' => 'Nro. de Referencia',
+        'ref_placeholder' => 'Ej: REF-2025-XYZ',
+        'ref_help' => 'Ingrese el número de referencia',
+        'invalid_msg' => 'El número de referencia es obligatorio',
+        'desc_title' => 'Descripción del ingreso',
+        'desc_placeholder' => 'Descripción detallada del ingreso...',
+        'summary_label' => 'Nro. de Referencia',
+        'toast_msg' => 'Complete el número de referencia'
+    ]
+];
+
+$uiConfig = $uiByTipo[$tipoIngreso] ?? $uiDefaults;
+
 // Obtener todos los insumos disponibles (sin licitación asignada) y los de esta licitación si estamos editando
 $sqlInsumos = "SELECT i.id_insumo, i.nombre_insumo, i.tipo_insumo, i.numero_serie, i.id_fisico, i.cantidad, 
                ps.nombre_punto AS punto_stock
@@ -146,8 +205,8 @@ include '../../includes/header.php';
                                 <div class="col-md-6">
                                     <h6 class="mb-3 section-title">Información de la Ingreso</h6>
                                     <div class="mb-3">
-                                        <label for="nro_referencia" class="form-label">
-                                            Número de Referencia <span class="text-danger">*</span>
+                                        <label for="nro_referencia" class="form-label" id="label_nro_referencia">
+                                            <?php echo htmlspecialchars($uiConfig['ref_label']); ?> <span class="text-danger">*</span>
                                         </label>
                                         <input 
                                             type="text" 
@@ -156,9 +215,10 @@ include '../../includes/header.php';
                                             name="nro_referencia" 
                                             required
                                             value="<?php echo $esEdicion && $ingresoData ? htmlspecialchars($ingresoData['nro_referencia']) : ''; ?>"
-                                            placeholder="Ej: EXP-2025-001"
+                                            placeholder="<?php echo htmlspecialchars($uiConfig['ref_placeholder']); ?>"
                                         >
-                                        <div class="invalid-feedback">El código de expediente es obligatorio</div>
+                                        <small class="text-muted" id="help_nro_referencia"><?php echo htmlspecialchars($uiConfig['ref_help']); ?></small>
+                                        <div class="invalid-feedback"><?php echo htmlspecialchars($uiConfig['invalid_msg']); ?></div>
                                     </div>
                                     
                                     <div class="mb-3">
@@ -176,13 +236,13 @@ include '../../includes/header.php';
                                 </div>
                                 
                                 <div class="col-md-6">
-                                    <h6 class="mb-3 section-title">Descripción</h6>
+                                    <h6 class="mb-3 section-title" id="titulo_descripcion"><?php echo htmlspecialchars($uiConfig['desc_title']); ?></h6>
                                     <textarea 
                                         class="form-control" 
                                         id="descripcion" 
                                         name="descripcion" 
                                         rows="6"
-                                        placeholder="Descripción detallada de la licitación..."
+                                        placeholder="<?php echo htmlspecialchars($uiConfig['desc_placeholder']); ?>"
                                     ><?php echo $esEdicion && $ingresoData && $ingresoData['descripcion'] ? htmlspecialchars($ingresoData['descripcion']) : ''; ?></textarea>
                                 </div>
                             </div>
@@ -324,11 +384,11 @@ include '../../includes/header.php';
                                     <div class="row">
                                         <div class="col-md-6">
                                             <h6 class="text-primary mb-2"><i class="fas fa-file-signature me-2"></i>Datos de la Ingreso</h6>
-                                            <p class="mb-1"><strong>Código Expediente:</strong> <span id="m_codigo"></span></p>
+                                            <p class="mb-1"><strong><?php echo htmlspecialchars($uiConfig['summary_label']); ?>:</strong> <span id="m_codigo"></span></p>
                                             <p class="mb-1"><strong>Fecha Finalización:</strong> <span id="m_fecha"></span></p>
                                         </div>
                                         <div class="col-md-6">
-                                            <h6 class="text-primary mb-2"><i class="fas fa-comment me-2"></i>Descripción</h6>
+                                            <h6 class="text-primary mb-2"><i class="fas fa-comment me-2"></i><?php echo htmlspecialchars($uiConfig['desc_title']); ?></h6>
                                             <div class="alert alert-light mb-0" id="m_descripcion" style="white-space: pre-wrap; max-height: 100px; overflow-y: auto;"></div>
                                         </div>
                                     </div>
@@ -362,6 +422,7 @@ include '../../includes/header.php';
 <script>
 const BASE = '<?php echo app_base_url(); ?>';
 const ES_EDICION = <?php echo $esEdicion ? 'true' : 'false'; ?>;
+const TOAST_MSG_REFERENCIA = <?php echo json_encode($uiConfig['toast_msg'], JSON_UNESCAPED_UNICODE); ?>;
 
 let pasoActual = 1;
 
@@ -593,7 +654,7 @@ function validarPaso1() {
     const nroRef = document.getElementById('nro_referencia');
     if (!nroRef || !nroRef.value.trim()) {
         nroRef && nroRef.classList.add('is-invalid');
-        showToast('Complete el número de referencia', 'warning');
+        showToast(TOAST_MSG_REFERENCIA, 'warning');
         return false;
     }
     nroRef.classList.remove('is-invalid');
