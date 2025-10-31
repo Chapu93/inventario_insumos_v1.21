@@ -29,10 +29,26 @@ if ($numero_remito !== '') {
     $cab = $stmt->fetch();
 
     if ($cab) {
-        $stmtDet = $conexion->prepare("SELECT i.nombre_insumo, i.tipo_insumo, i.numero_serie, i.id_fisico, d.cantidad
+        $stmtDet = $conexion->prepare("SELECT i.nombre_insumo,
+                                       i.tipo_insumo,
+                                       i.numero_serie,
+                                       i.id_fisico,
+                                       d.cantidad,
+                                       nb.marca AS nb_marca,
+                                       nb.modelo AS nb_modelo,
+                                       imp.marca AS imp_marca,
+                                       imp.modelo AS imp_modelo,
+                                       mon.marca AS mon_marca,
+                                       mon.modelo AS mon_modelo,
+                                       esc.marca AS esc_marca,
+                                       esc.modelo AS esc_modelo
                                        FROM remitos_detalle d
                                        JOIN insumos i ON d.id_insumo = i.id_insumo
                                        JOIN remitos r ON r.id_remito = d.id_remito
+                                       LEFT JOIN notebooks nb ON nb.id_insumo = i.id_insumo
+                                       LEFT JOIN impresoras imp ON imp.id_insumo = i.id_insumo
+                                       LEFT JOIN monitores mon ON mon.id_insumo = i.id_insumo
+                                       LEFT JOIN escaneres esc ON esc.id_insumo = i.id_insumo
                                        WHERE r.numero_remito = ?
                                        ORDER BY i.nombre_insumo");
         $stmtDet->execute([$numero_remito]);
@@ -108,9 +124,43 @@ $asignaciones_recientes = $stmt->fetchAll();
                 </thead>
                 <tbody>
                     <?php foreach ($items_remito as $it): ?>
+                    <?php
+                        $tipo = trim((string)($it['tipo_insumo'] ?? ''));
+                        $originalNombre = $it['nombre_insumo'] ?? '';
+                        $displayNombre = $originalNombre;
+                        if ($tipo !== 'Varios' && $tipo !== 'PC Escritorio') {
+                            $marca = '';
+                            $modelo = '';
+                            if (!empty($it['nb_marca']) || !empty($it['nb_modelo'])) {
+                                $marca = $it['nb_marca'] ?? '';
+                                $modelo = $it['nb_modelo'] ?? '';
+                            } elseif (!empty($it['imp_marca']) || !empty($it['imp_modelo'])) {
+                                $marca = $it['imp_marca'] ?? '';
+                                $modelo = $it['imp_modelo'] ?? '';
+                            } elseif (!empty($it['mon_marca']) || !empty($it['mon_modelo'])) {
+                                $marca = $it['mon_marca'] ?? '';
+                                $modelo = $it['mon_modelo'] ?? '';
+                            } elseif (!empty($it['esc_marca']) || !empty($it['esc_modelo'])) {
+                                $marca = $it['esc_marca'] ?? '';
+                                $modelo = $it['esc_modelo'] ?? '';
+                            }
+                            $marca = trim((string)$marca);
+                            $modelo = trim((string)$modelo);
+                            if ($marca !== '' || $modelo !== '') {
+                                $displayNombre = trim($marca . ($marca && $modelo ? ' - ' : '') . $modelo);
+                            }
+                        }
+                        $displayNombre = $displayNombre !== '' ? $displayNombre : '-';
+                        $showOriginal = $displayNombre !== ($originalNombre ?? '') && ($originalNombre ?? '') !== '';
+                    ?>
                     <tr>
-                        <td><strong><?php echo htmlspecialchars($it['nombre_insumo']); ?></strong></td>
-                        <td><?php echo htmlspecialchars($it['tipo_insumo']); ?></td>
+                        <td>
+                            <strong><?php echo htmlspecialchars($displayNombre); ?></strong>
+                            <?php if ($showOriginal): ?>
+                                <div class="text-muted small"><?php echo htmlspecialchars($originalNombre); ?></div>
+                            <?php endif; ?>
+                        </td>
+                        <td><?php echo htmlspecialchars($tipo); ?></td>
                         <td><span class="badge bg-success"><?php echo isset($it['cantidad']) ? (int)$it['cantidad'] : 1; ?></span></td>
                         <td><small><?php echo htmlspecialchars($it['numero_serie'] ?: '-'); ?></small></td>
                         <td><small><?php echo htmlspecialchars($it['id_fisico'] ?: '-'); ?></small></td>

@@ -39,10 +39,28 @@ try {
         $hasCantidadDev = false;
     }
 
-    $sql = "SELECT i.id_insumo, i.nombre_insumo, i.tipo_insumo, i.numero_serie, i.id_fisico,
-                   d.cantidad, " . ($hasCantidadDev ? "COALESCE(d.cantidad_devuelta,0)" : "0") . " AS cantidad_devuelta
+    $selectCantidadDevuelta = $hasCantidadDev ? 'COALESCE(d.cantidad_devuelta,0)' : '0';
+    $sql = "SELECT i.id_insumo,
+                   i.nombre_insumo,
+                   i.tipo_insumo,
+                   i.numero_serie,
+                   i.id_fisico,
+                   d.cantidad,
+                   {$selectCantidadDevuelta} AS cantidad_devuelta,
+                   nb.marca AS nb_marca,
+                   nb.modelo AS nb_modelo,
+                   imp.marca AS imp_marca,
+                   imp.modelo AS imp_modelo,
+                   mon.marca AS mon_marca,
+                   mon.modelo AS mon_modelo,
+                   esc.marca AS esc_marca,
+                   esc.modelo AS esc_modelo
             FROM remitos_detalle d
             JOIN insumos i ON i.id_insumo = d.id_insumo
+            LEFT JOIN notebooks nb ON nb.id_insumo = i.id_insumo
+            LEFT JOIN impresoras imp ON imp.id_insumo = i.id_insumo
+            LEFT JOIN monitores mon ON mon.id_insumo = i.id_insumo
+            LEFT JOIN escaneres esc ON esc.id_insumo = i.id_insumo
             WHERE d.id_remito = ?
             ORDER BY i.nombre_insumo";
     $stmt = $db->prepare($sql);

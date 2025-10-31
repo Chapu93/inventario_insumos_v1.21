@@ -202,6 +202,25 @@ $(function(){
 </div>
 
 <script>
+function safeTrim(value) {
+  return value === undefined || value === null ? '' : String(value).trim();
+}
+
+function buildInsumoDisplay(item) {
+  const original = safeTrim(item && item.nombre_insumo) || '-';
+  const tipo = safeTrim(item && item.tipo_insumo);
+  if (tipo === 'Varios' || tipo === 'PC Escritorio') {
+    return { display: original, original };
+  }
+  const marca = safeTrim(item && item.nb_marca) || safeTrim(item && item.imp_marca) || safeTrim(item && item.mon_marca) || safeTrim(item && item.esc_marca);
+  const modelo = safeTrim(item && item.nb_modelo) || safeTrim(item && item.imp_modelo) || safeTrim(item && item.mon_modelo) || safeTrim(item && item.esc_modelo);
+  if (marca || modelo) {
+    const separator = marca && modelo ? ' - ' : '';
+    return { display: (marca + separator + modelo).trim(), original };
+  }
+  return { display: original, original };
+}
+
 function mostrarRemitoResumen(numeroRemito) {
   $('#modalRemitoResumen').modal('show');
   $('#remitoResumenBody').html('<div class="text-center text-muted"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>');
@@ -267,6 +286,10 @@ function mostrarRemitoResumen(numeroRemito) {
       html += '<tbody>';
       
       items.forEach(function(item) {
+        var info = buildInsumoDisplay(item);
+        var displayName = info.display;
+        var originalName = info.original;
+        var showOriginal = safeTrim(displayName) !== safeTrim(originalName);
         var cantidadDev = parseInt(item.cantidad_devuelta) || 0;
         var cantidad = parseInt(item.cantidad) || 0;
         var pendiente = cantidad - cantidadDev;
@@ -275,7 +298,10 @@ function mostrarRemitoResumen(numeroRemito) {
         
         html += '<tr>';
         html += '<td>';
-        html += '<strong>' + (item.nombre_insumo || '-') + '</strong>';
+        html += '<strong>' + displayName + '</strong>';
+        if (showOriginal) {
+          html += '<br><small class="text-muted">' + originalName + '</small>';
+        }
         if (item.numero_serie) {
           html += '<br><small class="text-muted">S/N: ' + item.numero_serie + '</small>';
         }

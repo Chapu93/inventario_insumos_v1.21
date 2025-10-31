@@ -267,6 +267,25 @@ window.confirmarAnulacion = function() {
 let DEVOLUCION_REM = '';
 let VER_REM = '';
 
+function safeTrim(value) {
+  return value === undefined || value === null ? '' : String(value).trim();
+}
+
+function buildInsumoDisplay(item) {
+  const original = safeTrim(item && item.nombre_insumo) || '-';
+  const tipo = safeTrim(item && item.tipo_insumo);
+  if (tipo === 'Varios' || tipo === 'PC Escritorio') {
+    return { display: original, original };
+  }
+  const marca = safeTrim(item && item.nb_marca) || safeTrim(item && item.imp_marca) || safeTrim(item && item.mon_marca) || safeTrim(item && item.esc_marca);
+  const modelo = safeTrim(item && item.nb_modelo) || safeTrim(item && item.imp_modelo) || safeTrim(item && item.mon_modelo) || safeTrim(item && item.esc_modelo);
+  if (marca || modelo) {
+    const separator = marca && modelo ? ' - ' : '';
+    return { display: (marca + separator + modelo).trim(), original };
+  }
+  return { display: original, original };
+}
+
 function abrirDevolucion(remito) {
     DEVOLUCION_REM = remito;
     const modal = new bootstrap.Modal(document.getElementById('modalDevolucion'));
@@ -280,31 +299,35 @@ function abrirDevolucion(remito) {
         if (!data.success) { throw new Error(data.error || 'Error al cargar items'); }
         const rows = [];
         data.items.forEach(it => {
+          const info = buildInsumoDisplay(it);
+          const displayName = info.display;
+          const originalName = info.original;
+          const showOriginal = safeTrim(displayName) !== safeTrim(originalName);
           const isVarios = it.tipo_insumo === 'Varios';
           const devueltos = parseInt(it.cantidad_devuelta || '0', 10);
           const asignados = parseInt(it.cantidad || '0', 10);
           const pendientes = Math.max(0, asignados - devueltos);
           const qtyInput = isVarios
-            ? `<input type=\"number\" class=\"form-control form-control-sm\" min=\"1\" max=\"${pendientes}\" value=\"${pendientes}\" data-id=\"${it.id_insumo}\" data-max=\"${pendientes}\" style=\"width:90px;\" ${pendientes > 0 ? '' : 'disabled'}>`
-            : `<span class=\"badge bg-secondary\">1</span>`;
+            ? `<input type="number" class="form-control form-control-sm" min="1" max="${pendientes}" value="${pendientes}" data-id="${it.id_insumo}" data-max="${pendientes}" style="width:90px;" ${pendientes > 0 ? '' : 'disabled'}>`
+            : `<span class="badge bg-secondary">1</span>`;
           rows.push(`
             <tr>
-              <td><input type=\"checkbox\" class=\"chk-dev\" data-id=\"${it.id_insumo}\" ${pendientes > 0 ? 'checked' : 'disabled'}></td>
-              <td><strong>${it.nombre_insumo}</strong>${it.numero_serie ? `<br><small class=\\\"text-muted\\\">S/N: ${it.numero_serie}</small>` : ''}${it.id_fisico ? `<br><small class=\\\"text-muted\\\">ID: ${it.id_fisico}</small>` : ''}</td>
-              <td><span class=\"badge ${isVarios ? 'bg-info' : 'bg-primary'}\">${it.tipo_insumo}</span></td>
-              <td><span class=\"badge bg-dark\">${it.cantidad}</span> ${devueltos > 0 ? `<small class=\\\"text-muted\\\">(devueltos: ${devueltos})</small>` : ''}</td>
+              <td><input type="checkbox" class="chk-dev" data-id="${it.id_insumo}" ${pendientes > 0 ? 'checked' : 'disabled'}></td>
+              <td><strong>${displayName}</strong>${showOriginal ? `<br><small class="text-muted">${originalName}</small>` : ''}${it.numero_serie ? `<br><small class="text-muted">S/N: ${it.numero_serie}</small>` : ''}${it.id_fisico ? `<br><small class="text-muted">ID: ${it.id_fisico}</small>` : ''}</td>
+              <td><span class="badge ${isVarios ? 'bg-info' : 'bg-primary'}">${it.tipo_insumo}</span></td>
+              <td><span class="badge bg-dark">${it.cantidad}</span> ${devueltos > 0 ? `<small class="text-muted">(devueltos: ${devueltos})</small>` : ''}</td>
               <td>${qtyInput}</td>
             </tr>
           `);
         });
-        body.innerHTML = rows.join('') || '<tr><td colspan=\"5\" class=\"text-center text-muted\">Sin items activos</td></tr>';
+        body.innerHTML = rows.join('') || '<tr><td colspan="5" class="text-center text-muted">Sin items activos</td></tr>';
         document.getElementById('chkAllDevolver').checked = true;
       })
       .catch(err => {
         alertBox.className = 'alert alert-danger';
         alertBox.textContent = err.message;
         alertBox.style.display = 'block';
-        body.innerHTML = '<tr><td colspan=\"5\" class=\"text-center text-danger\">Error</td></tr>';
+        body.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error</td></tr>';
       });
     modal.show();
 }
@@ -412,7 +435,7 @@ function abrirVerAsignacion(remito) {
             <p class="mb-1"><strong>Remito:</strong> ${c.numero_remito}</p>
             <p class="mb-1"><strong>Fecha:</strong> ${c.fecha_asignacion}</p>
             <p class="mb-1"><strong>Estado:</strong> <span class="badge ${c.estado === 'Activa' ? 'bg-warning' : 'bg-success'}">${c.estado}</span></p>
-            ${c.estado === 'Devuelta' && c.fecha_devolucion ? `<p class=\"mb-1\"><strong>Fecha devolución:</strong> ${c.fecha_devolucion}</p>` : ''}
+            ${c.estado === 'Devuelta' && c.fecha_devolucion ? `<p class="mb-1"><strong>Fecha devolución:</strong> ${c.fecha_devolucion}</p>` : ''}
           </div>
           <div class="col-md-6">
             <p class="mb-1"><strong>Persona:</strong> ${c.nombre_persona_asignada} ${c.apellido_persona_asignada}</p>
@@ -424,12 +447,16 @@ function abrirVerAsignacion(remito) {
       `;
       const rows = [];
       data.items.forEach(it => {
+        const info = buildInsumoDisplay(it);
+        const displayName = info.display;
+        const originalName = info.original;
+        const showOriginal = safeTrim(displayName) !== safeTrim(originalName);
         const asignados = parseInt(it.cantidad || '0', 10);
         const devueltos = parseInt(it.cantidad_devuelta || '0', 10);
         const pendientes = Math.max(0, asignados - devueltos);
         rows.push(`
           <tr>
-            <td><strong>${it.nombre_insumo}</strong>${it.numero_serie ? `<br><small class=\"text-muted\">S/N: ${it.numero_serie}</small>` : ''}${it.id_fisico ? `<br><small class=\"text-muted\">ID: ${it.id_fisico}</small>` : ''}</td>
+            <td><strong>${displayName}</strong>${showOriginal ? `<br><small class="text-muted">${originalName}</small>` : ''}${it.numero_serie ? `<br><small class="text-muted">S/N: ${it.numero_serie}</small>` : ''}${it.id_fisico ? `<br><small class="text-muted">ID: ${it.id_fisico}</small>` : ''}</td>
             <td><span class="badge ${it.tipo_insumo === 'Varios' ? 'bg-info' : 'bg-primary'}">${it.tipo_insumo}</span></td>
             <td><span class="badge bg-dark">${asignados}</span></td>
             <td><span class="badge bg-success">${devueltos}</span></td>
