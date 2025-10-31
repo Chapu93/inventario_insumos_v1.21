@@ -7,7 +7,7 @@
             <div class="row">
                 <div class="col-12 text-center">
                     <p class="mb-0">
-                        Sistema desarrollado por la Dirección de Informática, Telecomunicación y Administración de RUN - SeNAF - R.N. © 2025. Todos los derechos reservados.
+                        Sistema desarrollado por Dirección de Informática, Telecomunicaciones y Administración de RUN - SeNAF, R.N. © 2025. Todos los derechos reservados.
                     </p>
                 </div>
             </div>
