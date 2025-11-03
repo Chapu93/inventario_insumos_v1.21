@@ -157,6 +157,8 @@ DEALLOCATE PREPARE stmt;
 -- ============================================================
 
 -- Eliminar FKs duplicadas en remitos (mantener fk_r_area y fk_r_sede)
+-- NOTA: Los índices `fk_remitos_sede` y `fk_remitos_area` (líneas 866-867) son solo índices,
+--       no son constraints, por lo que NO se eliminan aquí. Se mantienen como índices útiles.
 
 SELECT CONSTRAINT_NAME INTO @fk_name
 FROM information_schema.KEY_COLUMN_USAGE
@@ -237,8 +239,19 @@ DEALLOCATE PREPARE stmt;
 -- ============================================================
 
 -- Cambiar pcs_completas.sist_op de TEXT a VARCHAR(100) para consistencia con código PHP
-ALTER TABLE `pcs_completas` 
-MODIFY COLUMN `sist_op` VARCHAR(100) NULL DEFAULT NULL;
+-- Verificar que la columna existe antes de modificarla
+SET @col_exists = 0;
+SELECT COUNT(*) INTO @col_exists
+FROM information_schema.COLUMNS
+WHERE TABLE_SCHEMA = DATABASE()
+  AND TABLE_NAME = 'pcs_completas'
+  AND COLUMN_NAME = 'sist_op';
+SET @sql = IF(@col_exists > 0, 
+    'ALTER TABLE `pcs_completas` MODIFY COLUMN `sist_op` VARCHAR(100) NULL DEFAULT NULL',
+    'SELECT 1');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 -- ============================================================
 -- VERIFICACIONES Y COMMIT
