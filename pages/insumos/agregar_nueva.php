@@ -352,6 +352,7 @@ include '../../includes/header.php';
                                         <div class="mb-2">
                                             <label id="label-nombre-insumo" class="form-label">Nombre del Insumo *</label>
                                             <input type="text" class="form-control form-control-sm w-100" id="nombre_insumo" name="nombre_insumo" required>
+                                            <small id="help-nombre-insumo" class="form-text text-muted" style="display: none;">Insumo + Marca + Modelo + Conexión</small>
                                             <div id="invalid-nombre-insumo" class="invalid-feedback">El nombre del insumo es obligatorio</div>
                                         </div>
                                         
@@ -667,10 +668,12 @@ function toggleCampos() {
     $('#label-nombre-insumo').text('Nombre del Insumo *');
     $('#invalid-nombre-insumo').text('El nombre del insumo es obligatorio');
     $('#nombre_insumo').prop('required', true);
+    $('#help-nombre-insumo').show(); // Mostrar help text solo para Varios
   } else if (t !== '') {
     $('#label-nombre-insumo').text('Descripción');
     $('#invalid-nombre-insumo').text('La descripción es opcional');
     $('#nombre_insumo').prop('required', false);
+    $('#help-nombre-insumo').hide(); // Ocultar help text para otros tipos
   }
   
   if (t === 'Varios') {
