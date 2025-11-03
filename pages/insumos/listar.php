@@ -503,5 +503,52 @@ $(function(){
       try { $('#tablaInsumos').DataTable().ajax.reload(null,false); } catch(e) { location.reload(); }
     }).catch(err => showToast(err.message||'Error', 'error'));
   });
+  
+  // Función para mostrar opciones de relevamiento
+  function mostrarOpcionesRelevamiento() {
+    const modal = document.createElement('div');
+    modal.className = 'modal fade';
+    modal.setAttribute('tabindex', '-1');
+    modal.innerHTML = `
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="fas fa-file-pdf me-2"></i>Planilla de Relevamiento</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <p class="mb-3">Seleccione la cantidad de formularios por hoja:</p>
+            <div class="d-grid gap-2">
+              <button type="button" class="btn btn-outline-primary" onclick="generarRelevamiento(4)">
+                <i class="fas fa-th-large me-2"></i>4 formularios por hoja (2x2)
+                <small class="d-block text-muted mt-1">Más espacio, menos cantidad</small>
+              </button>
+              <button type="button" class="btn btn-outline-primary" onclick="generarRelevamiento(6)">
+                <i class="fas fa-th me-2"></i>6 formularios por hoja (3x2)
+                <small class="d-block text-muted mt-1">Más cantidad, formato compacto</small>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+    modal.addEventListener('hidden.bs.modal', function () {
+      document.body.removeChild(modal);
+    });
+  }
+  
+  // Función para generar el PDF con la cantidad elegida
+  function generarRelevamiento(cantidad) {
+    const url = `<?php echo app_base_url(); ?>/pages/reportes/relevamientos_pdf.php?cantidad=${cantidad}`;
+    window.open(url, '_blank');
+    // Cerrar el modal
+    const modal = document.querySelector('.modal.show');
+    if (modal) {
+      bootstrap.Modal.getInstance(modal).hide();
+    }
+  }
 });
 </script>
