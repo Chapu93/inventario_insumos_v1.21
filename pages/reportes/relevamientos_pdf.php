@@ -119,8 +119,14 @@ $columnas = 2;
 $anchoDisponible = $anchoA4 - ($margenLateral * 2);
 $anchoForm = ($anchoDisponible - $espacioEntreFormularios) / $columnas;
 
-// Configuración fija: 3 filas x 2 columnas = 6 formularios por hoja
-$filas = 3;
+// Determinar cantidad de formularios según parámetro
+$numFormularios = isset($_GET['cantidad']) ? (int)$_GET['cantidad'] : 6; // Por defecto 6
+if (!in_array($numFormularios, [4, 6])) {
+    $numFormularios = 6; // Si no es válido, usar 6 por defecto
+}
+
+// Calcular filas según cantidad elegida
+$filas = ($numFormularios == 4) ? 2 : 3; // 4 formularios = 2 filas, 6 formularios = 3 filas
 
 // Calcular altura exacta de cada formulario
 $altoDisponible = $altoA4 - $margenSuperior - $margenInferior;
