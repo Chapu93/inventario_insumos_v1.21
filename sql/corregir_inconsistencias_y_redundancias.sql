@@ -130,6 +130,17 @@ PREPARE stmt FROM @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
+-- Eliminar idx_estado (duplicado de idx_remitos_estado)
+SELECT COUNT(*) INTO @index_exists
+FROM information_schema.STATISTICS 
+WHERE TABLE_SCHEMA = DATABASE() 
+  AND TABLE_NAME = 'remitos' 
+  AND INDEX_NAME = 'idx_estado';
+SET @sql = IF(@index_exists > 0, 'ALTER TABLE `remitos` DROP INDEX `idx_estado`', 'SELECT 1');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
 -- ============================================================
 -- PARTE 2: ELIMINAR FOREIGN KEYS DUPLICADAS
 -- ============================================================
@@ -198,6 +209,19 @@ PREPARE stmt FROM @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
+-- Eliminar fk_insumos_licitacion (duplicado de fk_insumos_ingreso)
+SELECT CONSTRAINT_NAME INTO @fk_name
+FROM information_schema.KEY_COLUMN_USAGE
+WHERE TABLE_SCHEMA = DATABASE()
+  AND TABLE_NAME = 'insumos'
+  AND CONSTRAINT_NAME = 'fk_insumos_licitacion'
+  AND REFERENCED_TABLE_NAME = 'ingresos'
+LIMIT 1;
+SET @sql = IF(@fk_name IS NOT NULL, CONCAT('ALTER TABLE `insumos` DROP FOREIGN KEY `', @fk_name, '`'), 'SELECT 1');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
 -- ============================================================
 -- PARTE 3: ACTUALIZAR CAMPOS Y ENUMS SEGÚN MIGRACIONES
 -- ============================================================
@@ -233,19 +257,7 @@ PREPARE stmt FROM @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
--- Crear índice para estado si no existe
-SET @index_exists = 0;
-SELECT COUNT(*) INTO @index_exists
-FROM information_schema.STATISTICS 
-WHERE TABLE_SCHEMA = DATABASE() 
-  AND TABLE_NAME = 'remitos' 
-  AND INDEX_NAME = 'idx_estado';
-SET @sql = IF(@index_exists = 0, 
-    'ALTER TABLE `remitos` ADD INDEX `idx_estado` (`estado`)',
-    'SELECT 1');
-PREPARE stmt FROM @sql;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
+-- Nota: El índice idx_remitos_estado ya existe (línea 865 del SQL base), no necesitamos crear otro
 
 -- 2. Tabla insumos: Permitir NULL en nombre_insumo
 ALTER TABLE `insumos` 
@@ -404,24 +416,84 @@ DEALLOCATE PREPARE stmt;
 ALTER TABLE `monitores` 
 MODIFY COLUMN `conexion` ENUM('VGA','HDMI','DisplayPort','DVI') NOT NULL;
 
+-- 9. Tabla pcs_completas: Cambiar sist_op de TEXT a VARCHAR(100)
+ALTER TABLE `pcs_completas` 
+MODIFY COLUMN `sist_op` VARCHAR(100) NULL DEFAULT NULL;
+
+-- 10. Tabla ingresos: Corregir nro_referencia (debe ser NOT NULL) y agregar índice único compuesto
+ALTER TABLE `ingresos` 
+MODIFY COLUMN `nro_referencia` VARCHAR(100) NOT NULL COMMENT 'Número de referencia: Expediente, Nota, etc.';
+
+-- Eliminar índice único simple de nro_referencia si existe (cod_expediente)
+SET @index_exists = 0;
+SELECT COUNT(*) INTO @index_exists
+FROM information_schema.STATISTICS 
+WHERE TABLE_SCHEMA = DATABASE() 
+  AND TABLE_NAME = 'ingresos' 
+  AND INDEX_NAME = 'cod_expediente';
+SET @sql = IF(@index_exists > 0, 'ALTER TABLE `ingresos` DROP INDEX `cod_expediente`', 'SELECT 1');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- Agregar índice único compuesto unique_tipo_referencia si no existe
+SET @index_exists = 0;
+SELECT COUNT(*) INTO @index_exists
+FROM information_schema.STATISTICS 
+WHERE TABLE_SCHEMA = DATABASE() 
+  AND TABLE_NAME = 'ingresos' 
+  AND INDEX_NAME = 'unique_tipo_referencia';
+SET @sql = IF(@index_exists = 0, 
+    'ALTER TABLE `ingresos` ADD UNIQUE KEY `unique_tipo_referencia` (`tipo_ingreso`, `nro_referencia`)',
+    'SELECT 1');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+-- 11. Tabla sedes_internet: Eliminar índice duplicado idx_estado_servicio (duplicado de idx_si_estado)
+SET @index_exists = 0;
+SELECT COUNT(*) INTO @index_exists
+FROM information_schema.STATISTICS 
+WHERE TABLE_SCHEMA = DATABASE() 
+  AND TABLE_NAME = 'sedes_internet' 
+  AND INDEX_NAME = 'idx_estado_servicio';
+SET @sql = IF(@index_exists > 0, 'ALTER TABLE `sedes_internet` DROP INDEX `idx_estado_servicio`', 'SELECT 1');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
 -- ============================================================
--- PARTE 4: CREAR/ACTUALIZAR TABLA ingresos
+-- PARTE 4: VERIFICAR TABLA ingresos Y FOREIGN KEYS
 -- ============================================================
 
--- Crear tabla ingresos si no existe
-CREATE TABLE IF NOT EXISTS `ingresos` (
-  `id_ingreso` INT(11) NOT NULL AUTO_INCREMENT,
-  `tipo_ingreso` ENUM('fondos', 'compra_directa', 'licitacion', 'otros') NOT NULL DEFAULT 'licitacion' COMMENT 'Tipo de ingreso: fondos, compra_directa, licitacion, otros',
-  `nro_referencia` VARCHAR(100) NOT NULL COMMENT 'Número de referencia: Expediente, Nota, etc.',
-  `descripcion` TEXT DEFAULT NULL,
-  `fecha_finalizacion` DATE DEFAULT NULL,
-  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id_ingreso`),
-  UNIQUE KEY `unique_tipo_referencia` (`tipo_ingreso`, `nro_referencia`),
-  KEY `idx_ingresos_tipo` (`tipo_ingreso`),
-  KEY `idx_ingresos_fecha` (`fecha_finalizacion`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+-- Nota: La tabla ingresos ya existe, solo verificamos la foreign key
+
+-- Agregar índices útiles para ingresos si no existen (solo si no se han agregado antes)
+SET @index_exists = 0;
+SELECT COUNT(*) INTO @index_exists
+FROM information_schema.STATISTICS 
+WHERE TABLE_SCHEMA = DATABASE() 
+  AND TABLE_NAME = 'ingresos' 
+  AND INDEX_NAME = 'idx_ingresos_tipo';
+SET @sql = IF(@index_exists = 0, 
+    'ALTER TABLE `ingresos` ADD INDEX `idx_ingresos_tipo` (`tipo_ingreso`)',
+    'SELECT 1');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @index_exists = 0;
+SELECT COUNT(*) INTO @index_exists
+FROM information_schema.STATISTICS 
+WHERE TABLE_SCHEMA = DATABASE() 
+  AND TABLE_NAME = 'ingresos' 
+  AND INDEX_NAME = 'idx_ingresos_fecha';
+SET @sql = IF(@index_exists = 0, 
+    'ALTER TABLE `ingresos` ADD INDEX `idx_ingresos_fecha` (`fecha_finalizacion`)',
+    'SELECT 1');
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 -- Agregar foreign key de insumos a ingresos si no existe
 SET @fk_exists = 0;
