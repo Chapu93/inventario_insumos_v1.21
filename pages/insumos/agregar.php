@@ -708,7 +708,9 @@ $(document).ready(function() {
             $('#campos-varios').show();
             $('#campos-especificos').hide();
             $('#columna-especificaciones').hide();
+            $('#help-nombre-insumo').show(); // Mostrar help text para Varios
         } else if (tipo !== '') {
+            $('#help-nombre-insumo').hide(); // Ocultar help text para otros tipos
             console.log('Mostrando campos específicos para:', tipo);
             $('#campos-varios').hide();
             $('#campos-especificos').show();
