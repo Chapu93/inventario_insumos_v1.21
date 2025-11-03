@@ -108,7 +108,13 @@ function dibujarFormulario($pdf, $x, $y, $enc, $anchoFormulario, $altoFormulario
     $posY += $lineHeight + $espacioCampos;
     
     // Detalles (campo más grande)
-    $altoDetalles = ($numFormularios == 4) ? ($lineHeight * 3.5) : ($lineHeight * 3); // Más alto para 4 formularios
+    if ($numFormularios == 4) {
+        // Para 4 formularios: altura base (3.5x) + 6 saltos de línea más
+        $altoDetalles = ($lineHeight * 3.5) + ($lineHeight * 6);
+    } else {
+        // Para 6 formularios: altura estándar
+        $altoDetalles = $lineHeight * 3;
+    }
     $pdf->SetXY($x + $margenInterno, $posY);
     $pdf->Cell($anchoEtiqueta, $altoDetalles, $enc('Detalles:'), 0, 0, 'T');
     $pdf->Rect($x + $anchoEtiqueta + $margenInterno, $posY, $anchoCampo, $altoDetalles);
