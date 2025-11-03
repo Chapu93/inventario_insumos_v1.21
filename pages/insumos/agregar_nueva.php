@@ -681,6 +681,8 @@ function toggleCampos() {
     $('#campos-especificos, #campos-pc, #campos-notebook, #campos-impresora, #campos-monitor, #campos-escaner').hide();
     // Ocultar columna de especificaciones para Varios
     $('#columna-especificaciones').hide();
+    // Mostrar help text para Varios
+    $('#help-nombre-insumo').show();
     // Deshabilitar required en campos ocultos
     $('#numero_serie, #id_fisico, #id_patrimonio').prop('required', false);
     // Deshabilitar todos los campos required de especificaciones
@@ -691,6 +693,8 @@ function toggleCampos() {
     $('#campos-especificos').show();
     // Mostrar columna de especificaciones para tipos unitarios
     $('#columna-especificaciones').show();
+    // Ocultar help text para otros tipos
+    $('#help-nombre-insumo').hide();
     console.log('Columna especificaciones mostrada');
     // Habilitar required en campos visibles
     $('#numero_serie, #id_fisico, #id_patrimonio').prop('required', true);
