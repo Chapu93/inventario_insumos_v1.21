@@ -39,9 +39,9 @@ function dibujarFormulario($pdf, $x, $y, $enc, $anchoFormulario, $altoFormulario
     $anchoCampo = $anchoFormulario - $anchoEtiqueta - 4;
     
     // ID
-    $pdf->SetXY($x + 1, $posY);
+    $pdf->SetXY($x + 2, $posY);
     $pdf->Cell($anchoEtiqueta, $lineHeight, $enc('ID:'), 0, 0, 'L');
-    $pdf->Rect($x + $anchoEtiqueta + 1, $posY, $anchoCampo, $lineHeight);
+    $pdf->Rect($x + $anchoEtiqueta + 2, $posY, $anchoCampo, $lineHeight);
     $posY += $lineHeight + 1;
     
     // Nro de Serie
