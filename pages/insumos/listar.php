@@ -74,6 +74,9 @@ $tipos_insumo = $stmt->fetchAll();
                 <a href="agregar_nueva.php" class="btn btn-secondary">
                     <i class="fas fa-plus-square me-2"></i>Agregar Insumo Asignado
                 </a>
+                <a href="../reportes/relevamientos_pdf.php" class="btn btn-info" target="_blank">
+                    <i class="fas fa-file-pdf me-2"></i>Planilla de Relevamiento
+                </a>
             </div>
         </div>
     </div>
