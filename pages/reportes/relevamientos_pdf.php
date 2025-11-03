@@ -38,15 +38,21 @@ function dibujarFormulario($pdf, $x, $y, $enc, $anchoFormulario, $altoFormulario
     $anchoEtiqueta = 30;
     $anchoCampo = $anchoFormulario - $anchoEtiqueta - 4;
     
-    // ID
+    // ID PC
     $pdf->SetXY($x + 2, $posY);
-    $pdf->Cell($anchoEtiqueta, $lineHeight, $enc('ID:'), 0, 0, 'L');
+    $pdf->Cell($anchoEtiqueta, $lineHeight, $enc('ID PC:'), 0, 0, 'L');
     $pdf->Rect($x + $anchoEtiqueta + 2, $posY, $anchoCampo, $lineHeight);
     $posY += $lineHeight + 1;
     
-    // Nro de Serie
+    // ID Monitor
     $pdf->SetXY($x + 2, $posY);
-    $pdf->Cell($anchoEtiqueta, $lineHeight, $enc('Nro de Serie:'), 0, 0, 'L');
+    $pdf->Cell($anchoEtiqueta, $lineHeight, $enc('ID Monitor:'), 0, 0, 'L');
+    $pdf->Rect($x + $anchoEtiqueta + 2, $posY, $anchoCampo, $lineHeight);
+    $posY += $lineHeight + 1;
+    
+    // ID Impresora
+    $pdf->SetXY($x + 2, $posY);
+    $pdf->Cell($anchoEtiqueta, $lineHeight, $enc('ID Impresora:'), 0, 0, 'L');
     $pdf->Rect($x + $anchoEtiqueta + 2, $posY, $anchoCampo, $lineHeight);
     $posY += $lineHeight + 1;
     
@@ -84,6 +90,13 @@ function dibujarFormulario($pdf, $x, $y, $enc, $anchoFormulario, $altoFormulario
     $pdf->SetXY($x + 2, $posY);
     $pdf->Cell($anchoEtiqueta, $lineHeight, $enc('Sede/Oficina:'), 0, 0, 'L');
     $pdf->Rect($x + $anchoEtiqueta + 2, $posY, $anchoCampo, $lineHeight);
+    $posY += $lineHeight + 1;
+    
+    // Detalles (campo más grande)
+    $altoDetalles = $lineHeight * 2; // El doble de altura que los demás campos
+    $pdf->SetXY($x + 2, $posY);
+    $pdf->Cell($anchoEtiqueta, $altoDetalles, $enc('Detalles:'), 0, 0, 'T');
+    $pdf->Rect($x + $anchoEtiqueta + 2, $posY, $anchoCampo, $altoDetalles);
 }
 
 // Generar UNA SOLA página con 2 formularios de ancho
@@ -106,15 +119,11 @@ $columnas = 2;
 $anchoDisponible = $anchoA4 - ($margenLateral * 2);
 $anchoForm = ($anchoDisponible - $espacioEntreFormularios) / $columnas;
 
-// Calcular altura necesaria para un formulario con todos los campos
-// Título: ~5mm + separador: ~2mm + 8 campos con espaciado: ~8 * 5.5mm = ~44mm
-$altoFormNecesario = 55; // Altura mínima cómoda para todos los campos
+// Configuración fija: 3 filas x 2 columnas = 6 formularios por hoja
+$filas = 3;
 
-// Calcular cuántas filas caben de manera prolija
+// Calcular altura exacta de cada formulario
 $altoDisponible = $altoA4 - $margenSuperior - $margenInferior;
-$filas = floor(($altoDisponible + $espacioEntreFormularios) / ($altoFormNecesario + $espacioEntreFormularios));
-
-// Recalcular altura exacta de cada formulario para que quepan bien
 $altoForm = ($altoDisponible - ($espacioEntreFormularios * ($filas - 1))) / $filas;
 
 // Generar todos los formularios en una sola página (2 columnas)
