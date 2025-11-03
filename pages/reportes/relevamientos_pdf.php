@@ -17,86 +17,101 @@ $enc = function($s) {
 };
 
 // Función para dibujar un formulario
-function dibujarFormulario($pdf, $x, $y, $enc, $anchoFormulario, $altoFormulario) {
+function dibujarFormulario($pdf, $x, $y, $enc, $anchoFormulario, $altoFormulario, $numFormularios = 6) {
     
     // Bordes del formulario
     $pdf->Rect($x, $y, $anchoFormulario, $altoFormulario);
     
+    // Ajustar tamaños según cantidad de formularios (4 = más grandes, 6 = más pequeños)
+    if ($numFormularios == 4) {
+        // Tamaños más grandes para 4 formularios
+        $tamanoTitulo = 13;
+        $tamanoFuente = 10;
+        $lineHeight = 6.5;
+        $margenInterno = 3;
+        $espacioCampos = 1.5;
+    } else {
+        // Tamaños estándar para 6 formularios
+        $tamanoTitulo = 12;
+        $tamanoFuente = 9;
+        $lineHeight = 5.5;
+        $margenInterno = 2;
+        $espacioCampos = 1;
+    }
+    
     // Título del formulario
-    $pdf->SetFont('Arial', 'B', 12);
-    $pdf->SetXY($x + 2, $y + 3);
-    $pdf->Cell($anchoFormulario - 4, 6, $enc('RELEVAMIENTOS'), 0, 0, 'C');
+    $pdf->SetFont('Arial', 'B', $tamanoTitulo);
+    $pdf->SetXY($x + $margenInterno, $y + 3);
+    $pdf->Cell($anchoFormulario - ($margenInterno * 2), 6, $enc('RELEVAMIENTOS'), 0, 0, 'C');
     
     // Línea separadora
-    $pdf->Line($x + 2, $y + 9, $x + $anchoFormulario - 2, $y + 9);
+    $pdf->Line($x + $margenInterno, $y + 9, $x + $anchoFormulario - $margenInterno, $y + 9);
     
-    // Configurar fuente para campos (tamaño cómodo y legible)
-    $tamanoFuente = 9;
+    // Configurar fuente para campos
     $pdf->SetFont('Arial', '', $tamanoFuente);
     $posY = $y + 11;
-    $lineHeight = 5.5; // Altura cómoda para escritura manual
-    $anchoEtiqueta = 30;
-    $anchoCampo = $anchoFormulario - $anchoEtiqueta - 4;
+    $anchoEtiqueta = 32;
+    $anchoCampo = $anchoFormulario - $anchoEtiqueta - ($margenInterno * 2);
     
     // ID PC
-    $pdf->SetXY($x + 2, $posY);
+    $pdf->SetXY($x + $margenInterno, $posY);
     $pdf->Cell($anchoEtiqueta, $lineHeight, $enc('ID PC:'), 0, 0, 'L');
-    $pdf->Rect($x + $anchoEtiqueta + 2, $posY, $anchoCampo, $lineHeight);
-    $posY += $lineHeight + 1;
+    $pdf->Rect($x + $anchoEtiqueta + $margenInterno, $posY, $anchoCampo, $lineHeight);
+    $posY += $lineHeight + $espacioCampos;
     
     // ID Monitor
-    $pdf->SetXY($x + 2, $posY);
+    $pdf->SetXY($x + $margenInterno, $posY);
     $pdf->Cell($anchoEtiqueta, $lineHeight, $enc('ID Monitor:'), 0, 0, 'L');
-    $pdf->Rect($x + $anchoEtiqueta + 2, $posY, $anchoCampo, $lineHeight);
-    $posY += $lineHeight + 1;
+    $pdf->Rect($x + $anchoEtiqueta + $margenInterno, $posY, $anchoCampo, $lineHeight);
+    $posY += $lineHeight + $espacioCampos;
     
     // ID Impresora
-    $pdf->SetXY($x + 2, $posY);
+    $pdf->SetXY($x + $margenInterno, $posY);
     $pdf->Cell($anchoEtiqueta, $lineHeight, $enc('ID Impresora:'), 0, 0, 'L');
-    $pdf->Rect($x + $anchoEtiqueta + 2, $posY, $anchoCampo, $lineHeight);
-    $posY += $lineHeight + 1;
+    $pdf->Rect($x + $anchoEtiqueta + $margenInterno, $posY, $anchoCampo, $lineHeight);
+    $posY += $lineHeight + $espacioCampos;
     
     // Procesador
-    $pdf->SetXY($x + 2, $posY);
+    $pdf->SetXY($x + $margenInterno, $posY);
     $pdf->Cell($anchoEtiqueta, $lineHeight, $enc('Procesador:'), 0, 0, 'L');
-    $pdf->Rect($x + $anchoEtiqueta + 2, $posY, $anchoCampo, $lineHeight);
-    $posY += $lineHeight + 1;
+    $pdf->Rect($x + $anchoEtiqueta + $margenInterno, $posY, $anchoCampo, $lineHeight);
+    $posY += $lineHeight + $espacioCampos;
     
     // RAM
-    $pdf->SetXY($x + 2, $posY);
+    $pdf->SetXY($x + $margenInterno, $posY);
     $pdf->Cell($anchoEtiqueta, $lineHeight, $enc('RAM:'), 0, 0, 'L');
-    $pdf->Rect($x + $anchoEtiqueta + 2, $posY, $anchoCampo, $lineHeight);
-    $posY += $lineHeight + 1;
+    $pdf->Rect($x + $anchoEtiqueta + $margenInterno, $posY, $anchoCampo, $lineHeight);
+    $posY += $lineHeight + $espacioCampos;
     
     // Almacenamiento
-    $pdf->SetXY($x + 2, $posY);
+    $pdf->SetXY($x + $margenInterno, $posY);
     $pdf->Cell($anchoEtiqueta, $lineHeight, $enc('Almacenamiento:'), 0, 0, 'L');
-    $pdf->Rect($x + $anchoEtiqueta + 2, $posY, $anchoCampo, $lineHeight);
-    $posY += $lineHeight + 1;
+    $pdf->Rect($x + $anchoEtiqueta + $margenInterno, $posY, $anchoCampo, $lineHeight);
+    $posY += $lineHeight + $espacioCampos;
     
     // Sistema Operativo
-    $pdf->SetXY($x + 2, $posY);
+    $pdf->SetXY($x + $margenInterno, $posY);
     $pdf->Cell($anchoEtiqueta, $lineHeight, $enc('Sistema Operativo:'), 0, 0, 'L');
-    $pdf->Rect($x + $anchoEtiqueta + 2, $posY, $anchoCampo, $lineHeight);
-    $posY += $lineHeight + 1;
+    $pdf->Rect($x + $anchoEtiqueta + $margenInterno, $posY, $anchoCampo, $lineHeight);
+    $posY += $lineHeight + $espacioCampos;
     
     // Motherboard
-    $pdf->SetXY($x + 2, $posY);
+    $pdf->SetXY($x + $margenInterno, $posY);
     $pdf->Cell($anchoEtiqueta, $lineHeight, $enc('Motherboard:'), 0, 0, 'L');
-    $pdf->Rect($x + $anchoEtiqueta + 2, $posY, $anchoCampo, $lineHeight);
-    $posY += $lineHeight + 1;
+    $pdf->Rect($x + $anchoEtiqueta + $margenInterno, $posY, $anchoCampo, $lineHeight);
+    $posY += $lineHeight + $espacioCampos;
     
     // Sede/Oficina
-    $pdf->SetXY($x + 2, $posY);
+    $pdf->SetXY($x + $margenInterno, $posY);
     $pdf->Cell($anchoEtiqueta, $lineHeight, $enc('Sede/Oficina:'), 0, 0, 'L');
-    $pdf->Rect($x + $anchoEtiqueta + 2, $posY, $anchoCampo, $lineHeight);
-    $posY += $lineHeight + 1;
+    $pdf->Rect($x + $anchoEtiqueta + $margenInterno, $posY, $anchoCampo, $lineHeight);
+    $posY += $lineHeight + $espacioCampos;
     
     // Detalles (campo más grande)
-    $altoDetalles = $lineHeight * 3; // Triple altura para más espacio de escritura
-    $pdf->SetXY($x + 2, $posY);
+    $altoDetalles = ($numFormularios == 4) ? ($lineHeight * 3.5) : ($lineHeight * 3); // Más alto para 4 formularios
+    $pdf->SetXY($x + $margenInterno, $posY);
     $pdf->Cell($anchoEtiqueta, $altoDetalles, $enc('Detalles:'), 0, 0, 'T');
-    $pdf->Rect($x + $anchoEtiqueta + 2, $posY, $anchoCampo, $altoDetalles);
+    $pdf->Rect($x + $anchoEtiqueta + $margenInterno, $posY, $anchoCampo, $altoDetalles);
 }
 
 // Generar UNA SOLA página con 2 formularios de ancho
@@ -138,7 +153,7 @@ for ($fila = 0; $fila < $filas; $fila++) {
         $x = $margenLateral + ($col * ($anchoForm + $espacioEntreFormularios));
         $y = $margenSuperior + ($fila * ($altoForm + $espacioEntreFormularios));
         
-        dibujarFormulario($pdf, $x, $y, $enc, $anchoForm, $altoForm);
+        dibujarFormulario($pdf, $x, $y, $enc, $anchoForm, $altoForm, $numFormularios);
     }
 }
 
