@@ -109,8 +109,8 @@ function dibujarFormulario($pdf, $x, $y, $enc, $anchoFormulario, $altoFormulario
     
     // Detalles (campo más grande)
     if ($numFormularios == 4) {
-        // Para 4 formularios: altura base (3.5x) + 6 saltos de línea más
-        $altoDetalles = ($lineHeight * 3.5) + ($lineHeight * 6);
+        // Para 4 formularios: altura base (3.5x) + 3 saltos de línea más
+        $altoDetalles = ($lineHeight * 3.5) + ($lineHeight * 3);
     } else {
         // Para 6 formularios: altura estándar
         $altoDetalles = $lineHeight * 3;
