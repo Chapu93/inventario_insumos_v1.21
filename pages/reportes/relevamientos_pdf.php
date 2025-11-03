@@ -93,7 +93,7 @@ function dibujarFormulario($pdf, $x, $y, $enc, $anchoFormulario, $altoFormulario
     $posY += $lineHeight + 1;
     
     // Detalles (campo más grande)
-    $altoDetalles = $lineHeight * 2; // El doble de altura que los demás campos
+    $altoDetalles = $lineHeight * 3; // Triple altura para más espacio de escritura
     $pdf->SetXY($x + 2, $posY);
     $pdf->Cell($anchoEtiqueta, $altoDetalles, $enc('Detalles:'), 0, 0, 'T');
     $pdf->Rect($x + $anchoEtiqueta + 2, $posY, $anchoCampo, $altoDetalles);
