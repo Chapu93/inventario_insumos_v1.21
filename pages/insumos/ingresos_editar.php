@@ -83,7 +83,7 @@ $uiByTipo = [
 $uiConfig = $uiByTipo[$tipoIngreso] ?? $uiDefaults;
 
 // Obtener todos los insumos disponibles (sin licitación asignada) y los de esta licitación si estamos editando
-$sqlInsumos = "SELECT i.id_insumo, i.nombre_insumo, i.tipo_insumo, i.numero_serie, i.id_fisico, i.cantidad, 
+$sqlInsumos = "SELECT i.id_insumo, i.nombre_insumo, i.tipo_insumo, i.subcategoria_varios, i.numero_serie, i.id_fisico, i.cantidad, 
                ps.nombre_punto AS punto_stock
                FROM insumos i
                LEFT JOIN puntos_stock ps ON i.id_punto_stock_actual = ps.id_punto_stock
@@ -331,7 +331,13 @@ include '../../includes/header.php';
                                                         </div>
                                                     </td>
                                                     <td>
-                                                        <span class="badge bg-info"><?php echo htmlspecialchars($ins['tipo_insumo']); ?></span>
+                                                        <span class="badge bg-info"><?php 
+                                                            if ($ins['tipo_insumo'] === 'Varios' && !empty($ins['subcategoria_varios'])) {
+                                                                echo htmlspecialchars($ins['subcategoria_varios']);
+                                                            } else {
+                                                                echo htmlspecialchars($ins['tipo_insumo']);
+                                                            }
+                                                        ?></span>
                                                     </td>
                                                     <td><?php echo ($ins['tipo_insumo'] === 'Varios') ? (int)$ins['cantidad'] : 1; ?></td>
                                                     <td><?php echo $ins['punto_stock'] ? htmlspecialchars($ins['punto_stock']) : '<span class="text-muted">Sin punto</span>'; ?></td>

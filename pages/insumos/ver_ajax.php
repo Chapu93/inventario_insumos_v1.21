@@ -129,10 +129,13 @@ try {
                         <div class="col-md-6">
                             <p><strong><?php echo ($insumo['tipo_insumo'] !== 'Varios') ? 'Descripción' : 'Nombre'; ?>:</strong> <?php echo htmlspecialchars($insumo['nombre_insumo']); ?></p>
                             <p><strong>Tipo:</strong> 
-                                <span class="badge bg-info"><?php echo $insumo['tipo_insumo']; ?></span>
-                                <?php if ($insumo['subcategoria_varios']): ?>
-                                    <br><small class="text-muted"><?php echo $insumo['subcategoria_varios']; ?></small>
-                                <?php endif; ?>
+                                <span class="badge bg-info"><?php 
+                                    if ($insumo['tipo_insumo'] === 'Varios' && !empty($insumo['subcategoria_varios'])) {
+                                        echo htmlspecialchars($insumo['subcategoria_varios']);
+                                    } else {
+                                        echo htmlspecialchars($insumo['tipo_insumo']);
+                                    }
+                                ?></span>
                             </p>
                             <p><strong>Estado:</strong> 
                                 <span class="badge estado-<?php echo strtolower(str_replace(' ', '-', $insumo['estado'])); ?>">

@@ -99,10 +99,13 @@ include '../../includes/header.php';
                     <div class="col-md-6">
                         <p><strong>ID:</strong> <?php echo $insumo['id_insumo']; ?></p>
                         <p><strong>Nombre:</strong> <?php echo htmlspecialchars($insumo['nombre_insumo']); ?></p>
-                        <p><strong>Tipo:</strong> <span class="badge bg-info"><?php echo $insumo['tipo_insumo']; ?></span></p>
-                        <?php if ($insumo['subcategoria_varios']): ?>
-                            <p class="text-muted"><?php echo $insumo['subcategoria_varios']; ?></p>
-                        <?php endif; ?>
+                        <p><strong>Tipo:</strong> <span class="badge bg-info"><?php 
+                            if ($insumo['tipo_insumo'] === 'Varios' && !empty($insumo['subcategoria_varios'])) {
+                                echo htmlspecialchars($insumo['subcategoria_varios']);
+                            } else {
+                                echo htmlspecialchars($insumo['tipo_insumo']);
+                            }
+                        ?></span></p>
                         <p><strong>Estado:</strong>
                             <span class="badge estado-<?php echo strtolower(str_replace(' ','-',$insumo['estado'])); ?>">
                                 <?php echo $insumo['estado']; ?>

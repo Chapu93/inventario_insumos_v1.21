@@ -59,6 +59,7 @@ try {
     $dataSql = "SELECT i.id_insumo,
                        i.nombre_insumo,
                        i.tipo_insumo,
+                       i.subcategoria_varios,
                        i.es_nuevo,
                        i.cantidad,
                        i.estado,
@@ -138,7 +139,12 @@ try {
             $extraLine = '<div class="text-muted small">' . htmlspecialchars($originalName) . '</div>';
         }
 
-        $tipoBadge = '<span class="badge bg-info">' . htmlspecialchars($tipo) . '</span>';
+        // Para tipo "Varios", mostrar la subcategoría en lugar del tipo
+        $tipoDisplay = $tipo;
+        if ($tipo === 'Varios' && !empty($r['subcategoria_varios'])) {
+            $tipoDisplay = trim((string)$r['subcategoria_varios']);
+        }
+        $tipoBadge = '<span class="badge bg-info">' . htmlspecialchars($tipoDisplay) . '</span>';
         $esNuevo = isset($r['es_nuevo']) ? (int)$r['es_nuevo'] : 1;
         $condicionBadge = '<span class="badge ' . ($esNuevo ? 'bg-success' : 'bg-warning') . '">' . ($esNuevo ? 'Nuevo' : 'Usado') . '</span>';
         $cantBadge = '<span class="badge ' . ((int)$r['cantidad'] > 0 ? 'bg-success' : 'bg-danger') . '">' . (int)$r['cantidad'] . '</span>';
