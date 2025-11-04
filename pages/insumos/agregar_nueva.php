@@ -646,6 +646,10 @@ $('#id_sede').on('change', function(){
 function toggleCampos() {
   const t = $('#tipo_insumo').val();
   console.log('toggleCampos llamado, tipo:', t);
+  
+  // Asegurar que numero_serie NUNCA sea requerido
+  $('#numero_serie').prop('required', false);
+  
   if (!t) {
     // Ocultar todo cuando no hay selección
     $('#formulario-campos').hide();
@@ -747,7 +751,11 @@ function toggleCampos() {
   }
 }
 $('#tipo_insumo').on('change', toggleCampos);
-$(function(){ toggleCampos(); });
+$(function(){ 
+  // Asegurar que numero_serie nunca sea requerido al cargar la página
+  $('#numero_serie').prop('required', false);
+  toggleCampos(); 
+});
 
 // Enable/disable tamaño Micro SD
 $(document).on('change', '#micro_sd', function(){
