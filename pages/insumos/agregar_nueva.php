@@ -709,9 +709,12 @@ function toggleCampos() {
     // Ocultar help text para otros tipos
     $('#help-nombre-insumo').hide();
     console.log('Columna especificaciones mostrada');
-    // Habilitar required solo en id_fisico e id_patrimonio (número de serie es opcional)
-    $('#id_fisico, #id_patrimonio').prop('required', true);
+    // IMPORTANTE: numero_serie NUNCA es requerido
     $('#numero_serie').prop('required', false);
+    $('#numero_serie').removeAttr('required');
+    console.log('numero_serie establecido como NO requerido:', $('#numero_serie').prop('required'));
+    // Habilitar required solo en id_fisico e id_patrimonio
+    $('#id_fisico, #id_patrimonio').prop('required', true);
     
     // Primero ocultar y deshabilitar required de TODOS los tipos
     $('#campos-pc, #campos-notebook, #campos-impresora, #campos-monitor, #campos-escaner').hide();
