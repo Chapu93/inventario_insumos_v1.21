@@ -377,9 +377,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <!-- Campos específicos para otros tipos -->
                             <div id="campos-especificos" style="display: none;">
                                 <div class="mb-2">
-                                    <label for="numero_serie" class="form-label">Número de Serie *</label>
-                                    <input type="text" class="form-control form-control-sm w-100" id="numero_serie" name="numero_serie" required>
-                                    <div class="invalid-feedback">El número de serie es obligatorio</div>
+                                    <label for="numero_serie" class="form-label">Número de Serie</label>
+                                    <input type="text" class="form-control form-control-sm w-100" id="numero_serie" name="numero_serie">
                                 </div>
                                 
                                 <div class="mb-2">
@@ -766,6 +765,10 @@ $(document).ready(function() {
         // Resetear todos los campos requeridos
         $('input, select, textarea').prop('required', false);
         
+        // IMPORTANTE: numero_serie NUNCA es requerido
+        $('#numero_serie').prop('required', false);
+        $('#numero_serie').removeAttr('required');
+        
         // Campos básicos siempre requeridos
         $('#nombre_insumo').prop('required', true);
         $('#tipo_insumo').prop('required', true);
@@ -789,7 +792,7 @@ $(document).ready(function() {
         if (tipo === 'Varios') {
             $('#cantidad').prop('required', true);
         } else if (tipo !== '') {
-            $('#numero_serie').prop('required', true);
+            // numero_serie NO es requerido (ya establecido arriba)
             $('#id_fisico').prop('required', true);
             $('#id_patrimonio').prop('required', true);
             $('#cantidad_especifica').prop('required', true);
@@ -814,6 +817,17 @@ $(document).ready(function() {
             }
         }
     }
+    
+    // Asegurar que numero_serie nunca sea requerido al cargar la página
+    $(function(){ 
+        $('#numero_serie').prop('required', false);
+        $('#numero_serie').removeAttr('required');
+        // Ejecutar validación inicial si hay un tipo seleccionado
+        const tipoInicial = $('#tipo_insumo').val();
+        if (tipoInicial) {
+            actualizarValidacionCampos(tipoInicial);
+        }
+    });
     
     // Validación en tiempo real de duplicados
     let timeoutValidacion = null;
