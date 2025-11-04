@@ -238,7 +238,7 @@ include '../../includes/header.php';
                         </div>
                         <div class="card-body p-3">
                             <div class="mb-2">
-                                <label class="form-label" for="nombre_insumo">
+                                <label id="label-nombre-insumo" class="form-label" for="nombre_insumo">
                                     <?php echo $tipo_insumo === 'Varios' ? 'Nombre del Insumo *' : 'Descripción'; ?>
                                 </label>
                                 <input
@@ -249,6 +249,8 @@ include '../../includes/header.php';
                                     value="<?php echo htmlspecialchars($insumo['nombre_insumo']); ?>"
                                     <?php echo $tipo_insumo === 'Varios' ? 'required' : ''; ?>
                                 >
+                                <small id="help-nombre-insumo" class="form-text text-muted" style="display: <?php echo $tipo_insumo === 'Varios' ? 'block' : 'none'; ?>;">Insumo + Marca + Modelo + Conexión</small>
+                                <div id="invalid-nombre-insumo" class="invalid-feedback"><?php echo $tipo_insumo === 'Varios' ? 'El nombre del insumo es obligatorio' : 'La descripción es opcional'; ?></div>
                             </div>
 
                             <?php if ($tipo_insumo === 'Varios'): ?>
