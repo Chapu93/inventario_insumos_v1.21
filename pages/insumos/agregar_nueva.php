@@ -709,12 +709,19 @@ function toggleCampos() {
     // Ocultar help text para otros tipos
     $('#help-nombre-insumo').hide();
     console.log('Columna especificaciones mostrada');
-    // IMPORTANTE: numero_serie NUNCA es requerido
-    $('#numero_serie').prop('required', false);
-    $('#numero_serie').removeAttr('required');
-    console.log('numero_serie establecido como NO requerido:', $('#numero_serie').prop('required'));
+    
     // Habilitar required solo en id_fisico e id_patrimonio
     $('#id_fisico, #id_patrimonio').prop('required', true);
+    
+    // IMPORTANTE: numero_serie NUNCA es requerido - ejecutar múltiples veces para asegurar
+    $('#numero_serie').prop('required', false);
+    $('#numero_serie').removeAttr('required');
+    // Usar setTimeout para asegurar después de que se muestre el campo
+    setTimeout(function() {
+      $('#numero_serie').prop('required', false);
+      $('#numero_serie').removeAttr('required');
+      console.log('numero_serie establecido como NO requerido (después de mostrar):', $('#numero_serie').prop('required'));
+    }, 50);
     
     // Primero ocultar y deshabilitar required de TODOS los tipos
     $('#campos-pc, #campos-notebook, #campos-impresora, #campos-monitor, #campos-escaner').hide();
@@ -757,7 +764,22 @@ $('#tipo_insumo').on('change', toggleCampos);
 $(function(){ 
   // Asegurar que numero_serie nunca sea requerido al cargar la página
   $('#numero_serie').prop('required', false);
+  $('#numero_serie').removeAttr('required');
+  
+  // También asegurar después de un pequeño delay para evitar conflictos
+  setTimeout(function() {
+    $('#numero_serie').prop('required', false);
+    $('#numero_serie').removeAttr('required');
+    console.log('Verificación final: numero_serie requerido?', $('#numero_serie').prop('required'));
+  }, 100);
+  
   toggleCampos(); 
+  
+  // Asegurar nuevamente después de toggleCampos
+  setTimeout(function() {
+    $('#numero_serie').prop('required', false);
+    $('#numero_serie').removeAttr('required');
+  }, 200);
 });
 
 // Enable/disable tamaño Micro SD
