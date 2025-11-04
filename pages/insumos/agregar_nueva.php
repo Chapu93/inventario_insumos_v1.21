@@ -383,9 +383,8 @@ include '../../includes/header.php';
                                         <!-- Campos específicos para otros tipos -->
                                         <div id="campos-especificos" style="display: none;">
                                             <div class="mb-2">
-                                                <label for="numero_serie" class="form-label">Número de Serie *</label>
-                                                <input type="text" class="form-control form-control-sm w-100" id="numero_serie" name="numero_serie" required>
-                                                <div class="invalid-feedback">El número de serie es obligatorio</div>
+                                                <label for="numero_serie" class="form-label">Número de Serie</label>
+                                                <input type="text" class="form-control form-control-sm w-100" id="numero_serie" name="numero_serie">
                                             </div>
                                             
                                             <div class="mb-2">
@@ -706,8 +705,9 @@ function toggleCampos() {
     // Ocultar help text para otros tipos
     $('#help-nombre-insumo').hide();
     console.log('Columna especificaciones mostrada');
-    // Habilitar required en campos visibles
-    $('#numero_serie, #id_fisico, #id_patrimonio').prop('required', true);
+    // Habilitar required solo en id_fisico e id_patrimonio (número de serie es opcional)
+    $('#id_fisico, #id_patrimonio').prop('required', true);
+    $('#numero_serie').prop('required', false);
     
     // Primero ocultar y deshabilitar required de TODOS los tipos
     $('#campos-pc, #campos-notebook, #campos-impresora, #campos-monitor, #campos-escaner').hide();
