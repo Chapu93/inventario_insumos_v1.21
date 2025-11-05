@@ -412,13 +412,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 </div>
                                 
                                 <div class="mb-2">
-                                    <label for="id_fisico" class="form-label">ID Físico *</label>
-                                    <input type="text" class="form-control form-control-sm w-100" id="id_fisico" name="id_fisico" required>
+                                    <label for="id_fisico" class="form-label">ID Físico</label>
+                                    <input type="text" class="form-control form-control-sm w-100" id="id_fisico" name="id_fisico">
                                     <div class="invalid-feedback">El ID físico es obligatorio</div>
                                 </div>
                                 <div class="mb-2">
-                                    <label for="id_patrimonio" class="form-label">ID Patrimonio *</label>
-                                    <input type="text" class="form-control form-control-sm w-100" id="id_patrimonio" name="id_patrimonio" required>
+                                    <label for="id_patrimonio" class="form-label">ID Patrimonio</label>
+                                    <input type="text" class="form-control form-control-sm w-100" id="id_patrimonio" name="id_patrimonio">
                                     <div class="invalid-feedback">El ID patrimonio es obligatorio</div>
                                 </div>
                                 
@@ -822,8 +822,7 @@ $(document).ready(function() {
             $('#cantidad').prop('required', true);
         } else if (tipo !== '') {
             // numero_serie NO es requerido (ya establecido arriba)
-            $('#id_fisico').prop('required', true);
-            $('#id_patrimonio').prop('required', true);
+            // ID Físico e ID Patrimonio son opcionales
             $('#cantidad_especifica').prop('required', true);
             
             // Campos específicos según tipo
