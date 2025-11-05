@@ -274,14 +274,14 @@ include '../../includes/header.php';
                                     <div class="row g-2 mb-2">
                                         <div class="col-6">
                                             <label class="form-label mb-1">
-                                                <i class="fas fa-building text-success"></i> Cantidad Oficina *
+                                                <i class="fas fa-building text-success"></i> Cantidad Oficina
                                             </label>
                                             <input type="number" class="form-control" id="edit_cantidad_oficina" name="cantidad_oficina" value="<?php echo (int)($insumo['cantidad_oficina'] ?? 0); ?>" min="0" required>
                                             <small class="form-text text-muted d-block">Stock para asignaciones</small>
                                         </div>
                                         <div class="col-6">
                                             <label class="form-label mb-1">
-                                                <i class="fas fa-warehouse text-primary"></i> Cantidad Depósito *
+                                                <i class="fas fa-warehouse text-primary"></i> Cantidad Depósito
                                             </label>
                                             <input type="number" class="form-control" id="edit_cantidad_deposito" name="cantidad_deposito" value="<?php echo (int)($insumo['cantidad_deposito'] ?? 0); ?>" min="0" required>
                                             <small class="form-text text-muted d-block">Stock de reserva</small>
