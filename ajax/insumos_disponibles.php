@@ -8,17 +8,15 @@ if ($sedeId <= 0) {
 }
 try {
     $db = conectarDB();
-    // Para tipo Varios, usar cantidad_oficina (stock disponible para asignaciones)
+    // Para tipo Varios, mostrar total disponible (oficina + depósito)
     $sql = "SELECT id_insumo, nombre_insumo, tipo_insumo, numero_serie, id_fisico, 
-                   CASE 
-                       WHEN tipo_insumo = 'Varios' THEN COALESCE(cantidad_oficina, cantidad)
-                       ELSE cantidad
-                   END as cantidad,
-                   cantidad_oficina, cantidad_deposito
+                   cantidad,
+                   cantidad_oficina, 
+                   cantidad_deposito
             FROM insumos
             WHERE estado='Disponible'
               AND (id_sede_actual = ? OR id_sede_actual IS NULL)
-              AND (tipo_insumo <> 'Varios' OR COALESCE(cantidad_oficina, cantidad) > 0)
+              AND (tipo_insumo <> 'Varios' OR cantidad > 0)
             ORDER BY nombre_insumo";
     $stmt = $db->prepare($sql);
     $stmt->execute([$sedeId]);
