@@ -22,6 +22,9 @@ require_once '../../includes/config.php';
   <li class="nav-item" role="presentation">
     <button class="nav-link" id="anulados-tab" data-bs-toggle="tab" data-bs-target="#anulados" type="button" role="tab" aria-controls="anulados" aria-selected="false">Anulados</button>
   </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="movimientos-tab" data-bs-toggle="tab" data-bs-target="#movimientos" type="button" role="tab" aria-controls="movimientos" aria-selected="false">Movimientos Stock</button>
+  </li>
 </ul>
 <div class="tab-content pt-3" id="historialTabsContent">
   <div class="tab-pane fade show active" id="bajas" role="tabpanel" aria-labelledby="bajas-tab">
@@ -130,6 +133,53 @@ require_once '../../includes/config.php';
       </div>
     </div>
   </div>
+  <div class="tab-pane fade" id="movimientos" role="tabpanel" aria-labelledby="movimientos-tab">
+    <div class="card">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <h5 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>Movimientos de Stock</h5>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle me-2"></i>Historial completo de movimientos de stock entre Oficina y Depósito para insumos de tipo Varios.
+        </div>
+        
+        <!-- Filtro por tipo de movimiento -->
+        <div class="mb-3">
+          <label for="filtroTipoMovimiento" class="form-label fw-bold"><i class="fas fa-filter me-1"></i>Filtrar por Tipo:</label>
+          <select class="form-select" id="filtroTipoMovimiento" style="max-width: 300px;">
+            <option value="">Todos los movimientos</option>
+            <option value="reposicion_oficina">Reposición Oficina</option>
+            <option value="devolucion_a_deposito">Devolución a Depósito</option>
+            <option value="ajuste_manual">Ajuste Manual</option>
+            <option value="ingreso_nuevo">Ingreso Nuevo</option>
+          </select>
+        </div>
+        
+        <div class="table-responsive">
+          <table class="table table-striped datatable" id="tablaMovimientos" data-ssp="1">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Insumo</th>
+                <th>Tipo</th>
+                <th>Movimiento</th>
+                <th>Stock (Antes/Después)</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="d-flex justify-content-end gap-2 mt-3">
+          <button type="button" class="btn btn-success" onclick="exportarExcelSinColumnas('tablaMovimientos', 'movimientos_stock', [])">
+            <i class="fas fa-file-excel me-2"></i>Exportar Excel
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="imprimirTablaSinColumnas('tablaMovimientos', 'movimientos_stock', [])">
+            <i class="fas fa-print me-2"></i>Imprimir
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <?php include '../../includes/footer.php'; ?>
@@ -192,13 +242,42 @@ $(function(){
       drawCallback: function(){ inicializarTooltips(); }
     });
 
+    var dtMovimientos = $('#tablaMovimientos').DataTable({
+      processing: true,
+      serverSide: true,
+      ajax: { 
+        url: getAppBase() + '/ajax/historial_movimientos_ssp.php', 
+        type: 'GET',
+        data: function(d) {
+          d.tipo_movimiento = $('#filtroTipoMovimiento').val();
+        }
+      },
+      order: [[0, 'desc']], // Ordenar por fecha DESC
+      pageLength: 25,
+      columns: [
+        { data: 0 },
+        { data: 1 },
+        { data: 2 },
+        { data: 3 },
+        { data: 4 }
+      ],
+      drawCallback: function(){ inicializarTooltips(); }
+    });
+
+    // Recargar tabla al cambiar filtro
+    $('#filtroTipoMovimiento').on('change', function() {
+      dtMovimientos.ajax.reload();
+    });
+
     // Ajustar columnas al cambiar de pestaña (DataTables en tabs ocultos)
-    $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function(e){
+    $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function(e){
       var target = $(e.target).attr('data-bs-target');
       if (target === '#devoluciones') {
         try { dtDev.columns.adjust().responsive?.recalc?.(); } catch(e){}
       } else if (target === '#anulados') {
         try { dtAnulados.columns.adjust().responsive?.recalc?.(); } catch(e){}
+      } else if (target === '#movimientos') {
+        try { dtMovimientos.columns.adjust().responsive?.recalc?.(); } catch(e){}
       }
     });
   }
