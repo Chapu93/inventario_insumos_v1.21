@@ -68,16 +68,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $cantidadOficina = null;
             $cantidadDeposito = null;
         }
-        // Validación backend: exigir ID Patrimonio para no "Varios"
-        if ($tipo_insumo != 'Varios') {
-            $idPat = isset($_POST['id_patrimonio']) ? trim((string)$_POST['id_patrimonio']) : '';
-            if ($idPat === '') {
-                $_SESSION['mensaje'] = 'Error: El ID Patrimonio es obligatorio para este tipo de insumo.';
-                $_SESSION['tipo_mensaje'] = 'danger';
-                header('Location: agregar.php');
-                exit;
-            }
-        }
         
         // Validar que no existan duplicados de número de serie, ID físico o ID patrimonio
         $numero_serie = ($tipo_insumo != 'Varios') ? ($_POST['numero_serie'] ?: null) : null;

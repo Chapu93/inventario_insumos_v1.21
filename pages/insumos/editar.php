@@ -105,10 +105,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id_fisico = ($_POST['id_fisico'] ?? '') ?: null;
             $id_patrimonio = ($_POST['id_patrimonio'] ?? '') ?: null;
             $cantidad = 1; // fijo
-
-            if ($id_patrimonio === null || trim($id_patrimonio) === '') {
-                throw new Exception('El ID Patrimonio es obligatorio para este tipo de insumo.');
-            }
         }
 
         // Actualizar insumo
