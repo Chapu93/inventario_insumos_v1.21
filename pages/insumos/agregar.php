@@ -458,13 +458,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             </div>
                             
                             <div class="mb-2">
-                                <label for="id_punto_stock_actual" class="form-label">Punto de Almacenamiento *</label>
-                                <select class="form-select form-select-sm w-100" id="id_punto_stock_actual" name="id_punto_stock_actual" required>
-                                    <option value="">Seleccione punto de almacenamiento</option>
+                                <label for="id_punto_stock_actual" class="form-label">Punto de Almacenamiento</label>
+                                <select class="form-select form-select-sm w-100" id="id_punto_stock_actual" name="id_punto_stock_actual">
+                                    <option value="">Sin asignar</option>
                                     <?php foreach ($puntos_stock as $punto): ?>
-                                        <option value="<?php echo $punto['id_punto_stock']; ?>" 
-                                                <?php echo $punto['id_punto_stock'] == 2 ? 'selected' : ''; ?>>
-                                            <?php echo $punto['nombre_punto']; ?>
+                                        <option value="<?php echo $punto['id_punto_stock']; ?>">
+                                            <?php echo htmlspecialchars($punto['nombre_punto']); ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
