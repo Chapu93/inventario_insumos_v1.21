@@ -591,6 +591,10 @@ $(function(){
         $('#reponerObservacion').val('');
         $('#reponerAlert').hide();
         
+        // Resetear botón a estado original
+        $('#btnConfirmarReponer').prop('disabled', false)
+          .html('<i class="fas fa-exchange-alt me-1"></i>Reponer');
+        
         // Guardar ID para usar al confirmar
         $('#btnConfirmarReponer').data('id-insumo', id);
         
