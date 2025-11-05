@@ -347,7 +347,7 @@ include '../../includes/header.php';
                             <div class="mb-2">
                                 <label for="id_punto_stock_actual" class="form-label">Punto de Almacenamiento</label>
                                 <select class="form-select form-select-sm" id="id_punto_stock_actual" name="id_punto_stock_actual">
-                                    <option value="">Sin punto de stock</option>
+                                    <option value="">Sin asignar</option>
                                     <?php foreach ($puntos_stock as $punto): ?>
                                         <option value="<?php echo $punto['id_punto_stock']; ?>" 
                                                 <?php echo $insumo['id_punto_stock_actual'] == $punto['id_punto_stock'] ? 'selected' : ''; ?>>
