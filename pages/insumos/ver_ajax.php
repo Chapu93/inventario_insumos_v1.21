@@ -179,21 +179,23 @@ try {
                         </div>
                     </div>
                     
-                    <?php if ($insumo['numero_serie'] || $insumo['id_fisico'] || $insumo['id_patrimonio']): ?>
+                    <?php if ($insumo['tipo_insumo'] !== 'Varios'): ?>
                     <hr>
                     <div class="row">
-                        <div class="col-md-6">
-                            <?php if ($insumo['numero_serie']): ?>
-                                <p><strong>Número de Serie:</strong> <?php echo htmlspecialchars($insumo['numero_serie']); ?></p>
-                            <?php endif; ?>
+                        <div class="col-md-4">
+                            <p><strong>Número de Serie:</strong> 
+                                <?php echo !empty($insumo['numero_serie']) ? htmlspecialchars($insumo['numero_serie']) : '<span class="text-muted">No tiene</span>'; ?>
+                            </p>
                         </div>
-                        <div class="col-md-6">
-                            <?php if ($insumo['id_fisico']): ?>
-                                <p><strong>ID Físico:</strong> <?php echo htmlspecialchars($insumo['id_fisico']); ?></p>
-                            <?php endif; ?>
-                            <?php if ($insumo['id_patrimonio']): ?>
-                                <p><strong>ID Patrimonio:</strong> <?php echo htmlspecialchars($insumo['id_patrimonio']); ?></p>
-                            <?php endif; ?>
+                        <div class="col-md-4">
+                            <p><strong>ID Físico:</strong> 
+                                <?php echo !empty($insumo['id_fisico']) ? htmlspecialchars($insumo['id_fisico']) : '<span class="text-muted">No tiene</span>'; ?>
+                            </p>
+                        </div>
+                        <div class="col-md-4">
+                            <p><strong>ID Patrimonio:</strong> 
+                                <?php echo !empty($insumo['id_patrimonio']) ? htmlspecialchars($insumo['id_patrimonio']) : '<span class="text-muted">No tiene</span>'; ?>
+                            </p>
                         </div>
                     </div>
                     <?php endif; ?>
