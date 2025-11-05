@@ -271,24 +271,20 @@ include '../../includes/header.php';
                                             <option value="Red" <?php echo $insumo['subcategoria_varios']==='Red'?'selected':''; ?>>Red</option>
                                         </select>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="mb-2">
-                                                <label class="form-label">
-                                                    <i class="fas fa-building text-success"></i> Cantidad Oficina *
-                                                </label>
-                                                <input type="number" class="form-control form-control-sm" id="edit_cantidad_oficina" name="cantidad_oficina" value="<?php echo (int)($insumo['cantidad_oficina'] ?? 0); ?>" min="0" required>
-                                                <small class="form-text text-muted">Stock para asignaciones</small>
-                                            </div>
+                                    <div class="row mb-2">
+                                        <div class="col-6">
+                                            <label class="form-label">
+                                                <i class="fas fa-building text-success"></i> Cantidad Oficina *
+                                            </label>
+                                            <input type="number" class="form-control form-control-sm" id="edit_cantidad_oficina" name="cantidad_oficina" value="<?php echo (int)($insumo['cantidad_oficina'] ?? 0); ?>" min="0" required>
+                                            <small class="form-text text-muted">Stock para asignaciones</small>
                                         </div>
-                                        <div class="col-md-6">
-                                            <div class="mb-2">
-                                                <label class="form-label">
-                                                    <i class="fas fa-warehouse text-primary"></i> Cantidad Depósito *
-                                                </label>
-                                                <input type="number" class="form-control form-control-sm" id="edit_cantidad_deposito" name="cantidad_deposito" value="<?php echo (int)($insumo['cantidad_deposito'] ?? 0); ?>" min="0" required>
-                                                <small class="form-text text-muted">Stock de reserva</small>
-                                            </div>
+                                        <div class="col-6">
+                                            <label class="form-label">
+                                                <i class="fas fa-warehouse text-primary"></i> Cantidad Depósito *
+                                            </label>
+                                            <input type="number" class="form-control form-control-sm" id="edit_cantidad_deposito" name="cantidad_deposito" value="<?php echo (int)($insumo['cantidad_deposito'] ?? 0); ?>" min="0" required>
+                                            <small class="form-text text-muted">Stock de reserva</small>
                                         </div>
                                     </div>
                                     <div class="mb-2">

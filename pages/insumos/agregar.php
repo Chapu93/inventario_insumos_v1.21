@@ -102,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $sql = "INSERT INTO insumos (nombre_insumo, tipo_insumo, subcategoria_varios, descripcion_general, 
                                    numero_serie, id_fisico, id_patrimonio, cantidad, cantidad_oficina, cantidad_deposito,
                                    fecha_adquisicion, estado, id_punto_stock_actual, id_ingreso, es_nuevo) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         $esNuevo = isset($_POST['es_nuevo']) && $_POST['es_nuevo'] == '1' ? 1 : 0;
         
@@ -373,24 +373,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     </select>
                                 </div>
                                 
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-2">
-                                            <label for="cantidad_oficina" class="form-label">
-                                                <i class="fas fa-building text-success"></i> Cantidad Oficina *
-                                            </label>
-                                            <input type="number" class="form-control form-control-sm" id="cantidad_oficina" name="cantidad_oficina" value="0" min="0" required>
-                                            <small class="form-text text-muted">Stock disponible para asignaciones</small>
-                                        </div>
+                                <div class="row mb-2">
+                                    <div class="col-6">
+                                        <label for="cantidad_oficina" class="form-label">
+                                            <i class="fas fa-building text-success"></i> Cantidad Oficina *
+                                        </label>
+                                        <input type="number" class="form-control form-control-sm" id="cantidad_oficina" name="cantidad_oficina" value="0" min="0" required>
+                                        <small class="form-text text-muted">Stock para asignaciones</small>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-2">
-                                            <label for="cantidad_deposito" class="form-label">
-                                                <i class="fas fa-warehouse text-primary"></i> Cantidad Depósito *
-                                            </label>
-                                            <input type="number" class="form-control form-control-sm" id="cantidad_deposito" name="cantidad_deposito" value="0" min="0" required>
-                                            <small class="form-text text-muted">Stock de reserva</small>
-                                        </div>
+                                    <div class="col-6">
+                                        <label for="cantidad_deposito" class="form-label">
+                                            <i class="fas fa-warehouse text-primary"></i> Cantidad Depósito *
+                                        </label>
+                                        <input type="number" class="form-control form-control-sm" id="cantidad_deposito" name="cantidad_deposito" value="0" min="0" required>
+                                        <small class="form-text text-muted">Stock de reserva</small>
                                     </div>
                                 </div>
                                 <div class="mb-2">
