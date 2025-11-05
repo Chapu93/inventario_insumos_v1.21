@@ -173,7 +173,7 @@ $totalStockSistema = $totalStockOficina + $totalStockDeposito;
         <div class="card">
             <div class="card-header">
                 <h5 class="mb-0">
-                    <i class="fas fa-warehouse me-2"></i>Stock Varios - Sistema Dual
+                    <i class="fas fa-warehouse me-2"></i>Stock Varios
                 </h5>
             </div>
             <div class="card-body">
