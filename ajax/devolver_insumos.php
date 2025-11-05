@@ -54,16 +54,22 @@ try {
         $cantAsignada = (int)$det['cantidad'];
         $aDevolver = min($cantidadDev, $cantAsignada);
 
-        // Recuperar info del insumo
-        $stmt = $db->prepare("SELECT tipo_insumo, cantidad FROM insumos WHERE id_insumo = ? FOR UPDATE");
+        // Recuperar info del insumo (incluir campos de stock dual)
+        $stmt = $db->prepare("SELECT tipo_insumo, cantidad, cantidad_oficina, cantidad_deposito FROM insumos WHERE id_insumo = ? FOR UPDATE");
         $stmt->execute([$idInsumo]);
         $ins = $stmt->fetch();
         if (!$ins) { continue; }
 
         if ($ins['tipo_insumo'] === 'Varios') {
-            $nuevoStock = ((int)$ins['cantidad']) + $aDevolver;
-            $db->prepare("UPDATE insumos SET cantidad = ?, estado = 'Disponible', id_sede_actual = NULL, id_area_asignacion_actual = NULL WHERE id_insumo = ?")
-               ->execute([$nuevoStock, $idInsumo]);
+            // Devolver a oficina (stock disponible para asignaciones)
+            $stockOficina = (int)($ins['cantidad_oficina'] ?? $ins['cantidad']);
+            $stockDeposito = (int)($ins['cantidad_deposito'] ?? 0);
+            
+            $nuevoStockOficina = $stockOficina + $aDevolver;
+            $nuevoStockTotal = $nuevoStockOficina + $stockDeposito;
+            
+            $db->prepare("UPDATE insumos SET cantidad = ?, cantidad_oficina = ?, estado = 'Disponible', id_sede_actual = NULL, id_area_asignacion_actual = NULL WHERE id_insumo = ?")
+               ->execute([$nuevoStockTotal, $nuevoStockOficina, $idInsumo]);
         } else {
             // Para unitarios, devolver cambia estado a Disponible
             $db->prepare("UPDATE insumos SET estado = 'Disponible', id_sede_actual = NULL, id_area_asignacion_actual = NULL WHERE id_insumo = ?")

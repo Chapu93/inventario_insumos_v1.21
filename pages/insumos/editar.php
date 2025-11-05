@@ -93,8 +93,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($tipo_fijo === 'Varios') {
             $subcat = ($_POST['subcategoria_varios'] ?? '') ?: null;
-            $cantidad = max(1, (int)($_POST['cantidad'] ?? 1));
+            // Stock dual para tipo Varios
+            $cantidadOficina = isset($_POST['cantidad_oficina']) ? (int)$_POST['cantidad_oficina'] : 0;
+            $cantidadDeposito = isset($_POST['cantidad_deposito']) ? (int)$_POST['cantidad_deposito'] : 0;
+            $cantidad = $cantidadOficina + $cantidadDeposito;
         } else {
+            $cantidadOficina = null;
+            $cantidadDeposito = null;
             $numero_serie = ($_POST['numero_serie'] ?? '') ?: null;
             $id_fisico = ($_POST['id_fisico'] ?? '') ?: null;
             $id_patrimonio = ($_POST['id_patrimonio'] ?? '') ?: null;
@@ -108,13 +113,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Actualizar insumo
         $sql = "UPDATE insumos
                 SET nombre_insumo = ?, subcategoria_varios = ?, descripcion_general = ?,
-                    numero_serie = ?, id_fisico = ?, id_patrimonio = ?, cantidad = ?, fecha_adquisicion = ?,
-                    id_punto_stock_actual = ?, id_ingreso = ?, es_nuevo = ?
+                    numero_serie = ?, id_fisico = ?, id_patrimonio = ?, cantidad = ?, 
+                    cantidad_oficina = ?, cantidad_deposito = ?,
+                    fecha_adquisicion = ?, id_punto_stock_actual = ?, id_ingreso = ?, es_nuevo = ?
                 WHERE id_insumo = ?";
         $db->prepare($sql)->execute([
             $nombre, $subcat, $desc,
-            $numero_serie, $id_fisico, $id_patrimonio, $cantidad, $fecha,
-            $punto, $idIngreso, $esNuevo,
+            $numero_serie, $id_fisico, $id_patrimonio, $cantidad,
+            $cantidadOficina, $cantidadDeposito,
+            $fecha, $punto, $idIngreso, $esNuevo,
             $id
         ]);
 
@@ -264,9 +271,33 @@ include '../../includes/header.php';
                                             <option value="Red" <?php echo $insumo['subcategoria_varios']==='Red'?'selected':''; ?>>Red</option>
                                         </select>
                                     </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-2">
+                                                <label class="form-label">
+                                                    <i class="fas fa-building text-success"></i> Cantidad Oficina *
+                                                </label>
+                                                <input type="number" class="form-control form-control-sm" id="edit_cantidad_oficina" name="cantidad_oficina" value="<?php echo (int)($insumo['cantidad_oficina'] ?? 0); ?>" min="0" required>
+                                                <small class="form-text text-muted">Stock para asignaciones</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-2">
+                                                <label class="form-label">
+                                                    <i class="fas fa-warehouse text-primary"></i> Cantidad Depósito *
+                                                </label>
+                                                <input type="number" class="form-control form-control-sm" id="edit_cantidad_deposito" name="cantidad_deposito" value="<?php echo (int)($insumo['cantidad_deposito'] ?? 0); ?>" min="0" required>
+                                                <small class="form-text text-muted">Stock de reserva</small>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="mb-2">
-                                        <label class="form-label">Cantidad *</label>
-                                        <input type="number" class="form-control form-control-sm" name="cantidad" value="<?php echo (int)$insumo['cantidad']; ?>" min="1" required>
+                                        <div class="alert alert-info py-2 mb-0">
+                                            <small>
+                                                <strong>Total:</strong> <span id="edit_cantidad_total"><?php echo (int)$insumo['cantidad']; ?></span> unidades
+                                                (Oficina: <span id="edit_display_oficina"><?php echo (int)($insumo['cantidad_oficina'] ?? 0); ?></span> + Depósito: <span id="edit_display_deposito"><?php echo (int)($insumo['cantidad_deposito'] ?? 0); ?></span>)
+                                            </small>
+                                        </div>
                                     </div>
                                     <div class="mb-2">
                                         <label class="form-label">Descripción General</label>
@@ -525,4 +556,25 @@ include '../../includes/header.php';
     });
   }
 })();
+
+// Calcular total automático para stock dual en edición (Varios)
+function actualizarTotalCantidadEdit() {
+    const oficina = parseInt($('#edit_cantidad_oficina').val()) || 0;
+    const deposito = parseInt($('#edit_cantidad_deposito').val()) || 0;
+    const total = oficina + deposito;
+    
+    $('#edit_cantidad_total').text(total);
+    $('#edit_display_oficina').text(oficina);
+    $('#edit_display_deposito').text(deposito);
+}
+
+// Eventos para actualizar total en tiempo real
+$(document).on('input change', '#edit_cantidad_oficina, #edit_cantidad_deposito', actualizarTotalCantidadEdit);
+
+// Actualizar al cargar la página
+$(document).ready(function() {
+    if ($('#edit_cantidad_oficina').length) {
+        actualizarTotalCantidadEdit();
+    }
+});
 </script>

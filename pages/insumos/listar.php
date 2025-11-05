@@ -452,6 +452,67 @@ document.getElementById('btnConfirmarBaja').addEventListener('click', function()
 });
 </script>
 
+<!-- Modal Reponer Stock -->
+<div class="modal fade" id="modalReponerStock" tabindex="-1" aria-labelledby="modalReponerStockLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="modalReponerStockLabel">
+                    <i class="fas fa-exchange-alt me-2"></i>Reponer Stock a Oficina
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="reponerAlert" class="alert alert-info" style="display:none;"></div>
+                
+                <div class="mb-3">
+                    <strong>Insumo:</strong> <span id="reponerNombre"></span>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <i class="fas fa-warehouse fa-2x text-primary mb-2"></i>
+                                <h6 class="card-title">Depósito</h6>
+                                <h3 class="text-primary mb-0"><span id="reponerStockDeposito">0</span></h3>
+                                <small class="text-muted">unidades</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <i class="fas fa-building fa-2x text-success mb-2"></i>
+                                <h6 class="card-title">Oficina</h6>
+                                <h3 class="text-success mb-0"><span id="reponerStockOficina">0</span></h3>
+                                <small class="text-muted">unidades</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="reponerCantidad" class="form-label">Cantidad a reponer *</label>
+                    <input type="number" class="form-control" id="reponerCantidad" min="1" required>
+                    <small class="form-text text-muted">Máximo: <span id="reponerMaximo">0</span> unidades</small>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="reponerObservacion" class="form-label">Observación (opcional)</label>
+                    <textarea class="form-control" id="reponerObservacion" rows="2" placeholder="Ej: Reposición semanal"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnConfirmarReponer">
+                    <i class="fas fa-exchange-alt me-1"></i>Reponer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <?php include '../../includes/footer.php'; ?>
 
 <script>
@@ -502,6 +563,98 @@ $(function(){
       showToast('Cantidad actualizada', 'success');
       try { $('#tablaInsumos').DataTable().ajax.reload(null,false); } catch(e) { location.reload(); }
     }).catch(err => showToast(err.message||'Error', 'error'));
+  });
+  
+  // Delegación para botón de reponer stock
+  $(document).on('click', '.btn-reponer-stock', function(){
+    var id = parseInt($(this).data('id'), 10) || 0;
+    var nombre = $(this).data('nombre') || 'Insumo';
+    var deposito = parseInt($(this).data('deposito'), 10) || 0;
+    
+    // Obtener stock actual de oficina haciendo una petición al servidor
+    fetch(getAppBase() + '/ajax/insumos_por_ids.php?ids=' + id)
+      .then(r => r.json())
+      .then(resp => {
+        if (!resp.success || !resp.data || resp.data.length === 0) {
+          showToast('Error al obtener datos del insumo', 'error');
+          return;
+        }
+        var insumo = resp.data[0];
+        var oficina = parseInt(insumo.cantidad_oficina || 0, 10);
+        
+        // Actualizar modal
+        $('#reponerNombre').text(nombre);
+        $('#reponerStockDeposito').text(deposito);
+        $('#reponerStockOficina').text(oficina);
+        $('#reponerMaximo').text(deposito);
+        $('#reponerCantidad').attr('max', deposito).val(Math.min(deposito, 10));
+        $('#reponerObservacion').val('');
+        $('#reponerAlert').hide();
+        
+        // Guardar ID para usar al confirmar
+        $('#btnConfirmarReponer').data('id-insumo', id);
+        
+        // Mostrar modal
+        var modal = new bootstrap.Modal(document.getElementById('modalReponerStock'));
+        modal.show();
+      })
+      .catch(err => {
+        showToast('Error al cargar datos: ' + err.message, 'error');
+      });
+  });
+  
+  // Confirmar reposición
+  $('#btnConfirmarReponer').on('click', function(){
+    var id = parseInt($(this).data('id-insumo'), 10) || 0;
+    var cantidad = parseInt($('#reponerCantidad').val(), 10) || 0;
+    var observacion = $('#reponerObservacion').val().trim();
+    var maxDeposito = parseInt($('#reponerMaximo').text(), 10) || 0;
+    
+    // Validaciones
+    if (cantidad <= 0) {
+      $('#reponerAlert').removeClass('alert-success').addClass('alert-danger')
+        .text('La cantidad debe ser mayor a 0').show();
+      return;
+    }
+    if (cantidad > maxDeposito) {
+      $('#reponerAlert').removeClass('alert-success').addClass('alert-danger')
+        .text('La cantidad excede el stock disponible en depósito').show();
+      return;
+    }
+    
+    // Deshabilitar botón
+    $(this).prop('disabled', true).html('<i class=\"fas fa-spinner fa-spin me-1\"></i>Reponiendo...');
+    
+    // Enviar petición
+    fetch(getAppBase() + '/ajax/reponer_stock_oficina.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': (document.querySelector('meta[name=\"csrf-token\"]')||{}).content || ''
+      },
+      body: JSON.stringify({ id_insumo: id, cantidad: cantidad, observacion: observacion })
+    })
+    .then(r => r.json())
+    .then(resp => {
+      if (!resp.success) {
+        throw new Error(resp.error || 'Error al reponer stock');
+      }
+      $('#reponerAlert').removeClass('alert-danger').addClass('alert-success')
+        .text(resp.mensaje || 'Stock repuesto correctamente').show();
+      
+      // Recargar tabla y cerrar modal después de 1 segundo
+      setTimeout(() => {
+        $('#tablaInsumos').DataTable().ajax.reload(null, false);
+        bootstrap.Modal.getInstance(document.getElementById('modalReponerStock')).hide();
+        showToast('Stock repuesto correctamente', 'success');
+      }, 1000);
+    })
+    .catch(err => {
+      $('#reponerAlert').removeClass('alert-success').addClass('alert-danger')
+        .text(err.message).show();
+      $('#btnConfirmarReponer').prop('disabled', false)
+        .html('<i class=\"fas fa-exchange-alt me-1\"></i>Reponer');
+    });
   });
   
   // Evento click para el botón de planilla de relevamiento

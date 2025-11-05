@@ -62,6 +62,8 @@ try {
                        i.subcategoria_varios,
                        i.es_nuevo,
                        i.cantidad,
+                       i.cantidad_oficina,
+                       i.cantidad_deposito,
                        i.estado,
                        pc.sist_op AS pc_sist_op,
                        nb.marca AS nb_marca,
@@ -147,10 +149,33 @@ try {
         $tipoBadge = '<span class="badge bg-info">' . htmlspecialchars($tipoDisplay) . '</span>';
         $esNuevo = isset($r['es_nuevo']) ? (int)$r['es_nuevo'] : 1;
         $condicionBadge = '<span class="badge ' . ($esNuevo ? 'bg-success' : 'bg-warning') . '">' . ($esNuevo ? 'Nuevo' : 'Usado') . '</span>';
-        $cantBadge = '<span class="badge ' . ((int)$r['cantidad'] > 0 ? 'bg-success' : 'bg-danger') . '">' . (int)$r['cantidad'] . '</span>';
+        
+        // Stock display: Para Varios, mostrar oficina/depósito/total
+        if ($tipo === 'Varios') {
+            $cantOficina = (int)($r['cantidad_oficina'] ?? $r['cantidad']);
+            $cantDeposito = (int)($r['cantidad_deposito'] ?? 0);
+            $cantTotal = $cantOficina + $cantDeposito;
+            $cantBadge = '<div style="white-space: nowrap;">';
+            $cantBadge .= '<span class="badge ' . ($cantOficina > 0 ? 'bg-success' : 'bg-secondary') . '" data-bs-toggle="tooltip" title="Stock Oficina"><i class="fas fa-building"></i> ' . $cantOficina . '</span> ';
+            $cantBadge .= '<span class="badge ' . ($cantDeposito > 0 ? 'bg-primary' : 'bg-secondary') . '" data-bs-toggle="tooltip" title="Stock Depósito"><i class="fas fa-warehouse"></i> ' . $cantDeposito . '</span> ';
+            $cantBadge .= '<span class="badge bg-info" data-bs-toggle="tooltip" title="Total"><i class="fas fa-boxes"></i> ' . $cantTotal . '</span>';
+            $cantBadge .= '</div>';
+        } else {
+            $cantBadge = '<span class="badge ' . ((int)$r['cantidad'] > 0 ? 'bg-success' : 'bg-danger') . '">' . (int)$r['cantidad'] . '</span>';
+        }
         $nombreJs = json_encode((string)$r['nombre_insumo']);
         $isDeBaja = (strcasecmp(trim((string)$r['estado']), 'De Baja') === 0);
-        $acciones = '<div class="btn-group" role="group">'
+        
+        // Botón de reponer (solo para tipo Varios con stock en depósito)
+        $btnReponer = '';
+        if ($tipo === 'Varios') {
+            $cantDeposito = (int)($r['cantidad_deposito'] ?? 0);
+            if ($cantDeposito > 0) {
+                $btnReponer = '<button type="button" class="btn btn-sm btn-primary btn-reponer-stock" data-id="' . (int)$r['id_insumo'] . '" data-nombre="' . htmlspecialchars($displayName) . '" data-deposito="' . $cantDeposito . '" data-bs-toggle="tooltip" title="Reponer a Oficina"><i class="fas fa-exchange-alt"></i></button> ';
+            }
+        }
+        
+        $acciones = '<div class="btn-group" role="group">' . $btnReponer
                   . '<button type="button" class="btn btn-sm btn-info" aria-label="Ver detalles del insumo" onclick="verInsumo(' . (int)$r['id_insumo'] . ')" data-bs-toggle="tooltip" title="Ver detalles"><i class="fas fa-eye" aria-hidden="true"></i></button>'
                   . ' <a href="editar.php?id=' . (int)$r['id_insumo'] . '" class="btn btn-sm btn-warning" aria-label="Editar insumo" data-bs-toggle="tooltip" title="Editar"><i class="fas fa-edit" aria-hidden="true"></i></a>'
                   . ' <button type="button" class="btn btn-sm btn-outline-warning" aria-label="Dar de baja insumo" ' . ($isDeBaja ? 'disabled ' : 'onclick=\'abrirModalBajaInsumo(' . (int)$r['id_insumo'] . ', ' . $nombreJs . ')\' ') . 'data-bs-toggle="tooltip" title="Dar de baja"><i class="fas fa-arrow-down" aria-hidden="true"></i></button>'

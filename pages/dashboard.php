@@ -35,13 +35,16 @@ $stmt = $conexion->query("SELECT r.fecha_asignacion,
                           LIMIT 5");
 $asignaciones_recientes = $stmt->fetchAll();
 
-// Cantidades disponibles por subtipos de 'Varios'
+// Cantidades disponibles por subtipos de 'Varios' con stock dual
 $varios_subtipos = [
-    'Hardware' => 0,
-    'Periféricos' => 0,
-    'Red' => 0,
+    'Hardware' => ['oficina' => 0, 'deposito' => 0, 'total' => 0],
+    'Periféricos' => ['oficina' => 0, 'deposito' => 0, 'total' => 0],
+    'Red' => ['oficina' => 0, 'deposito' => 0, 'total' => 0],
 ];
-$stmtVarios = $conexion->query("SELECT subcategoria_varios, COALESCE(SUM(cantidad),0) AS total
+$stmtVarios = $conexion->query("SELECT subcategoria_varios, 
+                                       COALESCE(SUM(cantidad_oficina), SUM(cantidad)) AS oficina,
+                                       COALESCE(SUM(cantidad_deposito), 0) AS deposito,
+                                       COALESCE(SUM(cantidad),0) AS total
                                 FROM insumos
                                 WHERE TRIM(tipo_insumo) = 'Varios' AND cantidad > 0
                                 GROUP BY subcategoria_varios");
@@ -49,8 +52,21 @@ $rowsV = $stmtVarios->fetchAll();
 foreach ($rowsV as $row) {
     $sub = $row['subcategoria_varios'];
     if ($sub === null || $sub === '') { continue; }
-    $varios_subtipos[$sub] = (int)$row['total'];
+    $varios_subtipos[$sub] = [
+        'oficina' => (int)$row['oficina'],
+        'deposito' => (int)$row['deposito'],
+        'total' => (int)$row['total']
+    ];
 }
+
+// Totales generales de stock dual
+$totalStockOficina = $conexion->query("SELECT COALESCE(SUM(cantidad_oficina), SUM(cantidad)) AS total
+                                       FROM insumos 
+                                       WHERE tipo_insumo = 'Varios'")->fetch()['total'] ?? 0;
+$totalStockDeposito = $conexion->query("SELECT COALESCE(SUM(cantidad_deposito), 0) AS total
+                                        FROM insumos 
+                                        WHERE tipo_insumo = 'Varios'")->fetch()['total'] ?? 0;
+$totalStockSistema = $totalStockOficina + $totalStockDeposito;
 
 // (Se eliminó 'Insumos por Sede' del dashboard)
 ?>
@@ -152,29 +168,67 @@ foreach ($rowsV as $row) {
         </div>
     </div>
     
-    <!-- Tabla: Varios por subtipos (cantidad disponible) -->
+    <!-- Tabla: Stock Total Varios (Oficina + Depósito) -->
     <div class="col-md-6">
         <div class="card">
             <div class="card-header">
                 <h5 class="mb-0">
-                    <i class="fas fa-layer-group me-2"></i>Cantidades disponibles
+                    <i class="fas fa-warehouse me-2"></i>Stock Varios - Sistema Dual
                 </h5>
             </div>
             <div class="card-body">
+                <div class="row text-center mb-3">
+                    <div class="col-4">
+                        <div class="p-2 bg-light rounded">
+                            <i class="fas fa-building text-success fa-2x mb-2"></i>
+                            <h4 class="mb-0"><?php echo (int)$totalStockOficina; ?></h4>
+                            <small class="text-muted">Oficina</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-2 bg-light rounded">
+                            <i class="fas fa-warehouse text-primary fa-2x mb-2"></i>
+                            <h4 class="mb-0"><?php echo (int)$totalStockDeposito; ?></h4>
+                            <small class="text-muted">Depósito</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-2 bg-light rounded">
+                            <i class="fas fa-boxes text-info fa-2x mb-2"></i>
+                            <h4 class="mb-0"><?php echo (int)$totalStockSistema; ?></h4>
+                            <small class="text-muted">Total</small>
+                        </div>
+                    </div>
+                </div>
+                <hr>
                 <div class="table-responsive">
-                    <table class="table table-striped table-sm table-flat" id="tablaVariosDashboard">
+                    <table class="table table-sm table-borderless mb-0">
+                        <thead>
+                            <tr class="text-muted">
+                                <th>Categoría</th>
+                                <th class="text-center" style="width: 80px;"><i class="fas fa-building"></i></th>
+                                <th class="text-center" style="width: 80px;"><i class="fas fa-warehouse"></i></th>
+                                <th class="text-center" style="width: 80px;"><i class="fas fa-boxes"></i></th>
+                            </tr>
+                        </thead>
                         <tbody>
                             <tr>
                                 <td><strong>Periféricos</strong></td>
-                                <td class="text-end"><span class="badge bg-primary"><?php echo (int)$varios_subtipos['Periféricos']; ?></span></td>
+                                <td class="text-center"><span class="badge bg-success"><?php echo $varios_subtipos['Periféricos']['oficina']; ?></span></td>
+                                <td class="text-center"><span class="badge bg-primary"><?php echo $varios_subtipos['Periféricos']['deposito']; ?></span></td>
+                                <td class="text-center"><span class="badge bg-info"><?php echo $varios_subtipos['Periféricos']['total']; ?></span></td>
                             </tr>
                             <tr>
                                 <td><strong>Hardware</strong></td>
-                                <td class="text-end"><span class="badge bg-primary"><?php echo (int)$varios_subtipos['Hardware']; ?></span></td>
+                                <td class="text-center"><span class="badge bg-success"><?php echo $varios_subtipos['Hardware']['oficina']; ?></span></td>
+                                <td class="text-center"><span class="badge bg-primary"><?php echo $varios_subtipos['Hardware']['deposito']; ?></span></td>
+                                <td class="text-center"><span class="badge bg-info"><?php echo $varios_subtipos['Hardware']['total']; ?></span></td>
                             </tr>
                             <tr>
                                 <td><strong>Red</strong></td>
-                                <td class="text-end"><span class="badge bg-primary"><?php echo (int)$varios_subtipos['Red']; ?></span></td>
+                                <td class="text-center"><span class="badge bg-success"><?php echo $varios_subtipos['Red']['oficina']; ?></span></td>
+                                <td class="text-center"><span class="badge bg-primary"><?php echo $varios_subtipos['Red']['deposito']; ?></span></td>
+                                <td class="text-center"><span class="badge bg-info"><?php echo $varios_subtipos['Red']['total']; ?></span></td>
                             </tr>
                         </tbody>
                     </table>

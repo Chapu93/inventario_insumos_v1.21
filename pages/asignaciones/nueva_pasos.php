@@ -76,27 +76,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $cantVarios = isset($_POST['cantidad_varios']) && is_array($_POST['cantidad_varios']) ? $_POST['cantidad_varios'] : [];
         foreach ($ids as $idIns) {
-            $row = $db->prepare("SELECT tipo_insumo, cantidad FROM insumos WHERE id_insumo=? FOR UPDATE");
+            // Para tipo Varios, obtener cantidad_oficina (stock disponible)
+            $row = $db->prepare("SELECT tipo_insumo, cantidad, cantidad_oficina, cantidad_deposito FROM insumos WHERE id_insumo=? FOR UPDATE");
             $row->execute([$idIns]);
             $ins = $row->fetch();
             if (!$ins) { throw new Exception('Insumo no encontrado: ' . (int)$idIns); }
             $reps = 1;
             if ($ins['tipo_insumo'] === 'Varios') {
                 $sol = isset($cantVarios[$idIns]) ? max(1, (int)$cantVarios[$idIns]) : 1;
-                if ($sol > (int)$ins['cantidad']) { throw new Exception('Cantidad solicitada supera stock'); }
+                $stockOficina = (int)($ins['cantidad_oficina'] ?? $ins['cantidad']);
+                $stockDeposito = (int)($ins['cantidad_deposito'] ?? 0);
+                
+                // Validar que hay suficiente stock en OFICINA
+                if ($sol > $stockOficina) { 
+                    throw new Exception("Stock insuficiente en oficina. Disponible: {$stockOficina}, En depósito: {$stockDeposito}. Debe reponer desde depósito primero."); 
+                }
                 $reps = $sol;
             }
             $stmtDet->execute([$idRemito, $idIns, $reps]);
 
             if ($ins['tipo_insumo'] === 'Varios') {
-                $nuevo = (int)$ins['cantidad'] - $reps;
-                $estado = $nuevo > 0 ? 'Disponible' : 'Asignado';
-                if ($nuevo > 0) {
-                    $db->prepare("UPDATE insumos SET cantidad=?, estado=?, id_sede_actual=?, id_area_asignacion_actual=? WHERE id_insumo=?")
-                       ->execute([$nuevo, $estado, $idSede, $idArea, $idIns]);
+                // Descontar SOLO de cantidad_oficina
+                $stockOficina = (int)($ins['cantidad_oficina'] ?? $ins['cantidad']);
+                $stockDeposito = (int)($ins['cantidad_deposito'] ?? 0);
+                
+                $nuevoOficina = $stockOficina - $reps;
+                $cantidadTotal = $nuevoOficina + $stockDeposito;
+                $estado = $nuevoOficina > 0 ? 'Disponible' : 'Asignado';
+                
+                if ($nuevoOficina > 0) {
+                    $db->prepare("UPDATE insumos SET cantidad=?, cantidad_oficina=?, estado=?, id_sede_actual=?, id_area_asignacion_actual=? WHERE id_insumo=?")
+                       ->execute([$cantidadTotal, $nuevoOficina, $estado, $idSede, $idArea, $idIns]);
                 } else {
-                    $db->prepare("UPDATE insumos SET cantidad=?, estado=?, id_sede_actual=?, id_area_asignacion_actual=?, id_punto_stock_actual=NULL WHERE id_insumo=?")
-                       ->execute([$nuevo, $estado, $idSede, $idArea, $idIns]);
+                    $db->prepare("UPDATE insumos SET cantidad=?, cantidad_oficina=?, estado=?, id_sede_actual=?, id_area_asignacion_actual=?, id_punto_stock_actual=NULL WHERE id_insumo=?")
+                       ->execute([$cantidadTotal, $nuevoOficina, $estado, $idSede, $idArea, $idIns]);
                 }
             } else {
                 $db->prepare("UPDATE insumos SET estado='Asignado', id_sede_actual=?, id_area_asignacion_actual=?, id_punto_stock_actual=NULL WHERE id_insumo=?")
