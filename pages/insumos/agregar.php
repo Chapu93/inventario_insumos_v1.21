@@ -153,7 +153,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $cantidadDeposito,
             $fechaAdquisicion,
             'Disponible', // Estado inicial siempre disponible
-            $_POST['id_punto_stock_actual'] ?: 2, // Por defecto Depósito
+            ($tipo_insumo == 'Varios') ? null : ($_POST['id_punto_stock_actual'] ?: 2), // Varios = NULL, otros = Depósito por defecto
             $idIngreso, // Ingreso asociado
             $esNuevo // 1=Nuevo, 0=Usado
         ]);

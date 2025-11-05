@@ -69,7 +69,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $nombre = trim($_POST['nombre_insumo'] ?? '') ?: null;
         $fecha = $_POST['fecha_adquisicion'] ?: null;
         $estado = $_POST['estado'] ?? 'Disponible';
-        $punto = $_POST['id_punto_stock_actual'] ?: null;
+        // Para tipo Varios, punto de stock siempre es NULL
+        $punto = ($tipo_fijo == 'Varios') ? null : ($_POST['id_punto_stock_actual'] ?: null);
         $esNuevo = isset($_POST['es_nuevo']) && $_POST['es_nuevo'] == '1' ? 1 : 0;
         $idIngreso = !empty($_POST['id_ingreso']) ? (int)$_POST['id_ingreso'] : null;
         
