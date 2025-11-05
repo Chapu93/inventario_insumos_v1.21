@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost
--- Tiempo de generación: 03-11-2025 a las 13:21:06
+-- Tiempo de generación: 05-11-2025 a las 16:36:24
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -137,6 +137,8 @@ CREATE TABLE `insumos` (
   `id_fisico` varchar(50) DEFAULT NULL,
   `id_patrimonio` varchar(50) DEFAULT NULL,
   `cantidad` int(11) NOT NULL DEFAULT 1,
+  `cantidad_oficina` int(11) DEFAULT NULL COMMENT 'Stock disponible en oficina para asignaciones inmediatas (solo tipo Varios)',
+  `cantidad_deposito` int(11) DEFAULT NULL COMMENT 'Stock en depósito, requiere reposición a oficina (solo tipo Varios)',
   `fecha_adquisicion` date DEFAULT NULL,
   `estado` enum('Disponible','Asignado','De Baja') NOT NULL DEFAULT 'Disponible',
   `id_punto_stock_actual` int(11) DEFAULT NULL,
@@ -151,35 +153,72 @@ CREATE TABLE `insumos` (
 -- Volcado de datos para la tabla `insumos`
 --
 
-INSERT INTO `insumos` (`id_insumo`, `nombre_insumo`, `tipo_insumo`, `subcategoria_varios`, `descripcion_general`, `numero_serie`, `id_fisico`, `id_patrimonio`, `cantidad`, `fecha_adquisicion`, `estado`, `id_punto_stock_actual`, `id_sede_actual`, `id_ingreso`, `es_nuevo`, `id_area_asignacion_actual`) VALUES
-(6, 'Monitor recuperado en comision', 'Monitor', NULL, NULL, '32', '84621359', '646546gg', 1, '2025-08-18', 'Disponible', NULL, NULL, NULL, 1, NULL),
-(7, 'Escarner Nuevo', 'Escaner', NULL, NULL, '108923', 'E45333', 'asfd123', 1, '2025-08-18', 'Disponible', NULL, NULL, 31, 1, NULL),
-(16, 'PC Escritorio Oficina recuperada en comision', 'PC Escritorio', NULL, NULL, 'PC COMPLETA-SN0004', 'PC COMPLETA-ID0004', 'PAT00004', 1, '2025-09-16', 'De Baja', 2, NULL, NULL, 1, NULL),
-(17, 'Notebook 14\"', 'Notebook', NULL, NULL, 'NOTEBOOK-SN0005', 'NOTEBOOK-ID0005', 'PAT00005', 1, '2025-09-16', 'Disponible', NULL, NULL, NULL, 1, NULL),
-(19, 'Monitor 24\"', 'Monitor', NULL, NULL, 'MONITOR-SN0007', 'MONITOR-ID0007', 'PAT00007', 1, '2025-09-16', 'De Baja', 2, NULL, NULL, 1, NULL),
-(21, 'Teclado USB', 'Varios', 'Periféricos', 'Demo seed', NULL, NULL, NULL, 4, '2025-09-16', 'Disponible', NULL, NULL, NULL, 1, NULL),
-(23, 'Fichero', 'Escaner', NULL, NULL, '65468614', 'D466', 'D466', 1, '2025-10-14', 'Disponible', NULL, NULL, NULL, 1, NULL),
-(27, 'Coradir 2020', 'PC Escritorio', NULL, NULL, '8768976', 'D342', 'D423', 1, '2025-10-17', 'Disponible', NULL, NULL, NULL, 1, NULL),
-(29, 'Nueva', 'Impresora', NULL, NULL, '646979', 'D458', 'D748', 1, '2025-10-17', 'Disponible', NULL, NULL, NULL, 1, NULL),
-(31, 'Test Accesorios', 'Notebook', NULL, NULL, '9879789', 'Df97', 'Df97', 1, '2025-10-17', 'Disponible', NULL, NULL, NULL, 1, NULL),
-(47, 'impresora con scanner', 'Impresora', NULL, NULL, '3652656887795', '887795', '887795', 1, '2025-10-21', 'Disponible', NULL, NULL, NULL, 1, NULL),
-(54, 'nueva fecha', 'Notebook', NULL, NULL, '2342', 's23', 's23', 1, '2025-11-23', 'Disponible', 2, NULL, NULL, 1, NULL),
-(60, 'probando si la agregaa', 'PC Escritorio', NULL, NULL, 'asdlfkj', 'sdfj', 'adslfgk', 1, '2025-10-22', 'Disponible', 2, NULL, NULL, 1, NULL),
-(61, 'Coradir', 'PC Escritorio', NULL, NULL, '394702', 'F45', 'F45', 1, '2025-10-22', 'Disponible', NULL, NULL, 30, 1, NULL),
-(74, 'otra ves', 'Varios', 'Hardware', NULL, NULL, NULL, NULL, 8, '2025-10-24', 'Disponible', NULL, NULL, 29, 1, NULL),
-(75, 'asdfa', 'Monitor', NULL, NULL, 'asdfas', 'asdfasd', 'asdfa', 1, '2025-10-01', 'Disponible', NULL, NULL, 28, 1, NULL),
-(76, 'Prubando de nuevo', 'Varios', 'Hardware', NULL, NULL, NULL, NULL, 6, '2025-10-24', 'Disponible', 2, NULL, 29, 1, NULL),
-(79, 'CABLE LIMPIO', 'Varios', 'Periféricos', NULL, NULL, NULL, NULL, 10, '2025-10-24', 'Disponible', 2, NULL, 31, 1, NULL),
-(83, 'Probando 33', 'PC Escritorio', NULL, NULL, 'asdfkj', 'asldfk', 'asld', 1, '2025-10-30', 'Disponible', 2, NULL, 31, 1, NULL),
-(86, 'rrrrr', 'PC Escritorio', NULL, NULL, 'rrrrrr', 'rrrrrr', 'rrrrr', 1, '2025-10-24', 'Disponible', 2, NULL, 29, 1, NULL),
-(88, 'note note', 'Notebook', NULL, NULL, 'qsfeqsdf', 'asdfasdf', 'asdfasdf', 1, '2025-10-24', 'Disponible', 2, NULL, 29, 1, NULL),
-(90, NULL, 'PC Escritorio', NULL, NULL, '54646', 'E15', 'E15', 1, '2025-10-24', 'Asignado', 2, 51, 29, 1, 9),
-(91, 'moni moni', 'Monitor', NULL, NULL, 'sasdkf023\'204', 'saldfj3', '04\'0284lkm', 1, '2025-10-24', 'Disponible', 2, NULL, NULL, 1, NULL),
-(92, 'Recuperada en comision', 'Impresora', NULL, NULL, '123123123', '123123123', '123123123', 1, '2025-10-30', 'Disponible', 2, NULL, 31, 1, NULL),
-(93, 'Parlantes Marca Genius', 'Varios', 'Periféricos', NULL, NULL, NULL, NULL, 1, '2025-10-24', 'Disponible', 2, NULL, 29, 1, NULL),
-(94, 'Tesr', 'PC Escritorio', NULL, NULL, 'asdaaf', 'asdfa', 'asdfaasd', 1, '2025-10-30', 'Disponible', 2, NULL, NULL, 1, NULL),
-(95, NULL, 'PC Escritorio', NULL, NULL, '3908204', '0293420', '09283402', 1, '2025-10-30', 'Disponible', NULL, NULL, 31, 1, NULL),
-(96, 'asdf', 'Varios', NULL, 'adsf', NULL, NULL, NULL, 1, '2025-07-02', 'Disponible', 2, NULL, 33, 1, NULL);
+INSERT INTO `insumos` (`id_insumo`, `nombre_insumo`, `tipo_insumo`, `subcategoria_varios`, `descripcion_general`, `numero_serie`, `id_fisico`, `id_patrimonio`, `cantidad`, `cantidad_oficina`, `cantidad_deposito`, `fecha_adquisicion`, `estado`, `id_punto_stock_actual`, `id_sede_actual`, `id_ingreso`, `es_nuevo`, `id_area_asignacion_actual`) VALUES
+(6, 'Monitor recuperado en comision', 'Monitor', NULL, NULL, '32', '84621359', '646546gg', 1, NULL, NULL, '2025-08-18', 'Disponible', NULL, NULL, NULL, 1, NULL),
+(7, 'Escarner Nuevo', 'Escaner', NULL, NULL, '108923', 'E45333', 'asfd123', 1, NULL, NULL, '2025-08-18', 'Disponible', NULL, NULL, 31, 1, NULL),
+(16, 'PC Escritorio Oficina recuperada en comision', 'PC Escritorio', NULL, NULL, 'PC COMPLETA-SN0004', 'PC COMPLETA-ID0004', 'PAT00004', 1, NULL, NULL, '2025-09-16', 'De Baja', 2, NULL, NULL, 0, NULL),
+(17, 'Notebook 14\"', 'Notebook', NULL, NULL, NULL, 'NOTEBOOK-ID0005', 'PAT00005', 1, NULL, NULL, '2025-09-16', 'Disponible', NULL, NULL, NULL, 1, NULL),
+(19, 'Monitor 24\"', 'Monitor', NULL, NULL, 'MONITOR-SN0007', 'MONITOR-ID0007', 'PAT00007', 1, NULL, NULL, '2025-09-16', 'De Baja', 2, NULL, NULL, 1, NULL),
+(21, 'Teclado USB', 'Varios', 'Periféricos', 'Demo seed', NULL, NULL, NULL, 4, 4, 0, '2025-09-16', 'Disponible', NULL, NULL, NULL, 1, NULL),
+(23, 'Fichero', 'Escaner', NULL, NULL, '65468614', 'D466', 'D466', 1, NULL, NULL, '2025-10-14', 'Disponible', NULL, NULL, NULL, 1, NULL),
+(27, 'Coradir 2020', 'PC Escritorio', NULL, NULL, '8768976', 'D342', 'D423', 1, NULL, NULL, '2025-10-17', 'Disponible', NULL, NULL, NULL, 1, NULL),
+(29, 'Nueva', 'Impresora', NULL, NULL, '646979', 'D458', 'D748', 1, NULL, NULL, '2025-10-17', 'Disponible', NULL, NULL, NULL, 1, NULL),
+(31, 'Test Accesorios', 'Notebook', NULL, NULL, '9879789', 'Df97', 'Df97', 1, NULL, NULL, '2025-10-17', 'Disponible', NULL, NULL, NULL, 1, NULL),
+(47, 'impresora con scanner', 'Impresora', NULL, NULL, '3652656887795', '887795', '887795', 1, NULL, NULL, '2025-10-21', 'Disponible', NULL, NULL, NULL, 1, NULL),
+(54, 'nueva fecha', 'Notebook', NULL, NULL, '2342', 's23', 's23', 1, NULL, NULL, '2025-11-23', 'Disponible', 2, NULL, NULL, 1, NULL),
+(60, 'probando si la agregaa', 'PC Escritorio', NULL, NULL, 'asdlfkj', 'sdfj', 'adslfgk', 1, NULL, NULL, '2025-10-22', 'Disponible', 2, NULL, NULL, 1, NULL),
+(61, 'Coradir', 'PC Escritorio', NULL, NULL, '394702', 'F45', 'F45', 1, NULL, NULL, '2025-10-22', 'Disponible', NULL, NULL, 30, 1, NULL),
+(74, 'otra ves', 'Varios', 'Hardware', NULL, NULL, NULL, NULL, 23, 8, 15, '2025-10-24', 'Disponible', NULL, NULL, 29, 1, NULL),
+(75, 'asdfa', 'Monitor', NULL, NULL, 'asdfas', 'asdfasd', 'asdfa', 1, NULL, NULL, '2025-10-01', 'Disponible', NULL, NULL, 28, 1, NULL),
+(76, 'Prubando de nuevo', 'Varios', 'Hardware', NULL, NULL, NULL, NULL, 6, 6, 0, '2025-10-24', 'Disponible', 2, NULL, 29, 1, NULL),
+(79, 'CABLE LIMPIO', 'Varios', 'Periféricos', NULL, NULL, NULL, NULL, 10, 10, 0, '2025-10-24', 'Disponible', 2, NULL, 31, 1, NULL),
+(83, 'Probando 33', 'PC Escritorio', NULL, NULL, 'asdfkj', 'asldfk', 'asld', 1, NULL, NULL, '2025-10-30', 'Disponible', 2, NULL, 31, 1, NULL),
+(86, 'rrrrr', 'PC Escritorio', NULL, NULL, 'rrrrrr', 'rrrrrr', 'rrrrr', 1, NULL, NULL, '2025-10-24', 'Disponible', 2, NULL, 29, 1, NULL),
+(88, 'note note', 'Notebook', NULL, NULL, 'qsfeqsdf', 'asdfasdf', 'asdfasdf', 1, NULL, NULL, '2025-10-24', 'Disponible', 2, NULL, 29, 1, NULL),
+(90, NULL, 'PC Escritorio', NULL, NULL, '54646', 'E15', 'E15', 1, NULL, NULL, '2025-10-24', 'Asignado', 2, 51, 29, 1, 9),
+(91, 'moni moni', 'Monitor', NULL, NULL, 'sasdkf023\'204', 'saldfj3', '04\'0284lkm', 1, NULL, NULL, '2025-10-24', 'Disponible', 2, NULL, NULL, 1, NULL),
+(92, 'Recuperada en comision', 'Impresora', NULL, NULL, '123123123', '123123123', '123123123', 1, NULL, NULL, '2025-10-30', 'Disponible', 2, NULL, 31, 1, NULL),
+(93, 'Parlantes Marca Genius', 'Varios', 'Periféricos', NULL, NULL, NULL, NULL, 11, 6, 5, '2025-10-24', 'Disponible', 2, NULL, 29, 1, NULL),
+(94, 'Tesr', 'PC Escritorio', NULL, NULL, 'asdaaf', 'asdfa', 'asdfaasd', 1, NULL, NULL, '2025-10-30', 'Disponible', 2, NULL, NULL, 1, NULL),
+(95, NULL, 'PC Escritorio', NULL, NULL, '3908204', '0293420', '09283402', 1, NULL, NULL, '2025-10-30', 'Disponible', NULL, NULL, 31, 1, NULL),
+(96, 'asdf', 'Varios', 'Hardware', 'adsf', NULL, NULL, NULL, 1, 1, 0, '2025-07-02', 'Disponible', 2, NULL, 33, 1, NULL),
+(97, 'sdf', 'PC Escritorio', NULL, NULL, NULL, 'sd', 'sdf', 1, NULL, NULL, '2025-11-04', 'Disponible', 2, NULL, NULL, 1, NULL),
+(98, 'qwerqw', 'PC Escritorio', NULL, NULL, NULL, 'qwer', 'qwer', 1, NULL, NULL, '2025-11-04', 'Asignado', 2, 51, NULL, 1, 11),
+(99, 'Mouse Logitech G500 USB', 'Varios', 'Periféricos', NULL, NULL, NULL, NULL, 0, 0, 0, '2025-11-05', 'Asignado', NULL, 43, NULL, 1, 11);
+
+--
+-- Disparadores `insumos`
+--
+DELIMITER $$
+CREATE TRIGGER `trg_insumos_sync_cantidad_insert` BEFORE INSERT ON `insumos` FOR EACH ROW BEGIN
+  -- Para tipo Varios, calcular cantidad total
+  IF NEW.tipo_insumo = 'Varios' THEN
+    IF NEW.cantidad_oficina IS NULL THEN
+      SET NEW.cantidad_oficina = 0;
+    END IF;
+    IF NEW.cantidad_deposito IS NULL THEN
+      SET NEW.cantidad_deposito = 0;
+    END IF;
+    SET NEW.cantidad = NEW.cantidad_oficina + NEW.cantidad_deposito;
+  END IF;
+END
+$$
+DELIMITER ;
+DELIMITER $$
+CREATE TRIGGER `trg_insumos_sync_cantidad_update` BEFORE UPDATE ON `insumos` FOR EACH ROW BEGIN
+  -- Para tipo Varios, calcular cantidad total
+  IF NEW.tipo_insumo = 'Varios' THEN
+    IF NEW.cantidad_oficina IS NULL THEN
+      SET NEW.cantidad_oficina = 0;
+    END IF;
+    IF NEW.cantidad_deposito IS NULL THEN
+      SET NEW.cantidad_deposito = 0;
+    END IF;
+    SET NEW.cantidad = NEW.cantidad_oficina + NEW.cantidad_deposito;
+  END IF;
+END
+$$
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -205,6 +244,39 @@ INSERT INTO `insumos_bajas` (`id_baja`, `id_insumo`, `fecha_baja`, `observacion`
 (10, 17, '2025-10-01 10:23:32', 'Se la robaron', 1),
 (11, 19, '2025-10-03 09:04:51', 'Se quemo en una subida de tension, no tenia estabilizador.', 1),
 (12, 21, '2025-10-24 08:08:28', 'Prueba', 3);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `insumos_movimientos_stock`
+--
+
+CREATE TABLE `insumos_movimientos_stock` (
+  `id_movimiento` int(11) NOT NULL,
+  `id_insumo` int(11) NOT NULL,
+  `tipo_movimiento` enum('reposicion_oficina','devolucion_a_deposito','ajuste_manual','ingreso_nuevo') NOT NULL,
+  `cantidad_movida` int(11) NOT NULL COMMENT 'Cantidad trasladada/ajustada',
+  `ubicacion_origen` enum('deposito','oficina','externo','N/A') NOT NULL,
+  `ubicacion_destino` enum('deposito','oficina','externo','N/A') NOT NULL,
+  `cantidad_oficina_antes` int(11) NOT NULL,
+  `cantidad_deposito_antes` int(11) NOT NULL,
+  `cantidad_oficina_despues` int(11) NOT NULL,
+  `cantidad_deposito_despues` int(11) NOT NULL,
+  `usuario` varchar(100) DEFAULT NULL COMMENT 'Usuario que realizó el movimiento',
+  `observacion` text DEFAULT NULL,
+  `fecha_movimiento` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Historial de movimientos de stock entre oficina y depósito';
+
+--
+-- Volcado de datos para la tabla `insumos_movimientos_stock`
+--
+
+INSERT INTO `insumos_movimientos_stock` (`id_movimiento`, `id_insumo`, `tipo_movimiento`, `cantidad_movida`, `ubicacion_origen`, `ubicacion_destino`, `cantidad_oficina_antes`, `cantidad_deposito_antes`, `cantidad_oficina_despues`, `cantidad_deposito_despues`, `usuario`, `observacion`, `fecha_movimiento`) VALUES
+(1, 93, 'reposicion_oficina', 5, 'deposito', 'oficina', 1, 10, 6, 5, NULL, '', '2025-11-05 11:15:42'),
+(2, 99, 'reposicion_oficina', 2, 'deposito', 'oficina', 4, 10, 6, 8, NULL, '', '2025-11-05 11:39:01'),
+(3, 99, 'reposicion_oficina', 1, 'deposito', 'oficina', 6, 8, 7, 7, NULL, '', '2025-11-05 11:46:11'),
+(4, 99, 'reposicion_oficina', 1, 'deposito', 'oficina', 7, 7, 8, 6, NULL, '', '2025-11-05 11:46:17'),
+(5, 99, 'reposicion_oficina', 2, 'deposito', 'oficina', 8, 6, 10, 4, NULL, '', '2025-11-05 11:46:34');
 
 -- --------------------------------------------------------
 
@@ -306,7 +378,7 @@ INSERT INTO `notebooks` (`id_notebook`, `id_insumo`, `marca`, `modelo`, `procesa
 (9, 31, 'Sony Vaio', 'G85', 'I9 13200', 32, 2048, 1, 1, 1, 256, 1, 1),
 (18, 54, 'hp', 'pavilion g54', 'i7 14000', 2, 2, 0, 0, 0, NULL, 0, 0),
 (19, 88, 'sadfas', 'sadfa', 'asfdaf', 2, 2, 0, 1, 0, NULL, 0, 1),
-(20, 17, 'Hp', 'Pavilion', 'I3-4478', 4, 500, 1, 1, 0, NULL, 0, 1);
+(21, 17, 'Hp', 'Pavilion', 'I3-4478', 4, 500, 1, 1, 0, NULL, 0, 1);
 
 -- --------------------------------------------------------
 
@@ -321,7 +393,7 @@ CREATE TABLE `pcs_completas` (
   `ram_gb` int(11) DEFAULT NULL,
   `almacenamiento_gb` int(11) DEFAULT NULL,
   `mother` varchar(100) DEFAULT NULL,
-  `sist_op` text DEFAULT NULL
+  `sist_op` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -337,7 +409,9 @@ INSERT INTO `pcs_completas` (`id_pc_completa`, `id_insumo`, `procesador`, `ram_g
 (30, 95, 'I5-15882U', 4, 45, '431', 'Ubuntu 24'),
 (32, 94, 'I9 ultra core', 3, 3, 'asdf', 'Linux Mint 16.05'),
 (33, 90, 'I9 ultra core', 3, 3, 'sdf', 'Ubuntu 22'),
-(34, 16, 'sfaddfg', 3, 3, 'sdf', 'Win 11');
+(35, 97, 'sdf', 3, 3, 'sdf2', 'sdf'),
+(37, 98, 'qwer', 3, 3, 'qwer', 'qwer'),
+(38, 16, 'sfaddfg', 3, 3, 'sdf', 'Win 11');
 
 -- --------------------------------------------------------
 
@@ -394,7 +468,9 @@ INSERT INTO `remitos` (`id_remito`, `numero_remito`, `id_sede`, `id_area`, `nomb
 (60, '0047_2025', 51, 9, 'diego', 'garcia', '2025-10-24', 'Activa', NULL, NULL, NULL, NULL),
 (61, '0048_2025', 38, 2, 'joaquin', 'villaverde', '2025-10-24', 'Devuelta', '2025-10-24', NULL, NULL, NULL),
 (62, '0001_2025', 44, 6, 'cintia', 'cuassolo', '2025-10-24', 'Anulado', NULL, NULL, 'Cambio de area', '2025-10-28 08:21:30'),
-(64, '0050_2025', 38, 2, 'Probando', 'borrar', '2025-10-31', 'Anulado', NULL, NULL, 'Renuncio', '2025-10-31 11:47:33');
+(64, '0050_2025', 38, 2, 'Probando', 'borrar', '2025-10-31', 'Anulado', NULL, NULL, 'Renuncio', '2025-10-31 11:47:33'),
+(65, '0051_2025', 51, 11, 'qwer', 'qwer', '2025-11-04', 'Activa', NULL, NULL, NULL, NULL),
+(67, '0052_2025', 43, 11, 'fdgl', 'sdflg', '2025-11-05', 'Activa', NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -427,7 +503,9 @@ INSERT INTO `remitos_detalle` (`id_detalle`, `id_remito`, `id_insumo`, `cantidad
 (111, 62, 61, 1, 0),
 (112, 62, 75, 1, 0),
 (115, 64, 75, 1, 0),
-(116, 64, 95, 1, 0);
+(116, 64, 95, 1, 0),
+(117, 65, 98, 1, 0),
+(118, 67, 99, 14, 0);
 
 -- --------------------------------------------------------
 
@@ -445,7 +523,7 @@ CREATE TABLE `remito_secuencia` (
 --
 
 INSERT INTO `remito_secuencia` (`anio`, `ultimo`) VALUES
-(2025, 50);
+(2025, 52);
 
 -- --------------------------------------------------------
 
@@ -803,13 +881,8 @@ ALTER TABLE `insumos`
   ADD KEY `id_sede_actual` (`id_sede_actual`),
   ADD KEY `idx_insumos_estado` (`estado`),
   ADD KEY `idx_insumos_tipo` (`tipo_insumo`),
-  ADD KEY `idx_insumos_sede` (`id_sede_actual`),
-  ADD KEY `idx_i_estado` (`estado`),
-  ADD KEY `idx_i_tipo` (`tipo_insumo`),
-  ADD KEY `idx_i_punto` (`id_punto_stock_actual`),
-  ADD KEY `idx_i_sede_actual` (`id_sede_actual`),
-  ADD KEY `idx_i_area_actual` (`id_area_asignacion_actual`),
-  ADD KEY `idx_insumos_licitacion` (`id_ingreso`);
+  ADD KEY `idx_insumos_licitacion` (`id_ingreso`),
+  ADD KEY `idx_cantidad_oficina` (`cantidad_oficina`);
 
 --
 -- Indices de la tabla `insumos_bajas`
@@ -817,6 +890,15 @@ ALTER TABLE `insumos`
 ALTER TABLE `insumos_bajas`
   ADD PRIMARY KEY (`id_baja`),
   ADD KEY `idx_ib_insumo` (`id_insumo`);
+
+--
+-- Indices de la tabla `insumos_movimientos_stock`
+--
+ALTER TABLE `insumos_movimientos_stock`
+  ADD PRIMARY KEY (`id_movimiento`),
+  ADD KEY `idx_movimientos_insumo` (`id_insumo`),
+  ADD KEY `idx_movimientos_fecha` (`fecha_movimiento`),
+  ADD KEY `idx_movimientos_tipo` (`tipo_movimiento`);
 
 --
 -- Indices de la tabla `localidades`
@@ -860,15 +942,10 @@ ALTER TABLE `puntos_stock`
 ALTER TABLE `remitos`
   ADD PRIMARY KEY (`id_remito`),
   ADD UNIQUE KEY `numero_remito` (`numero_remito`),
-  ADD UNIQUE KEY `uniq_numero_remito` (`numero_remito`),
   ADD KEY `idx_remitos_fecha` (`fecha_asignacion`),
   ADD KEY `idx_remitos_estado` (`estado`),
   ADD KEY `fk_remitos_sede` (`id_sede`),
-  ADD KEY `fk_remitos_area` (`id_area`),
-  ADD KEY `idx_r_sede` (`id_sede`),
-  ADD KEY `idx_r_area` (`id_area`),
-  ADD KEY `idx_r_fecha` (`fecha_asignacion`),
-  ADD KEY `idx_estado` (`estado`);
+  ADD KEY `fk_remitos_area` (`id_area`);
 
 --
 -- Indices de la tabla `remitos_detalle`
@@ -899,7 +976,6 @@ ALTER TABLE `sedes_internet`
   ADD KEY `idx_si_sede` (`id_sede`),
   ADD KEY `idx_si_estado` (`estado_servicio`),
   ADD KEY `idx_instancia_pendiente` (`instancia_pendiente`),
-  ADD KEY `idx_estado_servicio` (`estado_servicio`),
   ADD KEY `idx_fecha_instalacion` (`fecha_instalacion`),
   ADD KEY `idx_fecha_baja` (`fecha_baja`),
   ADD KEY `idx_trasladado_a` (`id_servicio_trasladado_a`),
@@ -992,13 +1068,19 @@ ALTER TABLE `ingresos`
 -- AUTO_INCREMENT de la tabla `insumos`
 --
 ALTER TABLE `insumos`
-  MODIFY `id_insumo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=97;
+  MODIFY `id_insumo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=100;
 
 --
 -- AUTO_INCREMENT de la tabla `insumos_bajas`
 --
 ALTER TABLE `insumos_bajas`
   MODIFY `id_baja` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+
+--
+-- AUTO_INCREMENT de la tabla `insumos_movimientos_stock`
+--
+ALTER TABLE `insumos_movimientos_stock`
+  MODIFY `id_movimiento` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `localidades`
@@ -1016,13 +1098,13 @@ ALTER TABLE `monitores`
 -- AUTO_INCREMENT de la tabla `notebooks`
 --
 ALTER TABLE `notebooks`
-  MODIFY `id_notebook` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id_notebook` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT de la tabla `pcs_completas`
 --
 ALTER TABLE `pcs_completas`
-  MODIFY `id_pc_completa` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id_pc_completa` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT de la tabla `puntos_stock`
@@ -1034,13 +1116,13 @@ ALTER TABLE `puntos_stock`
 -- AUTO_INCREMENT de la tabla `remitos`
 --
 ALTER TABLE `remitos`
-  MODIFY `id_remito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
+  MODIFY `id_remito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
 
 --
 -- AUTO_INCREMENT de la tabla `remitos_detalle`
 --
 ALTER TABLE `remitos_detalle`
-  MODIFY `id_detalle` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=117;
+  MODIFY `id_detalle` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=119;
 
 --
 -- AUTO_INCREMENT de la tabla `sedes`
@@ -1119,17 +1201,19 @@ ALTER TABLE `insumos`
   ADD CONSTRAINT `fk_i_area_actual` FOREIGN KEY (`id_area_asignacion_actual`) REFERENCES `areas` (`id_area`) ON DELETE SET NULL,
   ADD CONSTRAINT `fk_i_punto` FOREIGN KEY (`id_punto_stock_actual`) REFERENCES `puntos_stock` (`id_punto_stock`) ON DELETE SET NULL,
   ADD CONSTRAINT `fk_i_sede_actual` FOREIGN KEY (`id_sede_actual`) REFERENCES `sedes` (`id_sede`) ON DELETE SET NULL,
-  ADD CONSTRAINT `fk_insumos_area_actual` FOREIGN KEY (`id_area_asignacion_actual`) REFERENCES `areas` (`id_area`),
-  ADD CONSTRAINT `fk_insumos_ingreso` FOREIGN KEY (`id_ingreso`) REFERENCES `ingresos` (`id_ingreso`) ON DELETE SET NULL ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_insumos_licitacion` FOREIGN KEY (`id_ingreso`) REFERENCES `ingresos` (`id_ingreso`) ON DELETE SET NULL,
-  ADD CONSTRAINT `fk_insumos_punto_stock` FOREIGN KEY (`id_punto_stock_actual`) REFERENCES `puntos_stock` (`id_punto_stock`),
-  ADD CONSTRAINT `fk_insumos_sede_actual` FOREIGN KEY (`id_sede_actual`) REFERENCES `sedes` (`id_sede`);
+  ADD CONSTRAINT `fk_insumos_ingreso` FOREIGN KEY (`id_ingreso`) REFERENCES `ingresos` (`id_ingreso`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `insumos_bajas`
 --
 ALTER TABLE `insumos_bajas`
   ADD CONSTRAINT `fk_ib_insumo` FOREIGN KEY (`id_insumo`) REFERENCES `insumos` (`id_insumo`);
+
+--
+-- Filtros para la tabla `insumos_movimientos_stock`
+--
+ALTER TABLE `insumos_movimientos_stock`
+  ADD CONSTRAINT `fk_movimientos_insumo` FOREIGN KEY (`id_insumo`) REFERENCES `insumos` (`id_insumo`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `localidades`
@@ -1160,9 +1244,7 @@ ALTER TABLE `pcs_completas`
 --
 ALTER TABLE `remitos`
   ADD CONSTRAINT `fk_r_area` FOREIGN KEY (`id_area`) REFERENCES `areas` (`id_area`),
-  ADD CONSTRAINT `fk_r_sede` FOREIGN KEY (`id_sede`) REFERENCES `sedes` (`id_sede`),
-  ADD CONSTRAINT `fk_remitos_area` FOREIGN KEY (`id_area`) REFERENCES `areas` (`id_area`),
-  ADD CONSTRAINT `fk_remitos_sede` FOREIGN KEY (`id_sede`) REFERENCES `sedes` (`id_sede`);
+  ADD CONSTRAINT `fk_r_sede` FOREIGN KEY (`id_sede`) REFERENCES `sedes` (`id_sede`);
 
 --
 -- Filtros para la tabla `remitos_detalle`
