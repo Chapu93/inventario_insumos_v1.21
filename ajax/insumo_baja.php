@@ -87,9 +87,37 @@ try {
     }
 
     $db->commit();
+    
+    // Registrar en auditoría
+    registrarAuditoria(
+        'baja_insumo',
+        'insumos',
+        "Baja de insumo (ID: {$idInsumo}): {$observacion} - Cantidad: {$cantidadSolicitada}",
+        'insumo',
+        $idInsumo,
+        ['estado' => $ins['estado'], 'cantidad' => $ins['cantidad']],
+        ['estado' => ($ins['tipo_insumo'] === 'Varios' ? ($nuevoStock > 0 ? 'Disponible' : 'De Baja') : 'De Baja'), 'cantidad' => isset($nuevoStock) ? $nuevoStock : 0]
+    );
+    
     echo json_encode(['success' => true]);
 } catch (Exception $e) {
     if (isset($db) && $db->inTransaction()) { $db->rollBack(); }
+    
+    // Registrar error en auditoría
+    if (isset($idInsumo) && $idInsumo > 0) {
+        registrarAuditoria(
+            'baja_insumo',
+            'insumos',
+            "Error al dar de baja insumo (ID: {$idInsumo})",
+            'insumo',
+            $idInsumo,
+            null,
+            null,
+            'error',
+            $e->getMessage()
+        );
+    }
+    
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
 ?>

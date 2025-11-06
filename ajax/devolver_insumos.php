@@ -91,9 +91,37 @@ try {
     }
 
     $db->commit();
+    
+    // Registrar en auditoría
+    registrarAuditoria(
+        'devolver_insumos',
+        'asignaciones',
+        "Devolución de insumos - Remito: {$numeroRemito}",
+        'asignacion',
+        $idRemito,
+        null,
+        ['devueltos' => $devolverList, 'restantes' => $c]
+    );
+    
     json_success();
 } catch (Exception $e) {
     if (isset($db) && $db->inTransaction()) { $db->rollBack(); }
+    
+    // Registrar error en auditoría
+    if (isset($numeroRemito)) {
+        registrarAuditoria(
+            'devolver_insumos',
+            'asignaciones',
+            "Error al devolver insumos - Remito: {$numeroRemito}",
+            null,
+            null,
+            null,
+            null,
+            'error',
+            $e->getMessage()
+        );
+    }
+    
     json_error($e->getMessage(), 500);
 }
 ?>

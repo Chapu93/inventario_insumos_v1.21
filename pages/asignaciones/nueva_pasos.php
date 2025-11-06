@@ -127,6 +127,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $db->commit();
+        
+        // Registrar en auditoría
+        registrarAuditoria(
+            'crear_asignacion',
+            'asignaciones',
+            "Asignación creada - Remito: {$numero} - Persona: {$nombre} {$apellido}",
+            'asignacion',
+            $idRemito,
+            null,
+            [
+                'numero_remito' => $numero,
+                'sede' => $idSede,
+                'area' => $idArea,
+                'persona' => "{$nombre} {$apellido}",
+                'insumos_count' => count($ids)
+            ]
+        );
+        
         $_SESSION['mensaje'] = 'Asignación creada correctamente';
         $_SESSION['tipo_mensaje'] = 'success';
         if (!empty($_POST['imprimir_remito'])) {
