@@ -1,6 +1,7 @@
 <?php
 require_once '../../includes/config.php';
-\nrequerirAutenticacion();
+
+requerirAutenticacion();
 
 header('Content-Type: application/json');
 

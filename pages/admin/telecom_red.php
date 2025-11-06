@@ -1,6 +1,7 @@
 <?php
 require_once '../../includes/config.php';
-\nrequerirAutenticacion();
+
+requerirAutenticacion();
 $db = conectarDB();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
