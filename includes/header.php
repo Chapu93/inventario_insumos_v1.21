@@ -131,6 +131,26 @@
                         </li>
                     </ul>
                 </li>
+                
+                <?php if (estaAutenticado() && tienePermiso('usuarios', 'ver')): 
+                    $isUsuarios = strpos($currentPath, '/pages/admin/usuarios/') !== false;
+                ?>
+                <li>
+                    <a href="#usuariosSubmenu" class="nav-link <?php echo $isUsuarios ? 'active' : ''; ?>" data-bs-toggle="collapse" role="button" aria-expanded="<?php echo $isUsuarios ? 'true' : 'false'; ?>" aria-controls="usuariosSubmenu">
+                        <i class="fas fa-users me-2"></i>Usuarios
+                    </a>
+                    <ul class="collapse list-unstyled <?php echo $isUsuarios ? 'show' : ''; ?>" id="usuariosSubmenu" data-bs-parent="#sidebar" role="menu">
+                        <li>
+                            <a href="<?php echo app_base_url(); ?>/pages/admin/usuarios/listar.php" class="<?php echo strpos($currentPath, '/pages/admin/usuarios/listar.php') !== false ? 'active' : ''; ?>" role="menuitem">Gestión de Usuarios</a>
+                        </li>
+                        <?php if (tienePermiso('auditoria', 'ver_todo')): ?>
+                        <li>
+                            <a href="<?php echo app_base_url(); ?>/pages/admin/auditoria.php" class="<?php echo strpos($currentPath, '/pages/admin/auditoria.php') !== false ? 'active' : ''; ?>" role="menuitem">Auditoría</a>
+                        </li>
+                        <?php endif; ?>
+                    </ul>
+                </li>
+                <?php endif; ?>
             </ul>
         </nav>
 
@@ -142,10 +162,56 @@
                     <button class="btn btn-outline-primary d-lg-none" type="button" id="btnToggleSidebar" aria-label="Alternar menú">
                         <i class="fas fa-bars"></i>
                     </button>
-                    <div class="ms-auto">
-                        <span class="navbar-text">
-                            <i class="fas fa-user me-2"></i>Sistema de Gestión
-                        </span>
+                    <div class="ms-auto d-flex align-items-center">
+                        <?php if (estaAutenticado()): 
+                            $usuarioActual = obtenerUsuario();
+                        ?>
+                            <div class="dropdown">
+                                <button class="btn btn-link text-decoration-none dropdown-toggle" type="button" id="dropdownUsuario" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user-circle me-1"></i>
+                                    <span class="d-none d-md-inline"><?php echo htmlspecialchars($usuarioActual['nombre'] ?? 'Usuario'); ?></span>
+                                    <small class="text-muted d-none d-lg-inline">(<?php echo htmlspecialchars($usuarioActual['nombre_rol'] ?? ''); ?>)</small>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUsuario">
+                                    <li>
+                                        <h6 class="dropdown-header">
+                                            <i class="fas fa-user me-1"></i>
+                                            <?php echo htmlspecialchars(trim($usuarioActual['nombre'] . ' ' . $usuarioActual['apellido'])); ?>
+                                        </h6>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" href="<?php echo app_base_url(); ?>/pages/admin/usuarios/editar.php?id=<?php echo $usuarioActual['id_usuario']; ?>">
+                                            <i class="fas fa-user-edit me-2"></i>Mi Perfil
+                                        </a>
+                                    </li>
+                                    <?php if (tienePermiso('usuarios', 'ver')): ?>
+                                    <li>
+                                        <a class="dropdown-item" href="<?php echo app_base_url(); ?>/pages/admin/usuarios/listar.php">
+                                            <i class="fas fa-users me-2"></i>Gestionar Usuarios
+                                        </a>
+                                    </li>
+                                    <?php endif; ?>
+                                    <?php if (tienePermiso('auditoria', 'ver_todo')): ?>
+                                    <li>
+                                        <a class="dropdown-item" href="<?php echo app_base_url(); ?>/pages/admin/auditoria.php">
+                                            <i class="fas fa-clipboard-list me-2"></i>Auditoría
+                                        </a>
+                                    </li>
+                                    <?php endif; ?>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="<?php echo app_base_url(); ?>/logout.php">
+                                            <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        <?php else: ?>
+                            <a href="<?php echo app_base_url(); ?>/login.php" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-sign-in-alt me-1"></i>Iniciar Sesión
+                            </a>
+                        <?php endif; ?>
                     </div>
                 </div>
             </nav>
