@@ -15,9 +15,6 @@ define('BASE_URL', rtrim(getenv('APP_BASE_URL') ?: '/inventario_app', '/'));
 // Configuración de timezone (importante para fechas)
 date_default_timezone_set('America/Argentina/Buenos_Aires');
 
-// Configuración de sesión
-session_start();
-
 // Marca de inicialización para impedir acceso directo a includes
 if (!defined('APP_INIT')) {
     define('APP_INIT', true);
@@ -282,4 +279,7 @@ function validarInsumoUnico($numero_serie, $id_fisico, $id_patrimonio, $id_insum
         'errores' => $errores
     ];
 }
+
+// Cargar sistema de autenticación
+require_once __DIR__ . '/auth.php';
 ?> 
