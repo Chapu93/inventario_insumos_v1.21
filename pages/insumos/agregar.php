@@ -1,5 +1,6 @@
 <?php
 require_once '../../includes/config.php';
+\nrequerirAutenticacion();
 
 $conexion = conectarDB();
 
@@ -223,6 +224,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         
         $conexion->commit();
+        
+        // Registrar en auditoría
+        registrarAuditoria(
+            'crear_insumo',
+            'insumos',
+            "Insumo creado: {$nombre_insumo} (Tipo: {$tipo_insumo})",
+            'insumo',
+            $id_insumo,
+            null,
+            [
+                'nombre_insumo' => $nombre_insumo,
+                'tipo_insumo' => $tipo_insumo,
+                'cantidad' => $cantidad,
+                'estado' => 'Disponible'
+            ]
+        );
         
         error_log('Insumo agregado correctamente, redirigiendo a listar.php');
         error_log('ID del insumo insertado: ' . $id_insumo);

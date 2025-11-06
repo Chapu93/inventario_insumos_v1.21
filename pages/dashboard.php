@@ -1,5 +1,6 @@
 <?php
 require_once '../includes/config.php';
+\nrequerirAutenticacion();
 
 // Obtener estadísticas del dashboard
 $conexion = conectarDB();

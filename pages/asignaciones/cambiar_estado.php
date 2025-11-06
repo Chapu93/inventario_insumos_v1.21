@@ -1,5 +1,6 @@
 <?php
 require_once '../../includes/config.php';
+\nrequerirAutenticacion();
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

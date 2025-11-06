@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #5cab7d 0%, #5a9367 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         .login-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #5cab7d 0%, #5a9367 100%);
             color: white;
             padding: 40px 30px 30px;
             text-align: center;
@@ -80,16 +80,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         .login-header h1 {
-            font-size: 1.5rem;
-            font-weight: 600;
+            font-size: 1.8rem;
+            font-weight: 700;
             margin: 0;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            letter-spacing: 2px;
         }
         
         .login-header p {
             margin: 0;
-            opacity: 0.9;
-            font-size: 0.9rem;
+            opacity: 0.95;
+            font-size: 0.85rem;
+            font-weight: 500;
         }
         
         .login-body {
@@ -101,12 +103,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+            border-color: #5a9367;
+            box-shadow: 0 0 0 0.25rem rgba(90, 147, 103, 0.25);
         }
         
         .btn-login {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #5cab7d 0%, #5a9367 100%);
             border: none;
             color: white;
             font-weight: 600;
@@ -117,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         .btn-login:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 5px 15px rgba(90, 147, 103, 0.4);
             color: white;
         }
         
@@ -137,7 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .input-group-text {
             background-color: transparent;
             border-right: none;
-            color: #667eea;
+            color: #5a9367;
         }
         
         .form-control {
@@ -145,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         .input-group:focus-within .input-group-text {
-            color: #764ba2;
+            color: #44633f;
         }
     </style>
 </head>
@@ -155,7 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="login-header">
                 <i class="fas fa-boxes"></i>
                 <h1><?php echo APP_NAME; ?></h1>
-                <p>Acceso al sistema</p>
+                <p><?php echo defined('APP_FULL_NAME') ? APP_FULL_NAME : 'Sistema de Gesti\u00f3n'; ?></p>
             </div>
             
             <div class="login-body">

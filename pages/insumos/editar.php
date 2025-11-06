@@ -1,5 +1,6 @@
 <?php
 require_once '../../includes/config.php';
+\nrequerirAutenticacion();
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -185,6 +186,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $db->commit();
+        
+        // Registrar en auditoría
+        registrarAuditoria(
+            'editar_insumo',
+            'insumos',
+            "Insumo editado: {$nombre} (ID: {$id})",
+            'insumo',
+            $id,
+            $insumo, // Estado anterior
+            [ // Estado posterior
+                'nombre_insumo' => $nombre,
+                'tipo_insumo' => $tipo_fijo,
+                'cantidad' => $cantidad
+            ]
+        );
 
         $_SESSION['mensaje'] = "Insumo actualizado correctamente";
         $_SESSION['tipo_mensaje'] = "success";

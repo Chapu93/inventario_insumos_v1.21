@@ -8,7 +8,8 @@ define('DB_PORT', getenv('DB_PORT') ?: '3306');
 define('DB_SOCKET', getenv('DB_SOCKET') ?: null);
 
 // Configuración de la aplicación
-define('APP_NAME', 'Sistema de Gestión de Insumos');
+define('APP_NAME', 'SITIA');
+define('APP_FULL_NAME', 'Sistema de Inventario de Telecomunicaciones, Insumos y Administración');
 define('APP_VERSION', '1.0');
 define('BASE_URL', rtrim(getenv('APP_BASE_URL') ?: '/inventario_app', '/'));
 

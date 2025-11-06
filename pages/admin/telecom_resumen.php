@@ -1,5 +1,6 @@
 <?php
 require_once '../../includes/config.php';
+\nrequerirAutenticacion();
 include '../../includes/header.php';
 ?>
 
