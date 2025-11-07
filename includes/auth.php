@@ -6,10 +6,20 @@
 
 // Configuración de sesiones seguras
 if (session_status() === PHP_SESSION_NONE) {
+    // Detectar si estamos en HTTPS
+    $is_https = (
+        (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
+        (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ||
+        (!empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] === 'on') ||
+        (isset($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443)
+    );
+    
     ini_set('session.cookie_httponly', 1);
-    ini_set('session.cookie_secure', isset($_SERVER['HTTPS']));
+    // Solo forzar secure si realmente estamos en HTTPS
+    ini_set('session.cookie_secure', $is_https ? 1 : 0);
     ini_set('session.use_only_cookies', 1);
-    ini_set('session.cookie_samesite', 'Strict');
+    // SameSite Lax es más compatible que Strict para desarrollo
+    ini_set('session.cookie_samesite', $is_https ? 'Strict' : 'Lax');
     session_start();
 }
 
