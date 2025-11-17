@@ -77,15 +77,28 @@ function app_base_url(): string { return APP_BASE_URL; }
 function json_response($payload, int $status = 200): void {
     if (!headers_sent()) {
         http_response_code($status);
-        header('Content-Type: application/json');
+        header('Content-Type: application/json; charset=utf-8');
     }
-    echo json_encode($payload);
+    echo json_encode($payload, JSON_UNESCAPED_UNICODE);
+    exit;
 }
 function json_success($data = [], int $status = 200): void {
-    json_response(['success' => true, 'data' => $data], $status);
+    json_response([
+        'success' => true, 
+        'data' => $data,
+        'timestamp' => date('c')
+    ], $status);
 }
-function json_error(string $message, int $status = 400): void {
-    json_response(['success' => false, 'error' => $message], $status);
+function json_error(string $message, int $status = 400, array $details = []): void {
+    $response = [
+        'success' => false, 
+        'error' => $message,
+        'timestamp' => date('c')
+    ];
+    if (!empty($details)) {
+        $response['details'] = $details;
+    }
+    json_response($response, $status);
 }
 
 // CSRF
@@ -287,62 +300,6 @@ $appEnv = getenv('APP_ENV');
 $logLevel = getenv('LOG_LEVEL');
 Logger::enable($appEnv !== 'production' && $appEnv !== false); // Solo en desarrollo
 Logger::setLevel($logLevel !== false ? $logLevel : 'ERROR');
-
-/**
- * Funciones Helper para Respuestas JSON Estandarizadas
- */
-
-/**
- * Envía respuesta JSON estandarizada de éxito
- * @param mixed $data Datos a retornar
- * @param int $httpCode Código HTTP (default: 200)
- */
-function json_success($data = [], $httpCode = 200) {
-    if (!headers_sent()) {
-        http_response_code($httpCode);
-        header('Content-Type: application/json; charset=utf-8');
-    }
-    echo json_encode([
-        'success' => true,
-        'data' => $data,
-        'timestamp' => date('c')
-    ], JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
-/**
- * Envía respuesta JSON estandarizada de error
- * @param string $message Mensaje de error
- * @param int $httpCode Código HTTP (default: 400)
- * @param array $details Detalles adicionales del error
- */
-function json_error($message, $httpCode = 400, $details = []) {
-    if (!headers_sent()) {
-        http_response_code($httpCode);
-        header('Content-Type: application/json; charset=utf-8');
-    }
-    echo json_encode([
-        'success' => false,
-        'error' => $message,
-        'details' => $details,
-        'timestamp' => date('c')
-    ], JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
-/**
- * Envía respuesta JSON genérica
- * @param array $payload Array con los datos a enviar
- * @param int $httpCode Código HTTP (default: 200)
- */
-function json_response($payload, $httpCode = 200) {
-    if (!headers_sent()) {
-        http_response_code($httpCode);
-        header('Content-Type: application/json; charset=utf-8');
-    }
-    echo json_encode($payload, JSON_UNESCAPED_UNICODE);
-    exit;
-}
 
 // Cargar sistema de autenticación
 require_once __DIR__ . '/auth.php';
