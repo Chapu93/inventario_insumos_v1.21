@@ -53,6 +53,9 @@ try {
     echo json_encode($cadena);
     
 } catch (Exception $e) {
-    error_log('Error en obtener_cadena_traslados: ' . $e->getMessage());
+    Logger::error('Error al obtener cadena de traslados', [
+        'mensaje' => $e->getMessage(),
+        'id_insumo' => $id_insumo ?? 0
+    ]);
     echo json_encode([]);
 }

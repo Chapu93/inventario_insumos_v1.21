@@ -86,10 +86,10 @@ try {
         $db->rollBack();
     }
     
-    error_log('Error en usuarios_toggle_estado.php: ' . $e->getMessage());
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'mensaje' => 'Error al cambiar estado: ' . $e->getMessage()
+    Logger::error('Error al cambiar estado de usuario', [
+        'mensaje' => $e->getMessage(),
+        'id_usuario' => $id_usuario ?? 0
     ]);
+    
+    json_error('Error al cambiar estado: ' . $e->getMessage(), 500);
 }

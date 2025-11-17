@@ -82,7 +82,10 @@ try {
     echo json_encode($response);
     
 } catch (Exception $e) {
-    error_log('Error en auditoria_detalles.php: ' . $e->getMessage());
+    Logger::error('Error al obtener detalles de auditoría', [
+        'mensaje' => $e->getMessage(),
+        'id_auditoria' => $id ?? 0
+    ]);
     http_response_code(500);
     echo json_encode([
         'success' => false,

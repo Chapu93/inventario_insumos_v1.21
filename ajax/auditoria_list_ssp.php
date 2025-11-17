@@ -172,7 +172,11 @@ try {
     ]);
     
 } catch (Exception $e) {
-    error_log('Error en auditoria_list_ssp.php: ' . $e->getMessage());
+    Logger::error('Error en listado de auditoría', [
+        'mensaje' => $e->getMessage(),
+        'file' => $e->getFile(),
+        'line' => $e->getLine()
+    ]);
     http_response_code(500);
     echo json_encode(['error' => $e->getMessage()]);
 }

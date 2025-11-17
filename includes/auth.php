@@ -60,7 +60,10 @@ function obtenerUsuario() {
         $stmt->execute([$_SESSION['usuario_id']]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     } catch (Exception $e) {
-        error_log("Error al obtener usuario: " . $e->getMessage());
+        Logger::error("Error al obtener usuario", [
+            'mensaje' => $e->getMessage(),
+            'username' => $username
+        ]);
         return null;
     }
 }
@@ -85,7 +88,11 @@ function tienePermiso($modulo, $accion) {
         
         return in_array($accion, $permisos[$modulo]);
     } catch (Exception $e) {
-        error_log("Error al verificar permiso: " . $e->getMessage());
+        Logger::error("Error al verificar permiso", [
+            'mensaje' => $e->getMessage(),
+            'modulo' => $modulo,
+            'accion' => $accion
+        ]);
         return false;
     }
 }
@@ -183,7 +190,10 @@ function iniciarSesion($username, $password) {
         ];
         
     } catch (Exception $e) {
-        error_log("Error en iniciarSesion: " . $e->getMessage());
+        Logger::error("Error en iniciarSesion", [
+            'mensaje' => $e->getMessage(),
+            'username' => $username
+        ]);
         return ['success' => false, 'mensaje' => 'Error al iniciar sesión: ' . $e->getMessage()];
     }
 }
@@ -205,7 +215,10 @@ function cerrarSesion() {
                 $db->prepare($sql)->execute([$_SESSION['id_sesion']]);
             }
         } catch (Exception $e) {
-            error_log("Error al cerrar sesión: " . $e->getMessage());
+            Logger::error("Error al cerrar sesión", [
+                'mensaje' => $e->getMessage(),
+                'usuario_id' => $_SESSION['usuario_id'] ?? 'desconocido'
+            ]);
         }
     }
     
@@ -232,7 +245,10 @@ function cerrarOtrasSesiones($idUsuario) {
                 WHERE id_usuario = ? AND activa = 1";
         $db->prepare($sql)->execute([$idUsuario]);
     } catch (Exception $e) {
-        error_log("Error al cerrar otras sesiones: " . $e->getMessage());
+        Logger::error("Error al cerrar otras sesiones", [
+            'mensaje' => $e->getMessage(),
+            'usuario_id' => $idUsuario
+        ]);
     }
 }
 
@@ -266,7 +282,10 @@ function verificarSesionActiva() {
             $db->prepare($sql)->execute([$_SESSION['id_sesion']]);
             $_SESSION['ultima_actualizacion_bd'] = time();
         } catch (Exception $e) {
-            error_log("Error al actualizar sesión: " . $e->getMessage());
+            Logger::error("Error al actualizar sesión", [
+                'mensaje' => $e->getMessage(),
+                'usuario_id' => $_SESSION['usuario_id'] ?? 'desconocido'
+            ]);
         }
     }
     
@@ -286,7 +305,9 @@ function cerrarSesionesInactivas() {
                 AND TIMESTAMPDIFF(MINUTE, fecha_ultimo_acceso, NOW()) > 30";
         $db->exec($sql);
     } catch (Exception $e) {
-        error_log("Error al cerrar sesiones inactivas: " . $e->getMessage());
+        Logger::error("Error al cerrar sesiones inactivas", [
+            'mensaje' => $e->getMessage()
+        ]);
     }
 }
 
@@ -378,7 +399,11 @@ function registrarAuditoriaDirecto(
         ]);
         
     } catch (Exception $e) {
-        error_log("Error al registrar auditoría: " . $e->getMessage());
+        Logger::error("Error al registrar auditoría", [
+            'mensaje' => $e->getMessage(),
+            'accion' => $accion,
+            'modulo' => $modulo
+        ]);
         // No lanzar excepción para no interrumpir el flujo principal
     }
 }
