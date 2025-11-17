@@ -283,8 +283,10 @@ function validarInsumoUnico($numero_serie, $id_fisico, $id_patrimonio, $id_insum
 
 // Cargar sistema de logging
 require_once __DIR__ . '/Logger.php';
-Logger::enable(getenv('APP_ENV') !== 'production'); // Solo en desarrollo
-Logger::setLevel(getenv('LOG_LEVEL') ?: 'ERROR');
+$appEnv = getenv('APP_ENV');
+$logLevel = getenv('LOG_LEVEL');
+Logger::enable($appEnv !== 'production' && $appEnv !== false); // Solo en desarrollo
+Logger::setLevel($logLevel !== false ? $logLevel : 'ERROR');
 
 /**
  * Funciones Helper para Respuestas JSON Estandarizadas

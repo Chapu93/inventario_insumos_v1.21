@@ -71,20 +71,25 @@ class Logger {
      * Realizar el logging
      */
     private static function log($level, $message, $context = []) {
-        $timestamp = date('Y-m-d H:i:s');
-        $contextStr = !empty($context) ? ' | ' . json_encode($context, JSON_UNESCAPED_UNICODE) : '';
-        $user = isset($_SESSION['usuario_id']) ? ' [User:' . $_SESSION['usuario_id'] . ']' : '';
-        $ip = isset($_SERVER['REMOTE_ADDR']) ? ' [IP:' . $_SERVER['REMOTE_ADDR'] . ']' : '';
-        
-        $logMessage = "[{$timestamp}] [{$level}]{$user}{$ip} {$message}{$contextStr}";
-        
-        // Escribir a error_log de PHP
-        error_log($logMessage);
-        
-        // También escribir a archivo específico si el directorio existe
-        if (is_dir(self::$logDir) || @mkdir(self::$logDir, 0755, true)) {
-            $logFile = self::$logDir . 'app_' . date('Y-m-d') . '.log';
-            @file_put_contents($logFile, $logMessage . PHP_EOL, FILE_APPEND);
+        try {
+            $timestamp = date('Y-m-d H:i:s');
+            $contextStr = !empty($context) ? ' | ' . json_encode($context, JSON_UNESCAPED_UNICODE) : '';
+            $user = isset($_SESSION['usuario_id']) ? ' [User:' . $_SESSION['usuario_id'] . ']' : '';
+            $ip = isset($_SERVER['REMOTE_ADDR']) ? ' [IP:' . $_SERVER['REMOTE_ADDR'] . ']' : '';
+            
+            $logMessage = "[{$timestamp}] [{$level}]{$user}{$ip} {$message}{$contextStr}";
+            
+            // Escribir a error_log de PHP
+            @error_log($logMessage);
+            
+            // También escribir a archivo específico si el directorio existe
+            if (is_dir(self::$logDir) || @mkdir(self::$logDir, 0755, true)) {
+                $logFile = self::$logDir . 'app_' . date('Y-m-d') . '.log';
+                @file_put_contents($logFile, $logMessage . PHP_EOL, FILE_APPEND);
+            }
+        } catch (Exception $e) {
+            // Si falla el logging, no romper la aplicación
+            @error_log("Logger error: " . $e->getMessage());
         }
     }
 }
