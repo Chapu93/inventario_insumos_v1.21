@@ -281,6 +281,67 @@ function validarInsumoUnico($numero_serie, $id_fisico, $id_patrimonio, $id_insum
     ];
 }
 
+// Cargar sistema de logging
+require_once __DIR__ . '/Logger.php';
+Logger::enable(getenv('APP_ENV') !== 'production'); // Solo en desarrollo
+Logger::setLevel(getenv('LOG_LEVEL') ?: 'ERROR');
+
+/**
+ * Funciones Helper para Respuestas JSON Estandarizadas
+ */
+
+/**
+ * Envía respuesta JSON estandarizada de éxito
+ * @param mixed $data Datos a retornar
+ * @param int $httpCode Código HTTP (default: 200)
+ */
+function json_success($data = [], $httpCode = 200) {
+    if (!headers_sent()) {
+        http_response_code($httpCode);
+        header('Content-Type: application/json; charset=utf-8');
+    }
+    echo json_encode([
+        'success' => true,
+        'data' => $data,
+        'timestamp' => date('c')
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+/**
+ * Envía respuesta JSON estandarizada de error
+ * @param string $message Mensaje de error
+ * @param int $httpCode Código HTTP (default: 400)
+ * @param array $details Detalles adicionales del error
+ */
+function json_error($message, $httpCode = 400, $details = []) {
+    if (!headers_sent()) {
+        http_response_code($httpCode);
+        header('Content-Type: application/json; charset=utf-8');
+    }
+    echo json_encode([
+        'success' => false,
+        'error' => $message,
+        'details' => $details,
+        'timestamp' => date('c')
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+/**
+ * Envía respuesta JSON genérica
+ * @param array $payload Array con los datos a enviar
+ * @param int $httpCode Código HTTP (default: 200)
+ */
+function json_response($payload, $httpCode = 200) {
+    if (!headers_sent()) {
+        http_response_code($httpCode);
+        header('Content-Type: application/json; charset=utf-8');
+    }
+    echo json_encode($payload, JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 // Cargar sistema de autenticación
 require_once __DIR__ . '/auth.php';
 ?> 

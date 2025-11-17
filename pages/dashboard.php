@@ -6,24 +6,26 @@ requerirAutenticacion();
 // Obtener estadísticas del dashboard
 $conexion = conectarDB();
 
-// Total de insumos
-$total_insumos = $conexion->query("SELECT COUNT(*) as total FROM insumos")->fetch()['total'];
+// Query optimizada: obtener todos los contadores en una sola consulta
+$stats = $conexion->query("
+    SELECT 
+        (SELECT COUNT(*) FROM insumos) as total_insumos,
+        (SELECT COUNT(*) FROM insumos WHERE estado = 'Disponible') as insumos_disponibles,
+        (SELECT COUNT(*) FROM insumos WHERE estado = 'Asignado') as insumos_asignados,
+        (SELECT COUNT(*) FROM remitos) as total_asignaciones,
+        (SELECT COALESCE(SUM(d.cantidad), 0)
+         FROM remitos r
+         JOIN remitos_detalle d ON d.id_remito = r.id_remito
+         JOIN insumos i ON i.id_insumo = d.id_insumo
+         WHERE i.estado = 'Asignado') as asignaciones_activas
+")->fetch();
 
-// Insumos disponibles
-$insumos_disponibles = $conexion->query("SELECT COUNT(*) as total FROM insumos WHERE estado = 'Disponible'")->fetch()['total'];
-
-// Insumos asignados
-$insumos_asignados = $conexion->query("SELECT COUNT(*) as total FROM insumos WHERE estado = 'Asignado'")->fetch()['total'];
-
-// Total de asignaciones (remitos)
-$total_asignaciones = $conexion->query("SELECT COUNT(*) as total FROM remitos")->fetch()['total'];
-
-// Asignaciones activas (suma de cantidades de detalle con insumos 'Asignado')
-$asignaciones_activas = $conexion->query("SELECT COALESCE(SUM(d.cantidad),0) as total
-                                          FROM remitos r
-                                          JOIN remitos_detalle d ON d.id_remito = r.id_remito
-                                          JOIN insumos i ON i.id_insumo = d.id_insumo
-                                          WHERE i.estado = 'Asignado'")->fetch()['total'];
+// Asignar variables
+$total_insumos = (int)$stats['total_insumos'];
+$insumos_disponibles = (int)$stats['insumos_disponibles'];
+$insumos_asignados = (int)$stats['insumos_asignados'];
+$total_asignaciones = (int)$stats['total_asignaciones'];
+$asignaciones_activas = (int)$stats['asignaciones_activas'];
 
 // Asignaciones recientes (remitos)
 $stmt = $conexion->query("SELECT r.fecha_asignacion,
@@ -61,13 +63,17 @@ foreach ($rowsV as $row) {
     ];
 }
 
-// Totales generales de stock dual
-$totalStockOficina = $conexion->query("SELECT COALESCE(SUM(cantidad_oficina), SUM(cantidad)) AS total
-                                       FROM insumos 
-                                       WHERE tipo_insumo = 'Varios'")->fetch()['total'] ?? 0;
-$totalStockDeposito = $conexion->query("SELECT COALESCE(SUM(cantidad_deposito), 0) AS total
-                                        FROM insumos 
-                                        WHERE tipo_insumo = 'Varios'")->fetch()['total'] ?? 0;
+// Query optimizada para totales de stock (una sola consulta)
+$stockTotales = $conexion->query("
+    SELECT 
+        COALESCE(SUM(cantidad_oficina), SUM(cantidad)) AS oficina,
+        COALESCE(SUM(cantidad_deposito), 0) AS deposito
+    FROM insumos 
+    WHERE tipo_insumo = 'Varios'
+")->fetch();
+
+$totalStockOficina = (int)($stockTotales['oficina'] ?? 0);
+$totalStockDeposito = (int)($stockTotales['deposito'] ?? 0);
 $totalStockSistema = $totalStockOficina + $totalStockDeposito;
 
 // (Se eliminó 'Insumos por Sede' del dashboard)

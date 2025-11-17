@@ -3,7 +3,11 @@
 ## Descripción
 Sistema web para la gestión de insumos informáticos dentro de un organismo administrativo. Permite control de inventario, asignación de insumos a personas y generación de remitos en PDF.
 
-## Novedades recientes
+## ✨ Novedades recientes - FASE 1 (Noviembre 2025)
+- **Sistema de Logging Configurable**: Logger con niveles DEBUG, INFO, WARNING, ERROR
+- **API Estandarizada**: Respuestas JSON consistentes con `json_success()` y `json_error()`
+- **Dashboard Optimizado**: Queries consolidadas para mejor rendimiento (6→3 consultas)
+- **Documentación Reorganizada**: Estructura `/docs/` con categorías (instalación, usuario, análisis, propuestas)
 - Flujo de asignaciones Localidad → Sede → Área → Insumo (carga dinámica desde BD)
 - Remitos con numeración única anual `NNNN_YYYY`
 - Generación de PDF robusta usando `FPDI` y plantilla `membretada.pdf` (autodetección de tamaño/orientación y fallback a A4 si la importación falla)
@@ -52,11 +56,13 @@ Sistema web para la gestión de insumos informáticos dentro de un organismo adm
 ```
 inventario_app/
 ├── includes/                 # Configuración y helpers
-│   ├── config.php            # Conexión PDO, APP_BASE_URL/BASE_URL, generación de remitos
+│   ├── config.php            # Conexión PDO, APP_BASE_URL, generación remitos, helpers JSON ✨
+│   ├── auth.php              # Sistema de autenticación y roles
+│   ├── Logger.php            # Sistema de logging configurable ✨ NUEVO
 │   ├── header.php            # Layout y navegación (usa app_base_url())
 │   └── footer.php            # Scripts comunes
 ├── pages/
-│   ├── dashboard.php
+│   ├── dashboard.php         # Dashboard optimizado ✨
 │   ├── insumos/
 │   │   ├── agregar.php
 │   │   ├── editar.php
@@ -91,7 +97,16 @@ inventario_app/
 ├── membretada.pdf            # Plantilla de fondo para remitos
 ├── inventario_insumos_v1.sql # Esquema y datos de ejemplo
 ├── composer.json             # Dependencias FPDI/FPDF
-└── index.php                 # Redirección usando BASE_URL
+├── index.php                 # Redirección usando BASE_URL
+├── logs/                     # Logs del sistema ✨ NUEVO
+└── docs/                     # Documentación organizada ✨ NUEVO
+    ├── README.md             # Índice de documentación
+    ├── instalacion/
+    ├── usuario/
+    ├── migraciones/
+    ├── analisis/
+    ├── propuestas/
+    └── changelog/
 ```
 
 ## Base de Datos (resumen)
@@ -124,6 +139,8 @@ Relaciones relevantes:
 
 ## Variables de Entorno
 - `APP_BASE_URL`, `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASS`, `DB_SOCKET`
+- `APP_ENV`: `production` o `development` (controla el logging)
+- `LOG_LEVEL`: `DEBUG`, `INFO`, `WARNING` o `ERROR` (nivel mínimo de logging)
 
 ## Desarrollo
 - Rama de trabajo: `remito-dashboard`
@@ -149,6 +166,14 @@ Relaciones relevantes:
   - Verificar permisos/lectura de `membretada.pdf`
   - Asegurar que `membretada.pdf` sea un PDF válido (no corrupto)
 - Insumos no aparecen al asignar: confirmar estado “Disponible”, sede correcta y `cantidad > 0` para “Varios”
+
+## 📚 Documentación Completa
+Para documentación detallada, consultar la carpeta `/docs/`:
+- [**Índice de Documentación**](docs/README.md) - Índice completo
+- [Guía de Instalación](docs/instalacion/GUIA_INSTALACION_PRODUCCION.md)
+- [Manual de Usuario](docs/usuario/GUIA_USUARIO.md)
+- [Mejoras Propuestas](docs/MEJORAS_PROPUESTAS_CORRECCIONES_21.md)
+- [Scripts de Migración](sql/)
 
 ## Soporte
 Para consultas técnicas, contactar al administrador del sistema.
