@@ -297,8 +297,13 @@ $('#btnGuardarNuevoIngreso').on('click', function(){
       $('#formNuevoIngreso')[0].reset();
       try { $('#tablaIngresos').DataTable().ajax.reload(); } catch(e) { location.reload(); }
     },
-    error: function(){ 
-      showToast('Error al guardar el ingreso', 'error'); 
+    error: function(xhr){ 
+      try {
+        const response = JSON.parse(xhr.responseText);
+        showToast(response.error || 'Error al guardar el ingreso', 'error');
+      } catch(e) {
+        showToast('Error al guardar el ingreso', 'error');
+      }
     }
   });
 });

@@ -99,7 +99,9 @@ verificarPermiso('usuarios', 'ver');
                                             title="Cambiar Rol">
                                         <i class="fas fa-user-tag"></i>
                                     </button>
+                                <?php endif; ?>
                                     
+                                <?php if (tienePermiso('usuarios', 'editar') && !$esYo): ?>
                                     <button type="button" 
                                             class="btn btn-sm btn-outline-<?php echo $activo ? 'secondary' : 'success'; ?> btn-toggle-estado" 
                                             data-id="<?php echo $user['id_usuario']; ?>"
@@ -208,8 +210,13 @@ $(document).ready(function() {
                     btn.prop('disabled', false).html('Cambiar Rol');
                 }
             },
-            error: function() {
-                mostrarMensaje('Error de conexión', 'danger');
+            error: function(xhr) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    mostrarMensaje(response.error || response.mensaje || 'Error al cambiar rol', 'danger');
+                } catch(e) {
+                    mostrarMensaje('Error de conexión', 'danger');
+                }
                 btn.prop('disabled', false).html('Cambiar Rol');
             }
         });
@@ -243,8 +250,13 @@ $(document).ready(function() {
                     btn.prop('disabled', false);
                 }
             },
-            error: function() {
-                mostrarMensaje('Error de conexión', 'danger');
+            error: function(xhr) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    mostrarMensaje(response.error || response.mensaje || 'Error al cambiar estado', 'danger');
+                } catch(e) {
+                    mostrarMensaje('Error de conexión', 'danger');
+                }
                 btn.prop('disabled', false);
             }
         });
