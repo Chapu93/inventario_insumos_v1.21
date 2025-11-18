@@ -1,36 +1,26 @@
 <?php
 require_once '../includes/config.php';
 
-header('Content-Type: application/json');
-
 try {
     // Verificar autenticación y permisos
     if (!estaAutenticado()) {
-        http_response_code(401);
-        echo json_encode(['success' => false, 'mensaje' => 'No autenticado']);
-        exit;
+        json_error('No autenticado', 401);
     }
     
     if (!tienePermiso('usuarios', 'cambiar_rol')) {
-        http_response_code(403);
-        echo json_encode(['success' => false, 'mensaje' => 'Sin permisos para cambiar roles']);
-        exit;
+        json_error('Sin permisos para cambiar roles', 403);
     }
     
     $id_usuario = (int)($_POST['id_usuario'] ?? 0);
     $id_rol = (int)($_POST['id_rol'] ?? 0);
     
     if ($id_usuario === 0 || $id_rol === 0) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'mensaje' => 'Datos inválidos']);
-        exit;
+        json_error('Datos inválidos', 400);
     }
     
     // No permitir cambiar el propio rol
     if ($id_usuario == obtenerUsuarioId()) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'mensaje' => 'No puedes cambiar tu propio rol']);
-        exit;
+        json_error('No puedes cambiar tu propio rol', 400);
     }
     
     $db = conectarDB();
@@ -45,9 +35,7 @@ try {
     
     if (!$usuario) {
         $db->rollBack();
-        http_response_code(404);
-        echo json_encode(['success' => false, 'mensaje' => 'Usuario no encontrado']);
-        exit;
+        json_error('Usuario no encontrado', 404);
     }
     
     // Obtener nombre del nuevo rol
@@ -57,9 +45,7 @@ try {
     
     if (!$nuevoRol) {
         $db->rollBack();
-        http_response_code(404);
-        echo json_encode(['success' => false, 'mensaje' => 'Rol no encontrado']);
-        exit;
+        json_error('Rol no encontrado', 404);
     }
     
     // Actualizar rol
@@ -79,10 +65,18 @@ try {
         ['id_rol' => $id_rol, 'rol' => $nuevoRol['nombre_rol']]
     );
     
-    echo json_encode([
-        'success' => true,
-        'mensaje' => 'Rol actualizado correctamente'
+    Logger::info("Rol de usuario cambiado exitosamente", [
+        'usuario' => $usuario['username'],
+        'rol_anterior' => $usuario['rol_actual'],
+        'rol_nuevo' => $nuevoRol['nombre_rol']
     ]);
+    
+    // IMPORTANTE: Usar código 200 para que jQuery lo trate como success
+    json_response([
+        'success' => true,
+        'mensaje' => 'Rol actualizado correctamente',
+        'timestamp' => date('c')
+    ], 200);
     
 } catch (Exception $e) {
     if (isset($db) && $db->inTransaction()) {

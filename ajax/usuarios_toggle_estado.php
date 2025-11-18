@@ -1,35 +1,25 @@
 <?php
 require_once '../includes/config.php';
 
-header('Content-Type: application/json');
-
 try {
     // Verificar autenticación y permisos
     if (!estaAutenticado()) {
-        http_response_code(401);
-        echo json_encode(['success' => false, 'mensaje' => 'No autenticado']);
-        exit;
+        json_error('No autenticado', 401);
     }
     
     if (!tienePermiso('usuarios', 'editar')) {
-        http_response_code(403);
-        echo json_encode(['success' => false, 'mensaje' => 'Sin permisos para modificar usuarios']);
-        exit;
+        json_error('Sin permisos para modificar usuarios', 403);
     }
     
     $id_usuario = (int)($_POST['id_usuario'] ?? 0);
     
     if ($id_usuario === 0) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'mensaje' => 'ID de usuario inválido']);
-        exit;
+        json_error('ID de usuario inválido', 400);
     }
     
     // No permitir desactivar el propio usuario
     if ($id_usuario == obtenerUsuarioId()) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'mensaje' => 'No puedes desactivar tu propio usuario']);
-        exit;
+        json_error('No puedes desactivar tu propio usuario', 400);
     }
     
     $db = conectarDB();
@@ -42,9 +32,7 @@ try {
     
     if (!$usuario) {
         $db->rollBack();
-        http_response_code(404);
-        echo json_encode(['success' => false, 'mensaje' => 'Usuario no encontrado']);
-        exit;
+        json_error('Usuario no encontrado', 404);
     }
     
     // Invertir estado
@@ -75,11 +63,19 @@ try {
         ['activo' => $nuevoEstado]
     );
     
-    echo json_encode([
-        'success' => true,
-        'mensaje' => "Usuario {$accion} correctamente",
+    Logger::info("Estado de usuario cambiado exitosamente", [
+        'usuario' => $usuario['username'],
+        'accion' => $accion,
         'nuevo_estado' => $nuevoEstado
     ]);
+    
+    // IMPORTANTE: Usar código 200 para que jQuery lo trate como success
+    json_response([
+        'success' => true,
+        'mensaje' => "Usuario {$accion} correctamente",
+        'nuevo_estado' => $nuevoEstado,
+        'timestamp' => date('c')
+    ], 200);
     
 } catch (Exception $e) {
     if (isset($db) && $db->inTransaction()) {
