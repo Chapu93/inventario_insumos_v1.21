@@ -30,8 +30,9 @@
 ### **Bugs Corregidos (COMPLETADOS)**
 ✅ **No se podían crear ingresos** - Frontend no parseaba JSON de errores HTTP  
 ✅ **No se podían reactivar usuarios** - Permiso incorrecto en frontend  
-✅ **Modal "Cambiando..." se quedaba colgado** - Respuestas no usaban `json_response()` con código 200  
+✅ **Modal "Cambiando..." se quedaba colgado** - Faltaba cerrar modal explícitamente con `.modal('hide')`  
 ✅ **No se podían cambiar roles de inactivos** - Frontend no manejaba errores correctamente  
+✅ **Modal no se cerraba después del éxito** - Agregado `modal.modal('hide')` antes de recargar  
 
 ---
 
@@ -114,6 +115,8 @@ json_error('mensaje', 400);
 ## 📝 COMMITS REALIZADOS EN ESTA SESIÓN
 
 ```
+0c697a1 - fix: Cerrar modal explícitamente antes de recargar página en cambio de rol
+e5fbd59 - docs: Agregar documento de estado actual del desarrollo
 b7bdb10 - fix: Corregir respuestas de usuarios_cambiar_rol y usuarios_toggle_estado
 118da7e - fix: Corregir bugs en gestión de usuarios e ingresos  
 c8eaffc - debug: Agregar herramienta de diagnóstico de endpoints
