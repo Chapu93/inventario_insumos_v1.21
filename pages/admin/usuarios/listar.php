@@ -207,19 +207,21 @@ $(document).ready(function() {
                     // Cerrar modal primero
                     modal.modal('hide');
                     // Mostrar mensaje y recargar
-                    mostrarMensaje('Rol cambiado correctamente', 'success');
-                    setTimeout(() => location.reload(), 800);
+                    showToast('Rol cambiado correctamente', 'success');
+                    setTimeout(function() { 
+                        location.reload(); 
+                    }, 1000);
                 } else {
-                    mostrarMensaje(response.mensaje || 'Error al cambiar rol', 'danger');
+                    showToast(response.mensaje || 'Error al cambiar rol', 'error');
                     btn.prop('disabled', false).html('Cambiar Rol');
                 }
             },
             error: function(xhr) {
                 try {
                     const response = JSON.parse(xhr.responseText);
-                    mostrarMensaje(response.error || response.mensaje || 'Error al cambiar rol', 'danger');
+                    showToast(response.error || response.mensaje || 'Error al cambiar rol', 'error');
                 } catch(e) {
-                    mostrarMensaje('Error de conexión', 'danger');
+                    showToast('Error de conexión', 'error');
                 }
                 btn.prop('disabled', false).html('Cambiar Rol');
             }
@@ -247,19 +249,21 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
-                    mostrarMensaje(`Usuario ${accion === 'desactivar' ? 'desactivado' : 'activado'} correctamente`, 'success');
-                    setTimeout(() => location.reload(), 1000);
+                    showToast(`Usuario ${accion === 'desactivar' ? 'desactivado' : 'activado'} correctamente`, 'success');
+                    setTimeout(function() { 
+                        location.reload(); 
+                    }, 1000);
                 } else {
-                    mostrarMensaje(response.mensaje || 'Error al cambiar estado', 'danger');
+                    showToast(response.mensaje || 'Error al cambiar estado', 'error');
                     btn.prop('disabled', false);
                 }
             },
             error: function(xhr) {
                 try {
                     const response = JSON.parse(xhr.responseText);
-                    mostrarMensaje(response.error || response.mensaje || 'Error al cambiar estado', 'danger');
+                    showToast(response.error || response.mensaje || 'Error al cambiar estado', 'error');
                 } catch(e) {
-                    mostrarMensaje('Error de conexión', 'danger');
+                    showToast('Error de conexión', 'error');
                 }
                 btn.prop('disabled', false);
             }
