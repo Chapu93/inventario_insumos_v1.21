@@ -194,6 +194,7 @@ $(document).ready(function() {
     
     $('#btnConfirmarCambioRol').on('click', function() {
         const btn = $(this);
+        const modal = $('#modalCambiarRol');
         btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Cambiando...');
         
         $.ajax({
@@ -203,8 +204,11 @@ $(document).ready(function() {
             dataType: 'json',
             success: function(response) {
                 if (response.success) {
+                    // Cerrar modal primero
+                    modal.modal('hide');
+                    // Mostrar mensaje y recargar
                     mostrarMensaje('Rol cambiado correctamente', 'success');
-                    setTimeout(() => location.reload(), 1000);
+                    setTimeout(() => location.reload(), 800);
                 } else {
                     mostrarMensaje(response.mensaje || 'Error al cambiar rol', 'danger');
                     btn.prop('disabled', false).html('Cambiar Rol');
