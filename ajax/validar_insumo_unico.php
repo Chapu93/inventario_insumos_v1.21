@@ -1,11 +1,8 @@
 <?php
 require_once '../includes/config.php';
 
-header('Content-Type: application/json');
-
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['valido' => false, 'error' => 'Método no permitido']);
-    exit;
+    json_response(['valido' => false, 'error' => 'Método no permitido'], 405);
 }
 
 try {
@@ -18,21 +15,27 @@ try {
     
     // Si todos los campos están vacíos, no hay nada que validar
     if (empty($numero_serie) && empty($id_fisico) && empty($id_patrimonio)) {
-        echo json_encode([
+        json_response([
             'valido' => true,
-            'errores' => []
-        ]);
-        exit;
+            'errores' => [],
+            'timestamp' => date('c')
+        ], 200);
     }
     
     $validacion = validarInsumoUnico($numero_serie, $id_fisico, $id_patrimonio, $id_insumo_excluir);
     
-    echo json_encode($validacion);
+    json_response(array_merge($validacion, ['timestamp' => date('c')]), 200);
     
 } catch (Exception $e) {
-    echo json_encode([
-        'valido' => false,
-        'errores' => ['Error al validar: ' . $e->getMessage()]
+    Logger::error('Error en validación de insumo único', [
+        'mensaje' => $e->getMessage(),
+        'numero_serie' => $numero_serie ?? null,
+        'id_fisico' => $id_fisico ?? null
     ]);
+    json_response([
+        'valido' => false,
+        'errores' => ['Error al validar: ' . $e->getMessage()],
+        'timestamp' => date('c')
+    ], 500);
 }
 ?>

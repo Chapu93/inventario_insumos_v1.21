@@ -1,11 +1,12 @@
 <?php
 require_once '../includes/config.php';
-header('Content-Type: application/json');
+
 $sedeId = isset($_GET['sede_id']) ? (int)$_GET['sede_id'] : 0;
+
 if ($sedeId <= 0) {
-    echo json_encode(['success' => false, 'error' => 'sede_id requerido']);
-    exit;
+    json_error('sede_id requerido', 400);
 }
+
 try {
     $db = conectarDB();
     $sql = "SELECT DISTINCT a.id_area, a.nombre_area
@@ -16,10 +17,19 @@ try {
     $stmt = $db->prepare($sql);
     $stmt->execute([$sedeId]);
     $rows = $stmt->fetchAll();
-    echo json_encode(['success' => true, 'data' => array_map(function($r){
+    
+    $areas = array_map(function($r){
         return ['id' => (int)$r['id_area'], 'nombre' => $r['nombre_area']];
-    }, $rows)]);
+    }, $rows);
+    
+    Logger::debug('Áreas cargadas por sede', ['sede_id' => $sedeId, 'count' => count($areas)]);
+    
+    json_success($areas);
+    
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    Logger::error('Error al cargar áreas por sede', [
+        'mensaje' => $e->getMessage(),
+        'sede_id' => $sedeId
+    ]);
+    json_error($e->getMessage(), 500);
 }

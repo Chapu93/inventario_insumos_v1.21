@@ -1,28 +1,34 @@
 <?php
 require_once '../includes/config.php';
-header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode(['success' => false, 'error' => 'Método no permitido']);
-    exit;
+    json_error('Método no permitido', 405);
 }
 
 try {
     $input = json_decode(file_get_contents('php://input'), true);
     
     if (!verify_csrf($input['_csrf'] ?? '')) {
-        echo json_encode(['success' => false, 'error' => 'CSRF inválido']);
-        exit;
+        json_error('CSRF inválido', 403);
     }
     
     $id = (int)($input['id'] ?? 0);
     if (!$id) {
-        echo json_encode(['success' => false, 'error' => 'ID no válido']);
-        exit;
+        json_error('ID no válido', 400);
     }
     
     $db = conectarDB();
     $db->beginTransaction();
+    
+    // Obtener info del ingreso antes de eliminar para auditoría
+    $stmt = $db->prepare('SELECT tipo_ingreso, nro_referencia FROM ingresos WHERE id_ingreso = ?');
+    $stmt->execute([$id]);
+    $ingreso = $stmt->fetch();
+    
+    if (!$ingreso) {
+        $db->rollBack();
+        json_error('Ingreso no encontrado', 404);
+    }
     
     // Desvincular insumos asociados (SET NULL)
     $stmt = $db->prepare('UPDATE insumos SET id_ingreso = NULL WHERE id_ingreso = ?');
@@ -34,12 +40,22 @@ try {
     
     $db->commit();
     
-    echo json_encode(['success' => true, 'message' => 'Ingreso eliminado correctamente']);
+    Logger::info('Ingreso eliminado', [
+        'id' => $id,
+        'tipo' => $ingreso['tipo_ingreso'],
+        'referencia' => $ingreso['nro_referencia']
+    ]);
+    
+    json_success(['message' => 'Ingreso eliminado correctamente']);
     
 } catch (Exception $e) {
-    if ($db && $db->inTransaction()) {
+    if (isset($db) && $db->inTransaction()) {
         $db->rollBack();
     }
-    echo json_encode(['success' => false, 'error' => 'Error al eliminar: ' . $e->getMessage()]);
+    Logger::error('Error al eliminar ingreso', [
+        'mensaje' => $e->getMessage(),
+        'id' => $id ?? 0
+    ]);
+    json_error('Error al eliminar: ' . $e->getMessage(), 500);
 }
 ?>
