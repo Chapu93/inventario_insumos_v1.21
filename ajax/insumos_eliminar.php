@@ -1,13 +1,17 @@
 <?php
 require_once '../includes/config.php';
 
-header('Content-Type: application/json');
-
 try {
-    if (!verify_csrf()) { throw new Exception('CSRF inválido'); }
+    if (!verify_csrf()) {
+        json_error('CSRF inválido', 403);
+    }
+    
     $input = json_decode(file_get_contents('php://input'), true);
     $id = isset($input['id_insumo']) ? (int)$input['id_insumo'] : 0;
-    if ($id <= 0) { throw new Exception('ID de insumo inválido'); }
+    
+    if ($id <= 0) {
+        json_error('ID de insumo inválido', 400);
+    }
 
     $db = conectarDB();
     $db->beginTransaction();
@@ -34,9 +38,18 @@ try {
     $delIns->execute([$id]);
 
     $db->commit();
-    echo json_encode(['success' => true]);
+    
+    Logger::info('Insumo eliminado completamente', ['id_insumo' => $id]);
+    
+    json_success(['message' => 'Insumo eliminado correctamente']);
+    
 } catch (Exception $e) {
-    if (isset($db) && $db instanceof PDO && $db->inTransaction()) { $db->rollBack(); }
-    http_response_code(400);
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    if (isset($db) && $db instanceof PDO && $db->inTransaction()) {
+        $db->rollBack();
+    }
+    Logger::error('Error al eliminar insumo', [
+        'mensaje' => $e->getMessage(),
+        'id_insumo' => $id ?? 0
+    ]);
+    json_error($e->getMessage(), 500);
 }

@@ -1,7 +1,7 @@
 <?php
 require_once '../includes/config.php';
-header('Content-Type: application/json');
-try{
+
+try {
   $db = conectarDB();
   $q = trim($_GET['q'] ?? '');
   $sql = "SELECT id_insumo AS id,
@@ -27,5 +27,14 @@ try{
       'max' => (int)$r['max']
     ];
   }, $rows);
-  echo json_encode(['success'=>true, 'data'=>$data]);
-}catch(Exception $e){ echo json_encode(['success'=>false, 'error'=>$e->getMessage()]); }
+  Logger::debug('Insumos disponibles para licitación', ['query' => $q, 'count' => count($data)]);
+  
+  json_success($data);
+  
+} catch(Exception $e) {
+    Logger::error('Error al listar insumos disponibles para licitación', [
+        'mensaje' => $e->getMessage(),
+        'query' => $q ?? ''
+    ]);
+    json_error($e->getMessage(), 500);
+}

@@ -1,16 +1,21 @@
 <?php
 require_once '../includes/config.php';
 
-header('Content-Type: application/json');
-
 try {
-    if (!verify_csrf()) { throw new Exception('CSRF inválido'); }
+    if (!verify_csrf()) {
+        json_error('CSRF inválido', 403);
+    }
+    
     $input = json_decode(file_get_contents('php://input'), true);
     $remito = isset($input['remito']) ? trim((string)$input['remito']) : '';
     $motivo = isset($input['motivo']) ? trim((string)$input['motivo']) : '';
     
-    if ($remito === '') { throw new Exception('Remito inválido'); }
-    if ($motivo === '') { throw new Exception('Debe especificar un motivo de anulación'); }
+    if ($remito === '') {
+        json_error('Remito inválido', 400);
+    }
+    if ($motivo === '') {
+        json_error('Debe especificar un motivo de anulación', 400);
+    }
 
     $db = conectarDB();
     $db->beginTransaction();
@@ -49,9 +54,23 @@ try {
        ->execute([$motivo, $fechaAnulacion, $idRemito]);
 
     $db->commit();
-    echo json_encode(['success' => true, 'mensaje' => 'Remito anulado correctamente']);
+    
+    Logger::info('Remito anulado', [
+        'numero_remito' => $remito,
+        'motivo' => $motivo,
+        'id_remito' => $idRemito
+    ]);
+    
+    json_success(['mensaje' => 'Remito anulado correctamente']);
+    
 } catch (Exception $e) {
-    if (isset($db) && $db instanceof PDO && $db->inTransaction()) { $db->rollBack(); }
-    http_response_code(400);
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    if (isset($db) && $db instanceof PDO && $db->inTransaction()) {
+        $db->rollBack();
+    }
+    Logger::error('Error al anular remito', [
+        'mensaje' => $e->getMessage(),
+        'numero_remito' => $remito ?? '',
+        'motivo' => $motivo ?? ''
+    ]);
+    json_error($e->getMessage(), 500);
 }

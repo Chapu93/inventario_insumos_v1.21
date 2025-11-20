@@ -1,10 +1,10 @@
 <?php
 require_once '../includes/config.php';
-header('Content-Type: application/json');
+
 $sedeId = isset($_GET['sede_id']) ? (int)$_GET['sede_id'] : 0;
+
 if ($sedeId <= 0) {
-    echo json_encode(['success' => false, 'error' => 'sede_id requerido']);
-    exit;
+    json_error('sede_id requerido', 400);
 }
 try {
     $db = conectarDB();
@@ -36,8 +36,14 @@ try {
             'max' => ($r['tipo_insumo'] === 'Varios') ? (int)$r['cantidad'] : 1
         ];
     }, $rows);
-    echo json_encode(['success' => true, 'data' => $data]);
+    Logger::debug('Insumos disponibles cargados', ['sede_id' => $sedeId, 'count' => count($data)]);
+    
+    json_success($data);
+    
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    Logger::error('Error al cargar insumos disponibles', [
+        'mensaje' => $e->getMessage(),
+        'sede_id' => $sedeId
+    ]);
+    json_error($e->getMessage(), 500);
 }
