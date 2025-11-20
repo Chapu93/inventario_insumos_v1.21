@@ -1,8 +1,6 @@
 <?php
 require_once '../includes/config.php';
 
-header('Content-Type: application/json');
-
 $conexion = conectarDB();
 
 try {
@@ -41,8 +39,13 @@ try {
                                                 ORDER BY r.fecha_asignacion DESC 
                                                 LIMIT 5")->fetchAll();
 
-    echo json_encode([
-        'success' => true,
+    Logger::debug('Contadores de dashboard cargados', [
+        'total_insumos' => $total_insumos,
+        'disponibles' => $insumos_disponibles,
+        'asignados' => $insumos_asignados
+    ]);
+    
+    json_success([
         'contadores' => [
             'total_insumos' => $total_insumos,
             'insumos_disponibles' => $insumos_disponibles,
@@ -56,6 +59,9 @@ try {
     ]);
     
 } catch (Exception $e) {
-    echo json_encode(['error' => 'Error al cargar contadores: ' . $e->getMessage()]);
+    Logger::error('Error al cargar contadores del dashboard', [
+        'mensaje' => $e->getMessage()
+    ]);
+    json_error('Error al cargar contadores: ' . $e->getMessage(), 500);
 }
 ?>

@@ -1,22 +1,20 @@
 <?php
 require_once '../includes/config.php';
 
-header('Content-Type: application/json');
-
 try {
     if (!isset($_GET['remito']) || $_GET['remito'] === '') {
-        echo json_encode(['success' => false, 'error' => 'Remito requerido']);
-        exit;
+        json_error('Remito requerido', 400);
     }
+    
     $numero = $_GET['remito'];
     $db = conectarDB();
 
     $stmt = $db->prepare("SELECT r.id_remito FROM remitos r WHERE r.numero_remito = ? LIMIT 1");
     $stmt->execute([$numero]);
     $cab = $stmt->fetch();
+    
     if (!$cab) {
-        echo json_encode(['success' => false, 'error' => 'Remito no encontrado']);
-        exit;
+        json_error('Remito no encontrado', 404);
     }
     $idRemito = (int)$cab['id_remito'];
 
@@ -48,9 +46,15 @@ try {
     $stmt->execute([$idRemito]);
     $items = $stmt->fetchAll();
 
-    echo json_encode(['success' => true, 'items' => $items]);
+    Logger::debug('Items de remito cargados', ['numero_remito' => $numero, 'count' => count($items)]);
+    
+    json_success(['items' => $items]);
+    
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    Logger::error('Error al cargar items de remito', [
+        'mensaje' => $e->getMessage(),
+        'numero_remito' => $numero ?? ''
+    ]);
+    json_error($e->getMessage(), 500);
 }
 ?>
-
