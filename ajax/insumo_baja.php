@@ -1,27 +1,24 @@
 <?php
 require_once '../includes/config.php';
 
-header('Content-Type: application/json');
-
 if (!verify_csrf()) {
-    echo json_encode(['success' => false, 'error' => 'CSRF inválido']);
-    exit;
+    json_error('CSRF inválido', 403);
 }
 
 try {
     $raw = file_get_contents('php://input');
     $data = json_decode($raw, true);
+    
     if (!$data || empty($data['id_insumo']) || !isset($data['observacion'])) {
-        echo json_encode(['success' => false, 'error' => 'Datos inválidos']);
-        exit;
+        json_error('Datos inválidos', 400);
     }
 
     $idInsumo = (int)$data['id_insumo'];
     $observacion = trim((string)$data['observacion']);
     $cantidadSolicitada = isset($data['cantidad']) ? max(1, (int)$data['cantidad']) : 1;
+    
     if ($idInsumo <= 0 || strlen($observacion) < 3) {
-        echo json_encode(['success' => false, 'error' => 'Parámetros insuficientes']);
-        exit;
+        json_error('Parámetros insuficientes', 400);
     }
 
     $db = conectarDB();
@@ -30,13 +27,13 @@ try {
     $stmt = $db->prepare("SELECT estado, tipo_insumo, cantidad FROM insumos WHERE id_insumo = ? FOR UPDATE");
     $stmt->execute([$idInsumo]);
     $ins = $stmt->fetch();
+    
     if (!$ins) {
-        echo json_encode(['success' => false, 'error' => 'Insumo no encontrado']);
-        exit;
+        json_error('Insumo no encontrado', 404);
     }
+    
     if ($ins['estado'] === 'Asignado') {
-        echo json_encode(['success' => false, 'error' => 'No se puede dar de baja un insumo asignado']);
-        exit;
+        json_error('No se puede dar de baja un insumo asignado', 400);
     }
 
     $db->beginTransaction();
@@ -99,9 +96,19 @@ try {
         ['estado' => ($ins['tipo_insumo'] === 'Varios' ? ($nuevoStock > 0 ? 'Disponible' : 'De Baja') : 'De Baja'), 'cantidad' => isset($nuevoStock) ? $nuevoStock : 0]
     );
     
-    echo json_encode(['success' => true]);
+    Logger::info('Insumo dado de baja exitosamente', [
+        'id_insumo' => $idInsumo,
+        'tipo' => $ins['tipo_insumo'],
+        'cantidad_baja' => $cantidadSolicitada,
+        'observacion' => substr($observacion, 0, 50)
+    ]);
+    
+    json_success(['message' => 'Insumo dado de baja correctamente']);
+    
 } catch (Exception $e) {
-    if (isset($db) && $db->inTransaction()) { $db->rollBack(); }
+    if (isset($db) && $db->inTransaction()) { 
+        $db->rollBack(); 
+    }
     
     // Registrar error en auditoría
     if (isset($idInsumo) && $idInsumo > 0) {
@@ -118,7 +125,13 @@ try {
         );
     }
     
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    Logger::error('Error al dar de baja insumo', [
+        'mensaje' => $e->getMessage(),
+        'id_insumo' => $idInsumo ?? 0,
+        'observacion' => isset($observacion) ? substr($observacion, 0, 50) : ''
+    ]);
+    
+    json_error($e->getMessage(), 500);
 }
 ?>
 

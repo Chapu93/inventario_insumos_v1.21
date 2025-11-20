@@ -1,14 +1,20 @@
 <?php
 require_once '../includes/config.php';
-header('Content-Type: application/json');
 
 try {
-  if ($_SERVER['REQUEST_METHOD'] !== 'POST') { throw new Exception('Método inválido'); }
-  $input = json_decode(file_get_contents('php://input'), true);
-  if (!$input || empty($input['remito']) || empty($input['items']) || !is_array($input['items'])) {
-    throw new Exception('Datos incompletos');
+  if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+      json_error('Método inválido', 405);
   }
-  if (!verify_csrf()) { throw new Exception('CSRF inválido'); }
+  
+  $input = json_decode(file_get_contents('php://input'), true);
+  
+  if (!$input || empty($input['remito']) || empty($input['items']) || !is_array($input['items'])) {
+    json_error('Datos incompletos', 400);
+  }
+  
+  if (!verify_csrf()) {
+      json_error('CSRF inválido', 403);
+  }
   $db = conectarDB();
   $db->beginTransaction();
 
@@ -57,8 +63,21 @@ try {
   }
 
   $db->commit();
-  echo json_encode(['success' => true]);
+  
+  Logger::info('Items de remito actualizados', [
+      'numero_remito' => $input['remito'],
+      'items_count' => count($input['items'])
+  ]);
+  
+  json_success(['message' => 'Cantidades actualizadas correctamente']);
+  
 } catch (Exception $e) {
-  if (isset($db) && $db->inTransaction()) { $db->rollBack(); }
-  echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+  if (isset($db) && $db->inTransaction()) {
+      $db->rollBack();
+  }
+  Logger::error('Error al actualizar items de remito', [
+      'mensaje' => $e->getMessage(),
+      'numero_remito' => $input['remito'] ?? ''
+  ]);
+  json_error($e->getMessage(), 500);
 }

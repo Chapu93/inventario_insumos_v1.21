@@ -1,6 +1,6 @@
 <?php
 require_once '../includes/config.php';
-header('Content-Type: application/json');
+
 try {
   $db = conectarDB();
 
@@ -29,8 +29,14 @@ try {
   $rowsRed = $db->query("SELECT tipo_dispositivo, COALESCE(SUM(cantidad),0) c FROM sedes_red_dispositivos WHERE estado='Activo' GROUP BY tipo_dispositivo ORDER BY c DESC")->fetchAll();
   $red = [ 'labels' => array_map(fn($r)=>$r['tipo_dispositivo'], $rowsRed), 'data' => array_map(fn($r)=>(int)$r['c'], $rowsRed) ];
 
-  echo json_encode([
-    'success' => true,
+  Logger::debug('Contadores de telecomunicaciones cargados', [
+      'sedes_con_internet' => $sedesConInternetActivo,
+      'lineas_fijas' => $lineasFijas,
+      'lineas_moviles' => $lineasMoviles,
+      'vigilancia_activa' => $vigilanciaActiva
+  ]);
+  
+  json_success([
     'kpis' => [
       'sedes_con_internet_activo' => $sedesConInternetActivo,
       'sedes_sin_internet' => $sedesSinInternet,
@@ -43,8 +49,11 @@ try {
     'operadores' => $operadores,
     'red' => $red,
   ]);
+  
 } catch (Exception $e) {
-  http_response_code(500);
-  echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+  Logger::error('Error al cargar contadores de telecomunicaciones', [
+      'mensaje' => $e->getMessage()
+  ]);
+  json_error($e->getMessage(), 500);
 }
 

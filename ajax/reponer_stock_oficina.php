@@ -1,12 +1,10 @@
 <?php
 require_once '../includes/config.php';
 
-header('Content-Type: application/json');
-
 try {
     // Verificar CSRF
     if (!verify_csrf()) {
-        throw new Exception('CSRF inválido');
+        json_error('CSRF inválido', 403);
     }
 
     // Obtener datos del request
@@ -17,11 +15,11 @@ try {
 
     // Validaciones básicas
     if ($idInsumo <= 0) {
-        throw new Exception('ID de insumo inválido');
+        json_error('ID de insumo inválido', 400);
     }
 
     if ($cantidadReponer <= 0) {
-        throw new Exception('La cantidad a reponer debe ser mayor a 0');
+        json_error('La cantidad a reponer debe ser mayor a 0', 400);
     }
 
     $db = conectarDB();
@@ -33,11 +31,13 @@ try {
     $insumo = $stmt->fetch();
 
     if (!$insumo) {
-        throw new Exception('Insumo no encontrado');
+        $db->rollBack();
+        json_error('Insumo no encontrado', 404);
     }
 
     if ($insumo['tipo_insumo'] !== 'Varios') {
-        throw new Exception('Solo se puede reponer stock para insumos tipo Varios');
+        $db->rollBack();
+        json_error('Solo se puede reponer stock para insumos tipo Varios', 400);
     }
 
     $cantidadOficinaAntes = (int)($insumo['cantidad_oficina'] ?? 0);
@@ -45,7 +45,8 @@ try {
 
     // Verificar que hay suficiente stock en depósito
     if ($cantidadDepositoAntes < $cantidadReponer) {
-        throw new Exception("Stock insuficiente en depósito. Disponible: {$cantidadDepositoAntes}, solicitado: {$cantidadReponer}");
+        $db->rollBack();
+        json_error("Stock insuficiente en depósito. Disponible: {$cantidadDepositoAntes}, solicitado: {$cantidadReponer}", 400);
     }
 
     // Calcular nuevas cantidades
@@ -89,15 +90,20 @@ try {
 
     $db->commit();
 
-    // Respuesta exitosa
-    echo json_encode([
-        'success' => true,
+    Logger::info('Stock repuesto de depósito a oficina', [
+        'id_insumo' => $idInsumo,
+        'cantidad' => $cantidadReponer,
+        'oficina_antes' => $cantidadOficinaAntes,
+        'oficina_despues' => $cantidadOficinaDespues,
+        'deposito_antes' => $cantidadDepositoAntes,
+        'deposito_despues' => $cantidadDepositoDespues
+    ]);
+
+    json_success([
         'mensaje' => "Se repusieron {$cantidadReponer} unidades a oficina correctamente",
-        'data' => [
-            'cantidad_oficina' => $cantidadOficinaDespues,
-            'cantidad_deposito' => $cantidadDepositoDespues,
-            'cantidad_total' => $cantidadTotal
-        ]
+        'cantidad_oficina' => $cantidadOficinaDespues,
+        'cantidad_deposito' => $cantidadDepositoDespues,
+        'cantidad_total' => $cantidadTotal
     ]);
 
 } catch (Exception $e) {
@@ -105,9 +111,11 @@ try {
         $db->rollBack();
     }
     
-    http_response_code(400);
-    echo json_encode([
-        'success' => false,
-        'error' => $e->getMessage()
+    Logger::error('Error al reponer stock a oficina', [
+        'mensaje' => $e->getMessage(),
+        'id_insumo' => $idInsumo ?? 0,
+        'cantidad' => $cantidadReponer ?? 0
     ]);
+    
+    json_error($e->getMessage(), 500);
 }
