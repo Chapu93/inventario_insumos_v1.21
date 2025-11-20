@@ -1,8 +1,6 @@
 <?php
 require_once '../includes/config.php';
 
-header('Content-Type: application/json');
-
 try {
     $db = conectarDB();
     $draw = (int)($_GET['draw'] ?? 0);
@@ -68,14 +66,23 @@ try {
         ];
     }, $rows);
 
-    echo json_encode([
+    Logger::debug('Remitos anulados cargados (SSP)', [
+        'total' => $total,
+        'filtered' => $filtered,
+        'search' => $search
+    ]);
+    
+    json_response([
         'draw' => $draw,
         'recordsTotal' => $total,
         'recordsFiltered' => $filtered,
         'data' => $data,
-    ]);
+    ], 200);
+    
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['error' => $e->getMessage()]);
+    Logger::error('Error en remitos anulados (SSP)', [
+        'mensaje' => $e->getMessage()
+    ]);
+    json_response(['error' => $e->getMessage()], 500);
 }
 ?>

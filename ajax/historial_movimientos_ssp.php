@@ -1,7 +1,6 @@
 <?php
 require_once '../includes/config.php';
 
-header('Content-Type: application/json');
 
 try {
     $db = conectarDB();
@@ -168,14 +167,21 @@ try {
         ];
     }, $rows);
 
-    echo json_encode([
+    Logger::debug('Historial de movimientos cargado (SSP)', [
+        'total' => $total,
+        'filtered' => $filtered
+    ]);
+    
+    json_response([
         'draw' => $draw,
         'recordsTotal' => $total,
         'recordsFiltered' => $filtered,
         'data' => $data,
-    ]);
+    ], 200);
 
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['error' => $e->getMessage()]);
+    Logger::error('Error en historial de movimientos (SSP)', [
+        'mensaje' => $e->getMessage()
+    ]);
+    json_response(['error' => $e->getMessage()], 500);
 }
