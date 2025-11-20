@@ -33,6 +33,13 @@
 ✅ **Modal "Cambiando..." se quedaba colgado** - Faltaba cerrar modal explícitamente con `.modal('hide')`  
 ✅ **No se podían cambiar roles de inactivos** - Frontend no manejaba errores correctamente  
 ✅ **Modal no se cerraba después del éxito** - Agregado `modal.modal('hide')` antes de recargar  
+✅ **Página no se recargaba** - Función `mostrarMensaje()` no existía, cambiado a `showToast()`  
+
+### **OPCIÓN A - PARTE 2 - Estandarización JSON (EN PROGRESO - 43%)**
+✅ **LOTE 1** - Endpoints simples (validación, carga de datos): 6 archivos  
+✅ **LOTE 2** - Gestión de insumos y asignaciones: 4 archivos  
+✅ **LOTE 3** - Remitos y contadores: 3 archivos  
+⏳ **Total estandarizado: 13/30+ endpoints (~43%)**
 
 ---
 
