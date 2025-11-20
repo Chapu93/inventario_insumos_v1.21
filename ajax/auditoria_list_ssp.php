@@ -1,7 +1,6 @@
 <?php
 require_once '../includes/config.php';
 
-header('Content-Type: application/json');
 
 try {
     // Verificar autenticación y permisos
@@ -164,12 +163,21 @@ try {
         ];
     }, $rows);
     
-    echo json_encode([
+    Logger::debug('Listado de auditoría cargado (SSP)', [
+        'total' => $total,
+        'filtered' => $filtered,
+        'filters' => [
+            'modulo' => $filtroModulo,
+            'accion' => $filtroAccion
+        ]
+    ]);
+    
+    json_response([
         'draw' => $draw,
         'recordsTotal' => $total,
         'recordsFiltered' => $filtered,
         'data' => $data
-    ]);
+    ], 200);
     
 } catch (Exception $e) {
     Logger::error('Error en listado de auditoría', [
@@ -177,6 +185,5 @@ try {
         'file' => $e->getFile(),
         'line' => $e->getLine()
     ]);
-    http_response_code(500);
-    echo json_encode(['error' => $e->getMessage()]);
+    json_response(['error' => $e->getMessage()], 500);
 }

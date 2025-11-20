@@ -1,6 +1,5 @@
 <?php
 require_once '../includes/config.php';
-header('Content-Type: application/json');
 $localidadId = isset($_GET['localidad_id']) ? (int)$_GET['localidad_id'] : 0;
 if ($localidadId <= 0) { json_error('localidad_id requerido', 400); exit; }
 try {

@@ -1,7 +1,6 @@
 <?php
 require_once '../includes/config.php';
 
-header('Content-Type: application/json');
 
 if (!isset($_GET['sede_id'])) { json_error('ID de sede no proporcionado', 400); exit; }
 

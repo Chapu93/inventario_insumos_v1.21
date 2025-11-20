@@ -1,7 +1,6 @@
 <?php
 require_once '../includes/config.php';
 
-header('Content-Type: application/json');
 
 try {
     // Verificar autenticación y permisos
@@ -79,16 +78,14 @@ try {
         ]
     ];
     
-    echo json_encode($response);
+    Logger::debug('Detalles de auditoría cargados', ['id_auditoria' => $id]);
+    
+    json_response($response, 200);
     
 } catch (Exception $e) {
     Logger::error('Error al obtener detalles de auditoría', [
         'mensaje' => $e->getMessage(),
         'id_auditoria' => $id ?? 0
     ]);
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'mensaje' => 'Error al obtener detalles: ' . $e->getMessage()
-    ]);
+    json_error('Error al obtener detalles: ' . $e->getMessage(), 500);
 }

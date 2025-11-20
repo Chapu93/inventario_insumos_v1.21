@@ -1,7 +1,6 @@
 <?php
 require_once '../includes/config.php';
 
-header('Content-Type: application/json');
 
 if (!isset($_GET['localidad_id']) || !is_numeric($_GET['localidad_id'])) {
     json_error('ID de localidad no proporcionado', 400);

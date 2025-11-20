@@ -1,7 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/config.php';
 
-header('Content-Type: application/json; charset=utf-8');
 
 if (!isset($_GET['id_internet'])) {
     echo json_encode([]);
