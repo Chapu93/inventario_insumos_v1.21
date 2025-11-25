@@ -340,8 +340,14 @@ function mostrarRemitoResumen(numeroRemito) {
       $('#remitoResumenBody').html('<div class="alert alert-warning">No se pudo cargar el remito.</div>');
       return;
     }
-    var c = resp.cab;
-    var items = resp.items || [];
+    // FIX: Manejar ambas estructuras de respuesta (data.cab o data.data.cab)
+    var c = resp.data ? resp.data.cab : resp.cab;
+    var items = (resp.data ? resp.data.items : resp.items) || [];
+    
+    if (!c) {
+        $('#remitoResumenBody').html('<div class="alert alert-danger">Estructura de datos inválida.</div>');
+        return;
+    }
     
     // Información del remito
     var html = '<div class="mb-3">';
