@@ -11,7 +11,10 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     $_SESSION['mensaje'] = 'ID de insumo no válido.';
     $_SESSION['tipo_mensaje'] = 'danger';
     header('Location: listar.php');
-  $id = (int)$_GET['id'];
+    exit;
+}
+
+$id = (int)$_GET['id'];
 $db = conectarDB();
 
 // Datos generales del insumo con ubicación
@@ -26,7 +29,6 @@ $stmt = $db->prepare("
     LEFT JOIN zonas z ON l.id_zona = z.id_zona
     LEFT JOIN ingresos ing ON i.id_ingreso = ing.id_ingreso
     WHERE i.id_insumo = ?
-");_insumo = ?
 ");
 $stmt->execute([$id]);
 $insumo = $stmt->fetch();
@@ -117,7 +119,10 @@ include '../../includes/header.php';
                     <div class="col-md-6">
                         <p><strong>Cantidad:</strong>
                             <span class="badge <?php echo $insumo['cantidad'] > 0 ? 'bg-success' : 'bg-danger'; ?>">
-                                <?p                        <p><strong>Fecha de Adquisición:</strong> <?php echo $insumo['fecha_adquisicion'] ? date('d/m/Y', strtotime($insumo['fecha_adquisicion'])) : '-'; ?></p>
+                                <?php echo $insumo['cantidad']; ?>
+                            </span>
+                        </p>
+                        <p><strong>Fecha de Adquisición:</strong> <?php echo $insumo['fecha_adquisicion'] ? date('d/m/Y', strtotime($insumo['fecha_adquisicion'])) : '-'; ?></p>
                         <?php if ($insumo['estado'] !== 'Asignado'): ?>
                             <p><strong>Punto de Stock:</strong> <?php echo $insumo['nombre_punto'] ?: 'Sin asignar'; ?></p>
                         <?php endif; ?>
@@ -141,7 +146,6 @@ include '../../includes/header.php';
                                 ?>:</strong> 
                                 <span class="badge bg-primary"><?php echo htmlspecialchars($insumo['ingreso_referencia']); ?></span>
                             </p>
-                        <?php endif; ?>strong> <?php echo $insumo['nombre_punto'] ?: 'Sin asignar'; ?></p>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -250,7 +254,7 @@ include '../../includes/header.php';
 
         <?php if (!empty($remAct) && $insumo['tipo_insumo'] !== 'Varios'): ?>
         <div class="card mb-4">
-            <div class="card-header"><h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Ubicación Actual</h5></div>
+            <div class="card-header"><h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Ubicación Actual (Seguimiento)</h5></div>
             <div class="card-body">
                 <p class="mb-1"><strong>Sede:</strong> <?php echo htmlspecialchars($remAct['nombre_sede'] ?? ''); ?></p>
                 <p class="mb-1"><strong>Localidad:</strong> <?php echo htmlspecialchars($remAct['nombre_localidad'] ?? ''); ?></p>
