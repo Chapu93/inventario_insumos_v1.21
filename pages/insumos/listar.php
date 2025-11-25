@@ -299,6 +299,22 @@ function verInsumo(id) {
 </script>
 
 <script>
+// Helper para obtener CSRF token de forma segura
+function getCsrfToken() {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    return meta && meta.content ? meta.content : '';
+}
+
+// Helper para manejar errores CSRF
+function handleFetchError(err) {
+    if (err.message.includes('CSRF')) {
+        alert('Su sesión ha expirado o el token de seguridad es inválido. La página se recargará.');
+        location.reload();
+        return true;
+    }
+    return false;
+}
+
 // Eliminar insumo (con confirmación y aviso si está asignado)
 window.eliminarInsumo = function(id) {
   if (!id) return;
@@ -312,7 +328,10 @@ window.eliminarInsumo = function(id) {
               'Si confirma, también se eliminará la asignación asociada.\n¿Confirma eliminar?';
       }
       if (!confirm(msg)) return;
-      const token = (document.querySelector('meta[name="csrf-token"]')||{}).content || '';
+      
+      const token = getCsrfToken();
+      if (!token) { console.error('Token CSRF no encontrado'); }
+
       fetch(`${getAppBase()}/ajax/insumos_eliminar.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': token },
@@ -324,11 +343,14 @@ window.eliminarInsumo = function(id) {
         showToast('Insumo eliminado correctamente', 'success');
         try { $('#tablaInsumos').DataTable().ajax.reload(); } catch(e) { location.reload(); }
       })
-      .catch(err => { showToast(err.message || 'Error al eliminar', 'error'); });
+      .catch(err => { 
+        if(!handleFetchError(err)) showToast(err.message || 'Error al eliminar', 'error'); 
+      });
     })
-    .catch(() => {
+    .catch((err) => {
+      // Si falla ver_ajax (ej: error de red), intentar eliminación directa
       if (!confirm('¿Eliminar este insumo?')) return;
-      const token = (document.querySelector('meta[name="csrf-token"]').content)||'';
+      const token = getCsrfToken();
       fetch(`${getAppBase()}/ajax/insumos_eliminar.php`, {
         method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': token },
         body: JSON.stringify({ id_insumo: id })
@@ -336,7 +358,9 @@ window.eliminarInsumo = function(id) {
         if (!resp.success) { throw new Error(resp.error || 'Error'); }
         showToast('Insumo eliminado', 'success');
         try { $('#tablaInsumos').DataTable().ajax.reload(); } catch(e) { location.reload(); }
-      }).catch(err => showToast(err.message || 'Error', 'error'));
+      }).catch(err => {
+        if(!handleFetchError(err)) showToast(err.message || 'Error', 'error');
+      });
     });
 }
 </script>
@@ -428,11 +452,14 @@ document.getElementById('btnConfirmarBaja').addEventListener('click', function()
         const max = parseInt(qtyInput.max, 10) || 1;
         cantidad = Math.min(Math.max(1, cantidad), max);
     }
+    
+    const token = getCsrfToken(); // Usar helper seguro
+    
     fetch(`${getAppBase()}/ajax/insumo_baja.php`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-Token': (document.querySelector('meta[name="csrf-token"]')||{}).content || ''
+            'X-CSRF-Token': token
         },
         body: JSON.stringify({ id_insumo: BAJA_ID, observacion: obs, cantidad })
     })
@@ -446,10 +473,12 @@ document.getElementById('btnConfirmarBaja').addEventListener('click', function()
         setTimeout(() => { location.reload(); }, 1200);
     })
     .catch(err => {
-        const box = document.getElementById('bajaAlert');
-        box.className = 'alert alert-danger';
-        box.textContent = err.message;
-        box.style.display = 'block';
+        if (!handleFetchError(err)) {
+            const box = document.getElementById('bajaAlert');
+            box.className = 'alert alert-danger';
+            box.textContent = err.message;
+            box.style.display = 'block';
+        }
     });
 });
 </script>
