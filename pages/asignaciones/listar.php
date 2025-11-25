@@ -438,42 +438,46 @@ function abrirVerAsignacion(remito) {
     .then(r => r.json())
     .then(data => {
       if (!data.success) { throw new Error(data.error || 'Error al cargar remito'); }
-      const c = data.cab;
+      const c = data.data ? data.data.cab : data.cab;
+      if (!c) { throw new Error('Estructura de datos inválida recibida del servidor'); }
+      const items = data.data ? data.data.items : data.items;
       cab.innerHTML = `
         <div class="row">
           <div class="col-md-6">
-            <p class="mb-1"><strong>Remito:</strong> ${c.numero_remito}</p>
-            <p class="mb-1"><strong>Fecha:</strong> ${c.fecha_asignacion}</p>
-            <p class="mb-1"><strong>Estado:</strong> <span class="badge ${c.estado === 'Activa' ? 'bg-warning' : 'bg-success'}">${c.estado}</span></p>
+            <p class="mb-1"><strong>Remito:</strong> ${c.numero_remito || ''}</p>
+            <p class="mb-1"><strong>Fecha:</strong> ${c.fecha_asignacion || ''}</p>
+            <p class="mb-1"><strong>Estado:</strong> <span class="badge ${c.estado === 'Activa' ? 'bg-warning' : 'bg-success'}">${c.estado || 'Desconocido'}</span></p>
             ${c.estado === 'Devuelta' && c.fecha_devolucion ? `<p class="mb-1"><strong>Fecha devolución:</strong> ${c.fecha_devolucion}</p>` : ''}
           </div>
           <div class="col-md-6">
-            <p class="mb-1"><strong>Persona:</strong> ${c.nombre_persona_asignada} ${c.apellido_persona_asignada}</p>
-            <p class="mb-1"><strong>Área:</strong> ${c.nombre_area}</p>
-            <p class="mb-1"><strong>Sede:</strong> ${c.nombre_sede} - ${c.nombre_localidad} (${c.nombre_zona})</p>
+            <p class="mb-1"><strong>Persona:</strong> ${c.nombre_persona_asignada || ''} ${c.apellido_persona_asignada || ''}</p>
+            <p class="mb-1"><strong>Área:</strong> ${c.nombre_area || ''}</p>
+            <p class="mb-1"><strong>Sede:</strong> ${c.nombre_sede || ''} - ${c.nombre_localidad || ''} (${c.nombre_zona || ''})</p>
           </div>
         </div>
         ${c.observaciones ? `<div class="alert alert-light mt-2">${c.observaciones}</div>` : ''}
       `;
       const rows = [];
-      data.items.forEach(it => {
-        const info = buildInsumoDisplay(it);
-        const displayName = info.display;
-        const originalName = info.original;
-        const showOriginal = safeTrim(displayName) !== safeTrim(originalName);
-        const asignados = parseInt(it.cantidad || '0', 10);
-        const devueltos = parseInt(it.cantidad_devuelta || '0', 10);
-        const pendientes = Math.max(0, asignados - devueltos);
-        rows.push(`
-          <tr>
-            <td><strong>${displayName}</strong>${showOriginal ? `<br><small class="text-muted">${originalName}</small>` : ''}${it.numero_serie ? `<br><small class="text-muted">S/N: ${it.numero_serie}</small>` : ''}${it.id_fisico ? `<br><small class="text-muted">ID: ${it.id_fisico}</small>` : ''}</td>
-            <td><span class="badge ${it.tipo_insumo === 'Varios' ? 'bg-info' : 'bg-primary'}">${it.tipo_insumo}</span></td>
-            <td><span class="badge bg-dark">${asignados}</span></td>
-            <td><span class="badge bg-success">${devueltos}</span></td>
-            <td><span class="badge ${pendientes > 0 ? 'bg-warning' : 'bg-secondary'}">${pendientes}</span></td>
-          </tr>
-        `);
-      });
+      if (Array.isArray(items)) {
+          items.forEach(it => {
+            const info = buildInsumoDisplay(it);
+            const displayName = info.display;
+            const originalName = info.original;
+            const showOriginal = safeTrim(displayName) !== safeTrim(originalName);
+            const asignados = parseInt(it.cantidad || '0', 10);
+            const devueltos = parseInt(it.cantidad_devuelta || '0', 10);
+            const pendientes = Math.max(0, asignados - devueltos);
+            rows.push(`
+              <tr>
+                <td><strong>${displayName}</strong>${showOriginal ? `<br><small class="text-muted">${originalName}</small>` : ''}${it.numero_serie ? `<br><small class="text-muted">S/N: ${it.numero_serie}</small>` : ''}${it.id_fisico ? `<br><small class="text-muted">ID: ${it.id_fisico}</small>` : ''}</td>
+                <td><span class="badge ${it.tipo_insumo === 'Varios' ? 'bg-info' : 'bg-primary'}">${it.tipo_insumo}</span></td>
+                <td><span class="badge bg-dark">${asignados}</span></td>
+                <td><span class="badge bg-success">${devueltos}</span></td>
+                <td><span class="badge ${pendientes > 0 ? 'bg-warning' : 'bg-secondary'}">${pendientes}</span></td>
+              </tr>
+            `);
+          });
+      }
       body.innerHTML = rows.join('') || '<tr><td colspan="5" class="text-center text-muted">Sin ítems</td></tr>';
     })
     .catch(err => {
