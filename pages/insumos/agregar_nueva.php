@@ -200,7 +200,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         
         // Crear remito (cabecera) y detalle
-        $numero = generarNumeroRemito($conexion);
+        // MODIFICACIÓN: Para carga inicial/histórica, NO generamos un número de remito oficial (secuencial)
+        // para no alterar la numeración de remitos nuevos. Usamos un código interno con prefijo HIST.
+        $numero = 'HIST_' . date('YmdHis') . '_' . str_pad(rand(0, 999), 3, '0', STR_PAD_LEFT);
+        
         $sql = "INSERT INTO remitos (numero_remito, id_sede, id_area, nombre_persona_asignada, apellido_persona_asignada, fecha_asignacion, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conexion->prepare($sql);
         $stmt->execute([$numero, $idSede, $idArea, $nombre, $apellido, $fechaAsig, $obs]);
