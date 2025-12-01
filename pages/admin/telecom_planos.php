@@ -2,6 +2,8 @@
 require_once '../../includes/config.php';
 
 requerirAutenticacion();
+verificarPermiso('telecom', 'ver');
+
 $db = conectarDB();
 
 // Configuración de uploads

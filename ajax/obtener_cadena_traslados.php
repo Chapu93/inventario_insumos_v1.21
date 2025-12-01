@@ -5,7 +5,7 @@ if (!estaAutenticado()) {
     json_error('No autenticado', 401);
 }
 
-if (!tienePermiso('telecomunicaciones', 'ver')) {
+if (!tienePermiso('telecom', 'ver')) {
     json_error('No tienes permisos para ver telecomunicaciones', 403);
 }
 

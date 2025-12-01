@@ -2,6 +2,8 @@
 require_once '../../includes/config.php';
 
 requerirAutenticacion();
+verificarPermiso('telecom', 'ver');
+
 $db = conectarDB();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

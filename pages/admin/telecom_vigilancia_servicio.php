@@ -2,7 +2,7 @@
 require_once '../../includes/config.php';
 
 requerirAutenticacion();
-verificarPermiso('telecomunicaciones', 'editar');
+verificarPermiso('telecom', 'editar');
 
 $db = conectarDB();
 
