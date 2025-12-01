@@ -1,6 +1,14 @@
 <?php
 require_once '../includes/config.php';
 
+if (!estaAutenticado()) {
+    json_error('No autenticado', 401);
+}
+
+if (!tienePermiso('insumos', 'ver')) {
+    json_error('No tienes permisos para ver insumos', 403);
+}
+
 try {
     // Aceptar tanto POST como GET
     $ids = [];

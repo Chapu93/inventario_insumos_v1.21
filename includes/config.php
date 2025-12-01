@@ -2,8 +2,8 @@
 // Configuración de la base de datos
 define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
 define('DB_NAME', getenv('DB_NAME') ?: 'inventario_insumos_v1');
-define('DB_USER', getenv('DB_USER') ?: 'joaquin');
-define('DB_PASS', getenv('DB_PASS') ?: '12345678');
+define('DB_USER', getenv('DB_USER') ?: 'root');
+define('DB_PASS', getenv('DB_PASS') ?: '');
 define('DB_PORT', getenv('DB_PORT') ?: '3306');
 define('DB_SOCKET', getenv('DB_SOCKET') ?: null);
 
@@ -177,12 +177,12 @@ function generarNumeroRemito($dbParam = null) {
 
         if ($ownTxn) { $db->commit(); }
         
-        error_log("Remito generado - Número: {$numeroAUsar}, Año: {$anio}, Formato: " . sprintf('%04d_%d', $numeroAUsar, $anio));
+        Logger::info("Remito generado", ['numero' => $numeroAUsar, 'anio' => $anio, 'formato' => sprintf('%04d_%d', $numeroAUsar, $anio)]);
         return sprintf('%04d_%d', $numeroAUsar, $anio);
         
     } catch (Throwable $e) {
         if (isset($ownTxn) && $ownTxn && $db->inTransaction()) { $db->rollBack(); }
-        error_log("Error en generarNumeroRemito: " . $e->getMessage());
+        Logger::error("Error en generarNumeroRemito", ['error' => $e->getMessage()]);
         // Fallback: obtener el máximo número existente y sumar 1
         $stmt = $db->prepare("SELECT numero_remito FROM remitos WHERE numero_remito LIKE ? ORDER BY numero_remito DESC LIMIT 1");
         $stmt->execute(["%_{$anio}"]);

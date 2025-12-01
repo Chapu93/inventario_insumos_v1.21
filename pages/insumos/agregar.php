@@ -2,6 +2,7 @@
 require_once '../../includes/config.php';
 
 requerirAutenticacion();
+verificarPermiso('insumos', 'crear');
 
 $conexion = conectarDB();
 
@@ -31,13 +32,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         header('Location: agregar.php');
         exit;
     }
-    error_log('Formulario POST recibido en agregar.php');
-    error_log('POST data: ' . print_r($_POST, true));
+    Logger::debug('Formulario POST recibido en agregar.php', ['post_data' => $_POST]);
     
     // Verificar campos requeridos
     // tipo_insumo siempre es obligatorio
     if (!isset($_POST['tipo_insumo']) || empty($_POST['tipo_insumo'])) {
-        error_log('Campo requerido faltante: tipo_insumo');
+        Logger::warning('Campo requerido faltante: tipo_insumo');
         $_SESSION['mensaje'] = "Error: Debe seleccionar un tipo de insumo";
         $_SESSION['tipo_mensaje'] = "danger";
         header("Location: agregar.php");
@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // nombre_insumo solo es obligatorio para tipo "Varios"
     $tipo_insumo = $_POST['tipo_insumo'];
     if ($tipo_insumo === 'Varios' && (!isset($_POST['nombre_insumo']) || empty($_POST['nombre_insumo']))) {
-        error_log('Campo requerido faltante: nombre_insumo (tipo Varios)');
+        Logger::warning('Campo requerido faltante: nombre_insumo (tipo Varios)');
         $_SESSION['mensaje'] = "Error: El nombre del insumo es obligatorio para tipo Varios";
         $_SESSION['tipo_mensaje'] = "danger";
         header("Location: agregar.php");
@@ -112,8 +112,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // Usar fecha exacta del ingreso (formato YYYY-MM-DD sin hora)
             $fechaAdquisicion = !empty($ingreso['fecha_finalizacion']) ? $ingreso['fecha_finalizacion'] : null;
             
-            error_log("Insumo desde ingreso - Fecha finalizacion: " . ($ingreso['fecha_finalizacion'] ?? 'NULL'));
-            error_log("Fecha adquisicion asignada: " . ($fechaAdquisicion ?? 'NULL'));
+            Logger::debug("Insumo desde ingreso", [
+                'fecha_finalizacion' => $ingreso['fecha_finalizacion'] ?? 'NULL',
+                'fecha_adquisicion_asignada' => $fechaAdquisicion ?? 'NULL'
+            ]);
         } else {
             // Modo normal: usar lo que viene del form
             $idIngreso = !empty($_POST['id_ingreso']) ? (int)$_POST['id_ingreso'] : null;
@@ -126,7 +128,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $ingreso = $stmtIng->fetch();
                 if ($ingreso && !empty($ingreso['fecha_finalizacion'])) {
                     $fechaAdquisicion = $ingreso['fecha_finalizacion'];
-                    error_log("Ingreso asignado manualmente - Fecha: " . $fechaAdquisicion);
+                    Logger::info("Ingreso asignado manualmente", ['fecha' => $fechaAdquisicion]);
                 }
             }
         }
@@ -242,8 +244,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             ]
         );
         
-        error_log('Insumo agregado correctamente, redirigiendo a listar.php');
-        error_log('ID del insumo insertado: ' . $id_insumo);
+        Logger::info('Insumo agregado correctamente', ['id_insumo' => $id_insumo]);
         $_SESSION['mensaje'] = "Insumo agregado correctamente";
         $_SESSION['tipo_mensaje'] = "success";
         
@@ -268,14 +269,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
     } catch (Exception $e) {
         $conexion->rollBack();
-        error_log('Error al agregar insumo: ' . $e->getMessage());
-        error_log('Stack trace: ' . $e->getTraceAsString());
+        Logger::error('Error al agregar insumo', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
         $_SESSION['mensaje'] = "Error al agregar insumo: " . $e->getMessage();
         $_SESSION['tipo_mensaje'] = "danger";
         
         // Asegurar que no haya salida antes del header
         if (headers_sent()) {
-            error_log('Headers ya enviados, usando JavaScript para redirección');
+            Logger::warning('Headers ya enviados, usando JavaScript para redirección');
             echo "<script>alert('Error: " . addslashes($e->getMessage()) . "'); window.location.href = 'agregar.php';</script>";
         } else {
             header("Location: agregar.php");

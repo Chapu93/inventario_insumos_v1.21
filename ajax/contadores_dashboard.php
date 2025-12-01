@@ -1,6 +1,10 @@
 <?php
 require_once '../includes/config.php';
 
+if (!estaAutenticado()) {
+    json_error('No autenticado', 401);
+}
+
 $conexion = conectarDB();
 
 try {

@@ -5,15 +5,11 @@ require_once '../includes/config.php';
 try {
     // Verificar autenticación y permisos
     if (!estaAutenticado()) {
-        http_response_code(401);
-        echo json_encode(['error' => 'No autenticado']);
-        exit;
+        json_error('No autenticado', 401);
     }
     
     if (!tienePermiso('auditoria', 'ver_todo')) {
-        http_response_code(403);
-        echo json_encode(['error' => 'Sin permisos']);
-        exit;
+        json_error('Sin permisos', 403);
     }
     
     $db = conectarDB();

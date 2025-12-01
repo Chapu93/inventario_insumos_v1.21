@@ -1,16 +1,23 @@
 <?php
 require_once __DIR__ . '/../includes/config.php';
 
-
-if (!isset($_GET['id_internet'])) {
-    echo json_encode([]);
-    exit;
+if (!estaAutenticado()) {
+    json_error('No autenticado', 401);
 }
 
-$id_internet = (int)$_GET['id_internet'];
-$conexion = conectarDB();
+if (!tienePermiso('telecomunicaciones', 'ver')) {
+    json_error('No tienes permisos para ver telecomunicaciones', 403);
+}
+
+$idInternet = isset($_GET['id_internet']) ? (int)$_GET['id_internet'] : 0;
+
+if ($idInternet <= 0) {
+    json_success([]); // Return empty array for invalid ID as per original behavior, or standardized error? Original returned empty array.
+}
 
 try {
+    $conexion = conectarDB();
+    
     // Obtener toda la cadena de traslados (desde el original hasta el actual)
     $stmt = $conexion->prepare("
         WITH RECURSIVE cadena_traslados AS (
@@ -46,15 +53,18 @@ try {
         ORDER BY nivel ASC
     ");
     
-    $stmt->execute([$id_internet]);
+    $stmt->execute([$idInternet]);
     $cadena = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    echo json_encode($cadena);
+    Logger::debug('Cadena de traslados obtenida', ['id_internet' => $idInternet, 'count' => count($cadena)]);
+    
+    json_success($cadena);
     
 } catch (Exception $e) {
     Logger::error('Error al obtener cadena de traslados', [
         'mensaje' => $e->getMessage(),
-        'id_insumo' => $id_insumo ?? 0
+        'id_internet' => $idInternet
     ]);
-    echo json_encode([]);
+    json_error('Error al obtener cadena de traslados', 500);
 }
+?>

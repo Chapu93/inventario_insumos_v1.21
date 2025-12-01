@@ -1,6 +1,15 @@
 <?php
 require_once '../includes/config.php';
 
+// Verificar autenticación y permisos
+if (!estaAutenticado()) {
+    json_error('No autenticado', 401);
+}
+
+if (!tienePermiso('asignaciones', 'anular')) {
+    json_error('No tienes permisos para anular asignaciones', 403);
+}
+
 try {
     if (!verify_csrf()) {
         json_error('CSRF inválido', 403);

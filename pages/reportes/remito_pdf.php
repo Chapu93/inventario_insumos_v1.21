@@ -1,5 +1,7 @@
 <?php
 require_once '../../includes/config.php';
+requerirAutenticacion();
+verificarPermiso('reportes', 'ver');
 use setasign\Fpdi\Fpdi;
 
 // Aceptar remito | numero | numero_remito
@@ -89,7 +91,7 @@ if (file_exists($templatePath)) {
         $pdf->useTemplate($TPL_ID);
         $templateLoaded = true;
     } catch (Throwable $e) {
-        error_log('[remito_pdf] No se pudo cargar plantilla PDF: ' . $e->getMessage());
+        Logger::error('No se pudo cargar plantilla PDF de remito', ['error' => $e->getMessage()]);
     }
 }
 

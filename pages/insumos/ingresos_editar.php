@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $fechaFin = !empty($_POST['fecha_finalizacion']) ? $_POST['fecha_finalizacion'] : null;
         $descripcion = trim($_POST['descripcion'] ?? '') ?: null;
         
-        error_log("Guardar ingreso desde editar - Fecha recibida: " . ($fechaFin ?? 'NULL'));
+        Logger::debug("Guardar ingreso desde editar", ['fecha_recibida' => $fechaFin ?? 'NULL']);
         $insumos = isset($_POST['id_insumo']) && is_array($_POST['id_insumo']) ? array_map('intval', $_POST['id_insumo']) : [];
         $cantidades = isset($_POST['cantidad_varios']) && is_array($_POST['cantidad_varios']) ? $_POST['cantidad_varios'] : [];
         

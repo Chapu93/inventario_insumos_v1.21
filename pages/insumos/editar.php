@@ -2,6 +2,7 @@
 require_once '../../includes/config.php';
 
 requerirAutenticacion();
+verificarPermiso('insumos', 'editar');
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -83,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $ingreso = $stmtIng->fetch();
             if ($ingreso && !empty($ingreso['fecha_finalizacion'])) {
                 $fecha = $ingreso['fecha_finalizacion'];
-                error_log("Editar insumo - Ingreso asignado - Fecha: " . $fecha);
+                Logger::info("Editar insumo - Ingreso asignado", ['fecha' => $fecha]);
             }
         }
 

@@ -2,6 +2,7 @@
 require_once '../../includes/config.php';
 
 requerirAutenticacion();
+verificarPermiso('asignaciones', 'editar');
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

@@ -1,6 +1,9 @@
 <?php
 require_once '../../includes/config.php';
 
+requerirAutenticacion();
+verificarPermiso('insumos', 'crear');
+
 $db = conectarDB();
 
 $tipos = [

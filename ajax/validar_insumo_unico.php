@@ -1,6 +1,14 @@
 <?php
 require_once '../includes/config.php';
 
+if (!estaAutenticado()) {
+    json_response(['valido' => false, 'error' => 'No autenticado'], 401);
+}
+
+if (!tienePermiso('insumos', 'crear')) {
+    json_response(['valido' => false, 'error' => 'No tienes permisos'], 403);
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     json_response(['valido' => false, 'error' => 'Método no permitido'], 405);
 }
@@ -23,6 +31,11 @@ try {
     }
     
     $validacion = validarInsumoUnico($numero_serie, $id_fisico, $id_patrimonio, $id_insumo_excluir);
+    
+    Logger::debug('Validación de insumo único', [
+        'valido' => $validacion['valido'],
+        'errores' => $validacion['errores']
+    ]);
     
     json_response(array_merge($validacion, ['timestamp' => date('c')]), 200);
     

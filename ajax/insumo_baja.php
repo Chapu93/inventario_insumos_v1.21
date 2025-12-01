@@ -1,6 +1,15 @@
 <?php
 require_once '../includes/config.php';
 
+// Verificar autenticación y permisos
+if (!estaAutenticado()) {
+    json_error('No autenticado', 401);
+}
+
+if (!tienePermiso('insumos', 'baja')) {
+    json_error('No tienes permisos para dar de baja insumos', 403);
+}
+
 if (!verify_csrf()) {
     json_error('CSRF inválido', 403);
 }

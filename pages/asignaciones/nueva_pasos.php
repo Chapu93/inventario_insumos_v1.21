@@ -2,6 +2,7 @@
 require_once '../../includes/config.php';
 
 requerirAutenticacion();
+verificarPermiso('asignaciones', 'crear');
 
 $db = conectarDB();
 

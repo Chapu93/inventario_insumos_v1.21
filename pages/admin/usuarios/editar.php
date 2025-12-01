@@ -162,7 +162,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $db->rollBack();
         }
         $errores[] = 'Error al actualizar usuario: ' . $e->getMessage();
-        error_log('Error en editar usuario: ' . $e->getMessage());
+        Logger::error('Error en editar usuario', ['error' => $e->getMessage()]);
     }
 }
 

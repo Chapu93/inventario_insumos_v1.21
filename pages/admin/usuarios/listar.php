@@ -100,6 +100,15 @@ verificarPermiso('usuarios', 'ver');
                                         <i class="fas fa-user-tag"></i>
                                     </button>
                                 <?php endif; ?>
+                                
+                                <?php if (tienePermiso('usuarios', 'editar')): ?>
+                                    <a href="permisos.php?id=<?php echo $user['id_usuario']; ?>" 
+                                       class="btn btn-sm btn-outline-info" 
+                                       data-bs-toggle="tooltip" 
+                                       title="Gestionar Permisos">
+                                        <i class="fas fa-user-lock"></i>
+                                    </a>
+                                <?php endif; ?>
                                     
                                 <?php if (tienePermiso('usuarios', 'editar') && !$esYo): ?>
                                     <button type="button" 

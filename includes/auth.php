@@ -62,7 +62,7 @@ function obtenerUsuario() {
     } catch (Exception $e) {
         Logger::error("Error al obtener usuario", [
             'mensaje' => $e->getMessage(),
-            'username' => $username
+            'usuario_id' => $_SESSION['usuario_id'] ?? 'no_disponible'
         ]);
         return null;
     }
@@ -70,6 +70,7 @@ function obtenerUsuario() {
 
 /**
  * Verificar si el usuario tiene un permiso específico
+ * Prioridad: permisos_personalizados > permisos del rol
  * @param string $modulo Módulo del sistema (insumos, asignaciones, etc.)
  * @param string $accion Acción específica (ver, crear, editar, etc.)
  * @return bool
@@ -81,6 +82,19 @@ function tienePermiso($modulo, $accion) {
     }
     
     try {
+        // Primero verificar si tiene permisos personalizados
+        if (!empty($usuario['permisos_personalizados'])) {
+            $permisosPersonalizados = json_decode($usuario['permisos_personalizados'], true);
+            if (is_array($permisosPersonalizados)) {
+                // Usar permisos personalizados
+                if (!isset($permisosPersonalizados[$modulo])) {
+                    return false;
+                }
+                return in_array($accion, $permisosPersonalizados[$modulo]);
+            }
+        }
+        
+        // Si no tiene permisos personalizados, usar permisos del rol
         $permisos = json_decode($usuario['permisos'], true);
         if (!isset($permisos[$modulo])) {
             return false;

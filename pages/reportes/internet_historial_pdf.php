@@ -1,5 +1,7 @@
 <?php
 require_once '../../includes/config.php';
+requerirAutenticacion();
+verificarPermiso('reportes', 'ver');
 use setasign\Fpdi\Fpdi;
 
 // Obtener ID del servicio
@@ -64,7 +66,7 @@ if (file_exists($templatePath)) {
         $pdf->useTemplate($tplId);
         $templateLoaded = true;
     } catch (Throwable $e) {
-        error_log('[internet_historial_pdf] Error al cargar plantilla: ' . $e->getMessage());
+        Logger::error('Error al cargar plantilla PDF', ['error' => $e->getMessage()]);
     }
 }
 
@@ -417,7 +419,7 @@ foreach ($todosLosPdfs as $pdfInfo) {
                 $pdf->useTemplate($tplIdx, $x, $y_page, $size['width'] * $scale, $size['height'] * $scale);
             }
         } catch (Throwable $e) {
-            error_log('[internet_historial_pdf] Error al incluir PDF (servicio #' . $pdfInfo['id_servicio'] . '): ' . $e->getMessage());
+            Logger::error('Error al incluir PDF en historial', ['id_servicio' => $pdfInfo['id_servicio'], 'error' => $e->getMessage()]);
         }
     }
 }

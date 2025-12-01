@@ -70,12 +70,10 @@ try {
     ]);
     
     // IMPORTANTE: Usar código 200 para que jQuery lo trate como success
-    json_response([
-        'success' => true,
+    json_success([
         'mensaje' => "Usuario {$accion} correctamente",
-        'nuevo_estado' => $nuevoEstado,
-        'timestamp' => date('c')
-    ], 200);
+        'nuevo_estado' => $nuevoEstado
+    ]);
     
 } catch (Exception $e) {
     if (isset($db) && $db->inTransaction()) {

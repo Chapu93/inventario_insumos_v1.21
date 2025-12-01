@@ -2,6 +2,7 @@
 require_once '../../includes/config.php';
 
 requerirAutenticacion();
+verificarPermiso('reportes', 'ver');
 ?>
 <?php include '../../includes/header.php'; ?>
 

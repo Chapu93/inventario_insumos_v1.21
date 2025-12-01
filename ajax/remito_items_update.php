@@ -1,6 +1,14 @@
 <?php
 require_once '../includes/config.php';
 
+if (!estaAutenticado()) {
+    json_error('No autenticado', 401);
+}
+
+if (!tienePermiso('asignaciones', 'editar')) {
+    json_error('No tienes permisos para editar asignaciones', 403);
+}
+
 try {
   if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
       json_error('Método inválido', 405);

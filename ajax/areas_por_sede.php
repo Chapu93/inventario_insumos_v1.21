@@ -1,6 +1,14 @@
 <?php
 require_once '../includes/config.php';
 
+if (!estaAutenticado()) {
+    json_error('No autenticado', 401);
+}
+
+if (!tienePermiso('asignaciones', 'ver')) {
+    json_error('No tienes permisos para ver asignaciones', 403);
+}
+
 $sedeId = isset($_GET['sede_id']) ? (int)$_GET['sede_id'] : 0;
 
 if ($sedeId <= 0) {

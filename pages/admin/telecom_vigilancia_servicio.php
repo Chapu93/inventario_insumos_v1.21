@@ -1,5 +1,9 @@
 <?php
 require_once '../../includes/config.php';
+
+requerirAutenticacion();
+verificarPermiso('telecomunicaciones', 'editar');
+
 $db = conectarDB();
 
 $idVig = isset($_GET['id_vigilancia']) ? (int)$_GET['id_vigilancia'] : 0;

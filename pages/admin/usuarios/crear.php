@@ -108,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $db->rollBack();
         }
         $errores[] = 'Error al crear usuario: ' . $e->getMessage();
-        error_log('Error en crear usuario: ' . $e->getMessage());
+        Logger::error('Error en crear usuario', ['error' => $e->getMessage()]);
     }
 }
 

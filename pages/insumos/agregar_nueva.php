@@ -18,14 +18,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         header('Location: agregar_nueva.php');
         exit;
     }
-    error_log('Formulario POST recibido en agregar_nueva.php');
-    error_log('POST data: ' . print_r($_POST, true));
+    Logger::debug('Formulario POST recibido en agregar_nueva.php', ['post_data' => $_POST]);
     
     // Verificar campos de asignación
     $campos_asignacion = ['id_sede', 'id_area_asignada', 'nombre_persona_asignada', 'apellido_persona_asignada'];
     foreach ($campos_asignacion as $campo) {
         if (!isset($_POST[$campo]) || empty($_POST[$campo])) {
-            error_log('Campo de asignación faltante: ' . $campo);
+            Logger::warning('Campo de asignación faltante', ['campo' => $campo]);
             $_SESSION['mensaje'] = "Error: Complete todos los datos de asignación";
             $_SESSION['tipo_mensaje'] = "danger";
             header("Location: agregar_nueva.php");
@@ -36,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Verificar campos de insumo
     // tipo_insumo siempre es obligatorio
     if (!isset($_POST['tipo_insumo']) || empty($_POST['tipo_insumo'])) {
-        error_log('Campo requerido faltante: tipo_insumo');
+        Logger::warning('Campo requerido faltante: tipo_insumo');
         $_SESSION['mensaje'] = "Error: Debe seleccionar un tipo de insumo";
         $_SESSION['tipo_mensaje'] = "danger";
         header("Location: agregar_nueva.php");
@@ -47,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     // nombre_insumo solo es obligatorio para tipo "Varios"
     if ($tipo_insumo === 'Varios' && (!isset($_POST['nombre_insumo']) || empty($_POST['nombre_insumo']))) {
-        error_log('Campo requerido faltante: nombre_insumo (tipo Varios)');
+        Logger::warning('Campo requerido faltante: nombre_insumo (tipo Varios)');
         $_SESSION['mensaje'] = "Error: El nombre del insumo es obligatorio para tipo Varios";
         $_SESSION['tipo_mensaje'] = "danger";
         header("Location: agregar_nueva.php");
@@ -103,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $ingreso = $stmtIng->fetch();
             if ($ingreso && !empty($ingreso['fecha_finalizacion'])) {
                 $fechaAdquisicion = $ingreso['fecha_finalizacion'];
-                error_log("Ingreso asignado - Fecha: " . $fechaAdquisicion);
+                Logger::info("Ingreso asignado", ['fecha' => $fechaAdquisicion]);
             }
         }
         
@@ -217,8 +216,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         $conexion->commit();
         
-        error_log('Insumo agregado y asignado correctamente');
-        error_log('ID del insumo: ' . $id_insumo . ', ID del remito: ' . $idRemito);
+        Logger::info('Insumo agregado y asignado correctamente', ['id_insumo' => $id_insumo, 'id_remito' => $idRemito]);
         $_SESSION['mensaje'] = "Insumo creado y asignado correctamente";
         $_SESSION['tipo_mensaje'] = "success";
         header('Location: ' . app_base_url() . '/pages/insumos/listar.php');
@@ -226,8 +224,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
     } catch (Exception $e) {
         $conexion->rollBack();
-        error_log('Error al agregar insumo asignado: ' . $e->getMessage());
-        error_log('Stack trace: ' . $e->getTraceAsString());
+        Logger::error('Error al agregar insumo asignado', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
         $_SESSION['mensaje'] = "Error: " . $e->getMessage();
         $_SESSION['tipo_mensaje'] = "danger";
         header("Location: agregar_nueva.php");

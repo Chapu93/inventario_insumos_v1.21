@@ -1,6 +1,13 @@
 <?php
 require_once '../includes/config.php';
 
+if (!estaAutenticado()) {
+    json_error('No autenticado', 401);
+}
+
+if (!tienePermiso('asignaciones', 'ver')) {
+    json_error('No tienes permisos para ver asignaciones', 403);
+}
 
 try {
     $db = conectarDB();

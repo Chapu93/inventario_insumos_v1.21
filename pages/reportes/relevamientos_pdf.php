@@ -1,5 +1,7 @@
 <?php
 require_once '../../includes/config.php';
+requerirAutenticacion();
+verificarPermiso('reportes', 'ver');
 
 // Cargar autoload para FPDF
 require_once __DIR__ . '/../../vendor/autoload.php';

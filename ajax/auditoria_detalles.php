@@ -5,23 +5,17 @@ require_once '../includes/config.php';
 try {
     // Verificar autenticación y permisos
     if (!estaAutenticado()) {
-        http_response_code(401);
-        echo json_encode(['success' => false, 'mensaje' => 'No autenticado']);
-        exit;
+        json_error('No autenticado', 401);
     }
     
     if (!tienePermiso('auditoria', 'ver_todo')) {
-        http_response_code(403);
-        echo json_encode(['success' => false, 'mensaje' => 'Sin permisos']);
-        exit;
+        json_error('Sin permisos', 403);
     }
     
     $id = (int)($_GET['id'] ?? 0);
     
     if ($id === 0) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'mensaje' => 'ID inválido']);
-        exit;
+        json_error('ID inválido', 400);
     }
     
     $db = conectarDB();

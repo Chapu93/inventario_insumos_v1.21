@@ -30,7 +30,7 @@ verificarPermiso('auditoria', 'ver_todo');
                                  '</option>';
                         }
                     } catch (Exception $e) {
-                        error_log('Error cargando usuarios para filtro: ' . $e->getMessage());
+                        Logger::error('Error cargando usuarios para filtro', ['mensaje' => $e->getMessage()]);
                     }
                     ?>
                 </select>

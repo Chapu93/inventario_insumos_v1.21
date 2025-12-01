@@ -1,6 +1,14 @@
 <?php
 require_once '../includes/config.php';
 
+if (!estaAutenticado()) {
+    json_error('No autenticado', 401);
+}
+
+if (!tienePermiso('insumos', 'editar')) {
+    json_error('No tienes permisos para editar insumos', 403);
+}
+
 try {
     // Verificar CSRF
     if (!verify_csrf()) {
