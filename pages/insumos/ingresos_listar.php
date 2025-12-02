@@ -2,15 +2,18 @@
 require_once '../../includes/config.php';
 
 requerirAutenticacion();
+verificarPermiso('insumos', 'ver');
 $db = conectarDB();
 include '../../includes/header.php';
 ?>
 <div class="row">
   <div class="col-12 d-flex justify-content-between align-items-center mb-4">
     <h1 class="mb-0"><i class="fas fa-file-import me-2"></i>Ingresos</h1>
+    <?php if (tienePermiso('insumos', 'crear')): ?>
     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalNuevoIngreso">
       <i class="fas fa-plus me-2"></i>Nuevo Ingreso
     </button>
+    <?php endif; ?>
   </div>
 </div>
 
@@ -118,6 +121,11 @@ include '../../includes/header.php';
 
 <script>
 const BASE = '<?php echo app_base_url(); ?>';
+const PERMISOS = {
+  ver: <?php echo tienePermiso('insumos', 'ver') ? 'true' : 'false'; ?>,
+  editar: <?php echo tienePermiso('insumos', 'editar') ? 'true' : 'false'; ?>,
+  eliminar: <?php echo tienePermiso('insumos', 'eliminar') ? 'true' : 'false'; ?>
+};
 
 // Función para formatear fechas sin conversión de timezone
 function formatearFecha(fecha, conHora = false) {
@@ -168,30 +176,43 @@ $(function(){
       },
       { data: 'num_insumos', render: d => `<span class="badge bg-primary">${d||0}</span>` },
       { data: null, orderable:false, searchable:false, render: function(data, type, row){
-          return `
-            <div class="btn-group">
+          let botones = '<div class="btn-group">';
+          
+          if (PERMISOS.ver) {
+            botones += `
               <button class="btn btn-sm btn-info" 
                       onclick="verDetalleIngreso(${row.id_ingreso})" 
                       data-bs-toggle="tooltip" 
                       title="Ver detalles"
                       aria-label="Ver detalles del ingreso">
                 <i class="fas fa-eye"></i>
-              </button>
+              </button>`;
+          }
+          
+          if (PERMISOS.editar) {
+            botones += `
               <a class="btn btn-sm btn-warning" 
                  href="ingresos_editar.php?id=${row.id_ingreso}" 
                  data-bs-toggle="tooltip" 
                  title="Editar ingreso"
                  aria-label="Editar ingreso">
                 <i class="fas fa-edit"></i>
-              </a>
+              </a>`;
+          }
+          
+          if (PERMISOS.eliminar) {
+            botones += `
               <button class="btn btn-sm btn-danger" 
                       onclick="eliminarIngreso(${row.id_ingreso})" 
                       data-bs-toggle="tooltip" 
                       title="Eliminar ingreso"
                       aria-label="Eliminar ingreso">
                 <i class="fas fa-trash"></i>
-              </button>
-            </div>`;
+              </button>`;
+          }
+          
+          botones += '</div>';
+          return botones;
         } }
     ],
     language: {
