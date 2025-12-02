@@ -88,8 +88,13 @@ include '../../includes/header.php';
           <div><div class="small text-muted">Cámaras activas</div><div class="h4 mb-0"><?php echo (int)$camarasActivas; ?></div></div>
         </div>
         <div class="mt-3">
+          <?php if (tienePermiso('telecom', 'editar')): ?>
           <button class="btn btn-sm btn-warning" onclick='editServ(<?php echo json_encode($servicio, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT); ?>)'><i class="fas fa-edit me-1"></i>Editar Servicio</button>
+          <?php endif; ?>
+          
+          <?php if (tienePermiso('telecom', 'eliminar')): ?>
           <button class="btn btn-sm btn-danger" onclick="delServ(<?php echo (int)$servicio['id_vigilancia']; ?>)"><i class="fas fa-trash me-1"></i>Eliminar Servicio</button>
+          <?php endif; ?>
         </div>
       </div>
     </div>
@@ -137,6 +142,7 @@ include '../../includes/header.php';
               <td><?php $e=$d['estado']; $cls=$e==='Activo'?'estado-activa':'estado-baja'; ?><span class="badge <?php echo $cls; ?>"><?php echo $e; ?></span></td>
               <td>
                 <div class="btn-group" role="group">
+                  <?php if (tienePermiso('telecom', 'editar')): ?>
                   <button class="btn btn-sm btn-warning btn-edit-disp" 
                           data-bs-toggle="tooltip" 
                           title="Editar dispositivo"
@@ -144,6 +150,9 @@ include '../../includes/header.php';
                           data-row='<?php echo json_encode($d, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT); ?>'>
                     <i class="fas fa-edit" aria-hidden="true"></i>
                   </button>
+                  <?php endif; ?>
+                  
+                  <?php if (tienePermiso('telecom', 'eliminar')): ?>
                   <button class="btn btn-sm btn-danger" 
                           data-bs-toggle="tooltip" 
                           title="Eliminar dispositivo"
@@ -151,6 +160,7 @@ include '../../includes/header.php';
                           onclick="delDisp(<?php echo (int)$d['id_vigilancia_dispositivo']; ?>)">
                     <i class="fas fa-trash" aria-hidden="true"></i>
                   </button>
+                  <?php endif; ?>
                 </div>
               </td>
             </tr>
