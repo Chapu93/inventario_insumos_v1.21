@@ -532,10 +532,14 @@ include '../../includes/header.php';
                                                 <i class="fas fa-edit" aria-hidden="true"></i>
                                             </button>
                                         <?php else: ?>
+                                            <?php if (tienePermiso('telecom', 'editar')): ?>
                                             <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Editar" aria-label="Editar servicio" onclick='editarInternet(<?php echo json_encode($row, JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT); ?>)'><i class="fas fa-edit" aria-hidden="true"></i></button>
+                                            <?php endif; ?>
                                         <?php endif; ?>
                                         
+                                        <?php if (tienePermiso('telecom', 'eliminar')): ?>
                                         <button type="button" class="btn btn-sm btn-danger btn-eliminar-internet" data-bs-toggle="tooltip" title="Eliminar" aria-label="Eliminar servicio" data-id="<?php echo (int)$row['id_internet']; ?>"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                                        <?php endif; ?>
                                     </div>
                                 </td>
                             </tr>

@@ -107,6 +107,7 @@ include '../../includes/header.php';
               </a>
             </td>
             <td>
+              <?php if (tienePermiso('telecom', 'eliminar')): ?>
               <form method="POST" onsubmit="return confirm('¿Eliminar plano?');" style="display:inline">
                 <input type="hidden" name="accion" value="eliminar">
                 <input type="hidden" name="id_plano" value="<?php echo (int)$p['id_plano']; ?>">
@@ -118,6 +119,7 @@ include '../../includes/header.php';
                   <i class="fas fa-trash" aria-hidden="true"></i>
                 </button>
               </form>
+              <?php endif; ?>
             </td>
           </tr>
           <?php endforeach; ?>

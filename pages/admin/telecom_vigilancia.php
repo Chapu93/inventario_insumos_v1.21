@@ -95,9 +95,11 @@ include '../../includes/header.php';
                           data-bs-toggle="tooltip" 
                           title="Editar servicio"
                           aria-label="Editar servicio" 
-                          data-row='<?php echo json_encode($v, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT); ?>'>
+                          data-row='<?php echo json_encode($v, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT); ?>'
+                          <?php echo !tienePermiso('telecom', 'editar') ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''; ?>>
                     <i class="fas fa-edit" aria-hidden="true"></i>
                   </button>
+                  <?php if (tienePermiso('telecom', 'eliminar')): ?>
                   <button class="btn btn-sm btn-danger" 
                           data-bs-toggle="tooltip" 
                           title="Eliminar servicio"
@@ -105,6 +107,7 @@ include '../../includes/header.php';
                           onclick="delServ(<?php echo (int)$v['id_vigilancia']; ?>)">
                     <i class="fas fa-trash" aria-hidden="true"></i>
                   </button>
+                  <?php endif; ?>
                 </div>
               </td>
             </tr>
