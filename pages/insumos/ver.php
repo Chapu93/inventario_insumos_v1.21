@@ -88,7 +88,9 @@ include '../../includes/header.php';
             <h1><i class="fas fa-eye me-2"></i>Detalles del Insumo</h1>
             <div>
                 <a href="listar.php" class="btn btn-secondary"><i class="fas fa-arrow-left me-2"></i>Volver</a>
+                <?php if (tienePermiso('insumos', 'editar')): ?>
                 <a href="editar.php?id=<?php echo $insumo['id_insumo']; ?>" class="btn btn-warning"><i class="fas fa-edit me-2"></i>Editar</a>
+                <?php endif; ?>
             </div>
         </div>
     </div>

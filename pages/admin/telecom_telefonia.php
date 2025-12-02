@@ -70,6 +70,7 @@ include '../../includes/header.php';
             <td><?php $e=$r['estado']; $cls=$e==='Activa'?'estado-activa':($e==='Pendiente'?'estado-asignado':'estado-baja'); ?><span class="badge <?php echo $cls; ?>"><?php echo $e; ?></span></td>
             <td>
               <div class="btn-group" role="group">
+                <?php if (tienePermiso('telecom', 'editar')): ?>
                 <button class="btn btn-sm btn-warning btn-edit-tel" 
                         data-bs-toggle="tooltip" 
                         title="Editar línea"
@@ -77,6 +78,8 @@ include '../../includes/header.php';
                         data-row='<?php echo json_encode($r, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT); ?>'>
                   <i class="fas fa-edit" aria-hidden="true"></i>
                 </button>
+                <?php endif; ?>
+                <?php if (tienePermiso('telecom', 'eliminar')): ?>
                 <button class="btn btn-sm btn-danger" 
                         data-bs-toggle="tooltip" 
                         title="Eliminar línea"
@@ -84,6 +87,7 @@ include '../../includes/header.php';
                         onclick="delTel(<?php echo (int)$r['id_linea']; ?>)">
                   <i class="fas fa-trash" aria-hidden="true"></i>
                 </button>
+                <?php endif; ?>
               </div>
             </td>
           </tr>
