@@ -114,6 +114,7 @@ $areas = $stmt->fetchAll();
                                 </td>
                                 <td>
                                     <div class="btn-group" role="group">
+                                        <?php if (tienePermiso('areas', 'editar')): ?>
                                         <button type="button" 
                                                 class="btn btn-sm btn-warning" 
                                                 onclick="editarArea(<?php echo htmlspecialchars(json_encode($area)); ?>)"
@@ -121,6 +122,9 @@ $areas = $stmt->fetchAll();
                                                 title="Editar">
                                             <i class="fas fa-edit"></i>
                                         </button>
+                                        <?php endif; ?>
+                                        
+                                        <?php if (tienePermiso('areas', 'eliminar')): ?>
                                         <?php if ($area['insumos_asignados'] == 0 && $area['asignaciones_activas'] == 0): ?>
                                             <button type="button" 
                                                     class="btn btn-sm btn-danger" 
@@ -137,6 +141,7 @@ $areas = $stmt->fetchAll();
                                                     title="No se puede eliminar - tiene insumos o asignaciones">
                                                 <i class="fas fa-trash"></i>
                                             </button>
+                                        <?php endif; ?>
                                         <?php endif; ?>
                                     </div>
                                 </td>

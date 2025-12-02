@@ -154,6 +154,7 @@ $localidades = $stmt->fetchAll();
                                 <td><?php echo htmlspecialchars($sede['responsable_telefono'] ?? '-'); ?></td>
                                 <td>
                                     <div class="btn-group" role="group">
+                                        <?php if (tienePermiso('sedes', 'editar')): ?>
                                         <button type="button" 
                                                 class="btn btn-sm btn-warning" 
                                                 onclick="editarSede(<?php echo htmlspecialchars(json_encode($sede)); ?>)"
@@ -161,9 +162,15 @@ $localidades = $stmt->fetchAll();
                                                 title="Editar sede" aria-label="Editar sede">
                                             <i class="fas fa-edit" aria-hidden="true"></i>
                                         </button>
+                                        <?php endif; ?>
+                                        
+                                        <?php if (tienePermiso('sedes', 'ver')): ?>
                                         <a class="btn btn-sm btn-info" href="<?php echo app_base_url(); ?>/pages/admin/sede_detalle.php?id_localidad=<?php echo (int)$sede['id_localidad']; ?>&id_sede=<?php echo (int)$sede['id_sede']; ?>" data-bs-toggle="tooltip" title="Ver detalles" aria-label="Ver detalles de la sede">
                                             <i class="fas fa-eye" aria-hidden="true"></i>
                                         </a>
+                                        <?php endif; ?>
+                                        
+                                        <?php if (tienePermiso('sedes', 'eliminar')): ?>
                                         <button type="button" 
                                                 class="btn btn-sm btn-danger" 
                                                 onclick="eliminarItem(<?php echo $sede['id_sede']; ?>, 'sede')"
@@ -171,6 +178,7 @@ $localidades = $stmt->fetchAll();
                                                 title="Eliminar sede" aria-label="Eliminar sede">
                                             <i class="fas fa-trash" aria-hidden="true"></i>
                                         </button>
+                                        <?php endif; ?>
                                     </div>
                                 </td>
                             </tr>
