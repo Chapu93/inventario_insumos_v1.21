@@ -59,10 +59,22 @@ try {
     $rows = $stmt->fetchAll();
 
     $data = array_map(function($r){
-        $acciones = '<div class="btn-group" role="group">'
-                  . '<button type="button" class="btn btn-sm btn-primary" aria-label="Imprimir remito" onclick="generarRemitoPDF(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Imprimir remito"><i class="fas fa-print" aria-hidden="true"></i></button>'
-                  . ' <a href="?remito=' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '" class="btn btn-sm btn-info" aria-label="Ver detalles del remito" data-bs-toggle="tooltip" title="Ver detalles"><i class="fas fa-eye" aria-hidden="true"></i></a>'
-                  . '</div>';
+        // Verificar permisos para cada acción
+        $puedeVer = tienePermiso('asignaciones', 'ver');
+        $puedeImprimir = tienePermiso('asignaciones', 'ver'); // Same permission as ver
+        
+        // Construir botones solo si hay permisos
+        $botones = [];
+        
+        if ($puedeImprimir) {
+            $botones[] = '<button type="button" class="btn btn-sm btn-primary" aria-label="Imprimir remito" onclick="generarRemitoPDF(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Imprimir remito"><i class="fas fa-print" aria-hidden="true"></i></button>';
+        }
+        
+        if ($puedeVer) {
+            $botones[] = '<a href="?remito=' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '" class="btn btn-sm btn-info" aria-label="Ver detalles del remito" data-bs-toggle="tooltip" title="Ver detalles"><i class="fas fa-eye" aria-hidden="true"></i></a>';
+        }
+        
+        $acciones = '<div class="btn-group" role="group">' . implode(' ', $botones) . '</div>';
         return [
             '<strong>' . htmlspecialchars($r['numero_remito']) . '</strong>',
             htmlspecialchars($r['nombre_persona_asignada'] . ' ' . $r['apellido_persona_asignada']),

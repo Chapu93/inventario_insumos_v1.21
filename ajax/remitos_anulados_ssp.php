@@ -58,9 +58,15 @@ try {
         $fechaAnulacion = $r['fecha_anulacion'] ? date('d/m/Y H:i', strtotime($r['fecha_anulacion'])) : '-';
         $motivo = htmlspecialchars($r['motivo_anulacion'] ?? '-');
         
-        $btnVer = '<button type="button" class="btn btn-sm btn-outline-primary" onclick="mostrarRemitoResumen(\'' . htmlspecialchars($r['numero_remito']) . '\')">
-                    <i class="fas fa-eye"></i> Ver
-                   </button>';
+        // Verificar permisos para ver
+        $puedeVer = tienePermiso('asignaciones', 'ver');
+        
+        $btnVer = '';
+        if ($puedeVer) {
+            $btnVer = '<button type="button" class="btn btn-sm btn-outline-primary" onclick="mostrarRemitoResumen(\'' . htmlspecialchars($r['numero_remito']) . '\')">
+                        <i class="fas fa-eye"></i> Ver
+                       </button>';
+        }
         
         return [
             '<strong>' . htmlspecialchars($r['numero_remito']) . '</strong>',

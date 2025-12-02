@@ -94,15 +94,36 @@ try {
         $activas = (int)$r['activas'];
         $estado = ($activas > 0) ? 'Activa' : 'Devuelta';
         $estadoBadge = '<span class="badge estado-' . strtolower($estado) . '">' . $estado . '</span>';
-        $btnDevAttrs = $activas > 0
-            ? 'type="button" class="btn btn-sm btn-warning" aria-label="Devolver insumos" onclick="abrirDevolucion(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Devolver insumos"'
-            : 'type="button" class="btn btn-sm btn-warning" aria-label="Devolver insumos" disabled data-bs-toggle="tooltip" title="Sin ítems para devolver"';
-        $acciones = '<div class="btn-group" role="group">'
-                  . '<button type="button" class="btn btn-sm btn-info" aria-label="Ver asignación" onclick="abrirVerAsignacion(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Ver asignación"><i class="fas fa-eye" aria-hidden="true"></i></button>'
-                  . ' <button type="button" class="btn btn-sm btn-primary" aria-label="Imprimir remito" onclick="generarRemitoPDF(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Imprimir remito"><i class="fas fa-print" aria-hidden="true"></i></button>'
-                  . ' <button ' . $btnDevAttrs . '><i class="fas fa-undo" aria-hidden="true"></i></button>'
-                  . ' <button type="button" class="btn btn-sm btn-danger" aria-label="Eliminar asignación" onclick="eliminarAsignacion(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Eliminar asignación"><i class="fas fa-trash" aria-hidden="true"></i></button>'
-                  . '</div>';
+        
+        // Verificar permisos para cada acción
+        $puedeVer = tienePermiso('asignaciones', 'ver');
+        $puedeImprimir = tienePermiso('asignaciones', 'ver'); // Same permission as ver
+        $puedeDevolver = tienePermiso('asignaciones', 'devolver');
+        $puedeEliminar = tienePermiso('asignaciones', 'eliminar');
+        
+        // Construir botones solo si hay permisos
+        $botones = [];
+        
+        if ($puedeVer) {
+            $botones[] = '<button type="button" class="btn btn-sm btn-info" aria-label="Ver asignación" onclick="abrirVerAsignacion(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Ver asignación"><i class="fas fa-eye" aria-hidden="true"></i></button>';
+        }
+        
+        if ($puedeImprimir) {
+            $botones[] = '<button type="button" class="btn btn-sm btn-primary" aria-label="Imprimir remito" onclick="generarRemitoPDF(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Imprimir remito"><i class="fas fa-print" aria-hidden="true"></i></button>';
+        }
+        
+        if ($puedeDevolver) {
+            $btnDevAttrs = $activas > 0
+                ? 'type="button" class="btn btn-sm btn-warning" aria-label="Devolver insumos" onclick="abrirDevolucion(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Devolver insumos"'
+                : 'type="button" class="btn btn-sm btn-warning" aria-label="Devolver insumos" disabled data-bs-toggle="tooltip" title="Sin ítems para devolver"';
+            $botones[] = '<button ' . $btnDevAttrs . '><i class="fas fa-undo" aria-hidden="true"></i></button>';
+        }
+        
+        if ($puedeEliminar) {
+            $botones[] = '<button type="button" class="btn btn-sm btn-danger" aria-label="Eliminar asignación" onclick="eliminarAsignacion(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Eliminar asignación"><i class="fas fa-trash" aria-hidden="true"></i></button>';
+        }
+        
+        $acciones = '<div class="btn-group" role="group">' . implode(' ', $botones) . '</div>';
         return [
             htmlspecialchars($r['nombre_persona_asignada'] . ' ' . $r['apellido_persona_asignada']),
             htmlspecialchars($r['nombre_localidad']),

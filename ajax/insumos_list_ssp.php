@@ -172,21 +172,43 @@ try {
         $nombreJs = json_encode((string)$r['nombre_insumo']);
         $isDeBaja = (strcasecmp(trim((string)$r['estado']), 'De Baja') === 0);
         
-        // Botón de reponer (solo para tipo Varios con stock en depósito)
+        // Verificar permisos para cada acción
+        $puedeVer = tienePermiso('insumos', 'ver');
+        $puedeEditar = tienePermiso('insumos', 'editar');
+        $puedeBaja = tienePermiso('insumos', 'baja');
+        $puedeEliminar = tienePermiso('insumos', 'eliminar');
+        
+        // Botón de reponer (solo para tipo Varios con stock en depósito y permiso editar)
         $btnReponer = '';
-        if ($tipo === 'Varios') {
+        if ($tipo === 'Varios' && $puedeEditar) {
             $cantDeposito = (int)($r['cantidad_deposito'] ?? 0);
             if ($cantDeposito > 0) {
                 $btnReponer = '<button type="button" class="btn btn-sm btn-primary btn-reponer-stock" data-id="' . (int)$r['id_insumo'] . '" data-nombre="' . htmlspecialchars($displayName) . '" data-deposito="' . $cantDeposito . '" data-bs-toggle="tooltip" title="Reponer a Oficina"><i class="fas fa-exchange-alt"></i></button> ';
             }
         }
         
-        $acciones = '<div class="btn-group" role="group">' . $btnReponer
-                  . '<button type="button" class="btn btn-sm btn-info" aria-label="Ver detalles del insumo" onclick="verInsumo(' . (int)$r['id_insumo'] . ')" data-bs-toggle="tooltip" title="Ver detalles"><i class="fas fa-eye" aria-hidden="true"></i></button>'
-                  . ' <a href="editar.php?id=' . (int)$r['id_insumo'] . '" class="btn btn-sm btn-warning" aria-label="Editar insumo" data-bs-toggle="tooltip" title="Editar"><i class="fas fa-edit" aria-hidden="true"></i></a>'
-                  . ' <button type="button" class="btn btn-sm btn-outline-warning" aria-label="Dar de baja insumo" ' . ($isDeBaja ? 'disabled ' : 'onclick=\'abrirModalBajaInsumo(' . (int)$r['id_insumo'] . ', ' . $nombreJs . ')\' ') . 'data-bs-toggle="tooltip" title="Dar de baja"><i class="fas fa-arrow-down" aria-hidden="true"></i></button>'
-                  . ' <button type="button" class="btn btn-sm btn-danger btn-eliminar-insumo" aria-label="Eliminar insumo" data-id="' . (int)$r['id_insumo'] . '" data-bs-toggle="tooltip" title="Eliminar"><i class="fas fa-trash" aria-hidden="true"></i></button>'
-                  . '</div>';
+        // Construir botones solo si hay permisos
+        $botones = [];
+        
+        if ($puedeVer) {
+            $botones[] = '<button type="button" class="btn btn-sm btn-info" aria-label="Ver detalles del insumo" onclick="verInsumo(' . (int)$r['id_insumo'] . ')" data-bs-toggle="tooltip" title="Ver detalles"><i class="fas fa-eye" aria-hidden="true"></i></button>';
+        }
+        
+        if ($puedeEditar) {
+            $botones[] = '<a href="editar.php?id=' . (int)$r['id_insumo'] . '" class="btn btn-sm btn-warning" aria-label="Editar insumo" data-bs-toggle="tooltip" title="Editar"><i class="fas fa-edit" aria-hidden="true"></i></a>';
+        }
+        
+        if ($puedeBaja) {
+            $estadoClass = $isDeBaja ? 'disabled ' : '';
+            $eventoOnclick = $isDeBaja ? '' : 'onclick=\'abrirModalBajaInsumo(' . (int)$r['id_insumo'] . ', ' . $nombreJs . ')\'';
+            $botones[] = '<button type="button" class="btn btn-sm btn-outline-warning" aria-label="Dar de baja insumo" ' . $estadoClass . $eventoOnclick . ' data-bs-toggle="tooltip" title="Dar de baja"><i class="fas fa-arrow-down" aria-hidden="true"></i></button>';
+        }
+        
+        if ($puedeEliminar) {
+            $botones[] = '<button type="button" class="btn btn-sm btn-danger btn-eliminar-insumo" aria-label="Eliminar insumo" data-id="' . (int)$r['id_insumo'] . '" data-bs-toggle="tooltip" title="Eliminar"><i class="fas fa-trash" aria-hidden="true"></i></button>';
+        }
+        
+        $acciones = '<div class="btn-group" role="group">' . $btnReponer . implode(' ', $botones) . '</div>';
         return [
             '<strong>' . htmlspecialchars($displayName) . '</strong>' . $extraLine,
             $tipoBadge,
