@@ -306,10 +306,11 @@ function abrirDevolucion(remito) {
     body.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Cargando...</td></tr>';
     fetch(`${getAppBase()}/ajax/remito_items.php?remito=${encodeURIComponent(remito)}`)
       .then(r => r.json())
-      .then(data => {
-        if (!data.success) { throw new Error(data.error || 'Error al cargar items'); }
+      .then(resp => {
+        if (!resp.success) { throw new Error(resp.error || 'Error al cargar items'); }
+        const items = resp.data && resp.data.items ? resp.data.items : [];
         const rows = [];
-        data.items.forEach(it => {
+        items.forEach(it => {
           const info = buildInsumoDisplay(it);
           const displayName = info.display;
           const originalName = info.original;

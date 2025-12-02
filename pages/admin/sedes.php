@@ -2,6 +2,7 @@
 require_once '../../includes/config.php';
 
 requerirAutenticacion();
+verificarPermiso('sedes', 'ver');
 
 $conexion = conectarDB();
 
@@ -26,6 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (!verify_csrf()) { throw new Exception('CSRF inválido'); }
                 if (isset($_POST['accion'])) {
             if ($_POST['accion'] == 'agregar') {
+                verificarPermiso('sedes', 'crear');
                 // Añadimos el campo observaciones (puede ser NULL)
                 $sql = "INSERT INTO sedes (nombre_sede, id_localidad, direccion, observaciones, delegado_nombre, delegado_apellido, delegado_telefono, responsable_nombre, responsable_apellido, responsable_telefono) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 $stmt = $conexion->prepare($sql);
@@ -46,6 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['tipo_mensaje'] = "success";
                 
             } elseif ($_POST['accion'] == 'editar') {
+                verificarPermiso('sedes', 'editar');
                 // Actualizar incluyendo observaciones
                 $sql = "UPDATE sedes SET nombre_sede = ?, id_localidad = ?, direccion = ?, observaciones = ?, delegado_nombre = ?, delegado_apellido = ?, delegado_telefono = ?, responsable_nombre = ?, responsable_apellido = ?, responsable_telefono = ? WHERE id_sede = ?";
                 $stmt = $conexion->prepare($sql);

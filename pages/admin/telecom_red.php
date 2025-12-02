@@ -11,14 +11,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verify_csrf()) { throw new Exception('CSRF inválido'); }
     $accion = $_POST['accion'] ?? '';
     if ($accion === 'agregar') {
+      verificarPermiso('telecom', 'editar');
       $db->prepare("INSERT INTO sedes_red_dispositivos (id_sede, tipo_dispositivo, marca, modelo, cantidad, ubicacion, estado, observaciones) VALUES (?,?,?,?,?,?,?,?)")
          ->execute([(int)$_POST['id_sede'], trim($_POST['tipo_dispositivo']), trim($_POST['marca'] ?? ''), trim($_POST['modelo'] ?? ''), max(1,(int)$_POST['cantidad']), trim($_POST['ubicacion'] ?? ''), trim($_POST['estado']), ($_POST['observaciones'] ?? null) ?: null]);
       $_SESSION['mensaje'] = 'Dispositivo agregado'; $_SESSION['tipo_mensaje'] = 'success';
     } elseif ($accion === 'editar') {
+      verificarPermiso('telecom', 'editar');
       $db->prepare("UPDATE sedes_red_dispositivos SET id_sede=?, tipo_dispositivo=?, marca=?, modelo=?, cantidad=?, ubicacion=?, estado=?, observaciones=? WHERE id_dispositivo=?")
          ->execute([(int)$_POST['id_sede'], trim($_POST['tipo_dispositivo']), trim($_POST['marca'] ?? ''), trim($_POST['modelo'] ?? ''), max(1,(int)$_POST['cantidad']), trim($_POST['ubicacion'] ?? ''), trim($_POST['estado']), ($_POST['observaciones'] ?? null) ?: null, (int)$_POST['id_dispositivo']]);
       $_SESSION['mensaje'] = 'Dispositivo actualizado'; $_SESSION['tipo_mensaje'] = 'success';
     } elseif ($accion === 'eliminar') {
+      verificarPermiso('telecom', 'eliminar');
       $db->prepare("DELETE FROM sedes_red_dispositivos WHERE id_dispositivo = ?")->execute([(int)$_POST['id_dispositivo']]);
       $_SESSION['mensaje'] = 'Dispositivo eliminado'; $_SESSION['tipo_mensaje'] = 'success';
     }

@@ -46,6 +46,8 @@ try {
 
     $db->beginTransaction();
 
+    $devolverList = [];
+
     foreach ($items as $it) {
         $idInsumo = (int)($it['id_insumo'] ?? 0);
         $cantidadDev = isset($it['cantidad']) ? (int)$it['cantidad'] : 1;
@@ -86,6 +88,8 @@ try {
         // Actualizar historial: incrementar cantidad_devuelta, NO borrar filas
         $db->prepare("UPDATE remitos_detalle SET cantidad_devuelta = LEAST(cantidad, cantidad_devuelta + ?) WHERE id_remito = ? AND id_insumo = ?")
            ->execute([$aDevolver, $idRemito, $idInsumo]);
+           
+        $devolverList[] = ['id' => $idInsumo, 'cantidad' => $aDevolver];
     }
 
     // Si ya no quedan items en el remito, marcar estado Devuelta y fecha_devolucion
@@ -103,7 +107,7 @@ try {
     registrarAuditoria(
         'devolver_insumos',
         'asignaciones',
-        "Devolución de insumos - Remito: {$numeroRemito}",
+        "Devolución de insumos - Remito: {$numero}",
         'asignacion',
         $idRemito,
         null,
@@ -115,11 +119,11 @@ try {
     if (isset($db) && $db->inTransaction()) { $db->rollBack(); }
     
     // Registrar error en auditoría
-    if (isset($numeroRemito)) {
+    if (isset($numero)) {
         registrarAuditoria(
             'devolver_insumos',
             'asignaciones',
-            "Error al devolver insumos - Remito: {$numeroRemito}",
+            "Error al devolver insumos - Remito: {$numero}",
             null,
             null,
             null,

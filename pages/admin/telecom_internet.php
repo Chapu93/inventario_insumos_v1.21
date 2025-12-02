@@ -227,6 +227,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $accion = $_POST['accion'] ?? '';
         
         if ($accion === 'agregar' || $accion === 'editar') {
+            verificarPermiso('telecom', 'editar');
             // Obtener valores actuales si es edición (para preservar datos históricos)
             $valoresActuales = null;
             if ($accion === 'editar') {
@@ -357,6 +358,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['tipo_mensaje'] = 'success';
             }
         } elseif ($accion === 'eliminar') {
+            verificarPermiso('telecom', 'eliminar');
             // Obtener y eliminar archivo si existe
             $stmt = $db->prepare("SELECT archivo_autorizacion FROM sedes_internet WHERE id_internet = ?");
             $stmt->execute([(int)$_POST['id_internet']]);

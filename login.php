@@ -191,7 +191,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                        id="username" 
                                        name="username" 
                                        placeholder="Usuario o email"
-                                       value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>"
                                        required 
                                        autofocus>
                                 <label for="username">Usuario o email</label>
@@ -226,13 +225,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <i class="fas fa-shield-alt me-1"></i>
                 Sistema seguro con auditoría completa
             </div>
-        </div>
-        
-        <div class="text-center mt-4">
-            <small class="text-white">
-                <i class="fas fa-info-circle me-1"></i>
-                Usuario por defecto: <strong>admin</strong> / Contraseña: <strong>admin123</strong>
-            </small>
         </div>
     </div>
     

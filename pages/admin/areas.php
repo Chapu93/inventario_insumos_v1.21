@@ -2,6 +2,7 @@
 require_once '../../includes/config.php';
 
 requerirAutenticacion();
+verificarPermiso('areas', 'ver');
 
 $conexion = conectarDB();
 
@@ -10,6 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     try {
         if (isset($_POST['accion'])) {
             if ($_POST['accion'] == 'agregar') {
+                verificarPermiso('areas', 'crear');
                 $sql = "INSERT INTO areas (nombre_area, descripcion) VALUES (?, ?)";
                 $stmt = $conexion->prepare($sql);
                 $stmt->execute([$_POST['nombre_area'], $_POST['descripcion'] ?: null]);
@@ -18,6 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['tipo_mensaje'] = "success";
                 
             } elseif ($_POST['accion'] == 'editar') {
+                verificarPermiso('areas', 'editar');
                 $sql = "UPDATE areas SET nombre_area = ?, descripcion = ? WHERE id_area = ?";
                 $stmt = $conexion->prepare($sql);
                 $stmt->execute([$_POST['nombre_area'], $_POST['descripcion'] ?: null, $_POST['id_area']]);

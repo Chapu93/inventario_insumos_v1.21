@@ -178,3 +178,21 @@ SELECT id_rol, nombre_rol, descripcion FROM roles;
 
 SELECT 'Usuario administrador creado:' AS '';
 SELECT id_usuario, username, email, nombre, apellido, id_rol, activo FROM usuarios;
+
+
+-- =====================================================
+-- ACTUALIZACION DE PERMISOS SUPER ADMINISTRADOR
+-- =====================================================
+UPDATE roles 
+SET permisos = JSON_SET(
+    permisos, 
+    '$.sedes', JSON_ARRAY('ver', 'crear', 'editar', 'eliminar'), 
+    '$.areas', JSON_ARRAY('ver', 'crear', 'editar', 'eliminar')
+) 
+WHERE id_rol = 1;
+
+
+-- Agregar columna para permisos personalizados en la tabla usuarios
+ALTER TABLE usuarios 
+ADD COLUMN permisos_personalizados LONGTEXT NULL COMMENT 'Permisos personalizados en formato JSON. Si es NULL, usa permisos del rol' 
+AFTER id_rol;

@@ -34,9 +34,7 @@ try {
     $auditoria = $stmt->fetch();
     
     if (!$auditoria) {
-        http_response_code(404);
-        echo json_encode(['success' => false, 'mensaje' => 'Registro no encontrado']);
-        exit;
+        json_error('Registro no encontrado', 404);
     }
     
     // Parsear JSON de datos_antes y datos_despues
@@ -74,7 +72,7 @@ try {
     
     Logger::debug('Detalles de auditoría cargados', ['id_auditoria' => $id]);
     
-    json_response($response, 200);
+    json_success($response['data']);
     
 } catch (Exception $e) {
     Logger::error('Error al obtener detalles de auditoría', [

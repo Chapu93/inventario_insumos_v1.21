@@ -96,7 +96,8 @@ $modulosDisponibles = [
         'icono' => 'fas fa-wifi',
         'acciones' => [
             'ver' => 'Ver',
-            'editar' => 'Editar'
+            'editar' => 'Editar',
+            'eliminar' => 'Eliminar'
         ]
     ],
     'sedes' => [
@@ -105,7 +106,8 @@ $modulosDisponibles = [
         'acciones' => [
             'ver' => 'Ver',
             'crear' => 'Crear',
-            'editar' => 'Editar'
+            'editar' => 'Editar',
+            'eliminar' => 'Eliminar'
         ]
     ],
     'areas' => [
@@ -114,7 +116,8 @@ $modulosDisponibles = [
         'acciones' => [
             'ver' => 'Ver',
             'crear' => 'Crear',
-            'editar' => 'Editar'
+            'editar' => 'Editar',
+            'eliminar' => 'Eliminar'
         ]
     ]
 ];

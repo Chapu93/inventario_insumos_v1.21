@@ -11,18 +11,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verify_csrf()) { throw new Exception('CSRF inválido'); }
     $accion = $_POST['accion'] ?? '';
     if ($accion === 'agregar') {
+      verificarPermiso('telecom', 'editar');
       $db->prepare("INSERT INTO sedes_telefonia_lineas (id_sede, tipo_linea, operador, numero, dispositivo_modelo, interno_ext, estado, observaciones) VALUES (?,?,?,?,?,?,?,?)")
          ->execute([
            (int)$_POST['id_sede'], trim($_POST['tipo_linea']), trim($_POST['operador'] ?? ''), trim($_POST['numero'] ?? ''), trim($_POST['dispositivo_modelo'] ?? ''), trim($_POST['interno_ext'] ?? ''), trim($_POST['estado']), ($_POST['observaciones'] ?? null) ?: null
          ]);
       $_SESSION['mensaje'] = 'Línea creada'; $_SESSION['tipo_mensaje'] = 'success';
     } elseif ($accion === 'editar') {
+      verificarPermiso('telecom', 'editar');
       $db->prepare("UPDATE sedes_telefonia_lineas SET id_sede=?, tipo_linea=?, operador=?, numero=?, dispositivo_modelo=?, interno_ext=?, estado=?, observaciones=? WHERE id_linea=?")
          ->execute([
            (int)$_POST['id_sede'], trim($_POST['tipo_linea']), trim($_POST['operador'] ?? ''), trim($_POST['numero'] ?? ''), trim($_POST['dispositivo_modelo'] ?? ''), trim($_POST['interno_ext'] ?? ''), trim($_POST['estado']), ($_POST['observaciones'] ?? null) ?: null, (int)$_POST['id_linea']
          ]);
       $_SESSION['mensaje'] = 'Línea actualizada'; $_SESSION['tipo_mensaje'] = 'success';
     } elseif ($accion === 'eliminar') {
+      verificarPermiso('telecom', 'eliminar');
       $db->prepare("DELETE FROM sedes_telefonia_lineas WHERE id_linea = ?")->execute([(int)$_POST['id_linea']]);
       $_SESSION['mensaje'] = 'Línea eliminada'; $_SESSION['tipo_mensaje'] = 'success';
     }

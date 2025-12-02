@@ -11,26 +11,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verify_csrf()) { throw new Exception('CSRF inválido'); }
     $accion = $_POST['accion'] ?? '';
     if ($accion === 'agregar_serv') {
+      verificarPermiso('telecom', 'editar');
       $db->prepare("INSERT INTO sedes_vigilancia (id_sede, proveedor, estado_servicio, observaciones) VALUES (?,?,?,?)")
          ->execute([(int)$_POST['id_sede'], trim($_POST['proveedor']), trim($_POST['estado_servicio']), ($_POST['observaciones'] ?? null) ?: null]);
       $_SESSION['mensaje'] = 'Servicio de vigilancia agregado'; $_SESSION['tipo_mensaje'] = 'success';
     } elseif ($accion === 'editar_serv') {
+      verificarPermiso('telecom', 'editar');
       $db->prepare("UPDATE sedes_vigilancia SET id_sede=?, proveedor=?, estado_servicio=?, observaciones=? WHERE id_vigilancia=?")
          ->execute([(int)$_POST['id_sede'], trim($_POST['proveedor']), trim($_POST['estado_servicio']), ($_POST['observaciones'] ?? null) ?: null, (int)$_POST['id_vigilancia']]);
       $_SESSION['mensaje'] = 'Servicio de vigilancia actualizado'; $_SESSION['tipo_mensaje'] = 'success';
     } elseif ($accion === 'eliminar_serv') {
+      verificarPermiso('telecom', 'eliminar');
       $db->prepare("DELETE FROM sedes_vigilancia_dispositivos WHERE id_vigilancia = ?")->execute([(int)$_POST['id_vigilancia']]);
       $db->prepare("DELETE FROM sedes_vigilancia WHERE id_vigilancia = ?")->execute([(int)$_POST['id_vigilancia']]);
       $_SESSION['mensaje'] = 'Servicio de vigilancia eliminado'; $_SESSION['tipo_mensaje'] = 'success';
     } elseif ($accion === 'agregar_disp') {
+      verificarPermiso('telecom', 'editar');
       $db->prepare("INSERT INTO sedes_vigilancia_dispositivos (id_vigilancia, tipo_dispositivo, marca, modelo, cantidad, ubicacion, estado) VALUES (?,?,?,?,?,?,?)")
          ->execute([(int)$_POST['id_vigilancia'], trim($_POST['tipo_dispositivo']), trim($_POST['marca'] ?? ''), trim($_POST['modelo'] ?? ''), max(1,(int)$_POST['cantidad']), trim($_POST['ubicacion'] ?? ''), trim($_POST['estado'])]);
       $_SESSION['mensaje'] = 'Dispositivo agregado'; $_SESSION['tipo_mensaje'] = 'success';
     } elseif ($accion === 'editar_disp') {
+      verificarPermiso('telecom', 'editar');
       $db->prepare("UPDATE sedes_vigilancia_dispositivos SET id_vigilancia=?, tipo_dispositivo=?, marca=?, modelo=?, cantidad=?, ubicacion=?, estado=? WHERE id_vigilancia_dispositivo=?")
          ->execute([(int)$_POST['id_vigilancia'], trim($_POST['tipo_dispositivo']), trim($_POST['marca'] ?? ''), trim($_POST['modelo'] ?? ''), max(1,(int)$_POST['cantidad']), trim($_POST['ubicacion'] ?? ''), trim($_POST['estado']), (int)$_POST['id_vigilancia_dispositivo']]);
       $_SESSION['mensaje'] = 'Dispositivo actualizado'; $_SESSION['tipo_mensaje'] = 'success';
     } elseif ($accion === 'eliminar_disp') {
+      verificarPermiso('telecom', 'eliminar');
       $db->prepare("DELETE FROM sedes_vigilancia_dispositivos WHERE id_vigilancia_dispositivo = ?")->execute([(int)$_POST['id_vigilancia_dispositivo']]);
       $_SESSION['mensaje'] = 'Dispositivo eliminado'; $_SESSION['tipo_mensaje'] = 'success';
     }

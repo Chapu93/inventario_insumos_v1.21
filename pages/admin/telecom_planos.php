@@ -16,6 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verify_csrf()) { throw new Exception('CSRF inválido'); }
     $accion = $_POST['accion'] ?? '';
     if ($accion === 'subir') {
+      verificarPermiso('telecom', 'editar');
       if (!isset($_POST['id_sede']) || !$_POST['id_sede']) { throw new Exception('Sede requerida'); }
       if (!isset($_POST['tipo_plano']) || !$_POST['tipo_plano']) { throw new Exception('Tipo de plano requerido'); }
       if (!isset($_FILES['archivo']) || $_FILES['archivo']['error'] !== UPLOAD_ERR_OK) { throw new Exception('Archivo requerido'); }
@@ -52,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
          ->execute([$idSede, $tipo, 'public/uploads/planos/' . $safeName, $desc ?: null]);
       $_SESSION['mensaje'] = 'Plano subido correctamente'; $_SESSION['tipo_mensaje'] = 'success';
     } elseif ($accion === 'eliminar') {
+      verificarPermiso('telecom', 'eliminar');
       $id = (int)$_POST['id_plano'];
       $stmt = $db->prepare("SELECT archivo FROM sedes_planos WHERE id_plano=?"); $stmt->execute([$id]); $row = $stmt->fetch();
       if ($row) {
