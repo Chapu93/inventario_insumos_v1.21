@@ -39,7 +39,9 @@ include '../../includes/header.php';
 <div class="row">
   <div class="col-12 d-flex justify-content-between align-items-center mb-4">
     <h1><i class="fas fa-network-wired me-2"></i>Infraestructura de Red</h1>
+    <?php if (tienePermiso('telecom', 'editar')): ?>
     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalRed"><i class="fas fa-plus me-2"></i>Agregar</button>
+    <?php endif; ?>
   </div>
 </div>
 

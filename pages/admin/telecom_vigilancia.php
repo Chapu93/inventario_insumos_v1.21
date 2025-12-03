@@ -62,7 +62,9 @@ include '../../includes/header.php';
   <div class="col-12 d-flex justify-content-between align-items-center mb-4">
     <h1><i class="fas fa-video me-2"></i>Vigilancia</h1>
     <div class="d-flex gap-2">
+      <?php if (tienePermiso('telecom', 'editar')): ?>
       <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalServ"><i class="fas fa-plus me-2"></i>Agregar Servicio</button>
+      <?php endif; ?>
     </div>
   </div>
 </div>
@@ -91,14 +93,15 @@ include '../../includes/header.php';
                      aria-label="Ver detalle">
                     <i class="fas fa-eye" aria-hidden="true"></i>
                   </a>
+                  <?php if (tienePermiso('telecom', 'editar')): ?>
                   <button class="btn btn-sm btn-warning btn-edit-serv" 
                           data-bs-toggle="tooltip" 
                           title="Editar servicio"
                           aria-label="Editar servicio" 
-                          data-row='<?php echo json_encode($v, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT); ?>'
-                          <?php echo !tienePermiso('telecom', 'editar') ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''; ?>>
+                          data-row='<?php echo json_encode($v, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT); ?>'>
                     <i class="fas fa-edit" aria-hidden="true"></i>
                   </button>
+                  <?php endif; ?>
                   <?php if (tienePermiso('telecom', 'eliminar')): ?>
                   <button class="btn btn-sm btn-danger" 
                           data-bs-toggle="tooltip" 

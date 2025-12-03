@@ -755,9 +755,9 @@ function toggleCampos() {
   }
   // Mostrar accesorios notebook en la segunda columna
   if (t === 'Notebook') {
-    $('#extras-notebook').slideDown(150);
+    $('#extras-notebook').show(); // Cambiado de slideDown a show para evitar problemas de validación
   } else {
-    $('#extras-notebook').slideUp(150);
+    $('#extras-notebook').hide(); // Cambiado de slideUp a hide
     $('#micro_sd').prop('checked', false);
     $('#micro_sd_gb').prop('disabled', true).val('');
   }

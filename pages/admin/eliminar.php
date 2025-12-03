@@ -2,8 +2,6 @@
 require_once '../../includes/config.php';
 
 requerirAutenticacion();
-// Verificar permisos de administración (usamos 'usuarios'->'eliminar' como proxy de super admin)
-verificarPermiso('usuarios', 'eliminar');
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $tipo = isset($_GET['tipo']) ? $_GET['tipo'] : '';
@@ -22,6 +20,7 @@ try {
     
     switch ($tipo) {
         case 'sede':
+            verificarPermiso('sedes', 'eliminar');
             // Verificar si tiene dependencias
             $stmt = $conexion->prepare("SELECT COUNT(*) FROM insumos WHERE id_sede_actual = ?");
             $stmt->execute([$id]);
@@ -42,6 +41,7 @@ try {
             
         case 'área':
         case 'area':
+            verificarPermiso('areas', 'eliminar');
             // Verificar dependencias
             $stmt = $conexion->prepare("SELECT COUNT(*) FROM insumos WHERE id_area_asignacion_actual = ?");
             $stmt->execute([$id]);

@@ -55,19 +55,16 @@ $areas = $stmt->fetchAll();
 <?php include '../../includes/header.php'; ?>
 
 <div class="row">
-    <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1>
-                <i class="fas fa-sitemap me-2"></i>Administración de Áreas
-            </h1>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalArea">
-                <i class="fas fa-plus me-2"></i>Agregar Área
-            </button>
-        </div>
+    <div class="col-12 d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-sitemap me-2"></i>Gestión de Áreas</h1>
+        <?php if (tienePermiso('areas', 'crear')): ?>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalArea">
+            <i class="fas fa-plus me-2"></i>Agregar Área
+        </button>
+        <?php endif; ?>
     </div>
 </div>
 
-<!-- Tabla de áreas -->
 <div class="card">
     <div class="card-header">
         <h5 class="mb-0">
@@ -216,4 +213,4 @@ $('#formArea').on('submit', function(e) {
 });
 </script>
 
-<?php include '../../includes/footer.php'; ?> 
+<?php include '../../includes/footer.php'; ?>

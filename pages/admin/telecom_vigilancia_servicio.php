@@ -2,7 +2,7 @@
 require_once '../../includes/config.php';
 
 requerirAutenticacion();
-verificarPermiso('telecom', 'editar');
+verificarPermiso('telecom', 'ver');
 
 $db = conectarDB();
 
@@ -69,7 +69,9 @@ include '../../includes/header.php';
     </div>
     <div class="d-flex gap-2">
       <a class="btn btn-outline-secondary" href="<?php echo app_base_url(); ?>/pages/admin/sede_detalle.php?id_localidad=<?php echo (int)$servicio['id_localidad']; ?>&id_sede=<?php echo (int)$servicio['id_sede']; ?>" aria-label="Ver Sede"><i class="fas fa-building me-2" aria-hidden="true"></i>Ver Sede</a>
+      <?php if (tienePermiso('telecom', 'editar')): ?>
       <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalDisp" aria-label="Agregar Dispositivo"><i class="fas fa-plus me-2" aria-hidden="true"></i>Agregar Dispositivo</button>
+      <?php endif; ?>
     </div>
   </div>
 </div>
@@ -106,7 +108,9 @@ include '../../includes/header.php';
           <h5 class="mb-0"><i class="fas fa-cctv me-2"></i>Dispositivos</h5>
           <div class="d-flex gap-2">
             <button class="btn btn-sm btn-outline-secondary" id="btnExport" aria-label="Exportar CSV"><i class="fas fa-file-export me-1" aria-hidden="true"></i>Exportar CSV</button>
+            <?php if (tienePermiso('telecom', 'editar')): ?>
             <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalDisp" aria-label="Agregar dispositivo"><i class="fas fa-plus me-1" aria-hidden="true"></i>Agregar</button>
+            <?php endif; ?>
           </div>
         </div>
         <div class="row g-2 mt-2">

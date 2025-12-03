@@ -99,20 +99,6 @@ $localidades = $stmt->fetchAll();
 
 <?php include '../../includes/header.php'; ?>
 
-<div class="row">
-    <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1>
-                <i class="fas fa-building me-2"></i>Administración de Sedes
-            </h1>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalSede">
-                <i class="fas fa-plus me-2"></i>Agregar Sede
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Tabla de sedes -->
 <div class="card">
     <div class="card-header">
         <h5 class="mb-0">

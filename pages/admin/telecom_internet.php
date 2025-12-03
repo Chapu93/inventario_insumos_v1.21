@@ -416,7 +416,9 @@ include '../../includes/header.php';
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1><i class="fas fa-wifi me-2"></i>Internet por Sede</h1>
+            <?php if (tienePermiso('telecom', 'editar')): ?>
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalInternet"><i class="fas fa-plus me-2"></i>Agregar</button>
+            <?php endif; ?>
         </div>
     </div>
     </div>

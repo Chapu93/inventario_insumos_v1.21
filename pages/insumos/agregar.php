@@ -465,7 +465,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <?php endif; ?>
                             </div>
                             
-                            <div class="mb-2">
+                            <div class="mb-2" id="campo-punto-almacenamiento">
                                 <label for="id_punto_stock_actual" class="form-label">Punto de Almacenamiento</label>
                                 <select class="form-select form-select-sm w-100" id="id_punto_stock_actual" name="id_punto_stock_actual">
                                     <option value="">Sin asignar</option>
@@ -773,9 +773,9 @@ $(document).ready(function() {
         }
         // Mostrar card de extras notebook debajo de Información Común
         if (tipo === 'Notebook') {
-            $('#extras-notebook').slideDown(150);
+            $('#extras-notebook').show(); // Cambiado de slideDown a show para evitar problemas de validación
         } else {
-            $('#extras-notebook').slideUp(150);
+            $('#extras-notebook').hide(); // Cambiado de slideUp a hide
             $('#micro_sd').prop('checked', false);
             $('#micro_sd_gb').prop('disabled', true).val('');
         }
@@ -819,11 +819,18 @@ $(document).ready(function() {
             $('#invalid-nombre-insumo').text('El nombre del insumo es obligatorio');
             $('#nombre_insumo').prop('required', true);
             $('#help-nombre-insumo').show(); // Mostrar help text solo para Varios
+            
+            // Ocultar campo Punto de Almacenamiento para tipo Varios
+            $('#campo-punto-almacenamiento').hide();
+            $('#id_punto_stock_actual').val(''); // Limpiar valor para que se guarde como NULL
         } else if (tipo !== '') {
             $('#label-nombre-insumo').text('Descripción');
             $('#invalid-nombre-insumo').text('La descripción es opcional');
             $('#nombre_insumo').prop('required', false);
             $('#help-nombre-insumo').hide(); // Ocultar help text para otros tipos
+            
+            // Mostrar campo Punto de Almacenamiento para otros tipos
+            $('#campo-punto-almacenamiento').show();
         }
         
         if (tipo === 'Varios') {

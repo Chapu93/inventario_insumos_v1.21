@@ -71,12 +71,14 @@ $tipos_insumo = $stmt->fetchAll();
                 <i class="fas fa-boxes me-2"></i>Gestión de Insumos
             </h1>
             <div class="btn-group">
+                <?php if (tienePermiso('insumos', 'crear')): ?>
                 <a href="agregar.php" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>Agregar Insumo
                 </a>
                 <a href="agregar_nueva.php" class="btn btn-secondary">
                     <i class="fas fa-plus-square me-2"></i>Agregar Insumo Asignado
                 </a>
+                <?php endif; ?>
                 <button type="button" class="btn btn-info" id="btnPlanillaRelevamiento">
                     <i class="fas fa-file-pdf me-2"></i>Planilla de Relevamiento
                 </button>

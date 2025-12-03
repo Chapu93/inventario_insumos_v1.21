@@ -358,7 +358,7 @@ include '../../includes/header.php';
                                 <input type="text" class="form-control form-control-sm" value="<?php echo htmlspecialchars($insumo['estado']); ?>" disabled>
                                 <small class="text-muted">El estado no se modifica desde esta pantalla.</small>
                             </div>
-                            <div class="mb-2">
+                            <div class="mb-2" id="campo-punto-almacenamiento" <?php echo ($tipo_insumo === 'Varios') ? 'style="display:none;"' : ''; ?>>
                                 <label for="id_punto_stock_actual" class="form-label">Punto de Almacenamiento</label>
                                 <select class="form-select form-select-sm" id="id_punto_stock_actual" name="id_punto_stock_actual">
                                     <option value="">Sin asignar</option>

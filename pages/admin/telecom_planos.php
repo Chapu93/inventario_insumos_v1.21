@@ -78,7 +78,9 @@ include '../../includes/header.php';
 <div class="row">
   <div class="col-12 d-flex justify-content-between align-items-center mb-4">
     <h1><i class="fas fa-draw-polygon me-2"></i>Planos de Sede</h1>
+    <?php if (tienePermiso('telecom', 'editar')): ?>
     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalPlano"><i class="fas fa-upload me-2"></i>Subir Plano</button>
+    <?php endif; ?>
   </div>
 </div>
 
