@@ -36,7 +36,7 @@ verificarPermiso('auditoria', 'ver_todo');
                 </select>
             </div>
             
-            <div class="col-md-2">
+            <div class="col-md-3">
                 <label for="filtroModulo" class="form-label"><i class="fas fa-th-large me-1"></i>Módulo</label>
                 <select class="form-select" id="filtroModulo">
                     <option value="">Todos los módulos</option>
@@ -59,7 +59,7 @@ verificarPermiso('auditoria', 'ver_todo');
                 </select>
             </div>
             
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <label for="filtroFechaDesde" class="form-label"><i class="fas fa-calendar me-1"></i>Desde</label>
                 <input type="date" class="form-control" id="filtroFechaDesde">
             </div>

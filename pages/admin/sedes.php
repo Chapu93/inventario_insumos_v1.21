@@ -99,6 +99,17 @@ $localidades = $stmt->fetchAll();
 
 <?php include '../../includes/header.php'; ?>
 
+<div class="row">
+    <div class="col-12 d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="fas fa-building me-2"></i>Gestión de Sedes</h1>
+        <?php if (tienePermiso('sedes', 'crear')): ?>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalSede" onclick="$('#modalSedeTitle').text('Agregar Sede'); $('#accion').val('agregar'); $('#formSede')[0].reset();">
+            <i class="fas fa-plus me-2"></i>Agregar Sede
+        </button>
+        <?php endif; ?>
+    </div>
+</div>
+
 <div class="card">
     <div class="card-header">
         <h5 class="mb-0">
@@ -269,6 +280,35 @@ function editarSede(sede) {
     $('#modalSede').modal('show');
 }
 
+function eliminarItem(id, tipo) {
+    if (confirm("¿Está seguro de que desea eliminar esta sede?")) {
+        var form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '<?php echo app_base_url(); ?>/pages/insumos/eliminar.php';
+        
+        var inputId = document.createElement('input');
+        inputId.type = 'hidden';
+        inputId.name = 'id';
+        inputId.value = id;
+        
+        var inputTipo = document.createElement('input');
+        inputTipo.type = 'hidden';
+        inputTipo.name = 'tipo';
+        inputTipo.value = tipo;
+        
+        var inputCsrf = document.createElement('input');
+        inputCsrf.type = 'hidden';
+        inputCsrf.name = '_csrf';
+        inputCsrf.value = '<?php echo csrf_token(); ?>';
+        
+        form.appendChild(inputId);
+        form.appendChild(inputTipo);
+        form.appendChild(inputCsrf);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
 // Resetear modal al cerrar
 $('#modalSede').on('hidden.bs.modal', function () {
     $('#modalSedeTitle').text('Agregar Sede');
@@ -324,4 +364,4 @@ document.addEventListener('DOMContentLoaded', function(){
     min-width: 110px;
 }
 </style>
-<?php include '../../includes/footer.php'; ?> 
+<?php include '../../includes/footer.php'; ?>

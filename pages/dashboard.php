@@ -75,8 +75,6 @@ $stockTotales = $conexion->query("
 $totalStockOficina = (int)($stockTotales['oficina'] ?? 0);
 $totalStockDeposito = (int)($stockTotales['deposito'] ?? 0);
 $totalStockSistema = $totalStockOficina + $totalStockDeposito;
-
-// (Se eliminó 'Insumos por Sede' del dashboard)
 ?>
 <?php include '../includes/header.php'; ?>
 
@@ -147,10 +145,10 @@ $totalStockSistema = $totalStockOficina + $totalStockDeposito;
     </div>
 </div>
 
-<div class="row">
+<div class="row mb-4">
     <!-- Asignaciones recientes -->
     <div class="col-md-6">
-        <div class="card">
+        <div class="card h-100">
             <div class="card-header">
                 <h5 class="mb-0">
                     <i class="fas fa-clock me-2"></i>Asignaciones Recientes
@@ -178,7 +176,7 @@ $totalStockSistema = $totalStockOficina + $totalStockDeposito;
     
     <!-- Tabla: Stock Total Varios (Oficina + Depósito) -->
     <div class="col-md-6">
-        <div class="card">
+        <div class="card h-100">
             <div class="card-header">
                 <h5 class="mb-0">
                     <i class="fas fa-warehouse me-2"></i>Stock Varios
@@ -195,7 +193,7 @@ $totalStockSistema = $totalStockOficina + $totalStockDeposito;
                     </div>
                     <div class="col-4">
                         <div class="p-2 bg-light rounded">
-                            <i class="fas fa-warehouse text-primary fa-2x mb-2"></i>
+                            <i class="fas fa-warehouse text-success fa-2x mb-2"></i>
                             <h4 class="mb-0"><?php echo (int)$totalStockDeposito; ?></h4>
                             <small class="text-muted">Depósito</small>
                         </div>
@@ -223,19 +221,19 @@ $totalStockSistema = $totalStockOficina + $totalStockDeposito;
                             <tr>
                                 <td><strong>Periféricos</strong></td>
                                 <td class="text-center"><span class="badge bg-success"><?php echo $varios_subtipos['Periféricos']['oficina']; ?></span></td>
-                                <td class="text-center"><span class="badge bg-primary"><?php echo $varios_subtipos['Periféricos']['deposito']; ?></span></td>
+                                <td class="text-center"><span class="badge bg-success"><?php echo $varios_subtipos['Periféricos']['deposito']; ?></span></td>
                                 <td class="text-center"><span class="badge bg-info"><?php echo $varios_subtipos['Periféricos']['total']; ?></span></td>
                             </tr>
                             <tr>
                                 <td><strong>Hardware</strong></td>
                                 <td class="text-center"><span class="badge bg-success"><?php echo $varios_subtipos['Hardware']['oficina']; ?></span></td>
-                                <td class="text-center"><span class="badge bg-primary"><?php echo $varios_subtipos['Hardware']['deposito']; ?></span></td>
+                                <td class="text-center"><span class="badge bg-success"><?php echo $varios_subtipos['Hardware']['deposito']; ?></span></td>
                                 <td class="text-center"><span class="badge bg-info"><?php echo $varios_subtipos['Hardware']['total']; ?></span></td>
                             </tr>
                             <tr>
                                 <td><strong>Red</strong></td>
                                 <td class="text-center"><span class="badge bg-success"><?php echo $varios_subtipos['Red']['oficina']; ?></span></td>
-                                <td class="text-center"><span class="badge bg-primary"><?php echo $varios_subtipos['Red']['deposito']; ?></span></td>
+                                <td class="text-center"><span class="badge bg-success"><?php echo $varios_subtipos['Red']['deposito']; ?></span></td>
                                 <td class="text-center"><span class="badge bg-info"><?php echo $varios_subtipos['Red']['total']; ?></span></td>
                             </tr>
                         </tbody>
@@ -246,47 +244,42 @@ $totalStockSistema = $totalStockOficina + $totalStockDeposito;
     </div>
 </div>
 
-<!-- Se eliminó la sección 'Insumos por Sede' -->
-
-<!-- Acciones rápidas -->
-<div class="row mt-4">
+<!-- Acciones Rápidas -->
+<div class="row mb-4">
     <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-bolt me-2"></i>Acciones Rápidas
-                </h5>
+        <div class="card bg-light">
+            <div class="card-header border-0 bg-transparent">
+                <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Acciones Rápidas</h5>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3 mb-3">
-                        <a href="insumos/agregar.php" class="btn btn-primary w-100">
-                            <i class="fas fa-plus me-2"></i>Agregar Insumo
-                        </a>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <a href="asignaciones/nueva_pasos.php" class="btn btn-success w-100">
-                            <i class="fas fa-clipboard-check me-2"></i>Nueva Asignación
-                        </a>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <a href="insumos/listar.php" class="btn btn-info w-100">
-                            <i class="fas fa-list me-2"></i>Ver Insumos
-                        </a>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <a href="asignaciones/listar.php" class="btn btn-warning w-100">
-                            <i class="fas fa-clipboard-list me-2"></i>Ver Asignaciones
-                        </a>
-                    </div>
+            <div class="card-body pt-0">
+                <div class="d-flex gap-3 flex-wrap">
+                    <?php if (tienePermiso('insumos', 'crear')): ?>
+                    <a href="<?php echo app_base_url(); ?>/pages/insumos/crear.php" class="btn text-white flex-grow-1 py-2" style="background-color: #5a7c59; border-color: #5a7c59;">
+                        <i class="fas fa-plus me-2"></i>Agregar Insumo
+                    </a>
+                    <?php endif; ?>
+                    
+                    <?php if (tienePermiso('asignaciones', 'crear')): ?>
+                    <a href="<?php echo app_base_url(); ?>/pages/asignaciones/crear.php" class="btn text-white flex-grow-1 py-2" style="background-color: #66a86a; border-color: #66a86a;">
+                        <i class="fas fa-file-alt me-2"></i>Nueva Asignación
+                    </a>
+                    <?php endif; ?>
+                    
+                    <?php if (tienePermiso('insumos', 'ver')): ?>
+                    <a href="<?php echo app_base_url(); ?>/pages/insumos/listar.php" class="btn text-white flex-grow-1 py-2" style="background-color: #4a9d95; border-color: #4a9d95;">
+                        <i class="fas fa-list me-2"></i>Ver Insumos
+                    </a>
+                    <?php endif; ?>
+
+                    <?php if (tienePermiso('asignaciones', 'ver')): ?>
+                    <a href="<?php echo app_base_url(); ?>/pages/asignaciones/listar.php" class="btn text-white flex-grow-1 py-2" style="background-color: #d9943f; border-color: #d9943f;">
+                        <i class="fas fa-clipboard-list me-2"></i>Ver Asignaciones
+                    </a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<script>
-// (Sin gráfico de 'Insumos por Sede')
-</script>
-
-<?php include '../includes/footer.php'; ?> 
+<?php include '../includes/footer.php'; ?>

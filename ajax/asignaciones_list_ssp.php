@@ -99,7 +99,7 @@ try {
         $puedeVer = tienePermiso('asignaciones', 'ver');
         $puedeImprimir = tienePermiso('asignaciones', 'ver'); // Same permission as ver
         $puedeDevolver = tienePermiso('asignaciones', 'devolver');
-        $puedeEliminar = tienePermiso('asignaciones', 'eliminar');
+        $puedeEliminar = tienePermiso('asignaciones', 'anular');
         
         // Construir botones solo si hay permisos
         $botones = [];

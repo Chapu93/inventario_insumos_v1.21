@@ -69,6 +69,16 @@ include '../../includes/header.php';
             <td><?php $e=$r['estado']; $cls=$e==='Activo'?'estado-activa':'estado-baja'; ?><span class="badge <?php echo $cls; ?>"><?php echo $e; ?></span></td>
             <td>
               <div class="btn-group" role="group">
+                <?php if (tienePermiso('telecom', 'ver')): ?>
+                <button class="btn btn-sm btn-info btn-view-red" 
+                        data-bs-toggle="tooltip" 
+                        title="Ver detalles"
+                        aria-label="Ver detalles" 
+                        data-row='<?php echo json_encode($r, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT); ?>'>
+                  <i class="fas fa-eye" aria-hidden="true"></i>
+                </button>
+                <?php endif; ?>
+                
                 <?php if (tienePermiso('telecom', 'editar')): ?>
                 <button class="btn btn-sm btn-warning btn-edit-red" 
                         data-bs-toggle="tooltip" 
@@ -111,6 +121,70 @@ include '../../includes/header.php';
     </div>
   </div>
 </div>
+
+<!-- Modal Ver Detalles -->
+<div class="modal fade" id="modalVerRed" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
+  <div class="modal-header bg-light">
+    <h5 class="modal-title"><i class="fas fa-info-circle me-2"></i>Detalles del Dispositivo</h5>
+    <button class="btn-close" data-bs-dismiss="modal"></button>
+  </div>
+  <div class="modal-body bg-light">
+    <!-- Ubicación -->
+    <div class="mb-4">
+      <h6 class="text-success mb-3"><i class="fas fa-map-marker-alt me-2"></i>Ubicación</h6>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label text-muted small mb-1">Localidad:</label>
+          <p class="mb-0 fw-bold" id="view_localidad"></p>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label text-muted small mb-1">Sede:</label>
+          <p class="mb-0 fw-bold" id="view_sede"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Información del Dispositivo -->
+    <div class="mb-4">
+      <h6 class="text-success mb-3"><i class="fas fa-network-wired me-2"></i>Información del Dispositivo</h6>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label text-muted small mb-1">Tipo:</label>
+          <p class="mb-0"><span class="badge bg-info" id="view_tipo"></span></p>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label text-muted small mb-1">Marca:</label>
+          <p class="mb-0" id="view_marca"></p>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label text-muted small mb-1">Modelo:</label>
+          <p class="mb-0" id="view_modelo"></p>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label text-muted small mb-1">Cantidad:</label>
+          <p class="mb-0"><span class="badge bg-dark" id="view_cantidad"></span></p>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label text-muted small mb-1">Ubicación:</label>
+          <p class="mb-0" id="view_ubicacion"></p>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label text-muted small mb-1">Estado:</label>
+          <p class="mb-0"><span id="view_estado_badge"></span></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Observaciones -->
+    <div id="view_obs_container" style="display:none;">
+      <h6 class="text-success mb-3"><i class="fas fa-comment-dots me-2"></i>Observaciones</h6>
+      <p class="mb-0" id="view_observaciones"></p>
+    </div>
+  </div>
+  <div class="modal-footer bg-light">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cerrar</button>
+  </div>
+</div></div></div>
 
 <div class="modal fade" id="modalRed" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
   <div class="modal-header"><h5 class="modal-title" id="modalRedTitle">Agregar Dispositivo</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
@@ -158,6 +232,29 @@ include '../../includes/header.php';
 </form>
 
 <script>
+function viewRed(r){
+  $('#view_localidad').text(r.nombre_localidad || '-');
+  $('#view_sede').text(r.nombre_sede || '-');
+  $('#view_tipo').text(r.tipo_dispositivo || '-');
+  $('#view_marca').text(r.marca || '-');
+  $('#view_modelo').text(r.modelo || '-');
+  $('#view_cantidad').text(r.cantidad || '-');
+  $('#view_ubicacion').text(r.ubicacion || '-');
+  
+  // Estado con badge de color
+  const estado = r.estado || '-';
+  const estadoClass = estado === 'Activo' ? 'estado-activa' : 'estado-baja';
+  $('#view_estado_badge').html(`<span class="badge ${estadoClass}">${estado}</span>`);
+  
+  if (r.observaciones && r.observaciones.trim()) {
+    $('#view_observaciones').text(r.observaciones);
+    $('#view_obs_container').show();
+  } else {
+    $('#view_obs_container').hide();
+  }
+  new bootstrap.Modal(document.getElementById('modalVerRed')).show();
+}
+
 function editRed(r){
   console.log('editRed llamado', r);
   $('#modalRedTitle').text('Editar Dispositivo'); $('#accion').val('editar');
@@ -195,6 +292,18 @@ $(function(){
   cargarLocalidades();
   $('#id_localidad').on('change', function(){ cargarSedes($(this).val()); });
   
+  // Event delegation para botones de ver
+  $(document).on('click', '.btn-view-red', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      var data = $(this).data('row');
+      viewRed(data);
+    } catch(err) {
+      console.error('Error al ver:', err);
+    }
+  });
+  
   // Event delegation para botones de editar (evita problema con tooltips)
   $(document).on('click', '.btn-edit-red', function(e) {
     e.preventDefault();
@@ -211,4 +320,3 @@ $(function(){
 </script>
 
 <?php include '../../includes/footer.php'; ?>
-

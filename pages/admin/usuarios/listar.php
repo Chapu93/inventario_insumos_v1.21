@@ -79,48 +79,59 @@ verificarPermiso('usuarios', 'ver');
                                     <span class="badge bg-secondary">Inactivo</span>
                                 <?php endif; ?>
                             </td>
-                            <td>
-                                <?php if (tienePermiso('usuarios', 'editar')): ?>
-                                    <a href="editar.php?id=<?php echo $user['id_usuario']; ?>" 
-                                       class="btn btn-sm btn-outline-primary" 
-                                       data-bs-toggle="tooltip" 
-                                       title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                <?php endif; ?>
-                                
-                                <?php if (tienePermiso('usuarios', 'cambiar_rol') && !$esYo): ?>
-                                    <button type="button" 
-                                            class="btn btn-sm btn-outline-warning btn-cambiar-rol" 
-                                            data-id="<?php echo $user['id_usuario']; ?>"
-                                            data-nombre="<?php echo $nombreCompleto; ?>"
-                                            data-rol-actual="<?php echo $user['id_rol']; ?>"
-                                            data-bs-toggle="tooltip" 
-                                            title="Cambiar Rol">
-                                        <i class="fas fa-user-tag"></i>
-                                    </button>
-                                <?php endif; ?>
-                                
-                                <?php if (tienePermiso('usuarios', 'editar')): ?>
-                                    <a href="permisos.php?id=<?php echo $user['id_usuario']; ?>" 
-                                       class="btn btn-sm btn-outline-info" 
-                                       data-bs-toggle="tooltip" 
-                                       title="Gestionar Permisos">
-                                        <i class="fas fa-user-lock"></i>
-                                    </a>
-                                <?php endif; ?>
+                            <td class="text-nowrap">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <?php if (tienePermiso('usuarios', 'editar')): ?>
+                                        <a href="editar.php?id=<?php echo $user['id_usuario']; ?>" 
+                                           class="btn btn-warning" 
+                                           data-bs-toggle="tooltip" 
+                                           title="Editar">
+                                            <i class="fas fa-edit text-dark"></i>
+                                        </a>
+                                    <?php endif; ?>
                                     
-                                <?php if (tienePermiso('usuarios', 'editar') && !$esYo): ?>
-                                    <button type="button" 
-                                            class="btn btn-sm btn-outline-<?php echo $activo ? 'secondary' : 'success'; ?> btn-toggle-estado" 
-                                            data-id="<?php echo $user['id_usuario']; ?>"
-                                            data-nombre="<?php echo $nombreCompleto; ?>"
-                                            data-activo="<?php echo $activo; ?>"
-                                            data-bs-toggle="tooltip" 
-                                            title="<?php echo $activo ? 'Desactivar' : 'Activar'; ?>">
-                                        <i class="fas fa-<?php echo $activo ? 'user-slash' : 'user-check'; ?>"></i>
-                                    </button>
-                                <?php endif; ?>
+                                    <?php if (tienePermiso('usuarios', 'cambiar_rol') && !$esYo): ?>
+                                        <button type="button" 
+                                                class="btn btn-success btn-cambiar-rol" 
+                                                data-id="<?php echo $user['id_usuario']; ?>"
+                                                data-nombre="<?php echo $nombreCompleto; ?>"
+                                                data-rol-actual="<?php echo $user['id_rol']; ?>"
+                                                data-bs-toggle="tooltip" 
+                                                title="Cambiar Rol">
+                                            <i class="fas fa-exchange-alt"></i>
+                                        </button>
+                                    <?php endif; ?>
+                                    
+                                    <?php if (tienePermiso('usuarios', 'editar')): ?>
+                                        <a href="permisos.php?id=<?php echo $user['id_usuario']; ?>" 
+                                           class="btn btn-info" 
+                                           data-bs-toggle="tooltip" 
+                                           title="Gestionar Permisos">
+                                            <i class="fas fa-eye text-white"></i>
+                                        </a>
+                                    <?php endif; ?>
+
+                                    <?php if (tienePermiso('usuarios', 'reset_password')): ?>
+                                        <a href="reset_password.php?id=<?php echo $user['id_usuario']; ?>" 
+                                           class="btn btn-light border" 
+                                           data-bs-toggle="tooltip" 
+                                           title="Restablecer Contraseña">
+                                            <i class="fas fa-key text-warning"></i>
+                                        </a>
+                                    <?php endif; ?>
+                                        
+                                    <?php if (tienePermiso('usuarios', 'editar') && !$esYo): ?>
+                                        <button type="button" 
+                                                class="btn btn-<?php echo $activo ? 'danger' : 'success'; ?> btn-toggle-estado" 
+                                                data-id="<?php echo $user['id_usuario']; ?>"
+                                                data-nombre="<?php echo $nombreCompleto; ?>"
+                                                data-activo="<?php echo $activo; ?>"
+                                                data-bs-toggle="tooltip" 
+                                                title="<?php echo $activo ? 'Desactivar' : 'Activar'; ?>">
+                                            <i class="fas fa-<?php echo $activo ? 'trash-alt' : 'check'; ?>"></i>
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
                             </td>
                         </tr>
                     <?php 

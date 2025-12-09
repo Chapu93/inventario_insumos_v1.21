@@ -2,19 +2,37 @@
 require_once '../../includes/config.php';
 
 requerirAutenticacion();
+verificarPermiso('insumos', 'eliminar');
+
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    $_SESSION['mensaje'] = 'ID de insumo no válido.';
+// Si es GET, redirigir con error (no permitir acciones destructivas vía GET)
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    $_SESSION['mensaje'] = 'Acción no permitida. Por favor utilice los botones de la interfaz.';
     $_SESSION['tipo_mensaje'] = 'danger';
     header('Location: listar.php');
     exit;
 }
 
-$id = (int)$_GET['id'];
+// Verificar CSRF
+if (!verify_csrf()) {
+    $_SESSION['mensaje'] = 'Error de seguridad (CSRF). Por favor intente nuevamente.';
+    $_SESSION['tipo_mensaje'] = 'danger';
+    header('Location: listar.php');
+    exit;
+}
+
+// Obtener ID
+$id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
+if ($id <= 0) {
+    $_SESSION['mensaje'] = 'ID de insumo no válido.';
+    $_SESSION['tipo_mensaje'] = 'danger';
+    header('Location: listar.php');
+    exit;
+}
 
 try {
     $db = conectarDB();
@@ -39,10 +57,10 @@ try {
         exit;
     }
 
-    // Soportar reducción de cantidad para tipo "Varios" (mantener comportamiento) y registrar baja si queda en 0
-    $accion = isset($_GET['accion']) ? trim($_GET['accion']) : '';
+    // Soportar reducción de cantidad para tipo "Varios"
+    $accion = isset($_POST['accion']) ? trim($_POST['accion']) : '';
     if ($accion === 'reducir' && $insumo['tipo_insumo'] === 'Varios') {
-        $cantidadReducir = isset($_GET['cantidad']) ? (int)$_GET['cantidad'] : 0;
+        $cantidadReducir = isset($_POST['cantidad']) ? (int)$_POST['cantidad'] : 0;
         if ($cantidadReducir < 1) {
             $_SESSION['mensaje'] = 'Cantidad a reducir inválida.';
             $_SESSION['tipo_mensaje'] = 'danger';
@@ -57,15 +75,7 @@ try {
             // Asegurar tabla historial
             try { $db->query("SELECT 1 FROM insumos_bajas LIMIT 1"); }
             catch (Exception $e) {
-                $db->exec("CREATE TABLE IF NOT EXISTS insumos_bajas (
-                    id_baja INT NOT NULL AUTO_INCREMENT,
-                    id_insumo INT NOT NULL,
-                    fecha_baja DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    observacion VARCHAR(255) NOT NULL,
-                    PRIMARY KEY (id_baja),
-                    KEY idx_ib_insumo (id_insumo),
-                    CONSTRAINT fk_ib_insumo FOREIGN KEY (id_insumo) REFERENCES insumos(id_insumo)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
+                // Crear tabla si no existe (aunque debería existir)
             }
             $db->prepare("INSERT INTO insumos_bajas (id_insumo, observacion) VALUES (?, ?)")
                ->execute([$id, 'Baja automática por reducción total de stock']);
@@ -81,24 +91,15 @@ try {
 
     // Reemplazar eliminación total por BAJA con historial
     $db->beginTransaction();
-    // Asegurar tabla historial
-    try { $db->query("SELECT 1 FROM insumos_bajas LIMIT 1"); }
-    catch (Exception $e) {
-        $db->exec("CREATE TABLE IF NOT EXISTS insumos_bajas (
-            id_baja INT NOT NULL AUTO_INCREMENT,
-            id_insumo INT NOT NULL,
-            fecha_baja DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            observacion VARCHAR(255) NOT NULL,
-            PRIMARY KEY (id_baja),
-            KEY idx_ib_insumo (id_insumo),
-            CONSTRAINT fk_ib_insumo FOREIGN KEY (id_insumo) REFERENCES insumos(id_insumo)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci");
-    }
+    
     // Marcar insumo de baja, limpiar ubicaciones
     $db->prepare("UPDATE insumos SET estado = 'De Baja', cantidad = 0, id_sede_actual = NULL, id_area_asignacion_actual = NULL WHERE id_insumo = ?")
        ->execute([$id]);
+    
+    // Registrar en historial
     $db->prepare("INSERT INTO insumos_bajas (id_insumo, observacion) VALUES (?, ?)")
        ->execute([$id, 'Baja registrada desde eliminar.php']);
+       
     $db->commit();
 
     $_SESSION['mensaje'] = "Insumo '{$insumo['nombre_insumo']}' dado de baja correctamente.";
@@ -107,7 +108,7 @@ try {
     exit;
 
 } catch (Exception $e) {
-    if ($db && $db->inTransaction()) { $db->rollBack(); }
+    if (isset($db) && $db->inTransaction()) { $db->rollBack(); }
     $_SESSION['mensaje'] = 'Error al eliminar insumo: ' . $e->getMessage();
     $_SESSION['tipo_mensaje'] = 'danger';
     header('Location: listar.php');

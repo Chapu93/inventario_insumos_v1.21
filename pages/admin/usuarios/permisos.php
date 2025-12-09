@@ -81,7 +81,8 @@ $modulosDisponibles = [
             'crear' => 'Crear nuevo',
             'editar' => 'Editar',
             'eliminar' => 'Eliminar',
-            'cambiar_rol' => 'Cambiar rol'
+            'cambiar_rol' => 'Cambiar rol',
+            'reset_password' => 'Restablecer contraseña'
         ]
     ],
     'auditoria' => [
@@ -91,18 +92,26 @@ $modulosDisponibles = [
             'ver_todo' => 'Ver todo'
         ]
     ],
-    'telecom' => [
-        'nombre' => 'Telecomunicaciones',
-        'icono' => 'fas fa-wifi',
+    'sedes' => [
+        'nombre' => 'Sedes',
+        'icono' => 'fas fa-building',
         'acciones' => [
-            'ver' => 'Ver',
+            'ver' => 'Ver listado',
+            'crear' => 'Crear nueva',
             'editar' => 'Editar',
             'eliminar' => 'Eliminar'
         ]
     ],
-    'sedes' => [
-        'nombre' => 'Sedes',
-        'icono' => 'fas fa-building',
+    'sistema' => [
+        'nombre' => 'Sistema',
+        'icono' => 'fas fa-cogs',
+        'acciones' => [
+            'backup' => 'Generar Backup'
+        ]
+    ],
+    'telecom' => [
+        'nombre' => 'Telecomunicaciones',
+        'icono' => 'fas fa-wifi',
         'acciones' => [
             'ver' => 'Ver',
             'crear' => 'Crear',

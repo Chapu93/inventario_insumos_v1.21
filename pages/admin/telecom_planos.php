@@ -109,19 +109,31 @@ include '../../includes/header.php';
               </a>
             </td>
             <td>
-              <?php if (tienePermiso('telecom', 'eliminar')): ?>
-              <form method="POST" onsubmit="return confirm('¿Eliminar plano?');" style="display:inline">
-                <input type="hidden" name="accion" value="eliminar">
-                <input type="hidden" name="id_plano" value="<?php echo (int)$p['id_plano']; ?>">
-                <?php echo csrf_input(); ?>
-                <button class="btn btn-sm btn-danger" 
+              <div class="btn-group" role="group">
+                <?php if (tienePermiso('telecom', 'ver')): ?>
+                <button class="btn btn-sm btn-info btn-view-plano" 
                         data-bs-toggle="tooltip" 
-                        title="Eliminar plano"
-                        aria-label="Eliminar plano">
-                  <i class="fas fa-trash" aria-hidden="true"></i>
+                        title="Ver detalles"
+                        aria-label="Ver detalles" 
+                        data-row='<?php echo json_encode($p, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT); ?>'>
+                  <i class="fas fa-eye" aria-hidden="true"></i>
                 </button>
-              </form>
-              <?php endif; ?>
+                <?php endif; ?>
+                
+                <?php if (tienePermiso('telecom', 'eliminar')): ?>
+                <form method="POST" onsubmit="return confirm('¿Eliminar plano?');" style="display:inline">
+                  <input type="hidden" name="accion" value="eliminar">
+                  <input type="hidden" name="id_plano" value="<?php echo (int)$p['id_plano']; ?>">
+                  <?php echo csrf_input(); ?>
+                  <button class="btn btn-sm btn-danger" 
+                          data-bs-toggle="tooltip" 
+                          title="Eliminar plano"
+                          aria-label="Eliminar plano">
+                    <i class="fas fa-trash" aria-hidden="true"></i>
+                  </button>
+                </form>
+                <?php endif; ?>
+              </div>
             </td>
           </tr>
           <?php endforeach; ?>
@@ -130,6 +142,69 @@ include '../../includes/header.php';
     </div>
   </div>
 </div>
+
+<!-- Modal Ver Detalles -->
+<div class="modal fade" id="modalVerPlano" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
+  <div class="modal-header bg-light">
+    <h5 class="modal-title"><i class="fas fa-info-circle me-2"></i>Detalles del Plano</h5>
+    <button class="btn-close" data-bs-dismiss="modal"></button>
+  </div>
+  <div class="modal-body bg-light">
+    <!-- Ubicación -->
+    <div class="mb-4">
+      <h6 class="text-success mb-3"><i class="fas fa-map-marker-alt me-2"></i>Ubicación</h6>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label text-muted small mb-1">Localidad:</label>
+          <p class="mb-0 fw-bold" id="view_plano_localidad"></p>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label text-muted small mb-1">Sede:</label>
+          <p class="mb-0 fw-bold" id="view_plano_sede"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Información del Plano -->
+    <div class="mb-4">
+      <h6 class="text-success mb-3"><i class="fas fa-draw-polygon me-2"></i>Información del Plano</h6>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label text-muted small mb-1">Tipo:</label>
+          <p class="mb-0"><span class="badge bg-info" id="view_plano_tipo"></span></p>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label text-muted small mb-1"><i class="fas fa-calendar me-1"></i>Fecha de Subida:</label>
+          <p class="mb-0" id="view_plano_fecha"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Descripción -->
+    <div class="mb-4" id="view_plano_desc_container" style="display:none;">
+      <h6 class="text-success mb-3"><i class="fas fa-comment-dots me-2"></i>Descripción</h6>
+      <p class="mb-0" id="view_plano_descripcion"></p>
+    </div>
+
+    <!-- Documentación -->
+    <div>
+      <h6 class="text-success mb-3"><i class="fas fa-file me-2"></i>Documentación</h6>
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label text-muted small mb-1">Archivo de Plano:</label>
+          <p class="mb-0">
+            <a id="view_plano_archivo" href="#" target="_blank" class="btn btn-sm btn-outline-danger">
+              <i class="fas fa-file-pdf me-2"></i>Descargar PDF
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer bg-light">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cerrar</button>
+  </div>
+</div></div></div>
 
 <div class="modal fade" id="modalPlano" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
   <div class="modal-header"><h5 class="modal-title">Subir Plano</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
@@ -167,6 +242,19 @@ $(function(){
   cargarLocalidades();
   $('#id_localidad').on('change', function(){ cargarSedes($(this).val()); });
   $('form.needs-validation').on('submit', function(e){ if(!this.checkValidity()){ e.preventDefault(); e.stopPropagation(); } $(this).addClass('was-validated'); });
+  
+  // Event delegation para botones de ver
+  $(document).on('click', '.btn-view-plano', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      var data = $(this).data('row');
+      viewPlano(data);
+    } catch(err) {
+      console.error('Error al ver:', err);
+    }
+  });
+  
   // Apertura con parámetros
   const url = new URL(window.location.href);
   const qLoc = url.searchParams.get('id_localidad');
@@ -179,6 +267,23 @@ $(function(){
     });
   }
 });
+
+function viewPlano(p){
+  $('#view_plano_localidad').text(p.nombre_localidad || '-');
+  $('#view_plano_sede').text(p.nombre_sede || '-');
+  $('#view_plano_tipo').text(p.tipo_plano || '-');
+  $('#view_plano_fecha').text(p.fecha_subida ? new Date(p.fecha_subida).toLocaleString('es-AR') : '-');
+  if (p.descripcion && p.descripcion.trim()) {
+    $('#view_plano_descripcion').text(p.descripcion);
+    $('#view_plano_desc_container').show();
+  } else {
+    $('#view_plano_desc_container').hide();
+  }
+  if (p.archivo) {
+    $('#view_plano_archivo').attr('href', BASE + '/' + p.archivo);
+  }
+  new bootstrap.Modal(document.getElementById('modalVerPlano')).show();
+}
 </script>
 
 <?php include '../../includes/footer.php'; ?>

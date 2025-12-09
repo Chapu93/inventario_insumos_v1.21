@@ -1,6 +1,15 @@
-.modal #tablaDevolucion { width: 100%; }
-.modal #tablaDevolucion thead th { white-space: nowrap; }
-.modal #tablaDevolucion input[type=number] { max-width: 90px; }
+.modal #tablaDevolucion {
+    width: 100%;
+}
+
+.modal #tablaDevolucion thead th {
+    white-space: nowrap;
+}
+
+.modal #tablaDevolucion input[type=number] {
+    max-width: 90px;
+}
+
 .badge.bg-info {
     background-color: var(--info-color) !important;
     color: #fff !important;
@@ -13,7 +22,8 @@
     padding: 12px 15px;
     font-size: 0.85rem;
     box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.2);
-    margin-top: 30px; /* Separación con el contenido */
+    margin-top: 30px;
+    /* Separación con el contenido */
     width: 100%;
 }
 
@@ -34,8 +44,9 @@
     flex-direction: column;
 }
 
-#content > .container-fluid {
-    flex: 1 0 auto; /* Crece para tomar espacio disponible */
+#content>.container-fluid {
+    flex: 1 0 auto;
+    /* Crece para tomar espacio disponible */
 }
 
 /* Responsive: Tablets y móviles grandes */
@@ -54,7 +65,7 @@
         padding: 8px 10px;
         margin-top: 20px;
     }
-    
+
     .app-footer p {
         margin-bottom: 0.25rem;
         line-height: 1.4;
@@ -68,7 +79,7 @@
         padding: 7px 8px;
         margin-top: 20px;
     }
-    
+
     .app-footer p {
         margin-bottom: 0.2rem;
         line-height: 1.3;
@@ -82,7 +93,8 @@
 /* Tooltip personalizado */
 .tooltip {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    z-index: 1070 !important; /* Por encima de modales */
+    z-index: 1070 !important;
+    /* Por encima de modales */
 }
 
 .tooltip .tooltip-inner {
@@ -176,13 +188,18 @@
 /* Estilos personalizados para el sistema de inventario */
 
 :root {
-    --primary-color: #5a9367; /* verde medio (principal) */
-    --primary-color-hover: #44633f; /* verde más oscuro (hover) */
+    --primary-color: #5a9367;
+    /* verde medio (principal) */
+    --primary-color-hover: #44633f;
+    /* verde más oscuro (hover) */
     --secondary-color: #ffffff;
-    --success-color: #5cab7d; /* verde éxito */
-    --warning-color: #e3a542; /* amarillo suave */
+    --success-color: #5cab7d;
+    /* verde éxito */
+    --warning-color: #e3a542;
+    /* amarillo suave */
     --danger-color: #cc0000;
-    --info-color: #4aa79b; /* turquesa suavizado */
+    --info-color: #4aa79b;
+    /* turquesa suavizado */
     --info-color-hover: #3b8b82;
     --light-color: #f8f9fa;
     --dark-color: #212529;
@@ -262,19 +279,20 @@ body {
     border-left-color: #fff;
 }
 
-.sidebar .components li > a.active,
-.sidebar .components li > a[aria-expanded="true"] {
+.sidebar .components li>a.active,
+.sidebar .components li>a[aria-expanded="true"] {
     background: rgba(255, 255, 255, 0.1);
 }
-.sidebar .components li > a.active::before,
-.sidebar .components li > a[aria-expanded="true"]::before {
+
+.sidebar .components li>a.active::before,
+.sidebar .components li>a[aria-expanded="true"]::before {
     content: '';
     position: absolute;
     left: 0;
     top: 0;
     bottom: 0;
     width: 4px;
-    background: rgba(255,255,255,0.9);
+    background: rgba(255, 255, 255, 0.9);
     border-radius: 0 2px 2px 0;
 }
 
@@ -295,6 +313,7 @@ body {
 .sidebar .components li ul li a.active {
     background: rgba(255, 255, 255, 0.06) !important;
 }
+
 .sidebar .components li ul li a.active::before {
     content: '';
     position: absolute;
@@ -302,12 +321,14 @@ body {
     top: 0;
     bottom: 0;
     width: 3px;
-    background: rgba(255,255,255,0.85);
+    background: rgba(255, 255, 255, 0.85);
     border-radius: 0 2px 2px 0;
 }
 
 /* Quitar flechita de dropdowns en el menú */
-.dropdown-toggle::after { display: none !important; }
+.dropdown-toggle::after {
+    display: none !important;
+}
 
 /* Content Styles */
 #content {
@@ -320,25 +341,48 @@ body {
 }
 
 /* Asegurar que las tablas responsivas ocupen el ancho total del contenedor */
-.table-responsive { width: 100%; }
-.table { width: 100%; }
+.table-responsive {
+    width: 100%;
+}
+
+.table {
+    width: 100%;
+}
 
 /* Mejoras responsive generales para secciones de administración/telecom */
-.card > .table-responsive { overflow-x: auto; }
-.card .table.datatable { min-width: 640px; }
+.card>.table-responsive {
+    overflow-x: auto;
+}
+
+.card .table.datatable {
+    min-width: 640px;
+}
 
 @media (max-width: 992px) {
-  .card .table.datatable { min-width: 540px; }
+    .card .table.datatable {
+        min-width: 540px;
+    }
 }
 
 @media (max-width: 576px) {
-  .card .table.datatable { min-width: 480px; }
-  .d-flex.justify-content-between { flex-wrap: wrap; gap: 8px; }
-  .modal-dialog { margin: 0.5rem; }
+    .card .table.datatable {
+        min-width: 480px;
+    }
+
+    .d-flex.justify-content-between {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .modal-dialog {
+        margin: 0.5rem;
+    }
 }
 
 /* DataTables: asegurar ancho completo */
-.dataTables_wrapper .dataTable { width: 100% !important; }
+.dataTables_wrapper .dataTable {
+    width: 100% !important;
+}
 
 /* Alineación de columnas en tablas DataTables */
 .dataTables_wrapper table.dataTable thead th,
@@ -368,13 +412,33 @@ table tbody td:first-child {
 /* Navbar más contrastada sobre el fondo */
 .navbar.bg-light {
     background-color: var(--surface-2) !important;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
-.navbar .navbar-text, .navbar .nav-link { color: var(--text-color) !important; }
-.navbar .btn.btn-outline-primary { border-color: var(--primary-color); color: var(--primary-color); }
-.navbar .btn.btn-outline-primary:hover { background: var(--primary-color); color: #fff; }
-.nav-tabs .nav-link { color: var(--text-color); }
-.nav-tabs .nav-link.active, .nav-tabs .nav-link:focus, .nav-tabs .nav-link:hover { color: var(--primary-color); }
+
+.navbar .navbar-text,
+.navbar .nav-link {
+    color: var(--text-color) !important;
+}
+
+.navbar .btn.btn-outline-primary {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.navbar .btn.btn-outline-primary:hover {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+.nav-tabs .nav-link {
+    color: var(--text-color);
+}
+
+.nav-tabs .nav-link.active,
+.nav-tabs .nav-link:focus,
+.nav-tabs .nav-link:hover {
+    color: var(--primary-color);
+}
 
 #content.active {
     margin-left: 0;
@@ -399,7 +463,7 @@ table tbody td:first-child {
 
 .card-header {
     background: var(--surface-2);
-    border-bottom: 1px solid rgba(0,0,0,0.06);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
     border-radius: 10px 10px 0 0 !important;
     padding: 1rem 1.25rem;
     font-weight: 600;
@@ -409,10 +473,19 @@ table tbody td:first-child {
 .card .list-group-item {
     background: var(--surface-3);
 }
+
 /* Tablas striped con surfaces suaves (dashboard) - solo dentro de .card-body para no afectar DataTables */
-.card-body .table.table-striped > tbody > tr:nth-of-type(odd) > * { --bs-table-accent-bg: var(--surface-3); }
-.card-body .table.table-striped > tbody > tr:nth-of-type(even) > * { --bs-table-accent-bg: var(--surface-2); }
-.card-body .table.table-striped > tbody > tr:hover > * { background-color: rgba(90, 147, 103, 0.06) !important; }
+.card-body .table.table-striped>tbody>tr:nth-of-type(odd)>* {
+    --bs-table-accent-bg: var(--surface-3);
+}
+
+.card-body .table.table-striped>tbody>tr:nth-of-type(even)>* {
+    --bs-table-accent-bg: var(--surface-2);
+}
+
+.card-body .table.table-striped>tbody>tr:hover>* {
+    background-color: rgba(90, 147, 103, 0.06) !important;
+}
 
 .btn {
     border-radius: 8px;
@@ -426,7 +499,8 @@ table tbody td:first-child {
     color: #fff;
 }
 
-.btn-primary:hover, .btn-primary:focus {
+.btn-primary:hover,
+.btn-primary:focus {
     background-color: var(--primary-color-hover);
     border-color: var(--primary-color-hover);
     color: #fff;
@@ -436,21 +510,33 @@ table tbody td:first-child {
     color: var(--primary-color);
     border-color: var(--primary-color);
 }
-.btn-outline-primary:hover, .btn-outline-primary:focus {
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
     background-color: var(--primary-color);
     color: #fff;
     border-color: var(--primary-color);
 }
-.text-primary { color: var(--primary-color) !important; }
-.bg-primary { background-color: var(--primary-color) !important; }
-.border-primary { border-color: var(--primary-color) !important; }
+
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+.border-primary {
+    border-color: var(--primary-color) !important;
+}
 
 .btn-success {
     background-color: var(--success-color);
     border-color: var(--success-color);
 }
 
-.btn-success:hover, .btn-success:focus {
+.btn-success:hover,
+.btn-success:focus {
     background-color: #007a26;
     border-color: #007a26;
 }
@@ -460,7 +546,9 @@ table tbody td:first-child {
     border-color: var(--danger-color);
     color: #fff;
 }
-.btn-danger:hover, .btn-danger:focus {
+
+.btn-danger:hover,
+.btn-danger:focus {
     filter: brightness(0.95);
 }
 
@@ -469,7 +557,9 @@ table tbody td:first-child {
     border-color: var(--warning-color);
     color: #212529;
 }
-.btn-warning:hover, .btn-warning:focus {
+
+.btn-warning:hover,
+.btn-warning:focus {
     filter: brightness(0.95);
 }
 
@@ -477,7 +567,9 @@ table tbody td:first-child {
     color: var(--warning-color);
     border-color: var(--warning-color);
 }
-.btn-outline-warning:hover, .btn-outline-warning:focus {
+
+.btn-outline-warning:hover,
+.btn-outline-warning:focus {
     background-color: var(--warning-color);
     color: #212529;
     border-color: var(--warning-color);
@@ -488,17 +580,22 @@ table tbody td:first-child {
     border-color: var(--info-color);
     color: #fff;
 }
-.btn-info:hover, .btn-info:focus {
+
+.btn-info:hover,
+.btn-info:focus {
     background-color: var(--info-color-hover);
     border-color: var(--info-color-hover);
 }
 
 .btn-secondary {
-    background-color: #9bb7a2; /* más oscuro que surface-2, dentro de paleta */
+    background-color: #9bb7a2;
+    /* más oscuro que surface-2, dentro de paleta */
     border-color: #8eab96;
     color: #0f1a12;
 }
-.btn-secondary:hover, .btn-secondary:focus {
+
+.btn-secondary:hover,
+.btn-secondary:focus {
     background-color: #8eab96;
     border-color: #7fa28b;
     color: #0f1a12;
@@ -516,7 +613,7 @@ table tbody td:first-child {
 
 .table thead th {
     background: var(--surface-2);
-    border-bottom: 2px solid rgba(0,0,0,0.06);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.06);
     font-weight: 600;
     color: var(--text-color);
 }
@@ -541,13 +638,14 @@ table tbody td:first-child {
     box-shadow: 0 0 0 0.2rem rgba(90, 147, 103, 0.25);
 }
 
-/* Campos de formulario más cortos */
-.form-control, .form-select {
-    max-width: 60%;
+.form-control,
+.form-select {
+    max-width: 100%;
 }
 
 /* Modal Sedes: ampliar ancho de inputs dentro del modal */
-#modalSede .form-control, #modalSede .form-select {
+#modalSede .form-control,
+#modalSede .form-select {
     max-width: 75% !important;
 }
 
@@ -562,7 +660,8 @@ table tbody td:first-child {
 }
 
 /* Campos con ancho completo */
-.form-control.w-100, .form-select.w-100 {
+.form-control.w-100,
+.form-select.w-100 {
     max-width: 100%;
     width: 100%;
 }
@@ -577,16 +676,19 @@ table tbody td:first-child {
 /* Selects de filtros adaptables */
 .filtros-container .form-select {
     max-width: 100%;
+    width: 100%;
     min-width: 150px;
 }
 
 .filtros-container .form-control {
     max-width: 100%;
+    width: 100%;
     min-width: 150px;
 }
 
 .dashboard-card {
-    background: var(--surface-3); /* mismo fondo que el resto */
+    background: var(--surface-3);
+    /* mismo fondo que el resto */
     color: var(--text-color);
     padding: 1.5rem;
     border-radius: 10px;
@@ -599,18 +701,22 @@ table tbody td:first-child {
     background: var(--primary-color);
     color: #fff;
 }
+
 .dashboard-card--success {
     background: var(--success-color);
     color: #0b1a12;
 }
+
 .dashboard-card--warning {
     background: var(--warning-color);
     color: #212529;
 }
+
 .dashboard-card--info {
     background: var(--info-color);
     color: #fff;
 }
+
 .dashboard-card--danger {
     background: var(--danger-color);
     color: #fff;
@@ -636,6 +742,7 @@ table tbody td:first-child {
     gap: 16px;
     margin-bottom: 1rem;
 }
+
 .stepper .step {
     display: flex;
     align-items: center;
@@ -643,6 +750,7 @@ table tbody td:first-child {
     color: #6c757d;
     font-weight: 600;
 }
+
 .stepper .step .circle {
     width: 28px;
     height: 28px;
@@ -654,11 +762,16 @@ table tbody td:first-child {
     color: #6c757d;
     font-size: 0.9rem;
 }
+
 .stepper .step.active .circle {
     background: var(--primary-color);
     color: #fff;
 }
-.stepper .step.active { color: var(--primary-color); }
+
+.stepper .step.active {
+    color: var(--primary-color);
+}
+
 .stepper .divider {
     flex: 0 0 40px;
     height: 2px;
@@ -669,7 +782,7 @@ table tbody td:first-child {
 .section-title {
     font-weight: 700;
     font-size: 1.25rem;
-    border-bottom: 2px solid rgba(90,147,103,0.2);
+    border-bottom: 2px solid rgba(90, 147, 103, 0.2);
     padding-bottom: 6px;
 }
 
@@ -679,7 +792,8 @@ table tbody td:first-child {
 }
 
 /* Inputs del Paso 1 con 30% más de ancho respecto al límite global */
-#paso1 .form-select, #paso1 .form-control {
+#paso1 .form-select,
+#paso1 .form-control {
     max-width: 78%;
 }
 
@@ -710,7 +824,8 @@ table tbody td:first-child {
 
 /* Estado para "De Baja" (nombre con espacio) */
 .estado-de-baja {
-    background-color: #343a40 !important; /* gris muy oscuro para alto contraste */
+    background-color: #343a40 !important;
+    /* gris muy oscuro para alto contraste */
     color: #ffffff !important;
     border: 1px solid #212529 !important;
 }
@@ -738,15 +853,19 @@ table tbody td:first-child {
 .modal-header {
     background: var(--surface-2);
     border-radius: 10px 10px 0 0;
-    color: #000; /* texto negro para mayor legibilidad */
+    color: #000;
+    /* texto negro para mayor legibilidad */
 }
+
 .modal .table {
     width: 100% !important;
 }
+
 .modal .table thead th {
     background: var(--surface-2);
 }
-.modal .table tbody tr:hover > * {
+
+.modal .table tbody tr:hover>* {
     background-color: var(--surface-3) !important;
 }
 
@@ -778,10 +897,12 @@ table tbody td:first-child {
 .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
     color: var(--text-color);
 }
+
 .select2-container--bootstrap-5 .select2-results__option--highlighted {
     background-color: var(--primary-color);
     color: #fff;
 }
+
 .select2-container--bootstrap-5 .select2-results__option[aria-selected=true] {
     background-color: var(--primary-color-hover);
     color: #fff;
@@ -792,40 +913,54 @@ table tbody td:first-child {
     .sidebar {
         margin-left: -250px;
     }
-    
+
     .sidebar.active {
         margin-left: 0;
     }
-    
-    #content { margin-left: 0; }
-    
+
+    #content {
+        margin-left: 0;
+    }
+
     #content.active {
         margin-left: 250px;
     }
-    
+
     .dashboard-card h3 {
         font-size: 2rem;
     }
-    
+
     .table-responsive {
         font-size: 0.875rem;
     }
-    
+
     /* En móviles, los campos ocupan todo el ancho */
-    .form-control, .form-select {
+    .form-control,
+    .form-select {
         max-width: 100%;
     }
-    #modalSede .form-control, #modalSede .form-select {
+
+    #modalSede .form-control,
+    #modalSede .form-select {
         max-width: 100%;
     }
 
 }
 
 @media (max-width: 768px) {
+
     /* Ajustes responsive adicionales */
-    .filtros-container .row > [class^="col-"] { margin-bottom: 0.5rem; }
-    .btn-group { flex-wrap: wrap; }
-    .btn-group .btn { margin-bottom: 4px; }
+    .filtros-container .row>[class^="col-"] {
+        margin-bottom: 0.5rem;
+    }
+
+    .btn-group {
+        flex-wrap: wrap;
+    }
+
+    .btn-group .btn {
+        margin-bottom: 4px;
+    }
 }
 
 /* Focus states coherentes para DataTables y Select2 */
@@ -845,6 +980,7 @@ table tbody td:first-child {
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -862,14 +998,16 @@ table tbody td:first-child {
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 @media print {
     .no-print {
         display: none !important;
     }
-    
+
     .print-only {
         display: block !important;
     }
@@ -901,10 +1039,12 @@ table tbody td:first-child {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
 }
+
 .form-check-input:focus {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 0.2rem rgba(90, 147, 103, 0.25);
 }
+
 input[type="checkbox"],
 input[type="radio"],
 input[type="range"],
@@ -916,13 +1056,16 @@ progress {
 .pagination .page-link {
     color: var(--primary-color);
 }
+
 .pagination .page-link:hover {
     color: var(--primary-color-hover);
     border-color: var(--primary-color);
 }
+
 .pagination .page-link:focus {
     box-shadow: 0 0 0 0.2rem rgba(90, 147, 103, 0.25);
 }
+
 .page-item.active .page-link {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
@@ -932,7 +1075,7 @@ progress {
 /* Asegurar que los botones de acción en DataTables funcionen */
 .dataTables_wrapper .btn-group .btn {
     pointer-events: auto !important;
-} 
+}
 
 /* Estilos para la tabla de insumos en nueva asignación */
 .tabla-asignacion {
@@ -943,7 +1086,7 @@ progress {
 .tabla-asignacion thead th {
     background: var(--surface-2) !important;
     color: var(--text-color) !important;
-    border-color: rgba(0,0,0,0.06) !important;
+    border-color: rgba(0, 0, 0, 0.06) !important;
     font-weight: 600;
     text-align: center;
 }
@@ -960,15 +1103,18 @@ progress {
     border-collapse: separate;
     border-spacing: 0;
 }
+
 .table-flat thead th {
     background: var(--surface-2);
     border-bottom: 1px solid #e5e7eb;
     color: #374151;
     font-weight: 600;
 }
+
 .table-flat tbody td {
     border-top: 1px solid #e5e7eb;
 }
+
 .table-flat tbody tr:hover {
     background-color: var(--surface-3);
 }
@@ -1045,12 +1191,12 @@ progress {
     .tabla-asignacion {
         font-size: 0.8rem;
     }
-    
+
     .tabla-asignacion th,
     .tabla-asignacion td {
         padding: 0.5rem 0.25rem;
     }
-    
+
     .cantidad-item {
         padding: 8px;
     }
@@ -1088,4 +1234,4 @@ progress {
 
 #modalConfirmacion .modal-footer {
     border-top: 2px solid #dee2e6;
-} 
+}

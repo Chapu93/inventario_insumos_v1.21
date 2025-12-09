@@ -2,6 +2,7 @@
 require_once '../../includes/config.php';
 
 requerirAutenticacion();
+verificarPermiso('insumos', 'ver');
 
 header('Content-Type: application/json');
 

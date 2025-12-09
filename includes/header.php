@@ -129,6 +129,11 @@
                         <li>
                             <a href="<?php echo app_base_url(); ?>/pages/admin/telecom_planos.php" class="<?php echo strpos($currentPath, '/pages/admin/telecom_planos.php') !== false ? 'active' : ''; ?>" role="menuitem">Planos de Sede</a>
                         </li>
+                        <?php if (tienePermiso('sistema', 'backup')): ?>
+                        <li>
+                            <a href="<?php echo app_base_url(); ?>/pages/admin/backup.php" class="<?php echo strpos($currentPath, '/pages/admin/backup.php') !== false ? 'active' : ''; ?>" role="menuitem">Copia de Seguridad</a>
+                        </li>
+                        <?php endif; ?>
                     </ul>
                 </li>
                 
