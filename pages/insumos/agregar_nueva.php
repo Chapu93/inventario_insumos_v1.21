@@ -118,7 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             ($tipo_insumo != 'Varios') ? ($_POST['id_patrimonio'] ?: null) : null,
             $cantidad,
             $fechaAdquisicion,
-            $_POST['id_punto_stock_actual'] ?: 2,
+            !empty($_POST['id_punto_stock_actual']) ? $_POST['id_punto_stock_actual'] : null,
             $idSede,
             $idArea,
             $idIngreso,
@@ -200,9 +200,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         
         // Crear remito (cabecera) y detalle
-        // MODIFICACIÓN: Para carga inicial/histórica, NO generamos un número de remito oficial (secuencial)
-        // para no alterar la numeración de remitos nuevos. Usamos un código interno con prefijo hist_ddmmyyyy_ID.
-        $numero = 'hist_' . date('dmY') . '_' . $id_insumo;
+        // MODIFICACIÓN: Formato solicitado numero_año_hist
+        $numero = $id_insumo . '_' . date('Y') . '_hist';
         
         $sql = "INSERT INTO remitos (numero_remito, id_sede, id_area, nombre_persona_asignada, apellido_persona_asignada, fecha_asignacion, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conexion->prepare($sql);
@@ -417,13 +416,25 @@ include '../../includes/header.php';
                                     <div class="card-header bg-light py-2"><h6 class="mb-0"><i class="fas fa-cog me-2 text-primary"></i>Información Común</h6></div>
                                     <div class="card-body px-3 pt-3 pb-0">
                                         <div class="mb-2"><label class="form-label">Fecha de Adquisición</label><input type="date" class="form-control form-control-sm w-100" id="fecha_adquisicion_nueva" name="fecha_adquisicion" value="<?php echo date('Y-m-d'); ?>"></div>
-                                        <div class="mb-2"><label class="form-label">Punto de Almacenamiento *</label><select class="form-select form-select-sm w-100" name="id_punto_stock_actual" required><option value="">Seleccione punto de almacenamiento</option><?php foreach ($puntos_stock as $p): ?><option value="<?php echo $p['id_punto_stock']; ?>" <?php echo $p['id_punto_stock']==2?'selected':''; ?>><?php echo $p['nombre_punto']; ?></option><?php endforeach; ?></select></div>
+                                        
+                                        <!-- Punto de almacenamiento bloqueado y vacío -->
+                                        <div class="mb-2">
+                                            <label class="form-label">Punto de Almacenamiento</label>
+                                            <select class="form-select form-select-sm w-100" name="id_punto_stock_actual" disabled>
+                                                <option value="" selected>Sin punto de stock (Asignado)</option>
+                                                <?php foreach ($puntos_stock as $p): ?>
+                                                    <option value="<?php echo $p['id_punto_stock']; ?>"><?php echo $p['nombre_punto']; ?></option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <input type="hidden" name="id_punto_stock_actual" value="">
+                                        </div>
                                         
                                         <div class="mb-2">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" id="es_nuevo_nueva" name="es_nuevo" value="1" checked>
+                                                <!-- Checkbox desmarcado por defecto (Usado) -->
+                                                <input class="form-check-input" type="checkbox" id="es_nuevo_nueva" name="es_nuevo" value="1">
                                                 <label class="form-check-label" for="es_nuevo_nueva">
-                                                    <strong>Insumo Nuevo</strong> <small class="text-muted">(desmarcar si es usado)</small>
+                                                    <strong>Insumo Nuevo</strong> <small class="text-muted">(marcar si es nuevo)</small>
                                                 </label>
                                             </div>
                                         </div>
