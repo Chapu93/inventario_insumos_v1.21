@@ -704,6 +704,25 @@ $(document).ready(function() {
     // No cerrar el sidebar si el link es un toggler de colapso (submenu)
     var isToggler = this.hasAttribute('data-bs-toggle') && this.getAttribute('data-bs-toggle') === 'collapse';
     if (isToggler) { return; }
+    
+    // Toggle collapse para Insumos y Asignaciones
+    var collapseTarget = $(this).data('collapse-target');
+    if (collapseTarget) {
+      e.preventDefault();
+      var $collapse = $(collapseTarget);
+      if ($collapse.length) {
+        // Usar Bootstrap Collapse API
+        var bsCollapse = new bootstrap.Collapse($collapse[0], {
+          toggle: true
+        });
+        // Luego navegar
+        setTimeout(function() {
+          window.location.href = $(this).attr('href');
+        }.bind(this), 200);
+      }
+      return;
+    }
+    
     if (window.matchMedia('(max-width: 992px)').matches) {
       $('#sidebar').removeClass('active');
       $('#content').removeClass('active');

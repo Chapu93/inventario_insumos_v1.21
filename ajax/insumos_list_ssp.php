@@ -31,9 +31,9 @@ try {
 
     // Filtros opcionales (tipo/localidad/estado) compatibles con UI actual
     $filtroTipo = isset($_GET['tipo']) ? trim($_GET['tipo']) : '';
-    // Se removió filtro de localidad desde la UI
-    $filtroLocalidad = '';
     $filtroEstado = isset($_GET['estado']) ? trim($_GET['estado']) : '';
+    $filtroLocalidad = isset($_GET['id_localidad']) ? trim($_GET['id_localidad']) : '';
+    $filtroSede = isset($_GET['id_sede']) ? trim($_GET['id_sede']) : '';
 
     // Total sin filtros
     $total = (int)$db->query("SELECT COUNT(*) FROM insumos")->fetchColumn();
@@ -42,8 +42,9 @@ try {
     $where = [];
     $params = [];
     if ($filtroTipo !== '') { $where[] = 'i.tipo_insumo = ?'; $params[] = $filtroTipo; }
-    // Sin filtro de localidad
     if ($filtroEstado !== '') { $where[] = 'i.estado = ?'; $params[] = $filtroEstado; }
+    if ($filtroLocalidad !== '') { $where[] = 'l.id_localidad = ?'; $params[] = $filtroLocalidad; }
+    if ($filtroSede !== '') { $where[] = 'i.id_sede_actual = ?'; $params[] = $filtroSede; }
     if ($search !== '') {
         $where[] = '(i.nombre_insumo LIKE ? OR i.numero_serie LIKE ? OR i.id_fisico LIKE ? OR i.id_patrimonio LIKE ?)';
         $like = '%' . $search . '%';

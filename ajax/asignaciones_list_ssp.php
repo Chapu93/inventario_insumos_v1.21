@@ -30,32 +30,50 @@ try {
     $filtro_insumo = $_GET['insumo'] ?? '';
     $filtro_estado = $_GET['estado'] ?? '';
     $filtro_area = $_GET['area'] ?? '';
+    $filtro_sede = $_GET['sede'] ?? '';
     $filtro_remito = isset($_GET['remito']) ? trim($_GET['remito']) : '';
 
     // Base subconsulta para contar activas
     $baseFrom = " FROM remitos r 
-                   JOIN remitos_detalle d ON d.id_remito = r.id_remito
-                   JOIN insumos i ON d.id_insumo = i.id_insumo
+                   LEFT JOIN remitos_detalle d ON d.id_remito = r.id_remito
+                   LEFT JOIN insumos i ON d.id_insumo = i.id_insumo
                    JOIN areas ar ON r.id_area = ar.id_area
                    JOIN sedes s ON r.id_sede = s.id_sede
                    JOIN localidades l ON s.id_localidad = l.id_localidad ";
 
-    // WHERE - Excluye remitos anulados
-    $where = ["r.estado != 'Anulado'"];
+    // WHERE - Manejo de anulados
+    $where = [];
+    if ($filtro_estado === 'Anulado') {
+        $where[] = "r.estado = 'Anulado'";
+    } elseif ($filtro_estado === 'Activa' || $filtro_estado === 'Devuelta') {
+        // Para Activa y Devuelta, excluir anulados
+        $where[] = "r.estado != 'Anulado'";
+    }
+    // Si filtro_estado está vacío (Todas), no se añade ninguna condición sobre estado
+    
     $params = [];
     if ($filtro_localidad !== '') { $where[] = 'l.id_localidad = ?'; $params[] = $filtro_localidad; }
     if ($filtro_insumo !== '') { $where[] = 'i.tipo_insumo = ?'; $params[] = $filtro_insumo; }
     if ($filtro_area !== '') { $where[] = 'r.id_area = ?'; $params[] = $filtro_area; }
+    if ($filtro_sede !== '') { $where[] = 'r.id_sede = ?'; $params[] = $filtro_sede; }
     if ($search !== '') {
         $where[] = '(r.nombre_persona_asignada LIKE ? OR r.apellido_persona_asignada LIKE ? OR r.numero_remito LIKE ?)';
         $like = '%' . $search . '%';
         array_push($params, $like, $like, $like);
     }
     if ($filtro_remito !== '') { $where[] = 'r.numero_remito = ?'; $params[] = $filtro_remito; }
-    $whereSql = ' WHERE ' . implode(' AND ', $where);
+    $whereSql = count($where) ? (' WHERE ' . implode(' AND ', $where)) : '';
 
-    // Total (por remito) - Excluye remitos anulados
-    $total = (int)$db->query("SELECT COUNT(*) FROM remitos WHERE estado != 'Anulado'")->fetchColumn();
+    // Total sin filtros (respetando universo según estado seleccionado)
+    if ($filtro_estado === 'Anulado') {
+        $sqlTotal = "SELECT COUNT(*) FROM remitos WHERE estado = 'Anulado'";
+    } elseif ($filtro_estado === 'Activa' || $filtro_estado === 'Devuelta') {
+        $sqlTotal = "SELECT COUNT(*) FROM remitos WHERE estado != 'Anulado'";
+    } else {
+        // Para "Todas", contar todos sin restricción de estado
+        $sqlTotal = "SELECT COUNT(*) FROM remitos";
+    }
+    $total = (int)$db->query($sqlTotal)->fetchColumn();
 
     // Filtrado y agrupado por remito
     $sqlGroup = "SELECT r.numero_remito,
@@ -65,6 +83,7 @@ try {
                         ar.nombre_area,
                         s.nombre_sede,
                         l.nombre_localidad,
+                        r.estado,
                         SUM(d.cantidad) AS cantidad_insumos,
                         SUM(GREATEST(d.cantidad - COALESCE(d.cantidad_devuelta,0), 0)) AS activas
                  $baseFrom
@@ -92,7 +111,16 @@ try {
 
     $data = array_map(function($r){
         $activas = (int)$r['activas'];
-        $estado = ($activas > 0) ? 'Activa' : 'Devuelta';
+        $estadoRemito = trim((string)$r['estado']);
+        
+        // Determinar el estado a mostrar
+        if ($estadoRemito === 'Anulado') {
+            $estado = 'Anulado';
+        } else {
+            // Para remitos no anulados, determinar si está Activa o Devuelta
+            $estado = ($activas > 0) ? 'Activa' : 'Devuelta';
+        }
+        
         $estadoBadge = '<span class="badge estado-' . strtolower($estado) . '">' . $estado . '</span>';
         
         // Verificar permisos para cada acción
@@ -112,14 +140,14 @@ try {
             $botones[] = '<button type="button" class="btn btn-sm btn-primary" aria-label="Imprimir remito" onclick="generarRemitoPDF(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Imprimir remito"><i class="fas fa-print" aria-hidden="true"></i></button>';
         }
         
-        if ($puedeDevolver) {
+        if ($puedeDevolver && $estado === 'Activa') {
             $btnDevAttrs = $activas > 0
                 ? 'type="button" class="btn btn-sm btn-warning" aria-label="Devolver insumos" onclick="abrirDevolucion(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Devolver insumos"'
                 : 'type="button" class="btn btn-sm btn-warning" aria-label="Devolver insumos" disabled data-bs-toggle="tooltip" title="Sin ítems para devolver"';
             $botones[] = '<button ' . $btnDevAttrs . '><i class="fas fa-undo" aria-hidden="true"></i></button>';
         }
         
-        if ($puedeEliminar) {
+        if ($puedeEliminar && $estado === 'Activa') {
             $botones[] = '<button type="button" class="btn btn-sm btn-danger" aria-label="Eliminar asignación" onclick="eliminarAsignacion(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Eliminar asignación"><i class="fas fa-trash" aria-hidden="true"></i></button>';
         }
         

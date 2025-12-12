@@ -14,7 +14,24 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 try {
-    $input = json_decode(file_get_contents('php://input'), true);
+    // Log para debug
+    Logger::debug("Solicitud recibida", [
+        'content_type' => $_SERVER['CONTENT_TYPE'] ?? 'none',
+        'method' => $_SERVER['REQUEST_METHOD'],
+        'files_count' => count($_FILES),
+        'post_count' => count($_POST),
+        'files_keys' => array_keys($_FILES),
+        'post_keys' => array_keys($_POST)
+    ]);
+    
+    // Manejar tanto JSON como multipart/form-data
+    $isJson = strpos($_SERVER['CONTENT_TYPE'] ?? '', 'application/json') !== false;
+    
+    if ($isJson) {
+        $input = json_decode(file_get_contents('php://input'), true);
+    } else {
+        $input = $_POST;
+    }
     
     if (!verify_csrf($input['_csrf'] ?? '')) {
         json_error('CSRF inválido', 403);
@@ -80,9 +97,47 @@ try {
         ]);
     }
     
+    // Procesar archivos adjuntos
+    $documentos = [];
+    $usuarioId = obtenerUsuarioId();
+    // Usar ruta absoluta en lugar de relativa
+    $uploadDir = __DIR__ . '/../public/uploads/ingresos/';
+    
+    // Crear directorio si no existe
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0755, true);
+    }
+    
+    Logger::debug("Configuración de carga", [
+        'uploadDir' => $uploadDir,
+        'exists' => is_dir($uploadDir),
+        'writable' => is_writable($uploadDir)
+    ]);
+    
+    // Procesar remito
+    if (!empty($_FILES['archivo_remito']['name'])) {
+        $resultado = procesarArchivoAdjunto($_FILES['archivo_remito'], $id, 'remito', $uploadDir, $db, $usuarioId);
+        if ($resultado['success']) {
+            $documentos['remito'] = $resultado;
+        } else {
+            Logger::warning("Error al cargar remito", ['error' => $resultado['error']]);
+        }
+    }
+    
+    // Procesar documentación
+    if (!empty($_FILES['archivo_documentacion']['name'])) {
+        $resultado = procesarArchivoAdjunto($_FILES['archivo_documentacion'], $id, 'documentacion', $uploadDir, $db, $usuarioId);
+        if ($resultado['success']) {
+            $documentos['documentacion'] = $resultado;
+        } else {
+            Logger::warning("Error al cargar documentación", ['error' => $resultado['error']]);
+        }
+    }
+    
     json_success([
         'id' => $id,
-        'message' => 'Ingreso creado correctamente'
+        'message' => 'Ingreso creado correctamente',
+        'documentos' => $documentos
     ]);
     
 } catch (Exception $e) {

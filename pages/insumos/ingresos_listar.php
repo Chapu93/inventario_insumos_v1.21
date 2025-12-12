@@ -76,9 +76,27 @@ include '../../includes/header.php';
             <textarea class="form-control" id="nuevo_descripcion" name="descripcion" rows="3"></textarea>
           </div>
           
-          <div class="alert alert-info mb-0">
-            <i class="fas fa-info-circle me-2"></i>
-            Los insumos se asignan desde la carga/edición de cada insumo seleccionando este ingreso.
+          <div class="mb-3">
+            <label for="nuevo_archivo_remito" class="form-label">
+              <i class="fas fa-file-pdf me-1"></i>Adjuntar Remito
+            </label>
+            <input type="file" class="form-control" id="nuevo_archivo_remito" name="archivo_remito" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+            <small class="text-muted">PDF, imágenes o documentos (máx. 10MB)</small>
+          </div>
+          
+          <div class="mb-3">
+            <label for="nuevo_archivo_documentacion" class="form-label">
+              <i class="fas fa-file-alt me-1"></i>Adjuntar Documentación
+            </label>
+            <input type="file" class="form-control" id="nuevo_archivo_documentacion" name="archivo_documentacion" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xlsx,.xls,.zip">
+            <small class="text-muted">PDF, imágenes, documentos o archivos comprimidos (máx. 10MB)</small>
+          </div>
+          
+          <div class="border-top pt-3 mt-3">
+            <p class="mb-0 text-muted small">
+              <i class="fas fa-info-circle me-2 text-info"></i>
+              <strong>Nota:</strong> Los insumos se asignan desde la carga/edición de cada insumo seleccionando este ingreso.
+            </p>
           </div>
         </form>
       </div>
@@ -200,6 +218,15 @@ $(function(){
               </a>`;
           }
           
+          botones += `
+            <button class="btn btn-sm btn-success" 
+                    onclick="verDocumentosIngreso(${row.id_ingreso})" 
+                    data-bs-toggle="tooltip" 
+                    title="Ver documentos"
+                    aria-label="Ver documentos adjuntos">
+              <i class="fas fa-file"></i>
+            </button>`;
+          
           if (PERMISOS.eliminar) {
             botones += `
               <button class="btn btn-sm btn-danger" 
@@ -290,24 +317,31 @@ $('#btnGuardarNuevoIngreso').on('click', function(){
   
   const fechaInput = $('#nuevo_fecha_finalizacion').val();
   
-  // Log para debug
-  console.log('Fecha del input:', fechaInput);
+  // Crear FormData para manejar archivos
+  const formData = new FormData();
+  formData.append('_csrf', (document.querySelector('meta[name="csrf-token"]')||{}).content || '');
+  formData.append('tipo_ingreso', $('#nuevo_tipo_ingreso').val());
+  formData.append('nro_referencia', $('#nuevo_nro_referencia').val());
+  formData.append('fecha_finalizacion', fechaInput || null);
+  formData.append('descripcion', $('#nuevo_descripcion').val() || null);
   
-  const payload = {
-    _csrf: (document.querySelector('meta[name="csrf-token"]')||{}).content || '',
-    tipo_ingreso: $('#nuevo_tipo_ingreso').val(),
-    nro_referencia: $('#nuevo_nro_referencia').val(),
-    fecha_finalizacion: fechaInput || null,
-    descripcion: $('#nuevo_descripcion').val() || null
-  };
+  // Agregar archivos si existen
+  const archivoRemito = $('#nuevo_archivo_remito')[0].files[0];
+  if (archivoRemito) {
+    formData.append('archivo_remito', archivoRemito);
+  }
   
-  console.log('Payload enviado:', payload);
+  const archivoDocumentacion = $('#nuevo_archivo_documentacion')[0].files[0];
+  if (archivoDocumentacion) {
+    formData.append('archivo_documentacion', archivoDocumentacion);
+  }
   
   $.ajax({
     url: BASE + '/ajax/ingresos_save_simple.php',
     method: 'POST',
-    contentType: 'application/json',
-    data: JSON.stringify(payload),
+    data: formData,
+    contentType: false,
+    processData: false,
     success: function(r){ 
       if (!r.success) { 
         showToast(r.error||'Error al guardar', 'error'); 
@@ -444,6 +478,120 @@ function verDetalleIngreso(id){
         </div>`;
     }
   });
+}
+
+// Ver documentos adjuntos del ingreso
+function verDocumentosIngreso(id){
+  // Obtener o crear el modal
+  let modalElement = document.getElementById('modalVerDocumentos');
+  if (!modalElement) {
+    modalElement = crearModalDocumentos();
+  }
+  
+  const modalBody = document.getElementById('modalVerDocumentosBody');
+  const btnEditarDocumentos = document.getElementById('btnEditarDocumentos');
+  
+  // Mostrar loading mientras carga
+  modalBody.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Cargando...</span></div></div>';
+  
+  // Mostrar el modal
+  const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+  modal.show();
+  
+  $.ajax({
+    url: BASE + '/ajax/ingresos_documentos_listar.php',
+    data: { id: id },
+    dataType: 'json',
+    success: function(resp){
+      console.log('Respuesta documentos:', resp);
+      
+      if (!resp || !resp.success) {
+        modalBody.innerHTML = '<p style="padding: 20px; text-align: center; color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; margin: 0;">Error al cargar documentos</p>';
+        btnEditarDocumentos.style.display = 'none';
+        return;
+      }
+      
+      // Los datos están en resp.data (no resp.data.documentos)
+      const docs = (resp.data && Array.isArray(resp.data.documentos)) ? resp.data.documentos : [];
+      let html = '';
+      
+      console.log('Documentos encontrados:', docs.length);
+      
+      if (docs.length === 0) {
+        html = '<p style="padding: 20px; text-align: center; color: #004085; background-color: #d1ecf1; border: 1px solid #bee5eb; border-radius: 4px; margin: 0;">No hay documentos adjuntos a este ingreso.</p>';
+        // Mostrar botón editar cuando no hay documentos
+        if (PERMISOS.editar) {
+          btnEditarDocumentos.style.display = 'inline-block';
+          btnEditarDocumentos.onclick = () => {
+            window.location.href = `ingresos_editar.php?id=${id}`;
+          };
+        }
+      } else {
+        // Ocultar botón editar cuando hay documentos
+        btnEditarDocumentos.style.display = 'none';
+        html = '<div class="list-group">';
+        docs.forEach(function(doc){
+          const tipoIcon = doc.tipo_documento === 'remito' ? 'fa-receipt' : 
+                          doc.tipo_documento === 'documentacion' ? 'fa-file-alt' : 'fa-file';
+          const tipoLabel = doc.tipo_documento.charAt(0).toUpperCase() + doc.tipo_documento.slice(1);
+          
+          html += `
+            <div class="list-group-item">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <h6 class="mb-1"><i class="fas ${tipoIcon} me-2"></i>${$('<div>').text(doc.nombre_archivo).html()}</h6>
+                  <small class="text-muted"><strong>Tipo:</strong> ${tipoLabel}<br><strong>Cargado:</strong> ${doc.fecha_carga}</small>
+                </div>
+                <a href="${BASE}/ajax/ingresos_descargar_documento.php?id=${doc.id_documento}" 
+                   class="btn btn-sm btn-primary" 
+                   title="Descargar documento"
+                   download>
+                  <i class="fas fa-download me-1"></i>Descargar
+                </a>
+              </div>
+            </div>
+          `;
+        });
+        html += '</div>';
+      }
+      
+      modalBody.innerHTML = html;
+    },
+    error: function(xhr){
+      console.error('Error al cargar documentos:', xhr);
+      modalBody.innerHTML = '<p style="padding: 20px; text-align: center; color: #721c24; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; margin: 0;">Error al cargar documentos</p>';
+      btnEditarDocumentos.style.display = 'none';
+    }
+  });
+}
+
+// Crear modal de documentos si no existe
+function crearModalDocumentos(){
+  const modalHtml = `
+    <div class="modal fade" id="modalVerDocumentos" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="fas fa-file me-2"></i>Documentos Adjuntos</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body" id="modalVerDocumentosBody">
+            <div class="text-center">
+              <div class="spinner-border" role="status"><span class="visually-hidden">Cargando...</span></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-primary" id="btnEditarDocumentos" style="display:none;">
+              <i class="fas fa-edit me-2"></i>Agregar Documentos
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', modalHtml);
+  return document.getElementById('modalVerDocumentos');
 }
 
 // Eliminar ingreso

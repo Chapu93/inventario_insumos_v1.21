@@ -89,8 +89,33 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
     </div>
 </div>
 
+<!-- Tabs de Estado -->
+<ul class="nav nav-tabs mb-3" id="tabsEstado">
+    <li class="nav-item">
+        <a class="nav-link active" href="#" data-estado="Activa">
+            <i class="fas fa-check-circle me-2 text-success"></i>Activas
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#" data-estado="Devuelta">
+            <i class="fas fa-undo me-2 text-secondary"></i>Devueltas
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#" data-estado="Anulado">
+            <i class="fas fa-ban me-2 text-danger"></i>Anulados
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#" data-estado="">
+            <i class="fas fa-list me-2 text-primary"></i>Todas
+        </a>
+    </li>
+</ul>
+
 <div class="filtros-container">
     <form method="GET" class="row g-3">
+        <input type="hidden" name="estado" id="estado" value="Activa">
         <div class="col-md-3">
             <label for="insumo" class="form-label">Tipo de Insumo</label>
             <select name="insumo" id="insumo" class="form-select">
@@ -118,11 +143,9 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
         </div>
         
         <div class="col-md-3">
-            <label for="estado" class="form-label">Estado</label>
-            <select name="estado" id="estado" class="form-select">
-                <option value="">Todos los estados</option>
-                <option value="Activa" <?php echo $filtro_estado == 'Activa' ? 'selected' : ''; ?>>Activa</option>
-                <option value="Devuelta" <?php echo $filtro_estado == 'Devuelta' ? 'selected' : ''; ?>>Devuelta</option>
+            <label for="sede" class="form-label">Sede</label>
+            <select name="sede" id="sede" class="form-select" disabled>
+                <option value="">Seleccione Localidad</option>
             </select>
         </div>
         
@@ -530,9 +553,17 @@ function abrirVerAsignacion(remito) {
 
 <script>
 $(function(){
+  // Inicializar estado desde URL o por defecto 'Activa'
+  const urlParams = new URLSearchParams(window.location.search);
+  const estadoInicial = urlParams.get('estado') !== null ? urlParams.get('estado') : 'Activa';
+  
+  // Establecer tab activo y valor inicial
+  $('#estado').val(estadoInicial);
+  $(`#tabsEstado a[data-estado="${estadoInicial}"]`).addClass('active').parent().siblings().find('a').removeClass('active');
+
   var $t = $('#tablaAsignaciones');
   if ($.fn && $.fn.DataTable && $t.length) {
-    $t.DataTable({
+    var dt = $t.DataTable({
       processing: true,
       serverSide: true,
       ajax: {
@@ -543,6 +574,7 @@ $(function(){
           d.insumo = $('#insumo').val() || '';
           d.estado = $('#estado').val() || '';
           d.area = $('#area').val() || '';
+          d.sede = $('#sede').val() || '';
           // Si hay filtro por remito en la URL, aplicarlo
           try {
             const url = new URL(window.location.href);
@@ -563,8 +595,55 @@ $(function(){
       drawCallback: function(){ inicializarTooltips(); }
     });
   }
+
+  // Manejo de clicks en tabs
+  $('#tabsEstado a').on('click', function(e) {
+      e.preventDefault();
+      $('#tabsEstado a').removeClass('active');
+      $(this).addClass('active');
+      
+      const nuevoEstado = $(this).data('estado');
+      $('#estado').val(nuevoEstado);
+      $('#tablaAsignaciones').DataTable().ajax.reload();
+  });
+
+  // Carga dinámica de sedes
+  $('#localidad').on('change', function() {
+      const idLocalidad = $(this).val();
+      const $sedeSelect = $('#sede');
+      
+      $sedeSelect.empty().append('<option value="">Todas las sedes</option>');
+      
+      if (idLocalidad) {
+          $sedeSelect.prop('disabled', true).append('<option value="" selected>Cargando...</option>');
+          
+          fetch(getAppBase() + '/ajax/cargar_sedes.php?localidad_id=' + idLocalidad)
+              .then(response => response.json())
+              .then(resp => {
+                  $sedeSelect.empty().append('<option value="">Todas las sedes</option>');
+                  const sedes = (resp.data && resp.data.sedes) ? resp.data.sedes : (resp.sedes || []);
+                  
+                  if (sedes && sedes.length > 0) {
+                      sedes.forEach(sede => {
+                          $sedeSelect.append(`<option value="${sede.id}">${sede.nombre}</option>`);
+                      });
+                      $sedeSelect.prop('disabled', false);
+                  } else {
+                      $sedeSelect.append('<option value="" disabled>No hay sedes</option>');
+                  }
+              })
+              .catch(error => {
+                  console.error('Error:', error);
+                  $sedeSelect.empty().append('<option value="">Error al cargar</option>');
+              });
+      } else {
+          $sedeSelect.prop('disabled', true).append('<option value="">Seleccione Localidad primero</option>');
+      }
+  });
+
   // Reaplicar con filtros
   $('form').on('submit', function(e){ e.preventDefault(); $('#tablaAsignaciones').DataTable().ajax.reload(); });
+  
   // Abrir PDF si viene imprimir=<remito>
   try {
     const url = new URL(window.location.href);

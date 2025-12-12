@@ -42,12 +42,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 }
 
-// Consultas
-$servicios = $db->query("SELECT v.*, s.nombre_sede, l.id_localidad, l.nombre_localidad 
-                         FROM sedes_vigilancia v 
-                         JOIN sedes s ON s.id_sede=v.id_sede 
-                         JOIN localidades l ON l.id_localidad=s.id_localidad 
-                         ORDER BY l.nombre_localidad, s.nombre_sede, v.proveedor")->fetchAll();
+// Filtros
+$filtro_localidad = isset($_GET['localidad']) ? $_GET['localidad'] : '';
+$filtro_sede = isset($_GET['sede']) ? $_GET['sede'] : '';
+$filtro_estado = isset($_GET['estado']) ? $_GET['estado'] : '';
+
+// Consultas con filtros
+$sql = "SELECT v.*, s.nombre_sede, l.id_localidad, l.nombre_localidad 
+        FROM sedes_vigilancia v 
+        JOIN sedes s ON s.id_sede=v.id_sede 
+        JOIN localidades l ON l.id_localidad=s.id_localidad 
+        WHERE 1=1";
+
+$params = [];
+
+// Filtro de localidad
+if ($filtro_localidad) {
+    $sql .= " AND l.id_localidad = ?";
+    $params[] = $filtro_localidad;
+}
+
+// Filtro de sede
+if ($filtro_sede) {
+    $sql .= " AND s.id_sede = ?";
+    $params[] = $filtro_sede;
+}
+
+// Filtro de estado
+if ($filtro_estado) {
+    $sql .= " AND v.estado_servicio = ?";
+    $params[] = $filtro_estado;
+}
+
+$sql .= " ORDER BY l.nombre_localidad, s.nombre_sede, v.proveedor";
+
+$stmt = $db->prepare($sql);
+$stmt->execute($params);
+$servicios = $stmt->fetchAll();
+
+// Datos para filtros
+$localidades = $db->query("SELECT id_localidad, nombre_localidad FROM localidades ORDER BY nombre_localidad")->fetchAll();
+$sedes = $db->query("SELECT s.id_sede, s.nombre_sede, l.id_localidad FROM sedes s JOIN localidades l ON l.id_localidad = s.id_localidad ORDER BY l.nombre_localidad, s.nombre_sede")->fetchAll();
+$estados_vigilancia = ['Activo', 'Inactivo', 'De Baja'];
 
 // Conteo de dispositivos y cámaras activas
 $rowsDispCount = $db->query("SELECT id_vigilancia, COALESCE(SUM(cantidad),0) AS total_dispositivos FROM sedes_vigilancia_dispositivos GROUP BY id_vigilancia")->fetchAll();
@@ -70,6 +106,61 @@ include '../../includes/header.php';
         </button>
         <?php endif; ?>
     </div>
+</div>
+
+<!-- Filtros -->
+<div class="filtros-container">
+    <form method="GET" class="row g-3">
+        <div class="col-md-3">
+            <label for="localidad" class="form-label">Localidad</label>
+            <select name="localidad" id="localidad" class="form-select">
+                <option value="">Todas las localidades</option>
+                <?php foreach ($localidades as $loc): ?>
+                    <option value="<?php echo $loc['id_localidad']; ?>" 
+                            <?php echo $filtro_localidad == $loc['id_localidad'] ? 'selected' : ''; ?>>
+                        <?php echo $loc['nombre_localidad']; ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        
+        <div class="col-md-3">
+            <label for="sede" class="form-label">Sede</label>
+            <select name="sede" id="sede" class="form-select">
+                <option value="">Seleccione Localidad</option>
+                <?php foreach ($sedes as $s): ?>
+                    <option value="<?php echo $s['id_sede']; ?>" data-localidad="<?php echo $s['id_localidad']; ?>"
+                            <?php echo $filtro_sede == $s['id_sede'] ? 'selected' : ''; ?>>
+                        <?php echo $s['nombre_sede']; ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        
+        <div class="col-md-3">
+            <label for="estado" class="form-label">Estado</label>
+            <select name="estado" id="estado" class="form-select">
+                <option value="">Todos los estados</option>
+                <?php foreach ($estados_vigilancia as $est): ?>
+                    <option value="<?php echo $est; ?>" 
+                            <?php echo $filtro_estado == $est ? 'selected' : ''; ?>>
+                        <?php echo $est; ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        
+        <div class="col-md-3 d-flex align-items-end">
+            <div class="d-grid gap-1 w-100">
+                <button type="submit" class="btn btn-primary btn-sm">
+                    <i class="fas fa-search me-1"></i>Filtrar
+                </button>
+                <a href="telecom_vigilancia.php" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-times me-1"></i>Limpiar
+                </a>
+            </div>
+        </div>
+    </form>
 </div>
 
 <div class="card">
@@ -317,6 +408,43 @@ $(function() {
         var data = $(this).data('row');
         editServ(data);
     });
+    
+    // ========================================
+    // FILTRADO DE SEDES POR LOCALIDAD
+    // ========================================
+    $('#localidad').on('change', function() {
+        const idLocalidad = $(this).val();
+        const sedeSelect = $('#sede');
+        
+        // Limpiar y deshabilitar si no hay localidad
+        if (!idLocalidad) {
+            sedeSelect.html('<option value="">Seleccione Localidad</option>').prop('disabled', true);
+            return;
+        }
+        
+        // Filtrar sedes
+        const opciones = [`<option value="">Todas las sedes</option>`];
+        $('[data-localidad]').each(function() {
+            if ($(this).data('localidad') == idLocalidad) {
+                opciones.push($(this)[0].outerHTML);
+            }
+        });
+        
+        sedeSelect.html(opciones.join('')).prop('disabled', false);
+        
+        // Mantener selección si existe
+        const sedeActual = '<?php echo $filtro_sede; ?>';
+        if (sedeActual) {
+            sedeSelect.val(sedeActual);
+        }
+    });
+    
+    // Inicializar estado de sede al cargar
+    if ($('#localidad').val()) {
+        $('#localidad').trigger('change');
+    } else {
+        $('#sede').prop('disabled', true);
+    }
 });
 </script>
 

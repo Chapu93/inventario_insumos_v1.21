@@ -48,7 +48,7 @@ try {
 
     $data = array_map(function($r) {
         return [
-            date('d/m/Y H:i', strtotime($r['fecha_baja'])),
+            date('d/m/Y', strtotime($r['fecha_baja'])),
             htmlspecialchars($r['nombre_insumo']),
             htmlspecialchars($r['tipo_insumo']),
             (isset($r['cantidad']) ? (int)$r['cantidad'] : 1),

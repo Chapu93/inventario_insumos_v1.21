@@ -60,15 +60,10 @@ if ($numero_remito !== '') {
     }
 }
 
-// Cargar remitos recientes (cabecera)
-$stmt = $conexion->query("SELECT r.numero_remito, r.fecha_asignacion, r.nombre_persona_asignada, r.apellido_persona_asignada,
-                                 ar.nombre_area, s.nombre_sede 
-                          FROM remitos r
-                          JOIN areas ar ON r.id_area = ar.id_area 
-                          JOIN sedes s ON r.id_sede = s.id_sede 
-                          ORDER BY r.fecha_asignacion DESC 
-                          LIMIT 10");
-$asignaciones_recientes = $stmt->fetchAll();
+// Cargar remitos para verificar si existen (la tabla DataTable cargará todos vía AJAX)
+$stmt = $conexion->query("SELECT COUNT(*) FROM remitos");
+$tieneRemitos = (int)$stmt->fetchColumn() > 0;
+$asignaciones_recientes = $tieneRemitos ? [true] : [];
 ?>
 <?php include '../../includes/header.php'; ?>
 
@@ -232,6 +227,9 @@ $(function(){
     $t.DataTable({
       processing: true,
       serverSide: true,
+      searching: true,
+      paging: true,
+      lengthMenu: [ [10, 25, 50, 100], [10, 25, 50, 100] ],
       ajax: {
         url: getAppBase() + '/ajax/remitos_list_ssp.php',
         type: 'GET'

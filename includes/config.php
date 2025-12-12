@@ -2,8 +2,8 @@
 // Configuración de la base de datos
 define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
 define('DB_NAME', getenv('DB_NAME') ?: 'inventario_insumos_v1');
-define('DB_USER', getenv('DB_USER') ?: 'root');
-define('DB_PASS', getenv('DB_PASS') ?: '');
+define('DB_USER', getenv('DB_USER') ?: 'joaquin');
+define('DB_PASS', getenv('DB_PASS') ?: '12345678');
 define('DB_PORT', getenv('DB_PORT') ?: '3306');
 define('DB_SOCKET', getenv('DB_SOCKET') ?: null);
 
@@ -300,6 +300,93 @@ $appEnv = getenv('APP_ENV');
 $logLevel = getenv('LOG_LEVEL');
 Logger::enable($appEnv !== 'production' && $appEnv !== false); // Solo en desarrollo
 Logger::setLevel($logLevel !== false ? $logLevel : 'ERROR');
+
+/**
+ * Procesar archivo adjunto a ingreso
+ * @param array $archivo - $_FILES['nombre_archivo']
+ * @param int $id_ingreso
+ * @param string $tipo_documento - 'remito' o 'documentacion'
+ * @param string $uploadDir - Directorio donde guardar
+ * @param PDO $db
+ * @param int $usuarioId
+ * @return array ['success' => bool, 'id_documento' => int|null, 'error' => string|null]
+ */
+function procesarArchivoAdjunto($archivo, $id_ingreso, $tipo_documento, $uploadDir, $db, $usuarioId) {
+    $maxSize = 10 * 1024 * 1024; // 10MB
+    $extensionesPermitidas = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx', 'xls', 'xlsx', 'zip'];
+    
+    Logger::debug("Procesando archivo adjunto", [
+        'nombre' => $archivo['name'],
+        'tipo_documento' => $tipo_documento,
+        'id_ingreso' => $id_ingreso,
+        'size' => $archivo['size'],
+        'error' => $archivo['error']
+    ]);
+    
+    // Validar tamaño
+    if ($archivo['size'] > $maxSize) {
+        return ['success' => false, 'error' => 'El archivo excede el tamaño máximo de 10MB'];
+    }
+    
+    // Validar tipo
+    $extension = strtolower(pathinfo($archivo['name'], PATHINFO_EXTENSION));
+    if (!in_array($extension, $extensionesPermitidas)) {
+        return ['success' => false, 'error' => 'Tipo de archivo no permitido: ' . $extension];
+    }
+    
+    // Validar error de carga
+    if ($archivo['error'] !== UPLOAD_ERR_OK) {
+        $errores = [
+            UPLOAD_ERR_INI_SIZE => 'El archivo es demasiado grande',
+            UPLOAD_ERR_FORM_SIZE => 'El archivo excede el límite del formulario',
+            UPLOAD_ERR_PARTIAL => 'El archivo fue parcialmente cargado',
+            UPLOAD_ERR_NO_FILE => 'No se seleccionó archivo',
+            UPLOAD_ERR_NO_TMP_DIR => 'Falta directorio temporal',
+            UPLOAD_ERR_CANT_WRITE => 'No se puede escribir el archivo',
+            UPLOAD_ERR_EXTENSION => 'Extensión PHP bloqueó el archivo'
+        ];
+        return ['success' => false, 'error' => $errores[$archivo['error']] ?? 'Error desconocido'];
+    }
+    
+    // Generar nombre único
+    $nombreUnico = $tipo_documento . '_' . $id_ingreso . '_' . time() . '.' . $extension;
+    $rutaCompleta = $uploadDir . $nombreUnico;
+    
+    Logger::debug("Guardando archivo", [
+        'nombreUnico' => $nombreUnico,
+        'rutaCompleta' => $rutaCompleta,
+        'tmp_name' => $archivo['tmp_name']
+    ]);
+    
+    // Guardar archivo
+    if (!move_uploaded_file($archivo['tmp_name'], $rutaCompleta)) {
+        Logger::error("Error al mover archivo", ['ruta' => $rutaCompleta]);
+        return ['success' => false, 'error' => 'Error al guardar el archivo'];
+    }
+    
+    // Registrar en base de datos
+    try {
+        $stmt = $db->prepare(
+            'INSERT INTO ingresos_documentos (id_ingreso, nombre_archivo, ruta_archivo, tipo_documento, cargado_por) 
+             VALUES (?, ?, ?, ?, ?)'
+        );
+        $stmt->execute([$id_ingreso, basename($archivo['name']), $nombreUnico, $tipo_documento, $usuarioId]);
+        $idDocumento = $db->lastInsertId();
+        
+        Logger::info("Documento registrado", [
+            'id_documento' => $idDocumento,
+            'id_ingreso' => $id_ingreso,
+            'tipo' => $tipo_documento
+        ]);
+        
+        return ['success' => true, 'id_documento' => $idDocumento, 'nombre' => basename($archivo['name'])];
+    } catch (Exception $e) {
+        // Eliminar archivo si falla el registro
+        @unlink($rutaCompleta);
+        Logger::error("Error al registrar documento en BD", ['error' => $e->getMessage()]);
+        return ['success' => false, 'error' => 'Error al registrar documento: ' . $e->getMessage()];
+    }
+}
 
 // Cargar sistema de autenticación
 require_once __DIR__ . '/auth.php';

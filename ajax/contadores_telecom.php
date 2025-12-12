@@ -27,15 +27,33 @@ try {
 
   // Series: tipos de conexión
   $rowsTipos = $db->query("SELECT tipo_conexion, COUNT(*) c FROM sedes_internet WHERE estado_servicio='Activo' GROUP BY tipo_conexion ORDER BY c DESC")->fetchAll();
-  $tipos = [ 'labels' => array_map(fn($r)=>$r['tipo_conexion'], $rowsTipos), 'data' => array_map(fn($r)=>(int)$r['c'], $rowsTipos) ];
+  $tiposLabels = array();
+  $tiposData = array();
+  foreach ($rowsTipos as $r) {
+    $tiposLabels[] = $r['tipo_conexion'];
+    $tiposData[] = (int)$r['c'];
+  }
+  $tipos = ['labels' => $tiposLabels, 'data' => $tiposData];
 
   // Series: líneas por operador
   $rowsOps = $db->query("SELECT operador, COUNT(*) c FROM sedes_telefonia_lineas WHERE estado='Activa' GROUP BY operador ORDER BY c DESC LIMIT 10")->fetchAll();
-  $operadores = [ 'labels' => array_map(fn($r)=>($r['operador']?:'Sin operador'), $rowsOps), 'data' => array_map(fn($r)=>(int)$r['c'], $rowsOps) ];
+  $opsLabels = array();
+  $opsData = array();
+  foreach ($rowsOps as $r) {
+    $opsLabels[] = ($r['operador'] ?: 'Sin operador');
+    $opsData[] = (int)$r['c'];
+  }
+  $operadores = ['labels' => $opsLabels, 'data' => $opsData];
 
   // Series: dispositivos de red por tipo
   $rowsRed = $db->query("SELECT tipo_dispositivo, COALESCE(SUM(cantidad),0) c FROM sedes_red_dispositivos WHERE estado='Activo' GROUP BY tipo_dispositivo ORDER BY c DESC")->fetchAll();
-  $red = [ 'labels' => array_map(fn($r)=>$r['tipo_dispositivo'], $rowsRed), 'data' => array_map(fn($r)=>(int)$r['c'], $rowsRed) ];
+  $redLabels = array();
+  $redData = array();
+  foreach ($rowsRed as $r) {
+    $redLabels[] = $r['tipo_dispositivo'];
+    $redData[] = (int)$r['c'];
+  }
+  $red = ['labels' => $redLabels, 'data' => $redData];
 
   Logger::debug('Contadores de telecomunicaciones cargados', [
       'sedes_con_internet' => $sedesConInternetActivo,

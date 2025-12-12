@@ -200,8 +200,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         
         // Crear remito (cabecera) y detalle
-        // MODIFICACIÓN: Formato solicitado numero_año_hist
-        $numero = $id_insumo . '_' . date('Y') . '_hist';
+        // MODIFICACIÓN: Secuencial usando tabla remitos_historicos_secuencia
+        $anio = date('Y');
+        $sufijo = '_' . $anio . '_hist';
+        
+        // 1. Asegurar que existe el registro para el año
+        $stmtSeq = $conexion->prepare("INSERT IGNORE INTO remitos_historicos_secuencia (anio, ultimo_numero) VALUES (?, 0)");
+        $stmtSeq->execute([$anio]);
+        
+        // 2. Incrementar y obtener el número (Atómico)
+        $stmtSeq = $conexion->prepare("UPDATE remitos_historicos_secuencia SET ultimo_numero = ultimo_numero + 1 WHERE anio = ?");
+        $stmtSeq->execute([$anio]);
+        
+        $stmtSeq = $conexion->prepare("SELECT ultimo_numero FROM remitos_historicos_secuencia WHERE anio = ?");
+        $stmtSeq->execute([$anio]);
+        $secuencia = $stmtSeq->fetchColumn();
+        
+        $numero = $secuencia . $sufijo;
         
         $sql = "INSERT INTO remitos (numero_remito, id_sede, id_area, nombre_persona_asignada, apellido_persona_asignada, fecha_asignacion, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conexion->prepare($sql);
@@ -390,15 +405,13 @@ include '../../includes/header.php';
                                             </div>
                                             
                                             <div class="mb-2">
-                                                <label for="id_fisico" class="form-label">ID Físico *</label>
-                                                <input type="text" class="form-control form-control-sm w-100" id="id_fisico" name="id_fisico" required>
-                                                <div class="invalid-feedback">El ID físico es obligatorio</div>
+                                                <label for="id_fisico" class="form-label">ID Físico</label>
+                                                <input type="text" class="form-control form-control-sm w-100" id="id_fisico" name="id_fisico">
                                             </div>
                                             
                                             <div class="mb-2">
-                                                <label for="id_patrimonio" class="form-label">ID Patrimonio *</label>
-                                                <input type="text" class="form-control form-control-sm w-100" id="id_patrimonio" name="id_patrimonio" required>
-                                                <div class="invalid-feedback">El ID patrimonio es obligatorio</div>
+                                                <label for="id_patrimonio" class="form-label">ID Patrimonio</label>
+                                                <input type="text" class="form-control form-control-sm w-100" id="id_patrimonio" name="id_patrimonio">
                                             </div>
                                             
                                             <div class="mb-2">
@@ -608,6 +621,23 @@ include '../../includes/header.php';
 
 <?php include '../../includes/footer.php'; ?>
 
+<style>
+/* Sobrescribir estilos de validación de Bootstrap para campos opcionales */
+#id_fisico:invalid,
+#id_patrimonio:invalid,
+#numero_serie:invalid {
+    border-color: #dee2e6 !important;
+    background-image: none !important;
+}
+
+#id_fisico.is-invalid,
+#id_patrimonio.is-invalid,
+#numero_serie.is-invalid {
+    border-color: #dee2e6 !important;
+    background-image: none !important;
+}
+</style>
+
 <script>
 // Paso 1 -> Paso 2 y viceversa
 $('#btnSiguiente').on('click', function(){
@@ -724,8 +754,9 @@ function toggleCampos() {
     $('#help-nombre-insumo').hide();
     console.log('Columna especificaciones mostrada');
     
-    // Habilitar required solo en id_fisico e id_patrimonio
-    $('#id_fisico, #id_patrimonio').prop('required', true);
+    // Habilitar required solo en id_fisico e id_patrimonio (MODIFICADO: Ahora son opcionales)
+    $('#id_fisico, #id_patrimonio').prop('required', false);
+    $('#id_fisico, #id_patrimonio').removeAttr('required');
     
     // IMPORTANTE: numero_serie NUNCA es requerido - ejecutar múltiples veces para asegurar
     $('#numero_serie').prop('required', false);
@@ -793,6 +824,11 @@ $(function(){
   setTimeout(function() {
     $('#numero_serie').prop('required', false);
     $('#numero_serie').removeAttr('required');
+    
+    // REFUERZO: Asegurar que id_fisico e id_patrimonio NO sean requeridos
+    $('#id_fisico, #id_patrimonio').prop('required', false);
+    $('#id_fisico, #id_patrimonio').removeAttr('required');
+    $('#id_fisico, #id_patrimonio').removeClass('is-invalid');
   }, 200);
 });
 
@@ -812,9 +848,10 @@ function validarDuplicados() {
     const idFisico = $('#id_fisico').val()?.trim() || '';
     const idPatrimonio = $('#id_patrimonio').val()?.trim() || '';
     
-    // Si todos están vacíos, no validar
+    // Si todos están vacíos, no validar y LIMPIAR errores
     if (!numeroSerie && !idFisico && !idPatrimonio) {
         $('#error-duplicados').hide();
+        $('#numero_serie, #id_fisico, #id_patrimonio').removeClass('is-invalid');
         $('button[type="submit"]').prop('disabled', false);
         return;
     }
@@ -836,9 +873,12 @@ function validarDuplicados() {
                         resp.errores.join('<br>') +
                         '</div>'
                     ).show();
+                    // Solo marcar como inválido si realmente tiene valor y causó el error
+                    // Esto es complejo de saber con exactitud, pero al menos no bloqueamos si está vacío
                     $('button[type="submit"]').prop('disabled', true);
                 } else {
                     $('#error-duplicados').hide();
+                    $('#numero_serie, #id_fisico, #id_patrimonio').removeClass('is-invalid');
                     $('button[type="submit"]').prop('disabled', false);
                 }
             },
@@ -850,7 +890,11 @@ function validarDuplicados() {
 }
 
 // Aplicar validación cuando el usuario escriba en los campos
-$('#numero_serie, #id_fisico, #id_patrimonio').on('input blur', validarDuplicados);
+// Y forzar limpieza de error al escribir
+$('#numero_serie, #id_fisico, #id_patrimonio').on('input blur', function() {
+    $(this).removeClass('is-invalid'); // Limpiar error inmediatamente al escribir
+    validarDuplicados();
+});
 
 // Función para cambiar label según tipo de ingreso
 function cambiarTipoIngresoNueva() {
@@ -898,8 +942,11 @@ $('#formAgregarNueva').on('submit', function(e) {
   console.log('Nombre persona:', $('#nombre_persona_asignada').val());
   console.log('Apellido persona:', $('#apellido_persona_asignada').val());
   
-  // Verificar campos inválidos
-  const invalidos = $(this).find(':invalid');
+  // IMPORTANTE: Remover required de campos opcionales antes de validar
+  $('#id_fisico, #id_patrimonio, #numero_serie').prop('required', false).removeAttr('required');
+  
+  // Verificar campos inválidos (EXCLUYENDO explícitamente los opcionales)
+  const invalidos = $(this).find(':invalid').not('#id_fisico, #id_patrimonio, #numero_serie');
   console.log('Campos inválidos encontrados:', invalidos.length);
   
   if (invalidos.length > 0) {
@@ -917,33 +964,4 @@ $('#formAgregarNueva').on('submit', function(e) {
 </script>
 
 
-<script>
-// DEBUG: Detectar submit del formulario
-$('#formAgregarNueva').on('submit', function(e) {
-  console.log('========================================');
-  console.log('FORMULARIO SUBMIT DISPARADO');
-  console.log('========================================');
-  console.log('Tipo insumo:', $('#tipo_insumo').val());
-  console.log('Nombre insumo:', $('[name="nombre_insumo"]').val());
-  console.log('ID Sede:', $('#id_sede').val());
-  console.log('ID Area:', $('#id_area_asignada').val());
-  console.log('Nombre persona:', $('#nombre_persona_asignada').val());
-  console.log('Apellido persona:', $('#apellido_persona_asignada').val());
-  
-  // Verificar campos inválidos
-  const invalidos = $(this).find(':invalid');
-  console.log('Campos inválidos encontrados:', invalidos.length);
-  
-  if (invalidos.length > 0) {
-    console.log('BLOQUEANDO SUBMIT - Campos inválidos:');
-    invalidos.each(function() {
-      console.log('  - Campo:', this.name || this.id, 'Valor:', $(this).val(), 'Tipo:', this.type);
-    });
-    e.preventDefault();
-    alert('Hay campos requeridos sin completar. Revisa la consola (F12) para más detalles.');
-    return false;
-  }
-  
-  console.log('✅ Validación OK - Enviando formulario...');
-});
-</script>
+

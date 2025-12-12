@@ -822,6 +822,13 @@ table tbody td:first-child {
     color: var(--dark-color) !important;
 }
 
+.estado-anulado {
+    background-color: #dc3545 !important;
+    color: white !important;
+    font-weight: 600 !important;
+    border: 2px solid #c82333 !important;
+}
+
 /* Estado para "De Baja" (nombre con espacio) */
 .estado-de-baja {
     background-color: #343a40 !important;

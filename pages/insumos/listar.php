@@ -59,7 +59,9 @@ $insumos = $stmt->fetchAll();
 $stmt = $conexion->query("SELECT DISTINCT tipo_insumo FROM insumos ORDER BY tipo_insumo");
 $tipos_insumo = $stmt->fetchAll();
 
-// (Se quitó filtro de localidades en la UI)
+// Obtener localidades para filtro
+$stmt = $conexion->query("SELECT id_localidad, nombre_localidad FROM localidades ORDER BY nombre_localidad");
+$localidades = $stmt->fetchAll();
 ?>
 
 <?php include '../../includes/header.php'; ?>
@@ -87,9 +89,28 @@ $tipos_insumo = $stmt->fetchAll();
     </div>
 </div>
 
+<!-- Tabs de Estado -->
+<ul class="nav nav-tabs mb-3" id="tabsEstado">
+    <li class="nav-item">
+        <a class="nav-link active" href="#" data-estado="Disponible">
+            <i class="fas fa-check-circle me-2 text-success"></i>Disponibles
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#" data-estado="Asignado">
+            <i class="fas fa-user-check me-2 text-primary"></i>Asignados
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="#" data-estado="">
+            <i class="fas fa-list me-2 text-secondary"></i>Todos
+        </a>
+    </li>
+</ul>
+
 <!-- Filtros -->
-<div class="filtros-container">
-    <form method="GET" class="row g-3">
+<div class="filtros-container mb-3">
+    <form method="GET" class="row g-3 align-items-end">
         <div class="col-md-3">
             <label for="tipo" class="form-label">Tipo de Insumo</label>
             <select name="tipo" id="tipo" class="form-select">
@@ -103,26 +124,35 @@ $tipos_insumo = $stmt->fetchAll();
             </select>
         </div>
         
-        
-        
-        <div class="col-md-3">
-            <label for="estado" class="form-label">Estado</label>
-            <select name="estado" id="estado" class="form-select">
-                <option value="">Todos los estados</option>
-                <option value="Disponible" <?php echo $filtro_estado == 'Disponible' ? 'selected' : ''; ?>>Disponible</option>
-                <option value="Asignado" <?php echo $filtro_estado == 'Asignado' ? 'selected' : ''; ?>>Asignado</option>
-                <option value="De Baja" <?php echo $filtro_estado == 'De Baja' ? 'selected' : ''; ?>>De Baja</option>
+        <!-- Filtros de Ubicación (Solo visibles en Asignados/Todos) -->
+        <div class="col-md-3 filtro-ubicacion" style="display:none;">
+            <label for="id_localidad" class="form-label">Localidad</label>
+            <select name="id_localidad" id="id_localidad" class="form-select">
+                <option value="">Todas</option>
+                <?php foreach ($localidades as $loc): ?>
+                    <option value="<?php echo $loc['id_localidad']; ?>"><?php echo $loc['nombre_localidad']; ?></option>
+                <?php endforeach; ?>
             </select>
         </div>
         
-        <div class="col-md-3 ms-md-auto d-flex align-items-end">
+        <div class="col-md-3 filtro-ubicacion" style="display:none;">
+            <label for="id_sede" class="form-label">Sede</label>
+            <select name="id_sede" id="id_sede" class="form-select" disabled>
+                <option value="">Seleccione Localidad</option>
+            </select>
+        </div>
+        
+        <!-- Input oculto para mantener el estado seleccionado al filtrar por tipo -->
+        <input type="hidden" name="estado" id="estado" value="Disponible">
+        
+        <div class="col-md-3 d-flex align-items-end ms-auto">
             <div class="d-grid gap-1 w-100">
                 <button type="submit" class="btn btn-primary btn-sm">
                     <i class="fas fa-search me-1"></i>Filtrar
                 </button>
-                <a href="listar.php" class="btn btn-secondary btn-sm">
+                <button type="button" class="btn btn-secondary btn-sm" id="btnLimpiarFiltros">
                     <i class="fas fa-times me-1"></i>Limpiar
-                </a>
+                </button>
             </div>
         </div>
     </form>
@@ -551,9 +581,30 @@ document.getElementById('btnConfirmarBaja').addEventListener('click', function()
 
 <script>
 $(function(){
+  // Inicializar estado desde URL o por defecto 'Disponible'
+  const urlParams = new URLSearchParams(window.location.search);
+  const estadoInicial = urlParams.get('estado') !== null ? urlParams.get('estado') : 'Disponible';
+  
+  // Función para actualizar visibilidad de filtros
+  function actualizarFiltrosUbicacion(estado) {
+      if (estado === 'Asignado' || estado === '') { // Asignado o Todos
+          $('.filtro-ubicacion').fadeIn();
+      } else {
+          $('.filtro-ubicacion').hide();
+          // Limpiar valores al ocultar para no filtrar accidentalmente
+          $('#id_localidad').val('').trigger('change');
+          $('#id_sede').val('').prop('disabled', true);
+      }
+  }
+
+  // Establecer tab activo y valor inicial
+  $('#estado').val(estadoInicial);
+  $(`#tabsEstado a[data-estado="${estadoInicial}"]`).addClass('active').parent().siblings().find('a').removeClass('active');
+  actualizarFiltrosUbicacion(estadoInicial);
+
   var $t = $('#tablaInsumos');
   if ($.fn && $.fn.DataTable && $t.length) {
-    $t.DataTable({
+    var dt = $t.DataTable({
       processing: true,
       serverSide: true,
       ajax: {
@@ -563,6 +614,8 @@ $(function(){
           // Enviar filtros actuales
           d.tipo = $('#tipo').val() || '';
           d.estado = $('#estado').val() || '';
+          d.id_localidad = $('#id_localidad').val() || '';
+          d.id_sede = $('#id_sede').val() || '';
         }
       },
       order: [[$t.data('default-order-col') || 1, $t.data('default-order-dir') || 'asc']],
@@ -577,8 +630,79 @@ $(function(){
       drawCallback: function(){ inicializarTooltips(); }
     });
   }
-  // Reaplicar con filtros
-  $('form').on('submit', function(e){ e.preventDefault(); $('#tablaInsumos').DataTable().ajax.reload(); });
+  
+  // Manejo de clicks en tabs
+  $('#tabsEstado a').on('click', function(e) {
+      e.preventDefault();
+      // Actualizar UI tabs
+      $('#tabsEstado a').removeClass('active');
+      $(this).addClass('active');
+      
+      // Actualizar valor oculto y recargar tabla
+      const nuevoEstado = $(this).data('estado');
+      $('#estado').val(nuevoEstado);
+      
+      actualizarFiltrosUbicacion(nuevoEstado);
+      
+      $('#tablaInsumos').DataTable().ajax.reload();
+  });
+
+  // Carga dinámica de sedes
+  $('#id_localidad').on('change', function() {
+      const idLocalidad = $(this).val();
+      const $sedeSelect = $('#id_sede');
+      
+      $sedeSelect.empty().append('<option value="">Todas</option>');
+      
+      if (idLocalidad) {
+          $sedeSelect.prop('disabled', true).append('<option value="" selected>Cargando...</option>');
+          
+          // Usar el endpoint estándar del proyecto
+          fetch(getAppBase() + '/ajax/cargar_sedes.php?localidad_id=' + idLocalidad)
+              .then(response => response.json())
+              .then(resp => {
+                  $sedeSelect.empty().append('<option value="">Todas</option>');
+                  // El endpoint devuelve { success: true, data: { sedes: [...] } } o similar
+                  // Ajustar según la estructura real de json_success
+                  const sedes = (resp.data && resp.data.sedes) ? resp.data.sedes : (resp.sedes || []);
+                  
+                  if (sedes && sedes.length > 0) {
+                      sedes.forEach(sede => {
+                          $sedeSelect.append(`<option value="${sede.id}">${sede.nombre}</option>`);
+                      });
+                      $sedeSelect.prop('disabled', false);
+                  } else {
+                      $sedeSelect.append('<option value="" disabled>No hay sedes</option>');
+                  }
+              })
+              .catch(error => {
+                  console.error('Error:', error);
+                  $sedeSelect.empty().append('<option value="">Error al cargar</option>');
+              });
+      } else {
+          $sedeSelect.prop('disabled', true).append('<option value="">Seleccione Localidad primero</option>');
+      }
+  });
+
+  // Reaplicar con filtros (Tipo)
+  $('form').on('submit', function(e){ 
+      e.preventDefault(); 
+      $('#tablaInsumos').DataTable().ajax.reload(); 
+  });
+  
+  // Botón Limpiar
+  $('#btnLimpiarFiltros').on('click', function() {
+      $('#tipo').val('');
+      $('#id_localidad').val('').trigger('change');
+      
+      // Resetear a Disponible por defecto
+      $('#estado').val('Disponible');
+      $('#tabsEstado a').removeClass('active');
+      $('#tabsEstado a[data-estado="Disponible"]').addClass('active');
+      actualizarFiltrosUbicacion('Disponible');
+      
+      $('#tablaInsumos').DataTable().ajax.reload();
+  });
   
   // Delegar edición de cantidades para items asignados (tipo Varios)
   $(document).on('click', '.btn-editar-cantidad', function(){

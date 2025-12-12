@@ -52,6 +52,33 @@ verificarPermiso('usuarios', 'ver');
                             $ultimoAcceso = $user['ultimo_acceso'] ? date('d/m/Y H:i', strtotime($user['ultimo_acceso'])) : 'Nunca';
                             $activo = (int)$user['activo'];
                             $esYo = $user['id_usuario'] == obtenerUsuarioId();
+                            
+                            // Verificar si tiene permisos personalizados
+                            $tienePermisosPersonalizados = !empty($user['permisos_personalizados']);
+                            $indicador = '';
+                            $titulo = '';
+                            
+                            if ($tienePermisosPersonalizados) {
+                                $permisosPersonalizados = json_decode($user['permisos_personalizados'], true);
+                                $permisosRol = json_decode($user['permisos_rol'] ?? '{}', true);
+                                
+                                if (is_array($permisosPersonalizados) && is_array($permisosRol)) {
+                                    // Contar permisos totales
+                                    $totalPersonalizados = array_sum(array_map('count', $permisosPersonalizados));
+                                    $totalRol = array_sum(array_map('count', $permisosRol));
+                                    
+                                    if ($totalPersonalizados > $totalRol) {
+                                        $indicador = ' <i class="fas fa-arrow-up text-success" title="Más permisos que el rol"></i>';
+                                        $titulo = 'Tiene más permisos que el rol asignado';
+                                    } elseif ($totalPersonalizados < $totalRol) {
+                                        $indicador = ' <i class="fas fa-arrow-down text-danger" title="Menos permisos que el rol"></i>';
+                                        $titulo = 'Tiene menos permisos que el rol asignado';
+                                    } else {
+                                        $indicador = ' <i class="fas fa-circle text-warning" style="font-size: 0.5rem;" title="Permisos modificados"></i>';
+                                        $titulo = 'Tiene permisos personalizados';
+                                    }
+                                }
+                            }
                     ?>
                         <tr>
                             <td>
@@ -67,9 +94,9 @@ verificarPermiso('usuarios', 'ver');
                                     echo $user['id_rol'] == 1 ? 'danger' : 
                                         ($user['id_rol'] == 2 ? 'warning' : 
                                         ($user['id_rol'] == 3 ? 'primary' : 'secondary')); 
-                                ?>">
+                                ?>" data-bs-toggle="tooltip" title="<?php echo $titulo; ?>">
                                     <?php echo $rol; ?>
-                                </span>
+                                </span><?php echo $indicador; ?>
                             </td>
                             <td><?php echo $ultimoAcceso; ?></td>
                             <td>

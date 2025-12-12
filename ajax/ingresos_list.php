@@ -14,7 +14,8 @@ try {
     $rows = $db->query("SELECT id_ingreso, tipo_ingreso, nro_referencia, 
                                DATE(fecha_finalizacion) as fecha_finalizacion, 
                                created_at,
-                               (SELECT COUNT(*) FROM insumos i WHERE i.id_ingreso = ing.id_ingreso) AS num_insumos
+                               (SELECT COUNT(*) FROM insumos i WHERE i.id_ingreso = ing.id_ingreso) AS num_insumos,
+                               (SELECT COUNT(*) FROM ingresos_documentos d WHERE d.id_ingreso = ing.id_ingreso) AS num_documentos
                         FROM ingresos ing ORDER BY ing.created_at DESC")->fetchAll();
     
     Logger::debug('Lista de ingresos cargada', ['count' => count($rows)]);

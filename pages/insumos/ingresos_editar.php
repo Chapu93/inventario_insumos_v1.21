@@ -87,9 +87,11 @@ $uiConfig = $uiByTipo[$tipoIngreso] ?? $uiDefaults;
 
 // Obtener todos los insumos disponibles (sin licitación asignada) y los de esta licitación si estamos editando
 $sqlInsumos = "SELECT i.id_insumo, i.nombre_insumo, i.tipo_insumo, i.subcategoria_varios, i.numero_serie, i.id_fisico, i.cantidad, 
-               ps.nombre_punto AS punto_stock
+               ps.nombre_punto AS punto_stock,
+               pc.sist_op AS sistema_operativo
                FROM insumos i
                LEFT JOIN puntos_stock ps ON i.id_punto_stock_actual = ps.id_punto_stock
+               LEFT JOIN pcs_completas pc ON i.id_insumo = pc.id_insumo
                WHERE (i.id_ingreso IS NULL" . ($esEdicion ? " OR i.id_ingreso = ?" : "") . ")
                AND (i.tipo_insumo <> 'Varios' OR i.cantidad > 0)
                ORDER BY i.nombre_insumo";
@@ -148,6 +150,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                ->execute($params);
         }
         
+        // Procesar archivos adjuntos
+        $usuarioId = obtenerUsuarioId();
+        $uploadDir = __DIR__ . '/../../../public/uploads/ingresos/';
+        
+        // Crear directorio si no existe
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+        
+        // Procesar remito
+        if (!empty($_FILES['archivo_remito']['name'])) {
+            $resultado = procesarArchivoAdjunto($_FILES['archivo_remito'], $id, 'remito', $uploadDir, $db, $usuarioId);
+            if (!$resultado['success']) {
+                Logger::warning("Error al cargar remito", ['error' => $resultado['error']]);
+            }
+        }
+        
+        // Procesar documentación
+        if (!empty($_FILES['archivo_documentacion']['name'])) {
+            $resultado = procesarArchivoAdjunto($_FILES['archivo_documentacion'], $id, 'documentacion', $uploadDir, $db, $usuarioId);
+            if (!$resultado['success']) {
+                Logger::warning("Error al cargar documentación", ['error' => $resultado['error']]);
+            }
+        }
+        
         $db->commit();
         
         // Limpiar localStorage
@@ -194,7 +221,7 @@ include '../../includes/header.php';
 <div id="ingreso-pasos">
     <div class="card">
         <div class="card-body">
-            <form method="POST" id="formPasos" class="needs-validation" novalidate>
+            <form method="POST" id="formPasos" class="needs-validation" novalidate enctype="multipart/form-data">
                 <?php echo csrf_input(); ?>
                 <?php if ($esEdicion && $idIngreso): ?>
                     <input type="hidden" name="id_ingreso" value="<?php echo $idIngreso; ?>">
@@ -249,11 +276,49 @@ include '../../includes/header.php';
                                     ><?php echo $esEdicion && $ingresoData && $ingresoData['descripcion'] ? htmlspecialchars($ingresoData['descripcion']) : ''; ?></textarea>
                                 </div>
                             </div>
+                            
+                            <!-- Documentos Adjuntos -->
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <h6 class="mb-3 section-title">Documentos Adjuntos</h6>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="editar_archivo_remito" class="form-label">
+                                            <i class="fas fa-file-pdf me-1"></i>Remito
+                                        </label>
+                                        <input type="file" class="form-control" id="editar_archivo_remito" name="archivo_remito" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                                        <small class="text-muted">PDF, imágenes o documentos (máx. 10MB)</small>
+                                        <div id="documentos_remito_existentes" class="mt-2" style="display:none;">
+                                            <small class="text-muted d-block mb-2">Documento actual:</small>
+                                            <div id="lista_remito" class="list-group list-group-sm"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="editar_archivo_documentacion" class="form-label">
+                                            <i class="fas fa-file-alt me-1"></i>Documentación
+                                        </label>
+                                        <input type="file" class="form-control" id="editar_archivo_documentacion" name="archivo_documentacion" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xlsx,.xls,.zip">
+                                        <small class="text-muted">PDF, imágenes, documentos o archivos (máx. 10MB)</small>
+                                        <div id="documentos_documentacion_existentes" class="mt-2" style="display:none;">
+                                            <small class="text-muted d-block mb-2">Documentos actuales:</small>
+                                            <div id="lista_documentacion" class="list-group list-group-sm"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="row mt-2 justify-content-center">
                         <div class="col-lg-10 col-xl-8">
-                            <div class="d-flex justify-content-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                <?php if ($esEdicion): ?>
+                                <button type="button" class="btn btn-secondary" id="btnGuardarPDF">
+                                    <i class="fas fa-file-pdf me-2"></i>Guardar PDF
+                                </button>
+                                <?php endif; ?>
                                 <button type="button" class="btn btn-primary" id="btnSiguiente">
                                     <i class="fas fa-arrow-right me-2"></i>Siguiente
                                 </button>
@@ -324,9 +389,13 @@ include '../../includes/header.php';
                                                     data-texto="<?php echo strtolower(htmlspecialchars($ins['nombre_insumo'] . ' ' . ($ins['numero_serie'] ?: '') . ' ' . ($ins['id_fisico'] ?: ''))); ?>">
                                                     <td>
                                                         <div>
-                                                            <strong><?php echo htmlspecialchars($ins['nombre_insumo']); ?></strong>
-                                                            <?php if ($ins['numero_serie']): ?>
-                                                                <div class="text-muted small">S/N: <?php echo htmlspecialchars($ins['numero_serie']); ?></div>
+                                                            <?php if ($ins['tipo_insumo'] === 'PC Escritorio' && $ins['sistema_operativo']): ?>
+                                                                <strong><?php echo htmlspecialchars($ins['sistema_operativo']); ?></strong>
+                                                            <?php else: ?>
+                                                                <strong><?php echo htmlspecialchars($ins['nombre_insumo']); ?></strong>
+                                                                <?php if ($ins['numero_serie']): ?>
+                                                                    <div class="text-muted small">S/N: <?php echo htmlspecialchars($ins['numero_serie']); ?></div>
+                                                                <?php endif; ?>
                                                             <?php endif; ?>
                                                             <?php if ($ins['id_fisico']): ?>
                                                                 <div class="text-muted small">ID: <?php echo htmlspecialchars($ins['id_fisico']); ?></div>
@@ -890,4 +959,144 @@ $('#formPasos').on('submit', function() {
         localStorage.removeItem('ingreso_seleccionados');
     } catch(e) {}
 });
+
+// Botón Guardar PDF
+$('#btnGuardarPDF').on('click', function() {
+    if (!ES_EDICION) {
+        showToast('Esta acción solo está disponible al editar un ingreso existente', 'warning');
+        return;
+    }
+    
+    const idIngresoEdit = <?php echo $idIngreso; ?>;
+    const tieneArchivoRemito = $('#editar_archivo_remito')[0].files.length > 0;
+    const tieneArchivoDocumentacion = $('#editar_archivo_documentacion')[0].files.length > 0;
+    
+    if (!tieneArchivoRemito && !tieneArchivoDocumentacion) {
+        showToast('Selecciona al menos un archivo para guardar', 'warning');
+        return;
+    }
+    
+    // Crear FormData para enviar archivos
+    const formData = new FormData();
+    
+    if (tieneArchivoRemito) {
+        formData.append('archivo_remito', $('#editar_archivo_remito')[0].files[0]);
+    }
+    
+    if (tieneArchivoDocumentacion) {
+        formData.append('archivo_documentacion', $('#editar_archivo_documentacion')[0].files[0]);
+    }
+    
+    // Deshabilitar botón mientras se carga
+    const btn = $(this);
+    const btnOriginalHTML = btn.html();
+    btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Guardando...');
+    
+    $.ajax({
+        url: BASE + '/ajax/ingresos_guardar_documentos.php?id=' + idIngresoEdit,
+        method: 'POST',
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function(resp) {
+            if (resp && resp.success) {
+                showToast('Documentos guardados correctamente', 'success');
+                
+                // Limpiar inputs de archivo
+                $('#editar_archivo_remito').val('');
+                $('#editar_archivo_documentacion').val('');
+                
+                // Recargar página para mostrar nuevos documentos
+                setTimeout(function() {
+                    window.location.href = BASE + '/pages/insumos/ingresos_listar.php';
+                }, 1500);
+            } else {
+                showToast(resp.error || 'Error al guardar documentos', 'error');
+                btn.prop('disabled', false).html(btnOriginalHTML);
+            }
+        },
+        error: function(xhr) {
+            console.error('Error:', xhr);
+            showToast('Error al guardar documentos. Por favor intente nuevamente', 'error');
+            btn.prop('disabled', false).html(btnOriginalHTML);
+        }
+    });
+});
+
+// Cargar documentos existentes si estamos editando
+if (ES_EDICION) {
+    const idIngresoEdit = <?php echo $idIngreso; ?>;
+    
+    $.ajax({
+        url: BASE + '/ajax/ingresos_documentos_listar.php',
+        data: { id: idIngresoEdit },
+        dataType: 'json',
+        success: function(resp) {
+            if (resp && resp.success && resp.data && resp.data.documentos) {
+                const docs = resp.data.documentos;
+                
+                // Separar por tipo
+                const remitos = docs.filter(d => d.tipo_documento === 'remito');
+                const documentaciones = docs.filter(d => d.tipo_documento === 'documentacion');
+                
+                // Mostrar remitos
+                if (remitos.length > 0) {
+                    let html = '';
+                    remitos.forEach(doc => {
+                        html += `
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="fas fa-file-pdf me-1"></i>
+                                        <small>${$('<div>').text(doc.nombre_archivo).html()}</small>
+                                        <br>
+                                        <small class="text-muted">${doc.fecha_carga}</small>
+                                    </div>
+                                    <a href="${BASE}/ajax/ingresos_descargar_documento.php?id=${doc.id_documento}" 
+                                       class="btn btn-sm btn-outline-primary" 
+                                       download
+                                       title="Descargar">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    $('#lista_remito').html(html);
+                    $('#documentos_remito_existentes').show();
+                }
+                
+                // Mostrar documentación
+                if (documentaciones.length > 0) {
+                    let html = '';
+                    documentaciones.forEach(doc => {
+                        html += `
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <i class="fas fa-file-alt me-1"></i>
+                                        <small>${$('<div>').text(doc.nombre_archivo).html()}</small>
+                                        <br>
+                                        <small class="text-muted">${doc.fecha_carga}</small>
+                                    </div>
+                                    <a href="${BASE}/ajax/ingresos_descargar_documento.php?id=${doc.id_documento}" 
+                                       class="btn btn-sm btn-outline-primary" 
+                                       download
+                                       title="Descargar">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    $('#lista_documentacion').html(html);
+                    $('#documentos_documentacion_existentes').show();
+                }
+            }
+        },
+        error: function() {
+            console.error('Error al cargar documentos existentes');
+        }
+    });
+}
 </script>

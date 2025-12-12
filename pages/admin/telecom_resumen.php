@@ -60,20 +60,89 @@ function cargarResumen(){
   fetch('<?php echo app_base_url(); ?>/ajax/contadores_telecom.php')
     .then(r => r.json())
     .then(d => {
-      if(!d.success) throw new Error(d.error || 'Error');
+      console.log('Datos recibidos:', d);
+      if(!d.success) {
+        console.error('Error en respuesta:', d.error);
+        throw new Error(d.error || 'Error');
+      }
+      
+      // Los datos vienen envueltos en d.data por json_success()
+      const data = d.data || {};
+      const kpis = data.kpis || {};
+      const tiposConexion = data.tipos_conexion || { labels: [], data: [] };
+      const operadores = data.operadores || { labels: [], data: [] };
+      const red = data.red || { labels: [], data: [] };
+      
       // KPIs
-      document.querySelector('#kpi-sedes-internet-activo h3').textContent = d.kpis.sedes_con_internet_activo;
-      document.querySelector('#kpi-sedes-sin-internet h3').textContent = d.kpis.sedes_sin_internet;
-      document.querySelector('#kpi-lineas-fijas h3').textContent = d.kpis.lineas_fijas_activas;
-      document.querySelector('#kpi-lineas-moviles h3').textContent = d.kpis.lineas_moviles_activas;
-      document.querySelector('#kpi-sedes-vigilancia').textContent = d.kpis.vigilancia_activa;
-      document.querySelector('#kpi-camaras').textContent = d.kpis.total_camaras;
-      // Charts
-      new Chart(document.getElementById('chartTiposConexion'), { type:'doughnut', data:{ labels:d.tipos_conexion.labels, datasets:[{ data:d.tipos_conexion.data }] }, options:{responsive:true} });
-      new Chart(document.getElementById('chartOperadores'), { type:'bar', data:{ labels:d.operadores.labels, datasets:[{ label:'Líneas', data:d.operadores.data }] }, options:{responsive:true} });
-      new Chart(document.getElementById('chartRed'), { type:'bar', data:{ labels:d.red.labels, datasets:[{ label:'Dispositivos', data:d.red.data }] }, options:{responsive:true} });
+      document.querySelector('#kpi-sedes-internet-activo h3').textContent = kpis.sedes_con_internet_activo || 0;
+      document.querySelector('#kpi-sedes-sin-internet h3').textContent = kpis.sedes_sin_internet || 0;
+      document.querySelector('#kpi-lineas-fijas h3').textContent = kpis.lineas_fijas_activas || 0;
+      document.querySelector('#kpi-lineas-moviles h3').textContent = kpis.lineas_moviles_activas || 0;
+      document.querySelector('#kpi-sedes-vigilancia').textContent = kpis.vigilancia_activa || 0;
+      document.querySelector('#kpi-camaras').textContent = kpis.total_camaras || 0;
+      
+      // Colores para gráficos
+      const colores = ['#0066cc', '#ff6b6b', '#51cf66', '#ffd93d', '#6c5ce7', '#00b894', '#fdcb6e', '#e17055'];
+      
+      // Charts - agregar colores y opciones por defecto
+      if (tiposConexion.labels && tiposConexion.labels.length > 0) {
+        new Chart(document.getElementById('chartTiposConexion'), { 
+          type:'doughnut', 
+          data:{ 
+            labels:tiposConexion.labels, 
+            datasets:[{ 
+              data:tiposConexion.data,
+              backgroundColor: colores.slice(0, tiposConexion.data.length)
+            }] 
+          }, 
+          options:{responsive:true, maintainAspectRatio: true}
+        });
+      } else {
+        document.getElementById('chartTiposConexion').parentElement.innerHTML = '<p class="text-muted text-center">Sin datos</p>';
+      }
+      
+      if (operadores.labels && operadores.labels.length > 0) {
+        new Chart(document.getElementById('chartOperadores'), { 
+          type:'bar', 
+          data:{ 
+            labels:operadores.labels, 
+            datasets:[{ 
+              label:'Líneas', 
+              data:operadores.data,
+              backgroundColor: colores[0],
+              borderColor: colores[0],
+              borderWidth: 1
+            }] 
+          }, 
+          options:{responsive:true, maintainAspectRatio: true, indexAxis: 'y'}
+        });
+      } else {
+        document.getElementById('chartOperadores').parentElement.innerHTML = '<p class="text-muted text-center">Sin datos</p>';
+      }
+      
+      if (red.labels && red.labels.length > 0) {
+        new Chart(document.getElementById('chartRed'), { 
+          type:'bar', 
+          data:{ 
+            labels:red.labels, 
+            datasets:[{ 
+              label:'Dispositivos', 
+              data:red.data,
+              backgroundColor: colores[2],
+              borderColor: colores[2],
+              borderWidth: 1
+            }] 
+          }, 
+          options:{responsive:true, maintainAspectRatio: true, indexAxis: 'y'}
+        });
+      } else {
+        document.getElementById('chartRed').parentElement.innerHTML = '<p class="text-muted text-center">Sin datos</p>';
+      }
     })
-    .catch(err => console.error('contadores_telecom', err));
+    .catch(err => {
+      console.error('Error al cargar contadores_telecom:', err);
+      alert('Error al cargar los datos: ' + err.message);
+    });
 }
 document.addEventListener('DOMContentLoaded', cargarResumen);
 </script>
