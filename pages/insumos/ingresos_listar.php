@@ -80,7 +80,7 @@ include '../../includes/header.php';
             <label for="nuevo_archivo_remito" class="form-label">
               <i class="fas fa-file-pdf me-1"></i>Adjuntar Remito
             </label>
-            <input type="file" class="form-control" id="nuevo_archivo_remito" name="archivo_remito" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+            <input type="file" class="form-control" id="nuevo_archivo_remito" name="archivo_remito" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.odt">
             <small class="text-muted">PDF, imágenes o documentos (máx. 10MB)</small>
           </div>
           
@@ -88,7 +88,7 @@ include '../../includes/header.php';
             <label for="nuevo_archivo_documentacion" class="form-label">
               <i class="fas fa-file-alt me-1"></i>Adjuntar Documentación
             </label>
-            <input type="file" class="form-control" id="nuevo_archivo_documentacion" name="archivo_documentacion" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xlsx,.xls,.zip">
+            <input type="file" class="form-control" id="nuevo_archivo_documentacion" name="archivo_documentacion" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xlsx,.xls,.zip,.odt,.ods">
             <small class="text-muted">PDF, imágenes, documentos o archivos comprimidos (máx. 10MB)</small>
           </div>
           
@@ -144,6 +144,7 @@ const PERMISOS = {
   editar: <?php echo tienePermiso('insumos', 'editar') ? 'true' : 'false'; ?>,
   eliminar: <?php echo tienePermiso('insumos', 'eliminar') ? 'true' : 'false'; ?>
 };
+const ES_ADMIN = <?php echo tieneRol([1, 2]) ? 'true' : 'false'; ?>; // Solo Admin/Superadmin pueden eliminar documentos
 
 // Función para formatear fechas sin conversión de timezone
 function formatearFecha(fecha, conHora = false) {
@@ -252,8 +253,8 @@ $(function(){
       infoEmpty: 'Mostrando 0 a 0 de 0 registros',
       infoFiltered: '(filtrado de _MAX_ registros totales)',
       loadingRecords: 'Cargando...',
-      zeroRecords: 'No se encontraron resultados',
-      emptyTable: 'Ningún dato disponible en la tabla',
+      zeroRecords: '<div class="text-center py-3"><i class="fas fa-search fa-2x text-muted mb-2"></i><p class="text-muted mb-0">No se encontraron resultados</p></div>',
+      emptyTable: '<div class="text-center py-3"><i class="fas fa-file-import fa-2x text-muted mb-2"></i><p class="text-muted mb-0">No hay ingresos registrados</p></div>',
       paginate: {
         first: 'Primero',
         previous: 'Anterior',
@@ -535,19 +536,33 @@ function verDocumentosIngreso(id){
                           doc.tipo_documento === 'documentacion' ? 'fa-file-alt' : 'fa-file';
           const tipoLabel = doc.tipo_documento.charAt(0).toUpperCase() + doc.tipo_documento.slice(1);
           
+          // Botón eliminar solo para admins
+          let btnEliminar = '';
+          if (ES_ADMIN) {
+            btnEliminar = `
+              <button class="btn btn-sm btn-danger" 
+                      onclick="eliminarDocumentoIngreso(${doc.id_documento}, ${id})" 
+                      title="Eliminar documento">
+                <i class="fas fa-trash"></i>
+              </button>`;
+          }
+          
           html += `
             <div class="list-group-item">
-              <div class="d-flex justify-content-between align-items-start">
+              <div class="d-flex justify-content-between align-items-center">
                 <div>
                   <h6 class="mb-1"><i class="fas ${tipoIcon} me-2"></i>${$('<div>').text(doc.nombre_archivo).html()}</h6>
                   <small class="text-muted"><strong>Tipo:</strong> ${tipoLabel}<br><strong>Cargado:</strong> ${doc.fecha_carga}</small>
                 </div>
-                <a href="${BASE}/ajax/ingresos_descargar_documento.php?id=${doc.id_documento}" 
-                   class="btn btn-sm btn-primary" 
-                   title="Descargar documento"
-                   download>
-                  <i class="fas fa-download me-1"></i>Descargar
-                </a>
+                <div class="btn-group">
+                  <a href="${BASE}/ajax/ingresos_descargar_documento.php?id=${doc.id_documento}" 
+                     class="btn btn-sm btn-info" 
+                     title="Descargar documento"
+                     download>
+                    <i class="fas fa-download"></i>
+                  </a>
+                  ${btnEliminar}
+                </div>
               </div>
             </div>
           `;
@@ -615,6 +630,38 @@ function eliminarIngreso(id){
     },
     error: function(){ 
       showToast('Error al eliminar el ingreso', 'error'); 
+    }
+  });
+}
+
+// Eliminar documento adjunto (Solo Admin/Superadmin)
+function eliminarDocumentoIngreso(idDocumento, idIngreso) {
+  if (!confirm('¿Está seguro de eliminar este documento?\n\nEsta acción no se puede deshacer.')) return;
+  
+  $.ajax({
+    url: BASE + '/ajax/ingresos_eliminar_documento.php',
+    method: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify({ 
+      _csrf: (document.querySelector('meta[name="csrf-token"]')||{}).content || '', 
+      id: idDocumento 
+    }),
+    success: function(r){ 
+      if (!r.success) { 
+        showToast(r.error||'Error al eliminar documento', 'error'); 
+        return; 
+      }
+      showToast('Documento eliminado correctamente', 'success');
+      // Recargar la lista de documentos
+      verDocumentosIngreso(idIngreso);
+    },
+    error: function(xhr){ 
+      try {
+        const response = JSON.parse(xhr.responseText);
+        showToast(response.error || 'Error al eliminar documento', 'error');
+      } catch(e) {
+        showToast('Error al eliminar documento', 'error');
+      }
     }
   });
 }

@@ -44,7 +44,19 @@ verificarPermiso('usuarios', 'ver');
                         $stmt = $db->query($sql);
                         $usuarios = $stmt->fetchAll();
                         
-                        foreach ($usuarios as $user):
+                        if (empty($usuarios)):
+                    ?>
+                    <tr>
+                        <td colspan="7">
+                            <div class="text-center py-4">
+                                <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">No hay usuarios registrados</h5>
+                                <p class="text-muted">Agregue nuevos usuarios para comenzar</p>
+                            </div>
+                        </td>
+                    </tr>
+                    <?php else: ?>
+                        <?php foreach ($usuarios as $user):
                             $nombreCompleto = htmlspecialchars(trim($user['nombre'] . ' ' . $user['apellido']));
                             $username = htmlspecialchars($user['username']);
                             $email = htmlspecialchars($user['email']);
@@ -163,6 +175,7 @@ verificarPermiso('usuarios', 'ver');
                         </tr>
                     <?php 
                         endforeach;
+                        endif; // Close if (empty($usuarios))
                     } catch (Exception $e) {
                         echo '<tr><td colspan="7" class="text-center text-danger">Error al cargar usuarios: ' . htmlspecialchars($e->getMessage()) . '</td></tr>';
                     }

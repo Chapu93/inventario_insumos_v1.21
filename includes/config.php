@@ -49,6 +49,9 @@ function load_env_simple() {
 }
 load_env_simple();
 
+// La sesión se iniciará en auth.php con la configuración correcta de seguridad
+// No iniciar aquí para evitar conflictos de parámetros de cookie
+
 // Definir APP_BASE_URL como constante a partir de .env o BASE_URL
 if (!defined('APP_BASE_URL')) {
     $envBase = getenv('APP_BASE_URL');
@@ -75,11 +78,15 @@ function app_base_url(): string { return APP_BASE_URL; }
 
 // Helpers JSON
 function json_response($payload, int $status = 200): void {
+    // Limpiar cualquier salida previa (warnings, espacios, caracteres invisibles)
+    while (ob_get_level()) { ob_end_clean(); }
+    
     if (!headers_sent()) {
         http_response_code($status);
         header('Content-Type: application/json; charset=utf-8');
     }
     echo json_encode($payload, JSON_UNESCAPED_UNICODE);
+    if (defined('TESTING') && TESTING) return;
     exit;
 }
 function json_success($data = [], int $status = 200): void {
@@ -301,6 +308,9 @@ $logLevel = getenv('LOG_LEVEL');
 Logger::enable($appEnv !== 'production' && $appEnv !== false); // Solo en desarrollo
 Logger::setLevel($logLevel !== false ? $logLevel : 'ERROR');
 
+// Cargar sistema de validación de archivos
+require_once __DIR__ . '/validar_archivo.php';
+
 /**
  * Procesar archivo adjunto a ingreso
  * @param array $archivo - $_FILES['nombre_archivo']
@@ -312,9 +322,6 @@ Logger::setLevel($logLevel !== false ? $logLevel : 'ERROR');
  * @return array ['success' => bool, 'id_documento' => int|null, 'error' => string|null]
  */
 function procesarArchivoAdjunto($archivo, $id_ingreso, $tipo_documento, $uploadDir, $db, $usuarioId) {
-    $maxSize = 10 * 1024 * 1024; // 10MB
-    $extensionesPermitidas = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx', 'xls', 'xlsx', 'zip'];
-    
     Logger::debug("Procesando archivo adjunto", [
         'nombre' => $archivo['name'],
         'tipo_documento' => $tipo_documento,
@@ -323,30 +330,15 @@ function procesarArchivoAdjunto($archivo, $id_ingreso, $tipo_documento, $uploadD
         'error' => $archivo['error']
     ]);
     
-    // Validar tamaño
-    if ($archivo['size'] > $maxSize) {
-        return ['success' => false, 'error' => 'El archivo excede el tamaño máximo de 10MB'];
+    // Usar función centralizada de validación
+    $validacion = validarArchivoDocumento($archivo);
+    
+    if (!$validacion['valido']) {
+        return ['success' => false, 'error' => $validacion['error']];
     }
     
-    // Validar tipo
-    $extension = strtolower(pathinfo($archivo['name'], PATHINFO_EXTENSION));
-    if (!in_array($extension, $extensionesPermitidas)) {
-        return ['success' => false, 'error' => 'Tipo de archivo no permitido: ' . $extension];
-    }
     
-    // Validar error de carga
-    if ($archivo['error'] !== UPLOAD_ERR_OK) {
-        $errores = [
-            UPLOAD_ERR_INI_SIZE => 'El archivo es demasiado grande',
-            UPLOAD_ERR_FORM_SIZE => 'El archivo excede el límite del formulario',
-            UPLOAD_ERR_PARTIAL => 'El archivo fue parcialmente cargado',
-            UPLOAD_ERR_NO_FILE => 'No se seleccionó archivo',
-            UPLOAD_ERR_NO_TMP_DIR => 'Falta directorio temporal',
-            UPLOAD_ERR_CANT_WRITE => 'No se puede escribir el archivo',
-            UPLOAD_ERR_EXTENSION => 'Extensión PHP bloqueó el archivo'
-        ];
-        return ['success' => false, 'error' => $errores[$archivo['error']] ?? 'Error desconocido'];
-    }
+    $extension = $validacion['extension'];
     
     // Generar nombre único
     $nombreUnico = $tipo_documento . '_' . $id_ingreso . '_' . time() . '.' . $extension;
@@ -390,4 +382,4 @@ function procesarArchivoAdjunto($archivo, $id_ingreso, $tipo_documento, $uploadD
 
 // Cargar sistema de autenticación
 require_once __DIR__ . '/auth.php';
-?> 
+ 

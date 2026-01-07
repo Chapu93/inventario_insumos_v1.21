@@ -229,15 +229,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $conexion->commit();
         
         // Registrar en auditoría
+        $nombre_insumo_audit = $_POST['nombre_insumo'] ?? 'Sin nombre';
         registrarAuditoria(
             'crear_insumo',
             'insumos',
-            "Insumo creado: {$nombre_insumo} (Tipo: {$tipo_insumo})",
+            "Insumo creado: {$nombre_insumo_audit} (Tipo: {$tipo_insumo})",
             'insumo',
             $id_insumo,
             null,
             [
-                'nombre_insumo' => $nombre_insumo,
+                'nombre_insumo' => $nombre_insumo_audit,
                 'tipo_insumo' => $tipo_insumo,
                 'cantidad' => $cantidad,
                 'estado' => 'Disponible'
@@ -259,7 +260,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $url .= '&id=' . $returnToId;
             }
             header('Location: ' . $url);
-        } elseif ($from === 'licitacion' || $from === 'ingreso') {
+        } elseif ($from === 'licitacion') {
             // Redirigir a edición de ingreso
             header('Location: ' . app_base_url() . '/pages/insumos/ingresos_editar.php?from=agregar&added_id=' . urlencode($id_insumo));
         } else {

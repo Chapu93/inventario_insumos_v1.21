@@ -1,0 +1,11 @@
+
+{
+    // Esto le indica a Code GPT qué servicio usar.
+    "CodeGPT.provider": "Gemini", 
+
+    // Aquí pegas la clave API que obtuviste en el Paso 1.
+    "CodeGPT.apiKey": "AIzaSyCIRlA24PS63z0IzFQyWNrqHhH2n-oY_no", 
+
+    // Esto especifica el modelo a usar (se recomienda una versión rápida y eficiente).
+    "CodeGPT.model": "gemini-2.5-flash" 
+}

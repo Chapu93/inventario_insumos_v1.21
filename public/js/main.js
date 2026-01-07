@@ -518,8 +518,9 @@ function actualizarContadores() {
         url: `${getAppBase()}/ajax/contadores_dashboard.php`,
         type: 'GET',
         dataType: 'json',
+        xhrFields: { withCredentials: true },
         success: function(response) {
-            if (response.success) {
+            if (response && response.success && response.contadores) {
                 $('#total-insumos').text(response.contadores.total_insumos);
                 $('#insumos-disponibles').text(response.contadores.insumos_disponibles);
                 $('#insumos-asignados').text(response.contadores.insumos_asignados);
@@ -527,7 +528,7 @@ function actualizarContadores() {
             }
         },
         error: function() {
-            console.error('Error al actualizar contadores');
+            // Silently fail to avoid console spam
         }
     });
 }

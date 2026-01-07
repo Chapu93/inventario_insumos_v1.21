@@ -287,7 +287,7 @@ include '../../includes/header.php';
                                         <label for="editar_archivo_remito" class="form-label">
                                             <i class="fas fa-file-pdf me-1"></i>Remito
                                         </label>
-                                        <input type="file" class="form-control" id="editar_archivo_remito" name="archivo_remito" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                                        <input type="file" class="form-control" id="editar_archivo_remito" name="archivo_remito" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.odt">
                                         <small class="text-muted">PDF, imágenes o documentos (máx. 10MB)</small>
                                         <div id="documentos_remito_existentes" class="mt-2" style="display:none;">
                                             <small class="text-muted d-block mb-2">Documento actual:</small>
@@ -300,7 +300,7 @@ include '../../includes/header.php';
                                         <label for="editar_archivo_documentacion" class="form-label">
                                             <i class="fas fa-file-alt me-1"></i>Documentación
                                         </label>
-                                        <input type="file" class="form-control" id="editar_archivo_documentacion" name="archivo_documentacion" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xlsx,.xls,.zip">
+                                        <input type="file" class="form-control" id="editar_archivo_documentacion" name="archivo_documentacion" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xlsx,.xls,.zip,.odt,.ods">
                                         <small class="text-muted">PDF, imágenes, documentos o archivos (máx. 10MB)</small>
                                         <div id="documentos_documentacion_existentes" class="mt-2" style="display:none;">
                                             <small class="text-muted d-block mb-2">Documentos actuales:</small>
@@ -500,6 +500,7 @@ include '../../includes/header.php';
 <script>
 const BASE = '<?php echo app_base_url(); ?>';
 const ES_EDICION = <?php echo $esEdicion ? 'true' : 'false'; ?>;
+const ES_ADMIN = <?php echo tieneRol([1, 2]) ? 'true' : 'false'; ?>; // Solo Admin/Superadmin pueden eliminar documentos
 const TOAST_MSG_REFERENCIA = <?php echo json_encode($uiConfig['toast_msg'], JSON_UNESCAPED_UNICODE); ?>;
 
 let pasoActual = 1;
@@ -1043,8 +1044,17 @@ if (ES_EDICION) {
                 if (remitos.length > 0) {
                     let html = '';
                     remitos.forEach(doc => {
+                        let btnEliminar = '';
+                        if (ES_ADMIN) {
+                            btnEliminar = `
+                                <button class="btn btn-sm btn-danger" 
+                                        onclick="eliminarDocumentoIngreso(${doc.id_documento}, ${idIngresoEdit})" 
+                                        title="Eliminar documento">
+                                    <i class="fas fa-trash"></i>
+                                </button>`;
+                        }
                         html += `
-                            <div class="list-group-item">
+                            <div class="list-group-item" id="doc-item-${doc.id_documento}">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <i class="fas fa-file-pdf me-1"></i>
@@ -1052,12 +1062,15 @@ if (ES_EDICION) {
                                         <br>
                                         <small class="text-muted">${doc.fecha_carga}</small>
                                     </div>
-                                    <a href="${BASE}/ajax/ingresos_descargar_documento.php?id=${doc.id_documento}" 
-                                       class="btn btn-sm btn-outline-primary" 
-                                       download
-                                       title="Descargar">
-                                        <i class="fas fa-download"></i>
-                                    </a>
+                                    <div class="btn-group">
+                                        <a href="${BASE}/ajax/ingresos_descargar_documento.php?id=${doc.id_documento}" 
+                                           class="btn btn-sm btn-info" 
+                                           download
+                                           title="Descargar">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                        ${btnEliminar}
+                                    </div>
                                 </div>
                             </div>
                         `;
@@ -1070,8 +1083,17 @@ if (ES_EDICION) {
                 if (documentaciones.length > 0) {
                     let html = '';
                     documentaciones.forEach(doc => {
+                        let btnEliminar = '';
+                        if (ES_ADMIN) {
+                            btnEliminar = `
+                                <button class="btn btn-sm btn-danger" 
+                                        onclick="eliminarDocumentoIngreso(${doc.id_documento}, ${idIngresoEdit})" 
+                                        title="Eliminar documento">
+                                    <i class="fas fa-trash"></i>
+                                </button>`;
+                        }
                         html += `
-                            <div class="list-group-item">
+                            <div class="list-group-item" id="doc-item-${doc.id_documento}">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <i class="fas fa-file-alt me-1"></i>
@@ -1079,12 +1101,15 @@ if (ES_EDICION) {
                                         <br>
                                         <small class="text-muted">${doc.fecha_carga}</small>
                                     </div>
-                                    <a href="${BASE}/ajax/ingresos_descargar_documento.php?id=${doc.id_documento}" 
-                                       class="btn btn-sm btn-outline-primary" 
-                                       download
-                                       title="Descargar">
-                                        <i class="fas fa-download"></i>
-                                    </a>
+                                    <div class="btn-group">
+                                        <a href="${BASE}/ajax/ingresos_descargar_documento.php?id=${doc.id_documento}" 
+                                           class="btn btn-sm btn-info" 
+                                           download
+                                           title="Descargar">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                        ${btnEliminar}
+                                    </div>
                                 </div>
                             </div>
                         `;
@@ -1096,6 +1121,47 @@ if (ES_EDICION) {
         },
         error: function() {
             console.error('Error al cargar documentos existentes');
+        }
+    });
+}
+
+// Eliminar documento adjunto (Solo Admin/Superadmin)
+function eliminarDocumentoIngreso(idDocumento, idIngreso) {
+    if (!confirm('¿Está seguro de eliminar este documento?\n\nEsta acción no se puede deshacer.')) return;
+    
+    $.ajax({
+        url: BASE + '/ajax/ingresos_eliminar_documento.php',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ 
+            _csrf: (document.querySelector('meta[name="csrf-token"]')||{}).content || '', 
+            id: idDocumento 
+        }),
+        success: function(r){ 
+            if (!r.success) { 
+                showToast(r.error||'Error al eliminar documento', 'error'); 
+                return; 
+            }
+            showToast('Documento eliminado correctamente', 'success');
+            // Remover el elemento del DOM
+            $('#doc-item-' + idDocumento).fadeOut(300, function() {
+                $(this).remove();
+                // Si no quedan documentos, ocultar el contenedor
+                if ($('#lista_remito .list-group-item').length === 0) {
+                    $('#documentos_remito_existentes').hide();
+                }
+                if ($('#lista_documentacion .list-group-item').length === 0) {
+                    $('#documentos_documentacion_existentes').hide();
+                }
+            });
+        },
+        error: function(xhr){ 
+            try {
+                const response = JSON.parse(xhr.responseText);
+                showToast(response.error || 'Error al eliminar documento', 'error');
+            } catch(e) {
+                showToast('Error al eliminar documento', 'error');
+            }
         }
     });
 }

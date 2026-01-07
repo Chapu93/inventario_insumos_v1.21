@@ -51,8 +51,8 @@
                         infoFiltered: '(filtrado de _MAX_ registros totales)',
                         infoPostFix: '',
                         loadingRecords: 'Cargando...',
-                        zeroRecords: 'No se encontraron resultados',
-                        emptyTable: 'Ningún dato disponible en la tabla',
+                        zeroRecords: '<div class="text-center py-3"><i class="fas fa-search fa-2x text-muted mb-2"></i><p class="text-muted mb-0">No se encontraron resultados</p></div>',
+                        emptyTable: '<div class="text-center py-3"><i class="fas fa-inbox fa-2x text-muted mb-2"></i><p class="text-muted mb-0">No hay datos disponibles</p></div>',
                         paginate: {
                             first: 'Primero',
                             previous: 'Anterior',
@@ -88,8 +88,8 @@
                         infoFiltered: '(filtrado de _MAX_ registros totales)',
                         infoPostFix: '',
                         loadingRecords: 'Cargando...',
-                        zeroRecords: 'No se encontraron resultados',
-                        emptyTable: 'Ningún dato disponible en la tabla',
+                        zeroRecords: '<div class="text-center py-3"><i class="fas fa-search fa-2x text-muted mb-2"></i><p class="text-muted mb-0">No se encontraron resultados</p></div>',
+                        emptyTable: '<div class="text-center py-3"><i class="fas fa-inbox fa-2x text-muted mb-2"></i><p class="text-muted mb-0">No hay datos disponibles</p></div>',
                         paginate: {
                             first: 'Primero',
                             previous: 'Anterior',
@@ -137,9 +137,9 @@
                 language: 'es'
             });
             
-            // Auto-hide alerts after 5 seconds
+            // Auto-hide alerts after 5 seconds (except permanent alerts like selected items list)
             setTimeout(function() {
-                $('.alert').fadeOut('slow');
+                $('.alert:not(.alert-permanent)').fadeOut('slow');
             }, 5000);
         });
     </script>

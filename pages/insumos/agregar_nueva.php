@@ -68,7 +68,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $tipo_insumo = $_POST['tipo_insumo'];
         
         // Configurar cantidad según tipo
-        $cantidad = ($tipo_insumo == 'Varios') ? ($_POST['cantidad'] ?: 1) : ($_POST['cantidad_especifica'] ?: 1);
+        if ($tipo_insumo == 'Varios') {
+            // Stock dual para tipo Varios
+            $cantidadOficina = isset($_POST['cantidad_oficina']) ? (int)$_POST['cantidad_oficina'] : 0;
+            $cantidadDeposito = isset($_POST['cantidad_deposito']) ? (int)$_POST['cantidad_deposito'] : 0;
+            $cantidad = $cantidadOficina + $cantidadDeposito;
+        } else {
+            $cantidad = $_POST['cantidad_especifica'] ?: 1;
+            $cantidadOficina = null;
+            $cantidadDeposito = null;
+        }
         
         // NO validamos id_patrimonio en backend para agregar_nueva
         // Los campos se envían correctamente desde el formulario
@@ -88,9 +97,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         // Insertar insumo principal (con estado ASIGNADO y ubicación)
         $sql = "INSERT INTO insumos (nombre_insumo, tipo_insumo, subcategoria_varios, descripcion_general, 
-                                   numero_serie, id_fisico, id_patrimonio, cantidad, fecha_adquisicion, estado, 
+                                   numero_serie, id_fisico, id_patrimonio, cantidad, cantidad_oficina, cantidad_deposito,
+                                   fecha_adquisicion, estado, 
                                    id_punto_stock_actual, id_sede_actual, id_area_asignacion_actual, id_ingreso, es_nuevo) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Asignado', ?, ?, ?, ?, ?)";
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Asignado', ?, ?, ?, ?, ?)";
         
         $esNuevo = isset($_POST['es_nuevo']) && $_POST['es_nuevo'] == '1' ? 1 : 0;
         $idIngreso = !empty($_POST['id_ingreso']) ? (int)$_POST['id_ingreso'] : null;
@@ -117,6 +127,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             ($tipo_insumo != 'Varios') ? ($_POST['id_fisico'] ?: null) : null,
             ($tipo_insumo != 'Varios') ? ($_POST['id_patrimonio'] ?: null) : null,
             $cantidad,
+            $cantidadOficina,
+            $cantidadDeposito,
             $fechaAdquisicion,
             !empty($_POST['id_punto_stock_actual']) ? $_POST['id_punto_stock_actual'] : null,
             $idSede,
@@ -234,6 +246,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         Logger::info('Insumo agregado y asignado correctamente', ['id_insumo' => $id_insumo, 'id_remito' => $idRemito]);
         $_SESSION['mensaje'] = "Insumo creado y asignado correctamente";
         $_SESSION['tipo_mensaje'] = "success";
+        
+        // Si viene del formulario de pedidos, redirigir de vuelta con el insumo seleccionado
+        if (!empty($_GET['retorno']) && $_GET['retorno'] === 'pedido') {
+            // Construir la descripción del insumo
+            $insumoTexto = $tipo_insumo;
+            if (!empty($_POST['nombre_insumo'])) {
+                $insumoTexto .= ' - ' . $_POST['nombre_insumo'];
+            }
+            if (!empty($_POST['numero_serie'])) {
+                $insumoTexto .= ' (S/N: ' . $_POST['numero_serie'] . ')';
+            }
+            
+            $returnUrl = app_base_url() . '/pages/pedidos/crear.php?insumo_id=' . $id_insumo . '&insumo_texto=' . urlencode($insumoTexto);
+            header('Location: ' . $returnUrl);
+            exit;
+        }
+        
         header('Location: ' . app_base_url() . '/pages/insumos/listar.php');
         exit;
         
@@ -385,10 +414,29 @@ include '../../includes/header.php';
                                                 </select>
                                             </div>
                                             
+                                            <div class="row g-2 mb-2">
+                                                <div class="col-6">
+                                                    <label for="cantidad_oficina" class="form-label mb-1">
+                                                        <i class="fas fa-building text-success"></i> Cantidad Oficina
+                                                    </label>
+                                                    <input type="number" class="form-control" id="cantidad_oficina" name="cantidad_oficina" value="0" min="0">
+                                                    <small class="form-text text-muted d-block">Stock para asignaciones</small>
+                                                </div>
+                                                <div class="col-6">
+                                                    <label for="cantidad_deposito" class="form-label mb-1">
+                                                        <i class="fas fa-warehouse text-primary"></i> Cantidad Depósito
+                                                    </label>
+                                                    <input type="number" class="form-control" id="cantidad_deposito" name="cantidad_deposito" value="0" min="0">
+                                                    <small class="form-text text-muted d-block">Stock de reserva</small>
+                                                </div>
+                                            </div>
                                             <div class="mb-2">
-                                                <label for="cantidad" class="form-label">Cantidad *</label>
-                                                <input type="number" class="form-control form-control-sm w-100" id="cantidad" name="cantidad" value="1" min="1" required>
-                                                <div class="invalid-feedback">La cantidad es obligatoria</div>
+                                                <div class="alert alert-info py-2 mb-0">
+                                                    <small>
+                                                        <strong>Total:</strong> <span id="cantidad_total">0</span> unidades
+                                                        (Oficina: <span id="display_oficina">0</span> + Depósito: <span id="display_deposito">0</span>)
+                                                    </small>
+                                                </div>
                                             </div>
                                             
                                             <div class="mb-2">
@@ -961,6 +1009,27 @@ $('#formAgregarNueva').on('submit', function(e) {
   
   console.log('✅ Validación OK - Enviando formulario...');
 });
+
+// Calcular total automático para stock dual (Varios)
+function actualizarTotalVarios() {
+    var oficina = parseInt($('#cantidad_oficina').val()) || 0;
+    var deposito = parseInt($('#cantidad_deposito').val()) || 0;
+    var total = oficina + deposito;
+    
+    $('#cantidad_total').text(total);
+    $('#display_oficina').text(oficina);
+    $('#display_deposito').text(deposito);
+}
+
+// Eventos para actualizar total
+$('#cantidad_oficina, #cantidad_deposito').on('input change', function() {
+    actualizarTotalVarios();
+});
+
+// Actualizar al cargar si es tipo Varios
+if ($('#tipo_insumo').val() === 'Varios') {
+    actualizarTotalVarios();
+}
 </script>
 
 

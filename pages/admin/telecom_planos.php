@@ -20,13 +20,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       if (!isset($_POST['id_sede']) || !$_POST['id_sede']) { throw new Exception('Sede requerida'); }
       if (!isset($_POST['tipo_plano']) || !$_POST['tipo_plano']) { throw new Exception('Tipo de plano requerido'); }
       if (!isset($_FILES['archivo']) || $_FILES['archivo']['error'] !== UPLOAD_ERR_OK) { throw new Exception('Archivo requerido'); }
+      
+      // Usar validación centralizada (sin SVG por seguridad)
+      $validacion = validarArchivoPlano($_FILES['archivo']);
+      if (!$validacion['valido']) {
+          throw new Exception($validacion['error']);
+      }
+      
       $idSede = (int)$_POST['id_sede'];
       $tipo = $_POST['tipo_plano'];
       $desc = trim($_POST['descripcion'] ?? '');
       $file = $_FILES['archivo'];
-      $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-      $allowed = ['pdf','png','jpg','jpeg','svg'];
-      if (!in_array($ext, $allowed, true)) { throw new Exception('Formato no permitido'); }
+      $ext = $validacion['extension'];
+      
       // Asegurar directorio y permisos
       if (!is_dir($uploadDir)) {
         if (!@mkdir($uploadDir, 0775, true)) { throw new Exception('No se pudo crear el directorio de destino'); }
@@ -226,8 +232,8 @@ include '../../includes/header.php';
         <select name="tipo_plano" class="form-select" required><option value="">Seleccione</option><option>Red</option><option>Vigilancia</option></select>
       </div>
       <div class="mb-2"><label class="form-label">Descripción</label><input type="text" name="descripcion" class="form-control"></div>
-      <div class="mb-2"><label class="form-label">Archivo (pdf/png/jpg/jpeg/svg) *</label><input type="file" name="archivo" class="form-control" accept=".pdf,.png,.jpg,.jpeg,.svg" required></div>
-      <div class="form-text">Tamaño sugerido &lt; 10 MB.</div>
+      <div class="mb-2"><label class="form-label">Archivo (pdf/png/jpg/jpeg) *</label><input type="file" name="archivo" class="form-control" accept=".pdf,.png,.jpg,.jpeg" required></div>
+      <div class="form-text">Tamaño máximo: 10 MB. SVG no permitido por seguridad.</div>
     </div>
     <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-primary">Subir</button></div>
   </form>

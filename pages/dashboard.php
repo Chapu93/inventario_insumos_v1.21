@@ -75,6 +75,18 @@ $stockTotales = $conexion->query("
 $totalStockOficina = (int)($stockTotales['oficina'] ?? 0);
 $totalStockDeposito = (int)($stockTotales['deposito'] ?? 0);
 $totalStockSistema = $totalStockOficina + $totalStockDeposito;
+
+// Contar Pedidos Pendientes
+$sqlPedidos = "SELECT COUNT(*) FROM pedidos WHERE estado IN ('Pendiente', 'En Proceso')";
+$paramsPedidos = [];
+if (!tienePermiso('pedidos', 'ver_todos')) {
+    $uId = obtenerUsuarioId();
+    $sqlPedidos .= " AND (id_usuario_solicitante = ? OR asignado_a = ?)";
+    $paramsPedidos = [$uId, $uId];
+}
+$stmtP = $conexion->prepare($sqlPedidos);
+$stmtP->execute($paramsPedidos);
+$pendientes_count = $stmtP->fetchColumn();
 ?>
 <?php include '../includes/header.php'; ?>
 
@@ -88,7 +100,23 @@ $totalStockSistema = $totalStockOficina + $totalStockDeposito;
 
 <!-- Tarjetas de estadísticas -->
 <div class="row mb-4">
-    <div class="col-md-3">
+    <div class="col-md">
+        <a href="<?php echo app_base_url(); ?>/pages/pedidos/listar.php?modo=pendientes" style="text-decoration: none; color: inherit;">
+            <div class="dashboard-card dashboard-card--primary" style="background: linear-gradient(45deg, #FF512F, #DD2476); border-left-color: #DD2476; cursor: pointer;">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h3 id="pedidos-pendientes"><?php echo $pendientes_count; ?></h3>
+                        <p><i class="fas fa-tasks me-2"></i>Pendientes</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-exclamation-circle fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md">
         <div class="dashboard-card dashboard-card--primary">
             <div class="d-flex justify-content-between">
                 <div>
@@ -102,7 +130,7 @@ $totalStockSistema = $totalStockOficina + $totalStockDeposito;
         </div>
     </div>
     
-    <div class="col-md-3">
+    <div class="col-md">
         <div class="dashboard-card dashboard-card--success">
             <div class="d-flex justify-content-between">
                 <div>
@@ -116,7 +144,7 @@ $totalStockSistema = $totalStockOficina + $totalStockDeposito;
         </div>
     </div>
     
-    <div class="col-md-3">
+    <div class="col-md">
         <div class="dashboard-card dashboard-card--info">
             <div class="d-flex justify-content-between">
                 <div>
@@ -130,7 +158,7 @@ $totalStockSistema = $totalStockOficina + $totalStockDeposito;
         </div>
     </div>
     
-    <div class="col-md-3">
+    <div class="col-md">
         <div class="dashboard-card dashboard-card--warning">
             <div class="d-flex justify-content-between">
                 <div>
@@ -254,13 +282,13 @@ $totalStockSistema = $totalStockOficina + $totalStockDeposito;
             <div class="card-body pt-0">
                 <div class="d-flex gap-3 flex-wrap">
                     <?php if (tienePermiso('insumos', 'crear')): ?>
-                    <a href="<?php echo app_base_url(); ?>/pages/insumos/crear.php" class="btn text-white flex-grow-1 py-2" style="background-color: #5a7c59; border-color: #5a7c59;">
+                    <a href="<?php echo app_base_url(); ?>/pages/insumos/agregar.php" class="btn text-white flex-grow-1 py-2" style="background-color: #5a7c59; border-color: #5a7c59;">
                         <i class="fas fa-plus me-2"></i>Agregar Insumo
                     </a>
                     <?php endif; ?>
                     
                     <?php if (tienePermiso('asignaciones', 'crear')): ?>
-                    <a href="<?php echo app_base_url(); ?>/pages/asignaciones/crear.php" class="btn text-white flex-grow-1 py-2" style="background-color: #66a86a; border-color: #66a86a;">
+                    <a href="<?php echo app_base_url(); ?>/pages/asignaciones/nueva_pasos.php" class="btn text-white flex-grow-1 py-2" style="background-color: #66a86a; border-color: #66a86a;">
                         <i class="fas fa-file-alt me-2"></i>Nueva Asignación
                     </a>
                     <?php endif; ?>

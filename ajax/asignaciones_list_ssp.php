@@ -178,7 +178,7 @@ try {
     Logger::error('Error en lista de asignaciones (SSP)', [
         'mensaje' => $e->getMessage()
     ]);
-    json_response(['error' => $e->getMessage()], 500);
+    json_error($e->getMessage(), 500);
 }
 ?>
 

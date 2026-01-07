@@ -5,8 +5,9 @@ if (!estaAutenticado()) {
     json_error('No autenticado', 401);
 }
 
-if (!tienePermiso('asignaciones', 'ver')) {
-    json_error('No tienes permisos para ver asignaciones', 403);
+// Permitir a quien pueda crear pedidos O ver asignaciones
+if (!tienePermiso('asignaciones', 'ver') && !tienePermiso('pedidos', 'crear')) {
+    json_error('No tienes permisos suficientes', 403);
 }
 
 $localidadId = isset($_GET['localidad_id']) ? (int)$_GET['localidad_id'] : 0;
@@ -27,7 +28,7 @@ try {
     
     Logger::debug('Sedes cargadas por localidad', ['localidad_id' => $localidadId, 'count' => count($data)]);
     
-    json_success(['sedes' => $data]);
+    json_success($data);
     
 } catch (Exception $e) {
     Logger::error('Error al cargar sedes por localidad', [

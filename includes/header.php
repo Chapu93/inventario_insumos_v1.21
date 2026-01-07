@@ -75,6 +75,12 @@
                 
                 
                 <li>
+                    <a href="<?php echo app_base_url(); ?>/pages/pedidos/listar.php" class="nav-link <?php echo strpos($currentPath, '/pages/pedidos/') !== false ? 'active' : ''; ?>" role="menuitem">
+                        <i class="fas fa-clipboard-list me-2"></i>Pedidos y Pendientes
+                    </a>
+                </li>
+                
+                <li>
                     <a href="<?php echo app_base_url(); ?>/pages/insumos/listar.php" class="nav-link <?php echo $isInsumos ? 'active' : ''; ?>" role="menuitem" data-collapse-target="#insumosSubmenu">
                         <i class="fas fa-box me-2"></i>Insumos
                     </a>
@@ -84,6 +90,9 @@
                         </li>
                         <li>
                             <a href="<?php echo app_base_url(); ?>/pages/insumos/movimientos.php" class="<?php echo strpos($currentPath, '/pages/insumos/movimientos.php') !== false ? 'active' : ''; ?>" role="menuitem">Movimientos de Stock</a>
+                        </li>
+                        <li>
+                            <a href="<?php echo app_base_url(); ?>/pages/insumos/intervenidos.php" class="<?php echo strpos($currentPath, '/pages/insumos/intervenidos.php') !== false ? 'active' : ''; ?>" role="menuitem">Insumos Intervenidos</a>
                         </li>
                     </ul>
                 </li>
@@ -219,13 +228,22 @@
 
             <!-- Main Content -->
             <div class="container-fluid mt-3">
-                <?php if (isset($_SESSION['mensaje'])): ?>
-                    <div class="alert alert-<?php echo $_SESSION['tipo_mensaje']; ?> alert-dismissible fade show" role="alert">
-                        <?php echo $_SESSION['mensaje']; ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                    <?php 
+                <?php if (isset($_SESSION['mensaje'])): 
+                    $msgText = htmlspecialchars($_SESSION['mensaje'], ENT_QUOTES);
+                    $msgType = $_SESSION['tipo_mensaje'] ?? 'success';
+                    // Mapear tipos de alert Bootstrap a tipos de toast
+                    $toastType = 'success';
+                    if ($msgType === 'danger' || $msgType === 'error') $toastType = 'error';
+                    elseif ($msgType === 'warning') $toastType = 'warning';
+                    elseif ($msgType === 'info') $toastType = 'success';
                     unset($_SESSION['mensaje']);
                     unset($_SESSION['tipo_mensaje']);
-                    ?>
+                ?>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        if (typeof showToast === 'function') {
+                            showToast('<?php echo $msgText; ?>', '<?php echo $toastType; ?>');
+                        }
+                    });
+                </script>
                 <?php endif; ?> 

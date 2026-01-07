@@ -80,6 +80,22 @@ $st = $db->prepare($sqlHist);
 $st->execute([$id]);
 $historial = $st->fetchAll();
 
+// Historial de intervenciones (pedidos de mantenimiento, reparación, soporte)
+$sqlIntervenciones = "
+    SELECT p.id_pedido, p.tipo, p.descripcion, p.estado, p.prioridad,
+           p.solicitante_nombre, p.fecha_creacion, p.fecha_actualizacion,
+           u.nombre as tecnico_nombre, u.apellido as tecnico_apellido,
+           s.nombre_sede
+    FROM pedidos p
+    LEFT JOIN usuarios u ON p.asignado_a = u.id_usuario
+    LEFT JOIN sedes s ON p.id_sede = s.id_sede
+    WHERE p.id_insumo_relacionado = ?
+    ORDER BY p.fecha_creacion DESC
+";
+$stInt = $db->prepare($sqlIntervenciones);
+$stInt->execute([$id]);
+$intervenciones = $stInt->fetchAll();
+
 include '../../includes/header.php';
 ?>
 <div class="row">
@@ -210,6 +226,77 @@ include '../../includes/header.php';
                     <?php endif; ?>
                 </div>
             </div>
+        <?php endif; ?>
+
+        <!-- Historial de Intervenciones -->
+        <?php if (!empty($intervenciones)): ?>
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="fas fa-tools me-2"></i>Historial de Intervenciones (<?php echo count($intervenciones); ?>)</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Tipo</th>
+                                <th>Estado</th>
+                                <th>Descripción</th>
+                                <th>Técnico</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($intervenciones as $int): ?>
+                            <tr>
+                                <td>
+                                    <small><?php echo date('d/m/Y', strtotime($int['fecha_creacion'])); ?></small>
+                                </td>
+                                <td>
+                                    <?php 
+                                    $badgeClass = match($int['tipo']) {
+                                        'Mantenimiento' => 'bg-warning text-dark',
+                                        'Reparación' => 'bg-danger',
+                                        'Soporte' => 'bg-info',
+                                        default => 'bg-secondary'
+                                    };
+                                    ?>
+                                    <span class="badge <?php echo $badgeClass; ?>"><?php echo $int['tipo']; ?></span>
+                                </td>
+                                <td>
+                                    <?php 
+                                    $estadoClass = match($int['estado']) {
+                                        'Pendiente' => 'bg-secondary',
+                                        'En Proceso' => 'bg-primary',
+                                        'Completado' => 'bg-success',
+                                        'Rechazado' => 'bg-danger',
+                                        default => 'bg-secondary'
+                                    };
+                                    ?>
+                                    <span class="badge <?php echo $estadoClass; ?>"><?php echo $int['estado']; ?></span>
+                                </td>
+                                <td>
+                                    <small><?php echo htmlspecialchars(substr($int['descripcion'], 0, 50)); ?><?php echo strlen($int['descripcion']) > 50 ? '...' : ''; ?></small>
+                                </td>
+                                <td>
+                                    <?php if ($int['tecnico_nombre']): ?>
+                                        <small><?php echo htmlspecialchars($int['tecnico_nombre'] . ' ' . $int['tecnico_apellido']); ?></small>
+                                    <?php else: ?>
+                                        <small class="text-muted">Sin asignar</small>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-2">
+                    <a href="../pedidos/listar.php?insumo=<?php echo $id; ?>" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-external-link-alt me-1"></i>Ver todos los pedidos
+                    </a>
+                </div>
+            </div>
+        </div>
         <?php endif; ?>
     </div>
 
