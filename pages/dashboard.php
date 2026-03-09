@@ -6,19 +6,25 @@ requerirAutenticacion();
 // Obtener estadísticas del dashboard
 $conexion = conectarDB();
 
-// Query optimizada: obtener todos los contadores en una sola consulta
-$stats = $conexion->query("
-    SELECT 
-        (SELECT COUNT(*) FROM insumos) as total_insumos,
-        (SELECT COUNT(*) FROM insumos WHERE estado = 'Disponible') as insumos_disponibles,
-        (SELECT COUNT(*) FROM insumos WHERE estado = 'Asignado') as insumos_asignados,
-        (SELECT COUNT(*) FROM remitos) as total_asignaciones,
-        (SELECT COALESCE(SUM(d.cantidad), 0)
-         FROM remitos r
-         JOIN remitos_detalle d ON d.id_remito = r.id_remito
-         JOIN insumos i ON i.id_insumo = d.id_insumo
-         WHERE i.estado = 'Asignado') as asignaciones_activas
-")->fetch();
+// Estadísticas con caché - @modified v2.0
+// Los contadores se cachean por 5 minutos para mejorar performance
+$stats = getFromCache('dashboard_stats');
+if ($stats === null) {
+    // Query optimizada: obtener todos los contadores en una sola consulta
+    $stats = $conexion->query("
+        SELECT 
+            (SELECT COUNT(*) FROM insumos) as total_insumos,
+            (SELECT COUNT(*) FROM insumos WHERE estado = 'Disponible') as insumos_disponibles,
+            (SELECT COUNT(*) FROM insumos WHERE estado = 'Asignado') as insumos_asignados,
+            (SELECT COUNT(*) FROM remitos) as total_asignaciones,
+            (SELECT COALESCE(SUM(d.cantidad), 0)
+             FROM remitos r
+             JOIN remitos_detalle d ON d.id_remito = r.id_remito
+             JOIN insumos i ON i.id_insumo = d.id_insumo
+             WHERE i.estado = 'Asignado') as asignaciones_activas
+    ")->fetch();
+    $stats = setToCache('dashboard_stats', $stats);
+}
 
 // Asignar variables
 $total_insumos = (int)$stats['total_insumos'];

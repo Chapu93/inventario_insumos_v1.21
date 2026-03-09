@@ -1,6 +1,13 @@
 <?php if (!defined('APP_INIT')) { http_response_code(403); exit; } ?>
 <!DOCTYPE html>
 <html lang="es">
+<!-- Inicializar tema antes de cargar CSS para evitar flash - @added v2.0 -->
+<script>
+(function() {
+    var tema = localStorage.getItem('sitia_tema') || 'light';
+    document.documentElement.setAttribute('data-theme', tema);
+})();
+</script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -172,6 +179,28 @@
                     <button class="btn btn-outline-primary d-lg-none" type="button" id="btnToggleSidebar" aria-label="Alternar menú">
                         <i class="fas fa-bars"></i>
                     </button>
+                    
+                    <!-- Búsqueda Global - @added v2.0 -->
+                    <?php if (estaAutenticado()): ?>
+                    <div class="position-relative mx-3 d-none d-md-block" id="busquedaGlobalContainer">
+                        <div class="input-group" style="width: 280px;">
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input type="text" 
+                                   class="form-control border-start-0 ps-0" 
+                                   id="busquedaGlobalInput" 
+                                   placeholder="Buscar... (Ctrl+K)"
+                                   autocomplete="off">
+                        </div>
+                        <div id="busquedaGlobalResultados" 
+                             class="position-absolute bg-white shadow-lg rounded-3 mt-1 w-100 d-none" 
+                             style="z-index: 1050; max-height: 400px; overflow-y: auto; min-width: 320px;">
+                        </div>
+                    </div>
+                    <?php endif; ?>
+                    <!-- Fin Búsqueda Global -->
+                    
                     <div class="ms-auto d-flex align-items-center">
                         <?php if (estaAutenticado()): 
                             $usuarioActual = obtenerUsuario();
@@ -209,6 +238,14 @@
                                         </a>
                                     </li>
                                     <?php endif; ?>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <!-- Toggle Modo Oscuro - @added v2.0 -->
+                                    <li>
+                                        <button class="dropdown-item" type="button" id="btnToggleTema">
+                                            <i class="fas fa-moon me-2" id="iconoTema"></i>
+                                            <span id="textoTema">Modo Oscuro</span>
+                                        </button>
+                                    </li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a class="dropdown-item text-danger" href="<?php echo app_base_url(); ?>/logout.php">

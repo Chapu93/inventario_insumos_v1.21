@@ -23,6 +23,67 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// ============================================
+// RATE LIMITING PARA LOGIN - Agregado v2.0
+// Rollback: Eliminar este bloque y las funciones
+// ============================================
+define('MAX_LOGIN_ATTEMPTS', 10);
+define('LOCKOUT_TIME', 900); // 15 minutos
+
+/**
+ * Verifica si la IP está bloqueada por demasiados intentos
+ * @param string $ip
+ * @return array ['allowed' => bool, 'mensaje' => string|null, 'segundos_restantes' => int|null]
+ */
+function verificarRateLimitLogin($ip) {
+    $key = 'login_attempts_' . md5($ip);
+    
+    if (!isset($_SESSION[$key])) {
+        $_SESSION[$key] = ['count' => 0, 'first_attempt' => time()];
+    }
+    
+    $data = $_SESSION[$key];
+    
+    // Resetear si pasó el tiempo de bloqueo
+    if (time() - $data['first_attempt'] > LOCKOUT_TIME) {
+        $_SESSION[$key] = ['count' => 0, 'first_attempt' => time()];
+        return ['allowed' => true];
+    }
+    
+    if ($data['count'] >= MAX_LOGIN_ATTEMPTS) {
+        $segundos_restantes = LOCKOUT_TIME - (time() - $data['first_attempt']);
+        $minutos = ceil($segundos_restantes / 60);
+        return [
+            'allowed' => false,
+            'mensaje' => "Demasiados intentos fallidos. Intente en {$minutos} minutos.",
+            'segundos_restantes' => $segundos_restantes
+        ];
+    }
+    
+    return ['allowed' => true];
+}
+
+/**
+ * Registra un intento de login
+ * @param string $ip
+ * @param bool $exitoso Si true, resetea el contador
+ */
+function registrarIntentoLogin($ip, $exitoso = false) {
+    $key = 'login_attempts_' . md5($ip);
+    
+    if ($exitoso) {
+        unset($_SESSION[$key]);
+        return;
+    }
+    
+    if (!isset($_SESSION[$key])) {
+        $_SESSION[$key] = ['count' => 0, 'first_attempt' => time()];
+    }
+    
+    $_SESSION[$key]['count']++;
+}
+// ============================================
+
 /**
  * Verificar si hay una sesión activa
  * @return bool
@@ -196,6 +257,9 @@ function iniciarSesion($username, $password) {
         
         // Registrar en auditoría
         registrarAuditoria('login', 'usuarios', "Login exitoso: {$usuario['username']}");
+        
+        // Regenerar ID de sesión para prevenir session fixation - @added v2.0
+        session_regenerate_id(true);
         
         return [
             'success' => true, 

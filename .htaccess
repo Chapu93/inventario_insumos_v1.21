@@ -1,3 +1,18 @@
+# ============================================
+# SECURITY HEADERS - Agregado v2.0
+# Rollback: Eliminar este bloque hasta la línea de cierre
+# ============================================
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    # CSP permisivo para CDNs utilizadas (Bootstrap, jQuery, DataTables, Select2, Chart.js, Font Awesome)
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://code.jquery.com https://cdn.datatables.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.datatables.net; font-src 'self' https://cdnjs.cloudflare.com; img-src 'self' data: blob:; connect-src 'self';"
+</IfModule>
+# ============================================
+
 # Configuración básica para el sistema de inventario
 Options -Indexes
 DirectoryIndex index.php

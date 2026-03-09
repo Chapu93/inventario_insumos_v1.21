@@ -158,6 +158,63 @@ function conectarDB() {
     }
 }
 
+// ============================================
+// SISTEMA DE CACHÉ SIMPLE - Agregado v2.0
+// Para datos que no cambian frecuentemente (contadores dashboard)
+// Rollback: Eliminar este bloque
+// ============================================
+define('CACHE_DASHBOARD_TTL', 300); // 5 minutos
+
+/**
+ * Genera una clave de caché basada en el nombre y el tiempo (TTL)
+ * @param string $nombre
+ * @return string
+ */
+function getCacheKey($nombre) {
+    return 'cache_' . $nombre . '_' . floor(time() / CACHE_DASHBOARD_TTL);
+}
+
+/**
+ * Obtiene un valor del caché
+ * @param string $nombre
+ * @return mixed|null
+ */
+function getFromCache($nombre) {
+    $key = getCacheKey($nombre);
+    return $_SESSION[$key] ?? null;
+}
+
+/**
+ * Guarda un valor en el caché
+ * @param string $nombre
+ * @param mixed $valor
+ * @return mixed El valor guardado
+ */
+function setToCache($nombre, $valor) {
+    $key = getCacheKey($nombre);
+    $_SESSION[$key] = $valor;
+    return $valor;
+}
+
+/**
+ * Invalida el caché (todo o un nombre específico)
+ * @param string|null $nombre Si es null, invalida todo el caché
+ */
+function invalidarCache($nombre = null) {
+    if ($nombre === null) {
+        // Invalidar todo el caché
+        foreach (array_keys($_SESSION) as $key) {
+            if (strpos($key, 'cache_') === 0) {
+                unset($_SESSION[$key]);
+            }
+        }
+    } else {
+        $key = getCacheKey($nombre);
+        unset($_SESSION[$key]);
+    }
+}
+// ============================================
+
 // Función para generar números de remito únicos con formato nnnn_yyyy
 // Los números de remito son consecutivos y nunca se reutilizan, incluso si un remito es anulado
 function generarNumeroRemito($dbParam = null) {

@@ -8,7 +8,7 @@ use setasign\Fpdi\Fpdi;
 $numero_remito =
     (isset($_GET['remito']) && $_GET['remito'] !== '') ? $_GET['remito'] :
     ((isset($_GET['numero']) && $_GET['numero'] !== '') ? $_GET['numero'] :
-    ((isset($_GET['numero_remito']) && $_GET['numero_remito'] !== '') ? $_GET['numero_remito'] : ''));
+        ((isset($_GET['numero_remito']) && $_GET['numero_remito'] !== '') ? $_GET['numero_remito'] : ''));
 
 if ($numero_remito === '') {
     http_response_code(400);
@@ -74,7 +74,8 @@ if (!$cab) {
 // PDF
 $pdf = new Fpdi();
 // Cache simple del template para no re-parsar en múltiples usos por request
-static $TPL_ID = null; static $TPL_SIZE = null;
+static $TPL_ID = null;
+static $TPL_SIZE = null;
 
 // Fondo membretado con manejo robusto de tamaños y errores
 $templateLoaded = false;
@@ -101,7 +102,7 @@ if (!$templateLoaded) {
 }
 
 $pdf->SetFont('Arial', '', 11);
-$pdf->SetTextColor(0,0,0);
+$pdf->SetTextColor(0, 0, 0);
 
 // Márgenes y medidas
 $leftMargin = 15;  // base
@@ -109,9 +110,13 @@ $rightMargin = 15; // base
 // Aumentar margen derecho en ancho de ~3 caracteres
 // Sumar ~6 caracteres al margen derecho (ancho de '000000') y ~4 al izquierdo
 $extraRight = $pdf->GetStringWidth('000000');
-if (is_numeric($extraRight) && $extraRight > 0) { $rightMargin += $extraRight; }
+if (is_numeric($extraRight) && $extraRight > 0) {
+    $rightMargin += $extraRight;
+}
 $extraLeft = $pdf->GetStringWidth('0000');
-if (is_numeric($extraLeft) && $extraLeft > 0) { $leftMargin += $extraLeft; }
+if (is_numeric($extraLeft) && $extraLeft > 0) {
+    $leftMargin += $extraLeft;
+}
 $topMargin = 15;   // margen superior base
 $lineHeight = 6;
 $pageWidth = $pdf->GetPageWidth();
@@ -120,23 +125,27 @@ $contentWidth = $pageWidth - $leftMargin - $rightMargin;
 
 // Offset adicional para respetar membrete cuando hay plantilla
 $envHeaderOffset = getenv('REMITO_PDF_HEADER_OFFSET_MM');
-$headerOffset = $templateLoaded ? (is_numeric($envHeaderOffset) ? (float)$envHeaderOffset : 30.0) : 0.0; // por defecto 30mm
+$headerOffset = $templateLoaded ? (is_numeric($envHeaderOffset) ? (float) $envHeaderOffset : 30.0) : 0.0; // por defecto 30mm
 
 // Encabezado: Número (izq) y Fecha (esquina superior derecha) debajo del membrete
 $y = $topMargin + $headerOffset;
 $pdf->SetFont('Arial', '', 11);
 $pdf->SetXY($leftMargin, $y);
-$enc = function($s) {
-    if ($s === null) { return ''; }
-    $out = @iconv('UTF-8', 'ISO-8859-1//TRANSLIT', (string)$s);
-    if ($out === false) { $out = utf8_decode((string)$s); }
+$enc = function ($s) {
+    if ($s === null) {
+        return '';
+    }
+    $out = @iconv('UTF-8', 'ISO-8859-1//TRANSLIT', (string) $s);
+    if ($out === false) {
+        $out = utf8_decode((string) $s);
+    }
     return $out;
 };
 // Truncador para ajustar textos a ancho de celda (con margen interno)
-$fit = function($text, $width) use ($pdf, $enc) {
+$fit = function ($text, $width) use ($pdf, $enc) {
     $padding = 2; // mm
     $max = max(0, $width - $padding);
-    $raw = (string)$text;
+    $raw = (string) $text;
     $ellipsis = $enc('…');
     $encoded = $enc($raw);
     if ($pdf->GetStringWidth($encoded) <= $max) {
@@ -154,9 +163,9 @@ $fit = function($text, $width) use ($pdf, $enc) {
     return $ellipsis;
 };
 
-$pdf->Cell($contentWidth/2, 6, $enc('Número: ' . $cab['numero_remito']), 0, 0, 'L');
-$pdf->SetXY($leftMargin + $contentWidth/2, $y);
-$pdf->Cell($contentWidth/2, 6, $enc('Fecha: ' . date('d/m/Y', strtotime($cab['fecha_asignacion']))), 0, 1, 'R');
+$pdf->Cell($contentWidth / 2, 6, $enc('Número: ' . $cab['numero_remito']), 0, 0, 'L');
+$pdf->SetXY($leftMargin + $contentWidth / 2, $y);
+$pdf->Cell($contentWidth / 2, 6, $enc('Fecha: ' . date('d/m/Y', strtotime($cab['fecha_asignacion']))), 0, 1, 'R');
 
 // Dos líneas en blanco antes del contenido (después de remito/fecha)
 $y += (2 * $lineHeight);
@@ -182,12 +191,12 @@ $pdf->Cell($colWidth, 6, $enc('Destino'), 0, 1, 'L');
 $pdf->SetFont('Arial', '', 11);
 $pdf->SetXY($leftMargin + $colWidth + $colGap, $yRightStart + 7);
 $destinoTexto = 'Área: ' . ($cab['nombre_area'] ?: '-') . "\n" .
-                'Sede: ' . ($cab['nombre_sede'] ?: '-') . "\n" .
-                'Localidad: ' . ($cab['nombre_localidad'] ?: '-') . ' - Zona: ' . ($cab['nombre_zona'] ?: '-');
+    'Sede: ' . ($cab['nombre_sede'] ?: '-') . "\n" .
+    'Localidad: ' . ($cab['nombre_localidad'] ?: '-') . ' - Zona: ' . ($cab['nombre_zona'] ?: '-');
 $pdf->MultiCell($colWidth, 6, $enc($destinoTexto), 0, 'L');
 
 // Calcular la posición Y más baja de ambas columnas
-$y = max($pdf->GetY(), $yRightStart + 7 + 3*$lineHeight);
+$y = max($pdf->GetY(), $yRightStart + 7 + 3 * $lineHeight);
 
 if (!empty($cab['observaciones'])) {
     $pdf->SetXY($leftMargin, $y += 10);
@@ -204,7 +213,11 @@ $pdf->SetFont('Arial', '', 10);
 
 // Calcular offset de 3 caracteres para mover columnas a la derecha
 $offsetTresCaracteres = $pdf->GetStringWidth('000');
-$cols = 3; $colPad = 6; $colW = ($contentWidth - ($colPad * ($cols - 1))) / $cols; $xStart = $leftMargin + $offsetTresCaracteres; $yStart = $y;
+$cols = 2;
+$colPad = 6;
+$colW = ($contentWidth - ($colPad * ($cols - 1))) / $cols;
+$xStart = $leftMargin + $offsetTresCaracteres;
+$yStart = $y;
 $colHeights = array_fill(0, $cols, $yStart);
 $colIndex = 0;
 
@@ -220,34 +233,72 @@ foreach ($items as $it) {
     $pdf->SetFont('Arial', '', 10);
     // Lista de atributos
     $bullets = [];
-    $bullets[] = '- Cantidad: ' . (isset($it['cantidad']) ? (int)$it['cantidad'] : 1);
-    if (!empty($it['marca'])) { $bullets[] = '- Marca: ' . $it['marca']; }
-    if (!empty($it['modelo'])) { $bullets[] = '- Modelo: ' . $it['modelo']; }
-    if (!empty($it['numero_serie'])) { $bullets[] = '- Nro. de serie: ' . $it['numero_serie']; }
-    if (!empty($it['id_fisico'])) { $bullets[] = '- ID físico: ' . $it['id_fisico']; }
+    $bullets[] = '- Cantidad: ' . (isset($it['cantidad']) ? (int) $it['cantidad'] : 1);
+    if (!empty($it['marca'])) {
+        $bullets[] = '- Marca: ' . $it['marca'];
+    }
+    if (!empty($it['modelo'])) {
+        $bullets[] = '- Modelo: ' . $it['modelo'];
+    }
+    if (!empty($it['numero_serie'])) {
+        $bullets[] = '- Nro. de serie: ' . $it['numero_serie'];
+    }
+    if (!empty($it['id_fisico'])) {
+        $bullets[] = '- ID físico: ' . $it['id_fisico'];
+    }
     if (isset($it['tipo_insumo']) && $it['tipo_insumo'] === 'Notebook') {
         // Accesorios notebook si existen
-        if (!empty($it['accesorios'])) { $bullets[] = '- Accesorios: ' . $it['accesorios']; }
+        if (!empty($it['accesorios'])) {
+            $bullets[] = '- Accesorios: ' . $it['accesorios'];
+        }
     }
     // Especificaciones técnicas para PC y Notebook (lista)
     if ($it['tipo_insumo'] === 'PC Completa' || $it['tipo_insumo'] === 'PC Escritorio') {
-        if (!empty($it['pc_procesador'])) { $bullets[] = '- Proc.: ' . $it['pc_procesador']; }
-        if (!empty($it['pc_ram'])) { $bullets[] = '- RAM: ' . $it['pc_ram'] . ' GB'; }
-        if (!empty($it['pc_alm'])) { $bullets[] = '- Almacenamiento: ' . $it['pc_alm'] . ' GB'; }
-        if (!empty($it['pc_mother'])) { $bullets[] = '- Mother: ' . $it['pc_mother']; }
-        if (!empty($it['pc_sist_op'])) { $bullets[] = '- Sistema operativo: ' . $it['pc_sist_op']; }
+        if (!empty($it['pc_procesador'])) {
+            $bullets[] = '- Proc.: ' . $it['pc_procesador'];
+        }
+        if (!empty($it['pc_ram'])) {
+            $bullets[] = '- RAM: ' . $it['pc_ram'] . ' GB';
+        }
+        if (!empty($it['pc_alm'])) {
+            $bullets[] = '- Almacenamiento: ' . $it['pc_alm'] . ' GB';
+        }
+        if (!empty($it['pc_mother'])) {
+            $bullets[] = '- Mother: ' . $it['pc_mother'];
+        }
+        if (!empty($it['pc_sist_op'])) {
+            $bullets[] = '- Sistema operativo: ' . $it['pc_sist_op'];
+        }
     } elseif ($it['tipo_insumo'] === 'Notebook') {
-        if (!empty($it['nb_procesador'])) { $bullets[] = '- Proc.: ' . $it['nb_procesador']; }
-        if (!empty($it['nb_ram'])) { $bullets[] = '- RAM: ' . $it['nb_ram'] . ' GB'; }
-        if (!empty($it['nb_alm'])) { $bullets[] = '- Almacenamiento: ' . $it['nb_alm'] . ' GB'; }
+        if (!empty($it['nb_procesador'])) {
+            $bullets[] = '- Proc.: ' . $it['nb_procesador'];
+        }
+        if (!empty($it['nb_ram'])) {
+            $bullets[] = '- RAM: ' . $it['nb_ram'] . ' GB';
+        }
+        if (!empty($it['nb_alm'])) {
+            $bullets[] = '- Almacenamiento: ' . $it['nb_alm'] . ' GB';
+        }
         // Accesorios notebook (si existen)
         $acc = [];
-        if (!empty($it['cargador'])) { $acc[] = 'Cargador'; }
-        if (!empty($it['funda'])) { $acc[] = 'Funda'; }
-        if (!empty($it['micro_sd'])) { $acc[] = 'MicroSD' . (!empty($it['micro_sd_gb']) ? (' ' . (int)$it['micro_sd_gb'] . 'GB') : ''); }
-        if (!empty($it['caja'])) { $acc[] = 'Caja'; }
-        if (!empty($it['adaptador_red'])) { $acc[] = 'Adaptador red'; }
-        if (!empty($acc)) { $bullets[] = '- Accesorios: ' . implode(', ', $acc) . '.'; }
+        if (!empty($it['cargador'])) {
+            $acc[] = 'Cargador';
+        }
+        if (!empty($it['funda'])) {
+            $acc[] = 'Funda';
+        }
+        if (!empty($it['micro_sd'])) {
+            $acc[] = 'MicroSD' . (!empty($it['micro_sd_gb']) ? (' ' . (int) $it['micro_sd_gb'] . 'GB') : '');
+        }
+        if (!empty($it['caja'])) {
+            $acc[] = 'Caja';
+        }
+        if (!empty($it['adaptador_red'])) {
+            $acc[] = 'Adaptador red';
+        }
+        if (!empty($acc)) {
+            $bullets[] = '- Accesorios: ' . implode(', ', $acc) . '.';
+        }
     }
     foreach ($bullets as $line) {
         $pdf->SetXY($x + 2, $y);
@@ -264,7 +315,9 @@ foreach ($items as $it) {
 $lineasDesdeFin = 8; // líneas
 $firmaY = $y + ($lineasDesdeFin * $lineHeight);
 // Evitar salir del área imprimible
-if ($firmaY > $pageHeight - 20) { $firmaY = $pageHeight - 20; }
+if ($firmaY > $pageHeight - 20) {
+    $firmaY = $pageHeight - 20;
+}
 $firmaWidth = 60; // ancho de línea de firma
 $firmaX1 = $leftMargin + ($contentWidth - $firmaWidth) / 2;
 $firmaX2 = $firmaX1 + $firmaWidth;

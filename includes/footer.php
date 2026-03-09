@@ -141,6 +141,147 @@
             setTimeout(function() {
                 $('.alert:not(.alert-permanent)').fadeOut('slow');
             }, 5000);
+            
+            // ============================================
+            // BÚSQUEDA GLOBAL - @added v2.0
+            // Rollback: Eliminar este bloque
+            // ============================================
+            (function() {
+                var $input = $('#busquedaGlobalInput');
+                var $resultados = $('#busquedaGlobalResultados');
+                var debounceTimer = null;
+                var BASE = window.APP_BASE_URL || '';
+                
+                if (!$input.length) return;
+                
+                // Íconos por tipo de resultado
+                var iconos = {
+                    insumo: 'fa-box',
+                    pedido: 'fa-clipboard-list', 
+                    remito: 'fa-file-alt',
+                    sede: 'fa-building'
+                };
+                
+                var colores = {
+                    insumo: 'primary',
+                    pedido: 'warning',
+                    remito: 'success',
+                    sede: 'info'
+                };
+                
+                var urls = {
+                    insumo: '/pages/insumos/ver.php?id=',
+                    pedido: '/pages/pedidos/ver.php?id=',
+                    remito: '/pages/asignaciones/listar.php?remito=',
+                    sede: '/pages/admin/sede_detalle.php?id='
+                };
+                
+                // Debounce de búsqueda
+                $input.on('input', function() {
+                    var q = $(this).val().trim();
+                    clearTimeout(debounceTimer);
+                    
+                    if (q.length < 2) {
+                        $resultados.addClass('d-none').empty();
+                        return;
+                    }
+                    
+                    debounceTimer = setTimeout(function() {
+                        buscar(q);
+                    }, 300);
+                });
+                
+                function buscar(query) {
+                    $.ajax({
+                        url: BASE + '/ajax/busqueda_global.php',
+                        data: { q: query },
+                        dataType: 'json',
+                        success: function(resp) {
+                            if (resp.success) {
+                                mostrarResultados(resp.data);
+                            }
+                        }
+                    });
+                }
+                
+                function mostrarResultados(data) {
+                    var html = '';
+                    var total = data.total || 0;
+                    
+                    if (total === 0) {
+                        html = '<div class="p-3 text-center text-muted"><i class="fas fa-search me-2"></i>No se encontraron resultados</div>';
+                    } else {
+                        var resultados = data.resultados;
+                        var grupos = {
+                            'insumos': 'Insumos',
+                            'pedidos': 'Pedidos',
+                            'remitos': 'Remitos',
+                            'sedes': 'Sedes'
+                        };
+                        
+                        for (var grupo in grupos) {
+                            if (resultados[grupo] && resultados[grupo].length > 0) {
+                                html += '<div class="border-bottom px-3 py-2 bg-light"><small class="text-muted fw-bold text-uppercase">' + grupos[grupo] + '</small></div>';
+                                resultados[grupo].forEach(function(item) {
+                                    var tipo = item.tipo;
+                                    var url = BASE + urls[tipo] + item.id;
+                                    html += '<a href="' + url + '" class="d-block px-3 py-2 text-decoration-none text-dark busqueda-item" style="transition: background 0.2s;">';
+                                    html += '<i class="fas ' + iconos[tipo] + ' text-' + colores[tipo] + ' me-2"></i>';
+                                    html += '<span class="fw-medium">' + escapeHtml(item.titulo) + '</span>';
+                                    if (item.subtitulo) {
+                                        html += '<small class="text-muted ms-2">' + escapeHtml(item.subtitulo) + '</small>';
+                                    }
+                                    html += '</a>';
+                                });
+                            }
+                        }
+                    }
+                    
+                    $resultados.html(html).removeClass('d-none');
+                }
+                
+                function escapeHtml(str) {
+                    if (!str) return '';
+                    return String(str).replace(/[&<>"']/g, function(m) {
+                        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];
+                    });
+                }
+                
+                // Hover para items
+                $(document).on('mouseenter', '.busqueda-item', function() {
+                    $(this).css('background-color', 'rgba(90, 147, 103, 0.08)');
+                }).on('mouseleave', '.busqueda-item', function() {
+                    $(this).css('background-color', '');
+                });
+                
+                // Cerrar al hacer clic fuera
+                $(document).on('click', function(e) {
+                    if (!$(e.target).closest('#busquedaGlobalContainer').length) {
+                        $resultados.addClass('d-none');
+                    }
+                });
+                
+                // Mostrar al enfocar
+                $input.on('focus', function() {
+                    if ($resultados.children().length > 0) {
+                        $resultados.removeClass('d-none');
+                    }
+                });
+                
+                // Atajo Ctrl+K
+                $(document).on('keydown', function(e) {
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                        e.preventDefault();
+                        $input.focus().select();
+                    }
+                    // ESC para cerrar
+                    if (e.key === 'Escape') {
+                        $resultados.addClass('d-none');
+                        $input.blur();
+                    }
+                });
+            })();
+            // ============================================
         });
     </script>
     
@@ -175,6 +316,42 @@
           });
         } catch(e) {}
       });
+    })();
+    </script>
+    
+    <!-- Toggle Modo Oscuro - @added v2.0 -->
+    <script>
+    (function() {
+        var btn = document.getElementById('btnToggleTema');
+        var icono = document.getElementById('iconoTema');
+        var texto = document.getElementById('textoTema');
+        
+        if (!btn) return;
+        
+        // Actualizar UI según tema actual
+        function actualizarUI() {
+            var tema = document.documentElement.getAttribute('data-theme') || 'light';
+            if (tema === 'dark') {
+                icono.className = 'fas fa-sun me-2';
+                texto.textContent = 'Modo Claro';
+            } else {
+                icono.className = 'fas fa-moon me-2';
+                texto.textContent = 'Modo Oscuro';
+            }
+        }
+        
+        // Inicializar
+        actualizarUI();
+        
+        // Toggle al hacer clic
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            var actual = document.documentElement.getAttribute('data-theme') || 'light';
+            var nuevo = actual === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', nuevo);
+            localStorage.setItem('sitia_tema', nuevo);
+            actualizarUI();
+        });
     })();
     </script>
 </body>

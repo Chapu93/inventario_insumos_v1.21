@@ -13,7 +13,7 @@ try {
     if (!isset($_GET['remito']) || $_GET['remito'] === '') {
         json_error('Remito requerido', 400);
     }
-    
+
     $numero = $_GET['remito'];
     $db = conectarDB();
 
@@ -34,7 +34,7 @@ try {
     if (!$cab) {
         json_error('Remito no encontrado', 404);
     }
-    $idRemito = (int)$cab['id_remito'];
+    $idRemito = (int) $cab['id_remito'];
 
     // Intentar asegurar columna cantidad_devuelta (solo una vez, tolerante)
     try {
@@ -59,8 +59,17 @@ try {
                    imp.modelo AS imp_modelo,
                    mon.marca AS mon_marca,
                    mon.modelo AS mon_modelo,
+                   mon.pulgadas AS mon_pulgadas,
+                   mon.conexion AS mon_conexion,
                    esc.marca AS esc_marca,
-                   esc.modelo AS esc_modelo
+                   esc.modelo AS esc_modelo,
+                   pc.procesador AS pc_procesador,
+                   pc.ram_gb AS pc_ram,
+                   pc.almacenamiento_gb AS pc_disco,
+                   pc.mother AS pc_mother,
+                   nb.procesador AS nb_procesador,
+                   nb.ram_gb AS nb_ram,
+                   nb.almacenamiento_gb AS nb_disco
             FROM remitos_detalle d
             JOIN insumos i ON i.id_insumo = d.id_insumo
             LEFT JOIN pcs_completas pc ON pc.id_insumo = i.id_insumo
@@ -79,9 +88,9 @@ try {
         'estado' => $cab['estado'],
         'items_count' => count($items)
     ]);
-    
+
     json_success(['cab' => $cab, 'items' => $items]);
-    
+
 } catch (Exception $e) {
     Logger::error('Error al cargar detalle de remito', [
         'mensaje' => $e->getMessage(),

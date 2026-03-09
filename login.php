@@ -13,18 +13,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
     
-    if (empty($username) || empty($password)) {
+    // Verificar Rate Limiting - @added v2.0
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+    $rateLimit = verificarRateLimitLogin($ip);
+    if (!$rateLimit['allowed']) {
+        $error = $rateLimit['mensaje'];
+    } elseif (empty($username) || empty($password)) {
         $error = 'Por favor completa todos los campos';
     } else {
         $resultado = iniciarSesion($username, $password);
         
         if ($resultado['success']) {
+            // Login exitoso: resetear contador de intentos - @added v2.0
+            registrarIntentoLogin($ip, true);
+            
             // Redirigir a la página solicitada o al dashboard
             $redirect = $_SESSION['redirect_after_login'] ?? app_base_url() . '/index.php';
             unset($_SESSION['redirect_after_login']);
             header('Location: ' . $redirect);
             exit;
         } else {
+            // Login fallido: incrementar contador - @added v2.0
+            registrarIntentoLogin($ip, false);
             $error = $resultado['mensaje'];
         }
     }
