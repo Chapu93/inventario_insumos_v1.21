@@ -75,7 +75,7 @@ try {
                 $pdfFile = $_FILES['nota_pdf'];
                 
                 // Crear directorio si no existe
-                $uploadDir = '../uploads/pedidos/';
+                $uploadDir = UPLOAD_BASE_DIR . 'pedidos/';
                 if (!file_exists($uploadDir)) {
                     mkdir($uploadDir, 0755, true);
                 }
@@ -430,7 +430,7 @@ try {
              
              $file = $_FILES['nota_pdf'];
              
-             $uploadDir = '../uploads/pedidos/';
+             $uploadDir = UPLOAD_BASE_DIR . 'pedidos/';
              if (!file_exists($uploadDir)) {
                  mkdir($uploadDir, 0755, true);
              }
@@ -480,7 +480,7 @@ try {
              
              $file = $_FILES['archivo'];
              
-             $uploadDir = '../uploads/pedidos/';
+             $uploadDir = UPLOAD_BASE_DIR . 'pedidos/';
              if (!file_exists($uploadDir)) {
                  mkdir($uploadDir, 0755, true);
              }

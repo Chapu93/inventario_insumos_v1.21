@@ -100,8 +100,8 @@ try {
     // Procesar archivos adjuntos
     $documentos = [];
     $usuarioId = obtenerUsuarioId();
-    // Usar ruta absoluta en lugar de relativa
-    $uploadDir = __DIR__ . '/../public/uploads/ingresos/';
+    // Directorio centralizado de uploads
+    $uploadDir = UPLOAD_BASE_DIR . 'ingresos/';
     
     // Crear directorio si no existe
     if (!is_dir($uploadDir)) {

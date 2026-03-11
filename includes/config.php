@@ -13,6 +13,11 @@ define('APP_FULL_NAME', 'Sistema de Inventario de Telecomunicaciones, Insumos y 
 define('APP_VERSION', '1.0');
 define('BASE_URL', rtrim(getenv('APP_BASE_URL') ?: '/inventario_app', '/'));
 
+// Directorio centralizado de uploads (ÚNICO para todos los módulos)
+// Estructura: uploads/{ingresos,planos,telecom,pedidos,documentos}/
+define('UPLOAD_BASE_DIR', dirname(__DIR__) . '/uploads/');
+define('UPLOAD_BASE_URL', rtrim(getenv('APP_BASE_URL') ?: '/inventario_app', '/') . '/uploads/');
+
 // Configuración de timezone (importante para fechas)
 date_default_timezone_set('America/Argentina/Buenos_Aires');
 

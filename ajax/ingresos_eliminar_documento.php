@@ -53,7 +53,7 @@ try {
     $stmtDelete->execute([$id_documento]);
     
     // Intentar eliminar el archivo físico
-    $rutaArchivo = __DIR__ . '/../uploads/ingresos/' . $documento['ruta_archivo'];
+    $rutaArchivo = UPLOAD_BASE_DIR . 'ingresos/' . $documento['ruta_archivo'];
     if (file_exists($rutaArchivo)) {
         unlink($rutaArchivo);
     }

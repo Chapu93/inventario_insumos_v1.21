@@ -29,7 +29,7 @@ try {
         die('Documento no encontrado');
     }
     
-    $rutaArchivo = '../public/uploads/ingresos/' . $documento['ruta_archivo'];
+    $rutaArchivo = UPLOAD_BASE_DIR . 'ingresos/' . $documento['ruta_archivo'];
     
     if (!file_exists($rutaArchivo)) {
         http_response_code(404);

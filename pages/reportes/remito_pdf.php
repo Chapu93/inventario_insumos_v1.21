@@ -20,7 +20,7 @@ $conexion = conectarDB();
 
 // Cabecera: intentar nuevo esquema
 $stmt = $conexion->prepare("SELECT r.numero_remito, r.fecha_asignacion, r.nombre_persona_asignada, r.apellido_persona_asignada,
-                                   ar.nombre_area, s.nombre_sede, l.nombre_localidad, z.nombre_zona, r.observaciones
+                                   ar.nombre_area, s.nombre_sede, l.nombre_localidad, z.nombre_zona, r.observaciones, r.declaracion_jurada
                             FROM remitos r
                             JOIN sedes s ON r.id_sede = s.id_sede
                             JOIN localidades l ON s.id_localidad = l.id_localidad
@@ -325,6 +325,35 @@ $pdf->Line($firmaX1, $firmaY, $firmaX2, $firmaY);
 $pdf->SetXY($leftMargin, $firmaY + 2);
 $pdf->SetFont('Arial', '', 10);
 $pdf->Cell($contentWidth, 6, $enc('Firma y aclaración del agente'), 0, 0, 'C');
+
+// Anexar Declaración Jurada si existe
+if (!empty($cab['declaracion_jurada'])) {
+    $djPath = __DIR__ . '/../../uploads/documentos/' . $cab['declaracion_jurada'];
+    if (file_exists($djPath)) {
+        $ext = strtolower(pathinfo($djPath, PATHINFO_EXTENSION));
+        if ($ext === 'pdf') {
+            try {
+                $pageCount = $pdf->setSourceFile($djPath);
+                for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+                    $tplIdx = $pdf->importPage($pageNo);
+                    $size = $pdf->getTemplateSize($tplIdx);
+                    $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
+                    $pdf->useTemplate($tplIdx);
+                }
+            } catch (Throwable $e) {
+                Logger::error('No se pudo adjuntar PDF de DJ al remito', ['error' => $e->getMessage()]);
+            }
+        } elseif (in_array($ext, ['jpg', 'jpeg', 'png'])) {
+            $pdf->AddPage();
+            // Ajustar imagen al ancho de la página A4 (con 10mm de margen)
+            try {
+                $pdf->Image($djPath, 10, 10, 190);
+            } catch (Throwable $e) {
+                Logger::error('No se pudo adjuntar Imagen de DJ al remito', ['error' => $e->getMessage()]);
+            }
+        }
+    }
+}
 
 $pdf->Output('I', $cab['numero_remito'] . '.pdf');
 exit;

@@ -32,7 +32,7 @@ try {
     
     // Procesar archivos adjuntos
     $usuarioId = obtenerUsuarioId();
-    $uploadDir = __DIR__ . '/../public/uploads/ingresos/';
+    $uploadDir = UPLOAD_BASE_DIR . 'ingresos/';
     
     // Crear directorio si no existe
     if (!is_dir($uploadDir)) {

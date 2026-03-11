@@ -119,7 +119,7 @@ if (isset($_POST['crear_servicio_traslado']) && $_POST['crear_servicio_traslado'
         }
         
         // Crear directorio si no existe
-        $directorioTraslados = __DIR__ . '/../../public/uploads/autorizaciones_internet';
+        $directorioTraslados = UPLOAD_BASE_DIR . 'telecom';
         if (!is_dir($directorioTraslados)) {
             mkdir($directorioTraslados, 0755, true);
         }
@@ -130,7 +130,7 @@ if (isset($_POST['crear_servicio_traslado']) && $_POST['crear_servicio_traslado'
         
         // Mover archivo
         if (move_uploaded_file($file['tmp_name'], $rutaCompleta)) {
-            $archivoPdfTraslado = 'public/uploads/autorizaciones_internet/' . $nombreArchivo;
+            $archivoPdfTraslado = 'uploads/telecom/' . $nombreArchivo;
         } else {
             $lastError = error_get_last();
             $_SESSION['mensaje'] = 'Error al guardar el archivo: ' . ($lastError['message'] ?? 'desconocido');
@@ -281,7 +281,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
                         
                         // Asegurar que el directorio existe y tiene permisos
-                        $directorioDestino = __DIR__ . '/../../public/uploads/autorizaciones_internet';
+                        $directorioDestino = UPLOAD_BASE_DIR . 'telecom';
                         if (!is_dir($directorioDestino)) {
                             if (!mkdir($directorioDestino, 0755, true)) {
                                 throw new Exception('No se pudo crear el directorio de destino');
@@ -302,7 +302,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             throw new Exception('Error al guardar el archivo: ' . ($error['message'] ?? 'Desconocido'));
                         }
                         
-                        $archivo_autorizacion = 'public/uploads/autorizaciones_internet/' . $nombreArchivo;
+                        $archivo_autorizacion = 'uploads/telecom/' . $nombreArchivo;
                     }
                     // Si no se sube archivo nuevo, el valor ya está preservado de $valoresActuales
                 }

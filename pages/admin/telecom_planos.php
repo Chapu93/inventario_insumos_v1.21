@@ -7,7 +7,7 @@ verificarPermiso('telecom', 'ver');
 $db = conectarDB();
 
 // Configuración de uploads
-$uploadDir = __DIR__ . '/../../public/uploads/planos';
+$uploadDir = UPLOAD_BASE_DIR . 'planos';
 if (!is_dir($uploadDir)) { @mkdir($uploadDir, 0775, true); }
 
 // Procesamiento
@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
       if (!$moved) { throw new Exception('No se pudo guardar el archivo'); }
       $db->prepare("INSERT INTO sedes_planos (id_sede, tipo_plano, archivo, descripcion) VALUES (?,?,?,?)")
-         ->execute([$idSede, $tipo, 'public/uploads/planos/' . $safeName, $desc ?: null]);
+         ->execute([$idSede, $tipo, 'uploads/planos/' . $safeName, $desc ?: null]);
       $_SESSION['mensaje'] = 'Plano subido correctamente'; $_SESSION['tipo_mensaje'] = 'success';
     } elseif ($accion === 'eliminar') {
       verificarPermiso('telecom', 'eliminar');

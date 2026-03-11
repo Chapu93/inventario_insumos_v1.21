@@ -59,6 +59,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception('Complete ubicación y datos de persona');
         }
 
+        // Verificar si hay alguna notebook para exigir la DJ
+        $hayNotebook = false;
+        foreach ($ids as $idIns) {
+            $row = $db->prepare("SELECT tipo_insumo FROM insumos WHERE id_insumo=?");
+            $row->execute([$idIns]);
+            if ($row->fetchColumn() === 'Notebook') {
+                $hayNotebook = true;
+                break;
+            }
+        }
+
+        $nombreArchivoDj = null;
+        if ($hayNotebook && empty($_FILES['declaracion_jurada']['name'])) {
+            throw new Exception('Debe adjuntar la Declaración Jurada para asignar una Notebook.');
+        }
+
+        if (!empty($_FILES['declaracion_jurada']) && $_FILES['declaracion_jurada']['error'] === UPLOAD_ERR_OK) {
+            require_once '../../includes/validar_archivo.php';
+            $validacion = validarArchivoDocumento($_FILES['declaracion_jurada']);
+            if (!$validacion['valido']) {
+                throw new Exception($validacion['error']);
+            }
+            $uploadDir = __DIR__ . '/../../uploads/documentos/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+            $extension = $validacion['extension'];
+            $nombreArchivoDj = 'dj_' . time() . '_' . uniqid() . '.' . $extension;
+            if (!move_uploaded_file($_FILES['declaracion_jurada']['tmp_name'], $uploadDir . $nombreArchivoDj)) {
+                throw new Exception('Error al guardar la declaración jurada adjunta');
+            }
+        }
+
         // Generación robusta con retry (igual que nueva.php)
         $maxRetries = 50;
         $numero = null;
@@ -67,8 +100,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         for ($i = 0; $i < $maxRetries; $i++) {
             $numero = generarNumeroRemito($db);
             try {
-                $stmtR = $db->prepare("INSERT INTO remitos (numero_remito, id_sede, id_area, nombre_persona_asignada, apellido_persona_asignada, fecha_asignacion, observaciones) VALUES (?,?,?,?,?,?,?)");
-                $stmtR->execute([$numero, $idSede, $idArea, $nombre, $apellido, $fecha, $obs]);
+                $stmtR = $db->prepare("INSERT INTO remitos (numero_remito, id_sede, id_area, nombre_persona_asignada, apellido_persona_asignada, fecha_asignacion, observaciones, declaracion_jurada) VALUES (?,?,?,?,?,?,?,?)");
+                $stmtR->execute([$numero, $idSede, $idArea, $nombre, $apellido, $fecha, $obs, $nombreArchivoDj]);
                 $ok = true;
                 break;
             } catch (Exception $e) {
@@ -202,7 +235,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <div id="nueva-pasos">
     <div class="card">
         <div class="card-body">
-            <form method="POST" id="formPasos" class="needs-validation" novalidate>
+            <form method="POST" id="formPasos" class="needs-validation" enctype="multipart/form-data" novalidate>
                 <input type="hidden" name="_csrf" value="<?php echo htmlspecialchars(csrf_token()); ?>">
                 <!-- Paso 1: Formulario de cabecera -->
                 <div id="paso1">
@@ -276,7 +309,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <textarea class="form-control" id="observaciones" name="observaciones"
                                         rows="2"></textarea>
                                 </div>
-                                <div class="col-md-6 d-flex align-items-end justify-content-end">
+                                <div class="col-md-6 d-flex align-items-end justify-content-end mb-3">
                                     <button type="button" class="btn btn-primary mt-3 mt-md-0" id="btnSiguiente"><i
                                             class="fas fa-arrow-right me-2"></i>Siguiente</button>
                                 </div>
@@ -467,7 +500,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             </tbody>
                                         </table>
                                     </div>
-                                    <div class="d-flex justify-content-end gap-2 mt-3">
+
+                                    <!-- Contenedor Paginación JS -->
+                                    <ul class="pagination pagination-sm justify-content-center mt-3" id="paginationInsumos"></ul>
+
+                                    <div id="declaracion_container" class="mt-3 mx-3 mx-md-5 alert alert-warning" style="display:none;">
+                                        <label for="declaracion_jurada" class="form-label mb-1">
+                                            <strong><i class="fas fa-file-pdf me-2"></i>Declaración Jurada Obligatoria</strong>
+                                        </label>
+                                        <p class="small mb-2">Ha seleccionado al menos una Notebook. Se requiere adjuntar la declaración jurada firmada para continuar.</p>
+                                        <input type="file" class="form-control form-control-sm" name="declaracion_jurada" id="declaracion_jurada" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                                    </div>
+
+                                    <div class="d-flex justify-content-end gap-2 mt-4 mb-3 pe-3 pe-md-4">
                                         <button type="button" class="btn btn-secondary" id="btnVolver2"><i
                                                 class="fas fa-arrow-left me-1"></i>Volver</button>
                                         <button type="button" class="btn btn-primary"
@@ -615,6 +660,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         });
         $('#filtro_tipo').on('input change', function () { filtrarInsumos(); actualizarContadorSeleccionados(); });
 
+        // Paginación
+        let currentPage = 1;
+        const rowsPerPage = 15;
+
+        // Inicializar filtros y paginación al cargar el DOM
+        $(document).ready(function() {
+            filtrarInsumos();
+            actualizarContadorSeleccionados();
+        });
+
         function filtrarInsumos() {
             const tipo = ($('#filtro_tipo').val() || '').toLowerCase();
             const q = ($('#filtro_busqueda').val() || '').toLowerCase();
@@ -623,20 +678,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 const t = ($f.data('tipo') || '').toLowerCase();
                 const txt = ($f.data('texto') || '');
                 const selected = !$f.find('.hidden-insumo-input').prop('disabled');
-                let show = true;
+                let matches = true;
                 if (!selected) {
-                    if (tipo && t !== tipo) show = false;
-                    if (q && !txt.includes(q)) show = false;
+                    if (tipo && t !== tipo) matches = false;
+                    if (q && !txt.includes(q)) matches = false;
                 }
-                $f.toggle(show);
+                
+                if (matches) {
+                    $f.removeClass('d-none-filter');
+                } else {
+                    $f.addClass('d-none-filter');
+                }
             });
-            // Mostrar mensaje si no hay resultados visibles (sin contar filas seleccionadas ocultas)
-            const $tbody = $('#tablaInsumos tbody');
-            $tbody.find('tr.no-results').remove();
-            const visibles = $('#tablaInsumos tbody tr.fila-insumo:visible').length;
-            if (visibles === 0) {
-                $tbody.append('<tr class="no-results"><td colspan="5" class="text-center text-muted">Sin resultados</td></tr>');
-            }
             reorderSelectedFirst();
         }
 
@@ -693,17 +746,97 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const $others = $rows.not($selected);
             $selected.each(function () { $tbody.prepend(this); });
             $others.each(function () { $tbody.append(this); });
+            
+            renderPaginacion();
+        }
+
+        function renderPaginacion() {
+            const $allValidRows = $('.fila-insumo:not(.d-none-filter)');
+            const $tbody = $('#tablaInsumos tbody');
+            $tbody.find('tr.no-results').remove();
+            
+            if ($allValidRows.length === 0) {
+                $tbody.append('<tr class="no-results"><td colspan="5" class="text-center text-muted">Sin resultados</td></tr>');
+                $('#paginationInsumos').empty();
+                $('.fila-insumo').hide(); // ocultar todo
+                return;
+            }
+
+            // Separar filas seleccionadas de las no seleccionadas
+            const $selectedRows = $allValidRows.filter(function() {
+                return !$(this).find('.hidden-insumo-input').prop('disabled');
+            });
+            const $unselectedRows = $allValidRows.not($selectedRows);
+
+            // Los seleccionados SIEMPRE se muestran (anclados arriba por reorderSelectedFirst)
+            $selectedRows.show();
+
+            const totalPages = Math.ceil($unselectedRows.length / rowsPerPage);
+            if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            // Las filas NO seleccionadas se paginan
+            $unselectedRows.each(function(index) {
+                if (index >= (currentPage - 1) * rowsPerPage && index < currentPage * rowsPerPage) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+
+            $('.fila-insumo.d-none-filter').hide();
+
+            let pageHtml = '';
+            if (totalPages > 1) {
+                pageHtml += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link" href="#" onclick="cambiarPagina(${currentPage - 1}); return false;">&laquo;</a></li>`;
+                
+                let startPage = Math.max(1, currentPage - 2);
+                let endPage = Math.min(totalPages, startPage + 4);
+                if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
+                
+                for (let i = startPage; i <= endPage; i++) {
+                    pageHtml += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="#" onclick="cambiarPagina(${i}); return false;">${i}</a></li>`;
+                }
+                
+                pageHtml += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="#" onclick="cambiarPagina(${currentPage + 1}); return false;">&raquo;</a></li>`;
+            }
+            $('#paginationInsumos').html(pageHtml);
+        }
+
+        function cambiarPagina(page) {
+            currentPage = page;
+            renderPaginacion();
         }
 
         function actualizarContadorSeleccionados() {
             const total = $('.hidden-insumo-input:not(:disabled)').length;
             $('#contadorSeleccion').text(`${total} seleccionados`);
+
+            const hayNotebook = $('.hidden-insumo-input:not(:disabled)[data-tipo="Notebook"]').length > 0;
+            if (hayNotebook) {
+                $('#declaracion_container').fadeIn(200);
+            } else {
+                $('#declaracion_container').hide();
+                $('#declaracion_jurada').val(''); // Limpiar input si deseleccionan la notebook
+            }
         }
 
         function mostrarModalConfirmacion() {
             const form = document.getElementById('formPasos');
             const total = $('.hidden-insumo-input:not(:disabled)').length;
-            if (total === 0) { alert('Debe seleccionar al menos un insumo'); return; }
+            if (total === 0) { 
+                if (typeof showToast === 'function') { showToast('Debe seleccionar al menos un insumo', 'warning'); } else { alert('Debe seleccionar al menos un insumo'); }
+                return; 
+            }
+
+            const hayNotebook = $('.hidden-insumo-input:not(:disabled)[data-tipo="Notebook"]').length > 0;
+            if (hayNotebook && !$('#declaracion_jurada').val()) {
+                if (typeof showToast === 'function') { showToast('Debe adjuntar la Declaración Jurada para asignar una Notebook.', 'warning'); } else { alert('Debe adjuntar la Declaración Jurada para asignar una Notebook.'); }
+                $('#declaracion_jurada').addClass('is-invalid');
+                return;
+            } else {
+                $('#declaracion_jurada').removeClass('is-invalid');
+            }
             // Poblar modal
             $('#m_localidad').text($('#id_localidad option:selected').text());
             $('#m_sede').text($('#id_sede option:selected').text());

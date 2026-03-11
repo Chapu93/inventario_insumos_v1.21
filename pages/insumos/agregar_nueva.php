@@ -220,6 +220,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Detectar modo: 'nuevo' usa numeración actual, por defecto usa secuencia histórica
         $modoRemito = isset($_GET['modo']) ? $_GET['modo'] : 'historico';
 
+        // Manejo de Declaración Jurada para Notebooks
+        $declaracionNombre = null;
+        if ($tipo_insumo === 'Notebook') {
+            if (!empty($_FILES['declaracion_jurada']) && $_FILES['declaracion_jurada']['error'] === UPLOAD_ERR_OK) {
+                // Requiere validación usando función centralizada
+                $validacionDJ = validarArchivoDocumento($_FILES['declaracion_jurada']);
+                if (!$validacionDJ['valido']) {
+                    throw new Exception('Error Documento: ' . $validacionDJ['error']);
+                }
+                $uploadDir = __DIR__ . '/../../uploads/documentos/';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0755, true);
+                }
+                $declaracionNombre = 'dj_' . time() . '_' . uniqid() . '.' . $validacionDJ['extension'];
+                $rutaCompleta = $uploadDir . $declaracionNombre;
+                if (!move_uploaded_file($_FILES['declaracion_jurada']['tmp_name'], $rutaCompleta)) {
+                    throw new Exception('No se pudo guardar la Declaración Jurada adjunta.');
+                }
+            } else {
+                if ($modoRemito === 'nuevo') {
+                    throw new Exception('Debe adjuntar la Declaración Jurada obligatoria para la Notebook en este modo.');
+                }
+            }
+        }
+
         if ($modoRemito === 'nuevo') {
             // Modo NUEVO: Usar generarNumeroRemito() para numeración actual (igual que nueva_pasos.php)
             $maxRetries = 50;
@@ -230,9 +255,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             for ($i = 0; $i < $maxRetries; $i++) {
                 $numero = generarNumeroRemito($conexion);
                 try {
-                    $sql = "INSERT INTO remitos (numero_remito, id_sede, id_area, nombre_persona_asignada, apellido_persona_asignada, fecha_asignacion, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                    $sql = "INSERT INTO remitos (numero_remito, id_sede, id_area, nombre_persona_asignada, apellido_persona_asignada, fecha_asignacion, observaciones, declaracion_jurada) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
                     $stmt = $conexion->prepare($sql);
-                    $stmt->execute([$numero, $idSede, $idArea, $nombre, $apellido, $fechaAsig, $obs]);
+                    $stmt->execute([$numero, $idSede, $idArea, $nombre, $apellido, $fechaAsig, $obs, $declaracionNombre]);
                     $ok = true;
                     break;
                 } catch (Exception $e) {
@@ -277,9 +302,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             $numero = $secuencia . $sufijo;
 
-            $sql = "INSERT INTO remitos (numero_remito, id_sede, id_area, nombre_persona_asignada, apellido_persona_asignada, fecha_asignacion, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO remitos (numero_remito, id_sede, id_area, nombre_persona_asignada, apellido_persona_asignada, fecha_asignacion, observaciones, declaracion_jurada) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = $conexion->prepare($sql);
-            $stmt->execute([$numero, $idSede, $idArea, $nombre, $apellido, $fechaAsig, $obs]);
+            $stmt->execute([$numero, $idSede, $idArea, $nombre, $apellido, $fechaAsig, $obs, $declaracionNombre]);
             $idRemito = $conexion->lastInsertId();
         }
 
@@ -354,7 +379,7 @@ $badgeModo = $modoActual === 'nuevo'
 
 <div class="card">
     <div class="card-body">
-        <form method="POST" id="formAgregarNueva" class="needs-validation" novalidate>
+        <form method="POST" id="formAgregarNueva" class="needs-validation" enctype="multipart/form-data" novalidate>
             <?php echo csrf_input(); ?>
             <!-- Paso 1: Cabecera asignación -->
             <div id="paso1">
@@ -801,6 +826,14 @@ $badgeModo = $modoActual === 'nuevo'
                         <!-- Contenedor para errores de duplicados -->
                         <div id="error-duplicados" class="mt-3" style="display:none;"></div>
 
+                        <div id="declaracion_container_nueva" class="mt-3 alert alert-warning" style="display:none;">
+                            <label for="declaracion_jurada" class="form-label mb-1">
+                                <strong><i class="fas fa-file-pdf me-2"></i>Declaración Jurada <span id="dj_label_type">Obligatoria</span></strong>
+                            </label>
+                            <p class="small mb-2" id="dj_help_text">Ha seleccionado una Notebook. Se requiere adjuntar la declaración jurada firmada para continuar.</p>
+                            <input type="file" class="form-control form-control-sm" name="declaracion_jurada" id="declaracion_jurada" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                        </div>
+
                         <div class="d-flex justify-content-between mt-3">
                             <button type="button" class="btn btn-outline-secondary" id="btnVolver"><i
                                     class="fas fa-arrow-left me-1"></i>Volver</button>
@@ -977,6 +1010,20 @@ $badgeModo = $modoActual === 'nuevo'
             if (t === 'Notebook') {
                 console.log('Mostrando #campos-notebook');
                 $('#campos-notebook').show();
+                // Restaurar requirido en los propios inputs de Notebook si es necesario
+                $('#campos-notebook').find('.is-required').prop('required', true);
+                
+                $('#declaracion_container_nueva').fadeIn(200);
+                const modoParams = new URLSearchParams(window.location.search);
+                if (modoParams.get('modo') === 'nuevo') {
+                    $('#declaracion_jurada').prop('required', true);
+                    $('#dj_label_type').text('Obligatoria');
+                    $('#dj_help_text').text('Ha seleccionado una Notebook. Modo Nuevo: Se requiere adjuntar la declaración jurada firmada para continuar.');
+                } else {
+                    $('#declaracion_jurada').prop('required', false);
+                    $('#dj_label_type').text('(Opcional)');
+                    $('#dj_help_text').text('Ha seleccionado una Notebook. Modo Histórico: Puede adjuntar la declaración jurada si dispone de ella.');
+                }
             }
             if (t === 'Impresora') {
                 console.log('Mostrando #campos-impresora');
@@ -998,6 +1045,9 @@ $badgeModo = $modoActual === 'nuevo'
             $('#extras-notebook').hide(); // Cambiado de slideUp a hide
             $('#micro_sd').prop('checked', false);
             $('#micro_sd_gb').prop('disabled', true).val('');
+            
+            $('#declaracion_container_nueva').hide();
+            $('#declaracion_jurada').val('').prop('required', false);
         }
     }
     $('#tipo_insumo').on('change', toggleCampos);
@@ -1150,7 +1200,11 @@ $badgeModo = $modoActual === 'nuevo'
                 console.log('  - Campo:', this.name || this.id, 'Valor:', $(this).val(), 'Tipo:', this.type);
             });
             e.preventDefault();
-            alert('Hay campos requeridos sin completar. Revisa la consola (F12) para más detalles.');
+            if (typeof showToast === 'function') {
+                showToast('Hay campos requeridos sin completar. Por favor revise el formulario.', 'warning');
+            } else {
+                alert('Hay campos requeridos sin completar. Por favor revise el formulario.');
+            }
             return false;
         }
 

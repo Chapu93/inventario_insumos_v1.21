@@ -226,6 +226,7 @@ $stmt->execute([$id]);
 5. **NO hardcodear credenciales** - Usar variables de entorno o config.php
 6. **NO ignorar la validación de archivos** - Siempre usar `validarArchivo()`
 7. **NO ignorar permisos** - Siempre verificar con `tienePermiso()`
+8. **NO guardar uploads fuera de `/uploads/`** - Usar siempre la constante `UPLOAD_BASE_DIR` y la estructura organizada por módulo
 
 ---
 
