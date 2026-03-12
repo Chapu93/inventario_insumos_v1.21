@@ -219,7 +219,10 @@ include '../../includes/header.php';
                         <p><strong>Marca:</strong> <?php echo htmlspecialchars($esp['marca'] ?? ''); ?></p>
                         <p><strong>Modelo:</strong> <?php echo htmlspecialchars($esp['modelo'] ?? ''); ?></p>
                         <p><strong>Pulgadas:</strong> <?php echo htmlspecialchars($esp['pulgadas'] ?? ''); ?></p>
-                        <p><strong>Conexión:</strong> <?php echo htmlspecialchars($esp['conexion'] ?? ''); ?></p>
+                        <p><strong>Conexión:</strong> <?php 
+                            $cx = $esp['conexion'] ?? ''; 
+                            echo htmlspecialchars($cx . ($cx === 'Ambas' ? ' (HDMI-VGA)' : '')); 
+                        ?></p>
                     <?php elseif ($insumo['tipo_insumo'] === 'Escaner'): ?>
                         <p><strong>Marca:</strong> <?php echo htmlspecialchars($esp['marca'] ?? ''); ?></p>
                         <p><strong>Modelo:</strong> <?php echo htmlspecialchars($esp['modelo'] ?? ''); ?></p>

@@ -296,36 +296,41 @@ $(document).ready(function() {
         const activo = btn.data('activo');
         const accion = activo ? 'desactivar' : 'activar';
         
-        if (!confirm(`¿Estás seguro de ${accion} al usuario "${nombre}"?`)) {
-            return;
-        }
-        
-        btn.prop('disabled', true);
-        
-        $.ajax({
-            url: getAppBase() + '/ajax/usuarios_toggle_estado.php',
-            method: 'POST',
-            data: { id_usuario: id },
-            dataType: 'json',
-            success: function(response) {
-                if (response.success) {
-                    showToast(`Usuario ${accion === 'desactivar' ? 'desactivado' : 'activado'} correctamente`, 'success');
-                    setTimeout(function() { 
-                        location.reload(); 
-                    }, 1000);
-                } else {
-                    showToast(response.mensaje || 'Error al cambiar estado', 'error');
-                    btn.prop('disabled', false);
-                }
-            },
-            error: function(xhr) {
-                try {
-                    const response = JSON.parse(xhr.responseText);
-                    showToast(response.error || response.mensaje || 'Error al cambiar estado', 'error');
-                } catch(e) {
-                    showToast('Error de conexión', 'error');
-                }
-                btn.prop('disabled', false);
+        showConfirm({
+            titulo: `${accion.charAt(0).toUpperCase() + accion.slice(1)} Usuario`,
+            mensaje: `¿Estás seguro de ${accion} al usuario "<strong>${nombre}</strong>"?`,
+            icono: activo ? 'fa-user-slash text-danger' : 'fa-user-check text-success',
+            claseBoton: activo ? 'btn-danger' : 'btn-success',
+            textoAceptar: activo ? 'Desactivar' : 'Activar',
+            onConfirm: () => {
+                btn.prop('disabled', true);
+                
+                $.ajax({
+                    url: getAppBase() + '/ajax/usuarios_toggle_estado.php',
+                    method: 'POST',
+                    data: { id_usuario: id },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            showToast(`Usuario ${accion === 'desactivar' ? 'desactivado' : 'activado'} correctamente`, 'success');
+                            setTimeout(function() { 
+                                location.reload(); 
+                            }, 1000);
+                        } else {
+                            showToast(response.mensaje || 'Error al cambiar estado', 'error');
+                            btn.prop('disabled', false);
+                        }
+                    },
+                    error: function(xhr) {
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            showToast(response.error || response.mensaje || 'Error al cambiar estado', 'error');
+                        } catch(e) {
+                            showToast('Error de conexión', 'error');
+                        }
+                        btn.prop('disabled', false);
+                    }
+                });
             }
         });
     });

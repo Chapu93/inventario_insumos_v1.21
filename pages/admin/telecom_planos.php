@@ -127,16 +127,17 @@ include '../../includes/header.php';
                 <?php endif; ?>
                 
                 <?php if (tienePermiso('telecom', 'eliminar')): ?>
-                <form method="POST" onsubmit="return confirm('¿Eliminar plano?');" style="display:inline">
+                <button class="btn btn-sm btn-danger" 
+                        data-bs-toggle="tooltip" 
+                        title="Eliminar plano"
+                        aria-label="Eliminar plano"
+                        onclick="delPlano(<?php echo (int)$p['id_plano']; ?>)">
+                  <i class="fas fa-trash" aria-hidden="true"></i>
+                </button>
+                <form id="formDel_<?php echo $p['id_plano']; ?>" method="POST" style="display:none">
                   <input type="hidden" name="accion" value="eliminar">
                   <input type="hidden" name="id_plano" value="<?php echo (int)$p['id_plano']; ?>">
                   <?php echo csrf_input(); ?>
-                  <button class="btn btn-sm btn-danger" 
-                          data-bs-toggle="tooltip" 
-                          title="Eliminar plano"
-                          aria-label="Eliminar plano">
-                    <i class="fas fa-trash" aria-hidden="true"></i>
-                  </button>
                 </form>
                 <?php endif; ?>
               </div>
@@ -289,6 +290,19 @@ function viewPlano(p){
     $('#view_plano_archivo').attr('href', BASE + '/' + p.archivo);
   }
   new bootstrap.Modal(document.getElementById('modalVerPlano')).show();
+}
+
+function delPlano(id) {
+    showConfirm({
+        titulo: 'Eliminar Plano',
+        mensaje: '¿Está seguro de que desea eliminar este plano?',
+        icono: 'fa-trash-alt text-danger',
+        claseBoton: 'btn-danger',
+        textoAceptar: 'Eliminar',
+        onConfirm: () => {
+            $(`#formDel_${id}`).submit();
+        }
+    });
 }
 </script>
 

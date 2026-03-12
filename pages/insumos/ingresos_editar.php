@@ -153,6 +153,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Procesar archivos adjuntos
         $usuarioId = obtenerUsuarioId();
         $uploadDir = UPLOAD_BASE_DIR . 'ingresos/';
+        $erroresArchivos = [];
         
         // Crear directorio si no existe
         if (!is_dir($uploadDir)) {
@@ -163,6 +164,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!empty($_FILES['archivo_remito']['name'])) {
             $resultado = procesarArchivoAdjunto($_FILES['archivo_remito'], $id, 'remito', $uploadDir, $db, $usuarioId);
             if (!$resultado['success']) {
+                $erroresArchivos[] = "Remito: " . $resultado['error'];
                 Logger::warning("Error al cargar remito", ['error' => $resultado['error']]);
             }
         }
@@ -171,6 +173,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!empty($_FILES['archivo_documentacion']['name'])) {
             $resultado = procesarArchivoAdjunto($_FILES['archivo_documentacion'], $id, 'documentacion', $uploadDir, $db, $usuarioId);
             if (!$resultado['success']) {
+                $erroresArchivos[] = "Documentación: " . $resultado['error'];
                 Logger::warning("Error al cargar documentación", ['error' => $resultado['error']]);
             }
         }
@@ -180,8 +183,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Limpiar localStorage
         echo '<script>try { localStorage.removeItem("ingreso_paso1"); localStorage.removeItem("ingreso_seleccionados"); } catch(e) {}</script>';
         
-        $_SESSION['mensaje'] = $esEdicion ? 'Ingreso actualizada correctamente' : 'Ingreso creada correctamente';
-        $_SESSION['tipo_mensaje'] = 'success';
+        $mensajeBase = $esEdicion ? 'Ingreso actualizado correctamente' : 'Ingreso creado correctamente';
+        if (!empty($erroresArchivos)) {
+            $_SESSION['mensaje'] = $mensajeBase . '. Pero hubo errores en archivos: ' . implode(', ', $erroresArchivos);
+            $_SESSION['tipo_mensaje'] = 'warning';
+        } else {
+            $_SESSION['mensaje'] = $mensajeBase;
+            $_SESSION['tipo_mensaje'] = 'success';
+        }
         header('Location: ' . app_base_url() . '/pages/insumos/ingresos_listar.php');
         exit;
         
@@ -545,7 +554,7 @@ function guardarEstado() {
         
     } catch (e) {
         console.error('Error guardando estado:', e);
-        alert('Error al guardar el estado. Por favor, intente nuevamente.');
+        showAlert('Error al guardar el estado. Por favor, intente nuevamente.', 'error');
     }
 }
 
@@ -744,7 +753,7 @@ function validarPaso1() {
 function validarPaso2() {
     const seleccionados = $('.hidden-insumo-input:not([disabled])');
     if (seleccionados.length === 0) {
-        alert('Debe seleccionar al menos un insumo');
+        showAlert('Debe seleccionar al menos un insumo', 'warning');
         return false;
     }
     return true;
@@ -968,7 +977,7 @@ $('#btnGuardarPDF').on('click', function() {
         return;
     }
     
-    const idIngresoEdit = <?php echo $idIngreso; ?>;
+    const idIngresoEdit = <?php echo (int)$idIngreso; ?>;
     const tieneArchivoRemito = $('#editar_archivo_remito')[0].files.length > 0;
     const tieneArchivoDocumentacion = $('#editar_archivo_documentacion')[0].files.length > 0;
     
@@ -979,6 +988,7 @@ $('#btnGuardarPDF').on('click', function() {
     
     // Crear FormData para enviar archivos
     const formData = new FormData();
+    formData.append('_csrf', (document.querySelector('meta[name="csrf-token"]')||{}).content || '');
     
     if (tieneArchivoRemito) {
         formData.append('archivo_remito', $('#editar_archivo_remito')[0].files[0]);
@@ -1025,16 +1035,20 @@ $('#btnGuardarPDF').on('click', function() {
 });
 
 // Cargar documentos existentes si estamos editando
-if (ES_EDICION) {
-    const idIngresoEdit = <?php echo $idIngreso; ?>;
-    
+$(function() {
+    if (ES_EDICION) {
+        const idIngresoEdit = <?php echo (int)$idIngreso; ?>;
+        console.log('Cargando documentos. BASE:', BASE, 'ID:', idIngresoEdit);
+        
     $.ajax({
         url: BASE + '/ajax/ingresos_documentos_listar.php',
         data: { id: idIngresoEdit },
         dataType: 'json',
         success: function(resp) {
+            console.log('Respuesta AJAX documentos:', resp);
             if (resp && resp.success && resp.data && resp.data.documentos) {
                 const docs = resp.data.documentos;
+                console.log('Documentos encontrados:', docs.length);
                 
                 // Separar por tipo
                 const remitos = docs.filter(d => d.tipo_documento === 'remito');
@@ -1047,7 +1061,7 @@ if (ES_EDICION) {
                         let btnEliminar = '';
                         if (ES_ADMIN) {
                             btnEliminar = `
-                                <button class="btn btn-sm btn-danger" 
+                                <button type="button" class="btn btn-sm btn-danger" 
                                         onclick="eliminarDocumentoIngreso(${doc.id_documento}, ${idIngresoEdit})" 
                                         title="Eliminar documento">
                                     <i class="fas fa-trash"></i>
@@ -1086,7 +1100,7 @@ if (ES_EDICION) {
                         let btnEliminar = '';
                         if (ES_ADMIN) {
                             btnEliminar = `
-                                <button class="btn btn-sm btn-danger" 
+                                <button type="button" class="btn btn-sm btn-danger" 
                                         onclick="eliminarDocumentoIngreso(${doc.id_documento}, ${idIngresoEdit})" 
                                         title="Eliminar documento">
                                     <i class="fas fa-trash"></i>
@@ -1119,49 +1133,57 @@ if (ES_EDICION) {
                 }
             }
         },
-        error: function() {
-            console.error('Error al cargar documentos existentes');
-        }
-    });
-}
+            error: function(xhr, status, error) {
+                console.error('Error AJAX al cargar documentos:', { status, error, response: xhr.responseText });
+            }
+        });
+    }
+});
 
 // Eliminar documento adjunto (Solo Admin/Superadmin)
 function eliminarDocumentoIngreso(idDocumento, idIngreso) {
-    if (!confirm('¿Está seguro de eliminar este documento?\n\nEsta acción no se puede deshacer.')) return;
-    
-    $.ajax({
-        url: BASE + '/ajax/ingresos_eliminar_documento.php',
-        method: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify({ 
-            _csrf: (document.querySelector('meta[name="csrf-token"]')||{}).content || '', 
-            id: idDocumento 
-        }),
-        success: function(r){ 
-            if (!r.success) { 
-                showToast(r.error||'Error al eliminar documento', 'error'); 
-                return; 
-            }
-            showToast('Documento eliminado correctamente', 'success');
-            // Remover el elemento del DOM
-            $('#doc-item-' + idDocumento).fadeOut(300, function() {
-                $(this).remove();
-                // Si no quedan documentos, ocultar el contenedor
-                if ($('#lista_remito .list-group-item').length === 0) {
-                    $('#documentos_remito_existentes').hide();
-                }
-                if ($('#lista_documentacion .list-group-item').length === 0) {
-                    $('#documentos_documentacion_existentes').hide();
+    showConfirm({
+        titulo: 'Eliminar Documento',
+        mensaje: '¿Está seguro de eliminar este documento?<br><br>Esta acción no se puede deshacer.',
+        icono: 'fa-trash-alt text-danger',
+        claseBoton: 'btn-danger',
+        textoAceptar: 'Eliminar',
+        onConfirm: () => {
+            $.ajax({
+                url: BASE + '/ajax/ingresos_eliminar_documento.php',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ 
+                    _csrf: (document.querySelector('meta[name="csrf-token"]')||{}).content || '', 
+                    id: idDocumento 
+                }),
+                success: function(r){ 
+                    if (!r.success) { 
+                        showToast(r.error||'Error al eliminar documento', 'error'); 
+                        return; 
+                    }
+                    showToast('Documento eliminado correctamente', 'success');
+                    // Remover el elemento del DOM
+                    $('#doc-item-' + idDocumento).fadeOut(300, function() {
+                        $(this).remove();
+                        // Si no quedan documentos, ocultar el contenedor
+                        if ($('#lista_remito .list-group-item').length === 0) {
+                            $('#documentos_remito_existentes').hide();
+                        }
+                        if ($('#lista_documentacion .list-group-item').length === 0) {
+                            $('#documentos_documentacion_existentes').hide();
+                        }
+                    });
+                },
+                error: function(xhr){ 
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        showToast(response.error || 'Error al eliminar documento', 'error');
+                    } catch(e) {
+                        showToast('Error al eliminar documento', 'error');
+                    }
                 }
             });
-        },
-        error: function(xhr){ 
-            try {
-                const response = JSON.parse(xhr.responseText);
-                showToast(response.error || 'Error al eliminar documento', 'error');
-            } catch(e) {
-                showToast('Error al eliminar documento', 'error');
-            }
         }
     });
 }

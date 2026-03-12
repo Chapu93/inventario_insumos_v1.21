@@ -277,7 +277,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Asegurar que no haya salida antes del header
         if (headers_sent()) {
             Logger::warning('Headers ya enviados, usando JavaScript para redirección');
-            echo "<script>alert('Error: " . addslashes($e->getMessage()) . "'); window.location.href = 'agregar.php';</script>";
+            echo "<script>window.location.href = 'agregar.php';</script>";
         } else {
             header("Location: agregar.php");
         }
@@ -515,7 +515,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         <option value="">Sin ingreso asociado</option>
                                         <?php
                                         // Agrupar por tipo de ingreso, ordenados por más reciente primero
-                                        $ingresos = $conexion->query("SELECT id_ingreso, tipo_ingreso, nro_referencia, created_at FROM ingresos ORDER BY created_at DESC")->fetchAll();
+                                        $ingresos = $conexion->query("SELECT id_ingreso, tipo_ingreso, nro_referencia, DATE(fecha_finalizacion) as fecha_finalizacion FROM ingresos ORDER BY created_at DESC")->fetchAll();
                                         $tipos = ['fondos' => 'Fondos', 'compra_directa' => 'Compra Directa', 'licitacion' => 'Licitación', 'otros' => 'Otros'];
                                         
                                         foreach ($tipos as $tipoKey => $tipoLabel):
@@ -526,7 +526,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         ?>
                                             <optgroup label="<?php echo $tipoLabel; ?>">
                                                 <?php foreach ($ingresosTipo as $ing): ?>
-                                                    <option value="<?php echo $ing['id_ingreso']; ?>" data-tipo="<?php echo $ing['tipo_ingreso']; ?>">
+                                                    <option value="<?php echo $ing['id_ingreso']; ?>"
+                                                        data-tipo="<?php echo $ing['tipo_ingreso']; ?>"
+                                                        data-fecha="<?php echo $ing['fecha_finalizacion'] ?? ''; ?>">
                                                         <?php echo htmlspecialchars($ing['nro_referencia']); ?>
                                                     </option>
                                                 <?php endforeach; ?>
@@ -681,6 +683,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         <option value="">Seleccione conexión</option>
                                         <option value="VGA">VGA</option>
                                         <option value="HDMI">HDMI</option>
+                                        <option value="Ambas">Ambas</option>
                                     </select>
                                     <div class="invalid-feedback">La conexión es obligatoria</div>
                                 </div>
@@ -957,7 +960,7 @@ $(document).ready(function() {
             if ($('button[type="submit"]').prop('disabled')) {
                 console.log('Formulario parece estar colgado, habilitando botón');
                 $('button[type="submit"]').prop('disabled', false).html('<i class="fas fa-save me-1"></i>Guardar Insumo');
-                alert('El formulario parece estar tardando más de lo esperado. Por favor, inténtelo de nuevo.');
+                showAlert('El formulario parece estar tardando más de lo esperado. Por favor, inténtelo de nuevo.', 'warning');
             }
         }, 10000); // 10 segundos
     });
@@ -968,11 +971,28 @@ function cambiarTipoIngreso() {
     const select = document.getElementById('select_tipo_ingreso');
     const label = document.querySelector('label[for="id_ingreso"]');
     const help = document.getElementById('help_ingreso');
+    const fechaInput = document.getElementById('fecha_adquisicion');
     
     if (!select || !label) return;
     
     const selectedOption = select.options[select.selectedIndex];
     const tipo = selectedOption.getAttribute('data-tipo');
+    const fechaIngreso = selectedOption.getAttribute('data-fecha');
+
+    // Bloquear/desbloquear fecha según si hay ingreso seleccionado
+    if (fechaIngreso && fechaInput) {
+        fechaInput.value = fechaIngreso;
+        fechaInput.readOnly = true;
+        fechaInput.classList.add('bg-light', 'text-muted');
+        fechaInput.title = 'La fecha está definida por el ingreso seleccionado';
+    } else if (fechaInput) {
+        fechaInput.readOnly = false;
+        fechaInput.classList.remove('bg-light', 'text-muted');
+        fechaInput.title = '';
+        if (!fechaInput.value) {
+            fechaInput.value = new Date().toISOString().split('T')[0];
+        }
+    }
     
     if (!tipo) {
         label.textContent = 'Tipo de Ingreso';

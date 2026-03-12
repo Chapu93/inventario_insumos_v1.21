@@ -47,7 +47,8 @@
             <?php
                 $currentPath = isset($_SERVER['SCRIPT_NAME']) ? $_SERVER['SCRIPT_NAME'] : '';
                 $isDashboard = strpos($currentPath, '/pages/dashboard.php') !== false;
-                $isInsumos = strpos($currentPath, '/pages/insumos/') !== false;
+                $isPedidos = strpos($currentPath, '/pages/pedidos/') !== false || strpos($currentPath, '/pages/insumos/intervenidos.php') !== false;
+                $isInsumos = strpos($currentPath, '/pages/insumos/') !== false && strpos($currentPath, '/pages/insumos/intervenidos.php') === false;
                 $isAsignaciones = strpos($currentPath, '/pages/asignaciones/') !== false;
                 $isReportes = strpos($currentPath, '/pages/reportes/') !== false;
 
@@ -82,9 +83,14 @@
                 
                 
                 <li>
-                    <a href="<?php echo app_base_url(); ?>/pages/pedidos/listar.php" class="nav-link <?php echo strpos($currentPath, '/pages/pedidos/') !== false ? 'active' : ''; ?>" role="menuitem">
+                    <a href="<?php echo app_base_url(); ?>/pages/pedidos/listar.php" class="nav-link <?php echo $isPedidos ? 'active' : ''; ?>" role="menuitem" data-collapse-target="#pedidosSubmenu">
                         <i class="fas fa-clipboard-list me-2"></i>Pedidos y Pendientes
                     </a>
+                    <ul class="collapse list-unstyled <?php echo $isPedidos ? 'show' : ''; ?>" id="pedidosSubmenu" data-bs-parent="#sidebar" role="menu">
+                        <li>
+                            <a href="<?php echo app_base_url(); ?>/pages/insumos/intervenidos.php" class="<?php echo strpos($currentPath, '/pages/insumos/intervenidos.php') !== false ? 'active' : ''; ?>" role="menuitem">Insumos Intervenidos</a>
+                        </li>
+                    </ul>
                 </li>
                 
                 <li>
@@ -97,9 +103,6 @@
                         </li>
                         <li>
                             <a href="<?php echo app_base_url(); ?>/pages/insumos/movimientos.php" class="<?php echo strpos($currentPath, '/pages/insumos/movimientos.php') !== false ? 'active' : ''; ?>" role="menuitem">Movimientos de Stock</a>
-                        </li>
-                        <li>
-                            <a href="<?php echo app_base_url(); ?>/pages/insumos/intervenidos.php" class="<?php echo strpos($currentPath, '/pages/insumos/intervenidos.php') !== false ? 'active' : ''; ?>" role="menuitem">Insumos Intervenidos</a>
                         </li>
                     </ul>
                 </li>

@@ -259,7 +259,7 @@ function cargarPedido() {
         console.log('cargarPedido response:', resp);
         if(!resp.success) {
             console.error('cargarPedido failed:', resp.error);
-            alert('Error al cargar pedido: ' + resp.error);
+            showAlert('Error al cargar pedido: ' + resp.error, 'error');
             window.location.href = 'listar.php';
             return;
         }
@@ -270,7 +270,7 @@ function cargarPedido() {
 
         if (!pedido) { 
             console.error('No pedido data in response:', resp);
-            alert('Estructura de respuesta inválida'); 
+            showAlert('Estructura de respuesta inválida', 'error'); 
             return; 
         }
         
@@ -329,7 +329,7 @@ function cargarPedido() {
         console.log('cargarPedido completed successfully');
     }}).fail(function(xhr, status, error) {
         console.error('cargarPedido AJAX failed:', xhr, status, error);
-        alert('Error de conexion al cargar pedido');
+        showAlert('Error de conexión al cargar pedido', 'error');
     });
 }
 
@@ -342,7 +342,15 @@ function renderPedido(p) {
     // Insumo Relacionado
     if (p.insumo_relacionado) {
         $('#insumoRelacionadoContainer').show();
-        $('#insumoRelacionado').text(p.insumo_relacionado);
+        const insumos = p.insumo_relacionado.split('|');
+        if (insumos.length > 1) {
+            let listHtml = '<ul class="mb-0 ps-3">';
+            insumos.forEach(ins => listHtml += `<li>${ins}</li>`);
+            listHtml += '</ul>';
+            $('#insumoRelacionado').html(listHtml);
+        } else {
+            $('#insumoRelacionado').text(p.insumo_relacionado);
+        }
     } else {
         $('#insumoRelacionadoContainer').hide();
     }
@@ -486,40 +494,55 @@ function mostrarRechazo(p, h) {
 }
 
 window.accionTomar = function() {
-    if(!confirm('Confirmar tomar este pedido?')) return;
-    $.ajax({
-        url: '<?php echo app_base_url(); ?>/ajax/pedidos_acciones.php',
-        type: 'POST',
-        data: { accion: 'tomar', id: PEDIDO_ID, _csrf: CSRF_TOKEN },
-        dataType: 'json',
-        xhrFields: { withCredentials: true },
-        success: function(r){
-            if(r.success) {
-                showToast('Pedido tomado correctamente', 'success');
-                cargarPedido();
-            }
-            else showToast(r.error || 'Error al tomar pedido', 'error');
-        },
-        error: function() { showToast('Error de conexión', 'error'); }
+    showConfirm({
+        titulo: 'Tomar Pedido',
+        mensaje: '¿Confirmar tomar este pedido?',
+        icono: 'fa-hand-paper text-primary',
+        btnAceptar: 'Tomar',
+        onConfirm: () => {
+            $.ajax({
+                url: '<?php echo app_base_url(); ?>/ajax/pedidos_acciones.php',
+                type: 'POST',
+                data: { accion: 'tomar', id: PEDIDO_ID, _csrf: CSRF_TOKEN },
+                dataType: 'json',
+                xhrFields: { withCredentials: true },
+                success: function(r){
+                    if(r.success) {
+                        showToast('Pedido tomado correctamente', 'success');
+                        cargarPedido();
+                    }
+                    else showToast(r.error || 'Error al tomar pedido', 'error');
+                },
+                error: function() { showToast('Error de conexión', 'error'); }
+            });
+        }
     });
 };
 
 window.accionEliminar = function() {
-    if(!confirm('Eliminar pedido irreversiblemente?')) return;
-    $.ajax({
-        url: '<?php echo app_base_url(); ?>/ajax/pedidos_acciones.php',
-        type: 'POST',
-        data: { accion: 'eliminar', id: PEDIDO_ID, _csrf: CSRF_TOKEN },
-        dataType: 'json',
-        xhrFields: { withCredentials: true },
-        success: function(r){
-            if(r.success) {
-                showToast('Pedido eliminado correctamente', 'success');
-                setTimeout(function(){ window.location.href = 'listar.php'; }, 1000);
-            }
-            else showToast(r.error || 'Error al eliminar', 'error');
-        },
-        error: function() { showToast('Error de conexión', 'error'); }
+    showConfirm({
+        titulo: 'Eliminar Pedido',
+        mensaje: '¿Desea eliminar este pedido de forma irreversible?',
+        icono: 'fa-trash-alt text-danger',
+        claseBoton: 'btn-danger',
+        textoAceptar: 'Eliminar',
+        onConfirm: () => {
+            $.ajax({
+                url: '<?php echo app_base_url(); ?>/ajax/pedidos_acciones.php',
+                type: 'POST',
+                data: { accion: 'eliminar', id: PEDIDO_ID, _csrf: CSRF_TOKEN },
+                dataType: 'json',
+                xhrFields: { withCredentials: true },
+                success: function(r){
+                    if(r.success) {
+                        showToast('Pedido eliminado correctamente', 'success');
+                        setTimeout(function(){ window.location.href = 'listar.php'; }, 1000);
+                    }
+                    else showToast(r.error || 'Error al eliminar', 'error');
+                },
+                error: function() { showToast('Error de conexión', 'error'); }
+            });
+        }
     });
 };
 
@@ -576,24 +599,36 @@ $(function(){
 
     $('#formInforme').on('submit', function(e){
         e.preventDefault();
-        if(!confirm('Confirmas que el trabajo esta terminado y deseas cerrar el pedido?')) return;
-        
-        $.ajax({
-            url: '<?php echo app_base_url(); ?>/ajax/pedidos_acciones.php',
-            type: 'POST',
-            data: $(this).serialize(),
-            dataType: 'json',
-            xhrFields: { withCredentials: true },
-            success: function(resp){
-                if(resp.success) {
-                    $('#modalInforme').modal('hide');
-                    showToast('Pedido completado correctamente', 'success');
-                    cargarPedido();
-                } else {
-                    showToast(resp.error || 'Error al completar', 'error');
-                }
-            },
-            error: function() { showToast('Error de conexión', 'error'); }
+        const form = this;
+        showConfirm({
+            titulo: 'Finalizar Pedido',
+            mensaje: '¿Confirma que el trabajo está terminado y desea cerrar el pedido?<br><br><small class="text-muted">Se generará el informe PDF automáticamente.</small>',
+            icono: 'fa-check-circle text-success',
+            claseBoton: 'btn-success',
+            textoAceptar: 'Finalizar y Cerrar',
+            onConfirm: () => {
+                $.ajax({
+                    url: '<?php echo app_base_url(); ?>/ajax/pedidos_acciones.php',
+                    type: 'POST',
+                    data: $(form).serialize(),
+                    dataType: 'json',
+                    xhrFields: { withCredentials: true },
+                    success: function(resp){
+                        if(resp.success) {
+                            $('#modalInforme').modal('hide');
+                            showToast('Pedido completado correctamente', 'success');
+                            
+                            // Abrir informe PDF automáticamente
+                            window.open('informe_pdf.php?id=' + PEDIDO_ID, '_blank');
+                            
+                            cargarPedido();
+                        } else {
+                            showToast(resp.error || 'Error al completar', 'error');
+                        }
+                    },
+                    error: function() { showToast('Error de conexión', 'error'); }
+                });
+            }
         });
     });
 

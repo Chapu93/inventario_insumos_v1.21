@@ -12,15 +12,15 @@ $id = (int)($_GET['id'] ?? 0);
 if ($id <= 0) die('ID inválido');
 
 $db = conectarDB();
-// Obtener datos del pedido
+// Obtener datos del pedido (usando datos del solicitante externo de la tabla pedidos)
 $stmt = $db->prepare("SELECT p.*, 
-                        u_sol.nombre as sol_nom, u_sol.apellido as sol_ape,
                         s.nombre_sede,
-                        l.nombre_localidad
+                        l.nombre_localidad,
+                        i.nombre_insumo, i.numero_serie
                       FROM pedidos p
-                      JOIN usuarios u_sol ON p.id_usuario_solicitante = u_sol.id_usuario
                       JOIN sedes s ON p.id_sede = s.id_sede
                       JOIN localidades l ON s.id_localidad = l.id_localidad
+                      LEFT JOIN insumos i ON p.id_insumo_relacionado = i.id_insumo
                       WHERE p.id_pedido = ?");
 $stmt->execute([$id]);
 $data = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -30,31 +30,54 @@ if (!$data) die('Pedido no encontrado');
 // Helper para decode utf8
 function u($s) { return utf8_decode($s ?? ''); }
 
-// Crear PDF
+// Crear PDF con soporte FPDI para membrete
 $pdf = new Fpdi();
-$pdf->AddPage();
+
+// Cargar plantilla membrete
+$templatePath = __DIR__ . '/../../membretada.pdf';
+$templateLoaded = false;
+if (file_exists($templatePath)) {
+    try {
+        $pdf->setSourceFile($templatePath);
+        $tplIdx = $pdf->importPage(1);
+        $size = $pdf->getTemplateSize($tplIdx);
+        $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
+        $pdf->useTemplate($tplIdx);
+        $templateLoaded = true;
+    } catch (Exception $e) {
+        $pdf->AddPage();
+    }
+} else {
+    $pdf->AddPage();
+}
+
+// Margen superior según si hay membrete
+if ($templateLoaded) {
+    $pdf->SetY(35);
+}
 
 // Título
 $pdf->SetFont('Arial', 'B', 18);
-$pdf->Cell(0, 10, u('CONSTANCIA DE RECEPCIÓN / SOLICITUD'), 0, 1, 'C');
-$pdf->SetFont('Arial', '', 12);
-$pdf->Cell(0, 8, u('N° de Pedido: ') . $data['id_pedido'], 0, 1, 'C');
+$pdf->Cell(0, 10, u('CONSTANCIA DE RECEPCIÓN'), 0, 1, 'C');
 $pdf->Ln(5);
 
 // Bloque Fecha
 $pdf->SetFont('Arial', '', 11);
-$pdf->Cell(0, 6, u('Fecha de Solicitud: ') . date('d/m/Y H:i', strtotime($data['fecha_creacion'])), 0, 1, 'R');
+$pdf->Cell(0, 6, u('Fecha de Recepción: ') . date('d/m/Y H:i', strtotime($data['fecha_creacion'])), 0, 1, 'R');
 $pdf->Ln(5);
 
-// Bloque Solicitante
+// Bloque Solicitante (Agente Externo)
 $pdf->SetFillColor(230, 230, 230);
 $pdf->SetFont('Arial', 'B', 12);
-$pdf->Cell(0, 8, u('DATOS DEL SOLICITANTE'), 1, 1, 'L', true);
+$pdf->Cell(0, 8, u('DATOS DEL AGENTE SOLICITANTE'), 1, 1, 'C', true);
 $pdf->SetFont('Arial', '', 11);
 $pdf->Ln(2);
 
-$pdf->Cell(40, 6, u('Nombre:'), 0, 0);
-$pdf->Cell(0, 6, u($data['sol_nom'] . ' ' . $data['sol_ape']), 0, 1);
+$pdf->SetFont('Arial', '', 11);
+$pdf->Cell(40, 6, u('Nombre y Apellido:'), 0, 0);
+$pdf->SetFont('Arial', 'B', 11);
+$pdf->Cell(0, 6, u($data['solicitante_nombre'] . ' ' . $data['solicitante_apellido']), 0, 1);
+$pdf->SetFont('Arial', '', 11);
 
 $pdf->Cell(40, 6, u('Sede:'), 0, 0);
 $pdf->Cell(0, 6, u($data['nombre_sede']), 0, 1);
@@ -62,11 +85,42 @@ $pdf->Cell(0, 6, u($data['nombre_sede']), 0, 1);
 $pdf->Cell(40, 6, u('Localidad:'), 0, 0);
 $pdf->Cell(0, 6, u($data['nombre_localidad']), 0, 1);
 
+if (!empty($data['solicitante_telefono'])) {
+    $pdf->Cell(40, 6, u('Teléfono:'), 0, 0);
+    $pdf->Cell(0, 6, u($data['solicitante_telefono']), 0, 1);
+}
+
+$pdf->Ln(5);
+
+// Bloque Insumo si existe
+if (!empty($data['insumo_relacionado'])) {
+    $pdf->SetFont('Arial', 'B', 12);
+    $pdf->Cell(0, 8, u('DETALLE DEL INSUMO'), 1, 1, 'C', true);
+    $pdf->SetFont('Arial', '', 11);
+    $pdf->Ln(2);
+
+    // Soporte para múltiples insumos separados por |
+    $insumos = explode('|', $data['insumo_relacionado']);
+    foreach ($insumos as $index => $insumo) {
+        if ($index > 0) $pdf->Ln(2);
+        
+        $pdf->Cell(40, 6, u('Insumo ' . (count($insumos) > 1 ? ($index + 1) : '') . ':'), 0, 0);
+        $pdf->Cell(0, 6, u($insumo), 0, 1);
+
+        // El número de serie solo aplica al primer insumo ya que la BD solo guarda uno por ahora
+        // O si el texto manual ya incluye la serie, se maneja ahí.
+        if ($index === 0 && !empty($data['numero_serie'])) {
+            $pdf->Cell(40, 6, u('N° de Serie:'), 0, 0);
+            $pdf->Cell(0, 6, u($data['numero_serie']), 0, 1);
+        }
+    }
+}
+
 $pdf->Ln(5);
 
 // Bloque Detalle
 $pdf->SetFont('Arial', 'B', 12);
-$pdf->Cell(0, 8, u('DETALLE DE LA SOLICITUD'), 1, 1, 'L', true);
+$pdf->Cell(0, 8, u('DETALLE DE LA SOLICITUD'), 1, 1, 'C', true);
 $pdf->SetFont('Arial', '', 11);
 $pdf->Ln(2);
 
@@ -75,26 +129,17 @@ $pdf->SetFont('Arial', 'B', 11);
 $pdf->Cell(0, 6, u($data['tipo']), 0, 1);
 $pdf->SetFont('Arial', '', 11);
 
-$pdf->Cell(40, 6, u('Prioridad:'), 0, 0);
-$pdf->Cell(0, 6, u($data['prioridad']), 0, 1);
-
-$pdf->Ln(2);
-$pdf->SetFont('Arial', 'B', 11);
-$pdf->Cell(0, 6, u('Asunto:'), 0, 1);
-$pdf->SetFont('Arial', '', 11);
-$pdf->MultiCell(0, 6, u($data['titulo']), 0, 'L');
-
 $pdf->Ln(2);
 $pdf->SetFont('Arial', 'B', 11);
 $pdf->Cell(0, 6, u('Descripción / Detalles:'), 0, 1);
 $pdf->SetFont('Arial', '', 11);
 $pdf->MultiCell(0, 6, u($data['descripcion']), 0, 'L');
 
-$pdf->Ln(20);
+$pdf->Ln(40);
 
 // Firmas
 $y = $pdf->GetY();
-if ($y > 240) { $pdf->AddPage(); $y = 30; }
+if ($y > 240) { $pdf->AddPage(); $y = 35; }
 
 $pdf->Line(20, $y, 80, $y);
 $pdf->Line(130, $y, 190, $y);
@@ -103,11 +148,12 @@ $pdf->SetFont('Arial', '', 9);
 $pdf->SetXY(20, $y + 2);
 $pdf->Cell(60, 4, u('Entregado por (Firma)'), 0, 0, 'C');
 $pdf->SetXY(20, $y + 6);
-$pdf->Cell(60, 4, u($data['sol_nom'] . ' ' . $data['sol_ape']), 0, 0, 'C');
+$pdf->Cell(60, 4, u($data['solicitante_nombre'] . ' ' . $data['solicitante_apellido']), 0, 0, 'C');
 
 
 $pdf->SetXY(130, $y + 2);
 $pdf->Cell(60, 4, u('Recibido por (Firma y aclaración)'), 0, 0, 'C');
 
-$pdf->Output('I', 'Constancia_' . $id . '.pdf');
+$pdf->Output('I', 'Constancia_Recepcion.pdf');
 ?>
+

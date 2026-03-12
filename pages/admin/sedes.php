@@ -281,32 +281,39 @@ function editarSede(sede) {
 }
 
 function eliminarItem(id, tipo) {
-    if (confirm("¿Está seguro de que desea eliminar esta sede?")) {
-        var form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '<?php echo app_base_url(); ?>/pages/insumos/eliminar.php';
-        
-        var inputId = document.createElement('input');
-        inputId.type = 'hidden';
-        inputId.name = 'id';
-        inputId.value = id;
-        
-        var inputTipo = document.createElement('input');
-        inputTipo.type = 'hidden';
-        inputTipo.name = 'tipo';
-        inputTipo.value = tipo;
-        
-        var inputCsrf = document.createElement('input');
-        inputCsrf.type = 'hidden';
-        inputCsrf.name = '_csrf';
-        inputCsrf.value = '<?php echo csrf_token(); ?>';
-        
-        form.appendChild(inputId);
-        form.appendChild(inputTipo);
-        form.appendChild(inputCsrf);
-        document.body.appendChild(form);
-        form.submit();
-    }
+    showConfirm({
+        titulo: 'Eliminar Sede',
+        mensaje: '¿Está seguro de que desea eliminar esta sede?',
+        icono: 'fa-trash-alt text-danger',
+        claseBoton: 'btn-danger',
+        textoAceptar: 'Eliminar',
+        onConfirm: () => {
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '<?php echo app_base_url(); ?>/pages/insumos/eliminar.php';
+            
+            var inputId = document.createElement('input');
+            inputId.type = 'hidden';
+            inputId.name = 'id';
+            inputId.value = id;
+            
+            var inputTipo = document.createElement('input');
+            inputTipo.type = 'hidden';
+            inputTipo.name = 'tipo';
+            inputTipo.value = tipo;
+            
+            var inputCsrf = document.createElement('input');
+            inputCsrf.type = 'hidden';
+            inputCsrf.name = '_csrf';
+            inputCsrf.value = '<?php echo csrf_token(); ?>';
+            
+            form.appendChild(inputId);
+            form.appendChild(inputTipo);
+            form.appendChild(inputCsrf);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
 }
 
 // Resetear modal al cerrar

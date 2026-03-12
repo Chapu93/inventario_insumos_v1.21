@@ -359,7 +359,19 @@ function editTel(r){
   $('#dispositivo_modelo').val(r.dispositivo_modelo||''); $('#estado').val(r.estado);
   $('#observaciones').val(r.observaciones||''); new bootstrap.Modal(document.getElementById('modalTel')).show();
 }
-function delTel(id){ if(confirm('¿Eliminar línea?')){ $('#del_id').val(id); $('#formDel').submit(); } }
+function delTel(id){ 
+  showConfirm({
+      titulo: 'Eliminar Línea Telefónica',
+      mensaje: '¿Está seguro de que desea eliminar esta línea telefónica?',
+      icono: 'fa-trash-alt text-danger',
+      claseBoton: 'btn-danger',
+      textoAceptar: 'Eliminar',
+      onConfirm: () => {
+          $('#del_id').val(id); 
+          $('#formDel').submit(); 
+      }
+  });
+}
 $('#modalTel').on('hidden.bs.modal', function(){ $('#modalTelTitle').text('Agregar Línea'); $('#accion').val('agregar'); $('#formTel')[0].reset(); $('#id_sede').val('').trigger('change'); $('#formTel').removeClass('was-validated'); });
 $('#formTel').on('submit', function(e){ if(!this.checkValidity()){ e.preventDefault(); e.stopPropagation(); } $(this).addClass('was-validated'); });
 const BASE = '<?php echo app_base_url(); ?>';

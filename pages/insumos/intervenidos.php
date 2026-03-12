@@ -113,38 +113,42 @@ include '../../includes/header.php';
     </div>
 
     <!-- Filtros -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <form method="GET" class="row g-3">
-                <div class="col-md-3">
-                    <label class="form-label">Buscar Insumo</label>
-                    <input type="text" class="form-control" name="q" placeholder="Nombre, tipo, serie..." value="<?php echo htmlspecialchars($busqueda); ?>">
+    <div class="filtros-container mb-4">
+        <form method="GET" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">Buscar Insumo</label>
+                <input type="text" class="form-control" name="q" placeholder="Nombre, tipo, serie..." value="<?php echo htmlspecialchars($busqueda); ?>">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Tipo de Intervención</label>
+                <select class="form-select" name="tipo">
+                    <option value="">Todos</option>
+                    <option value="Mantenimiento" <?php echo $filtroTipo === 'Mantenimiento' ? 'selected' : ''; ?>>Mantenimiento</option>
+                    <option value="Reparación" <?php echo $filtroTipo === 'Reparación' ? 'selected' : ''; ?>>Reparación</option>
+                    <option value="Soporte" <?php echo $filtroTipo === 'Soporte' ? 'selected' : ''; ?>>Soporte</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Estado del Pedido</label>
+                <select class="form-select" name="estado">
+                    <option value="">Todos</option>
+                    <option value="Pendiente" <?php echo $filtroEstado === 'Pendiente' ? 'selected' : ''; ?>>Pendiente</option>
+                    <option value="En Proceso" <?php echo $filtroEstado === 'En Proceso' ? 'selected' : ''; ?>>En Proceso</option>
+                    <option value="Completado" <?php echo $filtroEstado === 'Completado' ? 'selected' : ''; ?>>Completado</option>
+                    <option value="Rechazado" <?php echo $filtroEstado === 'Rechazado' ? 'selected' : ''; ?>>Rechazado</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end ms-auto">
+                <div class="d-grid gap-1 w-100">
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-search me-1"></i>Filtrar
+                    </button>
+                    <a href="intervenidos.php" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-times me-1"></i>Limpiar
+                    </a>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label">Tipo de Intervención</label>
-                    <select class="form-select" name="tipo">
-                        <option value="">Todos</option>
-                        <option value="Mantenimiento" <?php echo $filtroTipo === 'Mantenimiento' ? 'selected' : ''; ?>>Mantenimiento</option>
-                        <option value="Reparación" <?php echo $filtroTipo === 'Reparación' ? 'selected' : ''; ?>>Reparación</option>
-                        <option value="Soporte" <?php echo $filtroTipo === 'Soporte' ? 'selected' : ''; ?>>Soporte</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">Estado del Pedido</label>
-                    <select class="form-select" name="estado">
-                        <option value="">Todos</option>
-                        <option value="Pendiente" <?php echo $filtroEstado === 'Pendiente' ? 'selected' : ''; ?>>Pendiente</option>
-                        <option value="En Proceso" <?php echo $filtroEstado === 'En Proceso' ? 'selected' : ''; ?>>En Proceso</option>
-                        <option value="Completado" <?php echo $filtroEstado === 'Completado' ? 'selected' : ''; ?>>Completado</option>
-                        <option value="Rechazado" <?php echo $filtroEstado === 'Rechazado' ? 'selected' : ''; ?>>Rechazado</option>
-                    </select>
-                </div>
-                <div class="col-md-3 d-flex align-items-end">
-                    <button type="submit" class="btn btn-success me-2"><i class="fas fa-search me-1"></i>Filtrar</button>
-                    <a href="intervenidos.php" class="btn btn-outline-secondary"><i class="fas fa-times me-1"></i>Limpiar</a>
-                </div>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
 
     <!-- Tabla de insumos intervenidos -->

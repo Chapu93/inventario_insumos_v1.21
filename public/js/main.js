@@ -32,24 +32,133 @@ function enableSelect(sel) {
   const $s = (typeof sel === 'string') ? $(sel) : $(sel);
   $s.prop('disabled', false);
 }
+/**
+ * Muestra un modal de información/alerta estilizado
+ * @param {Object} options { titulo, mensaje, icono, claseBoton, textoAceptar, onConfirm }
+ */
+function showAlert(options) {
+    const opt = {
+        titulo: 'Aviso',
+        mensaje: '',
+        icono: 'fa-info-circle text-info',
+        claseBoton: 'btn-primary',
+        textoAceptar: 'Entendido',
+        onConfirm: null,
+        ...options
+    };
+
+    const $modal = $('#modalConfirmacionSITIA');
+    
+    $('#modalConfirmacionTitulo').text(opt.titulo);
+    $('#modalConfirmacionMensaje').html(opt.mensaje);
+    $('#modalConfirmacionIcono').removeClass().addClass('fas ' + opt.icono + ' me-2');
+    $('#btnConfirmacionAceptar').removeClass().addClass('btn px-4 shadow-sm ' + opt.claseBoton).text(opt.textoAceptar);
+    $('#btnConfirmacionCancelar').hide(); // Ocultar cancelar para alertas
+
+    $('#btnConfirmacionAceptar').off('click').on('click', function() {
+        if (typeof opt.onConfirm === 'function') opt.onConfirm();
+        $modal.modal('hide');
+    });
+
+    const modalInstance = bootstrap.Modal.getOrCreateInstance($modal[0]);
+    
+    // Ajustar Z-index si ya hay un modal abierto
+    $modal.off('show.bs.modal').on('show.bs.modal', function () {
+        const openedModals = $('.modal.show').not('#modalConfirmacionSITIA').length;
+        if (openedModals > 0) {
+            const zIndex = 1100 + (10 * openedModals);
+            $(this).css('z-index', zIndex);
+            setTimeout(() => {
+                $('.modal-backdrop').last().css('z-index', zIndex - 1);
+            }, 0);
+        } else {
+            $(this).css('z-index', '');
+        }
+    });
+
+    modalInstance.show();
+
+    // Restaurar botón cancelar al cerrar
+    $modal.one('hidden.bs.modal', function() {
+        $('#btnConfirmacionCancelar').show();
+    });
+}
+
+/**
+ * Muestra un modal de confirmación estilizado
+ */
+function showConfirm(options) {
+    const opt = {
+        titulo: 'Confirmar',
+        mensaje: '¿Está seguro de realizar esta acción?',
+        icono: 'fa-question-circle text-primary',
+        claseBoton: 'btn-primary',
+        textoAceptar: 'Aceptar',
+        onConfirm: null,
+        onCancel: null,
+        ...options
+    };
+
+    const $modal = $('#modalConfirmacionSITIA');
+    
+    $('#modalConfirmacionTitulo').text(opt.titulo);
+    $('#modalConfirmacionMensaje').html(opt.mensaje);
+    $('#modalConfirmacionIcono').removeClass().addClass('fas ' + opt.icono + ' me-2');
+    $('#btnConfirmacionAceptar').removeClass().addClass('btn px-4 shadow-sm ' + opt.claseBoton).text(opt.textoAceptar);
+    $('#btnConfirmacionCancelar').show();
+
+    // Ajustar Z-index si ya hay un modal abierto
+    $modal.off('show.bs.modal').on('show.bs.modal', function () {
+        const openedModals = $('.modal.show').not('#modalConfirmacionSITIA').length;
+        if (openedModals > 0) {
+            const zIndex = 1100 + (10 * openedModals);
+            $(this).css('z-index', zIndex);
+            setTimeout(() => {
+                $('.modal-backdrop').last().css('z-index', zIndex - 1);
+            }, 0);
+        } else {
+            $(this).css('z-index', '');
+        }
+    });
+
+    $('#btnConfirmacionAceptar').off('click').on('click', function() {
+        if (typeof opt.onConfirm === 'function') opt.onConfirm();
+        $modal.modal('hide');
+    });
+
+    $('#btnConfirmacionCancelar').off('click').on('click', function() {
+        if (typeof opt.onCancel === 'function') opt.onCancel();
+    });
+
+    const modalInstance = bootstrap.Modal.getOrCreateInstance($modal[0]);
+    modalInstance.show();
+}
+
 function confirmarAccion(mensaje, url) {
-    if (confirm(mensaje)) {
-        window.location.href = url;
-    }
+    showConfirm({
+        mensaje: mensaje,
+        onConfirm: () => { window.location.href = url; }
+    });
 }
 
 function eliminarItem(id, tipo) {
-    console.log('Función eliminarItem llamada con:', id, tipo);
-    if (confirm(`¿Está seguro que desea eliminar este ${tipo}?`)) {
-        console.log('Redirigiendo a:', `eliminar.php?id=${id}&tipo=${tipo}`);
-        window.location.href = `eliminar.php?id=${id}&tipo=${tipo}`;
-    }
+    showConfirm({
+        titulo: 'Eliminar ' + tipo.charAt(0).toUpperCase() + tipo.slice(1),
+        mensaje: `¿Está seguro que desea eliminar este ${tipo}?`,
+        icono: 'fa-exclamation-triangle',
+        claseBoton: 'btn-danger',
+        textoAceptar: 'Eliminar',
+        onConfirm: () => { window.location.href = `eliminar.php?id=${id}&tipo=${tipo}`; }
+    });
 }
 
 function cambiarEstadoAsignacion(id, nuevoEstado) {
-    if (confirm(`¿Está seguro que desea cambiar el estado a "${nuevoEstado}"?`)) {
-        window.location.href = `cambiar_estado.php?id=${id}&estado=${nuevoEstado}`;
-    }
+    showConfirm({
+        titulo: 'Cambiar Estado',
+        mensaje: `¿Está seguro que desea cambiar el estado a "${nuevoEstado}"?`,
+        icono: 'fa-sync-alt',
+        onConfirm: () => { window.location.href = `cambiar_estado.php?id=${id}&estado=${nuevoEstado}`; }
+    });
 }
 
 function generarRemitoPDF(numeroRemito) {

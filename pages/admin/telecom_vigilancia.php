@@ -352,10 +352,17 @@ function editServ(v) {
 }
 
 function delServ(id) { 
-    if(confirm('¿Está seguro de que desea eliminar este servicio y TODOS sus dispositivos asociados?')) { 
-        $('#del_serv').val(id); 
-        $('#formDelServ').submit(); 
-    } 
+    showConfirm({
+        titulo: 'Eliminar Servicio de Vigilancia',
+        mensaje: '¿Está seguro de que desea eliminar este servicio y <strong>TODOS</strong> sus dispositivos asociados?<br><br><small class="text-danger">Esta acción no se puede deshacer.</small>',
+        icono: 'fa-trash-alt text-danger',
+        claseBoton: 'btn-danger',
+        textoAceptar: 'Eliminar Todo',
+        onConfirm: () => {
+            $('#del_serv').val(id); 
+            $('#formDelServ').submit(); 
+        }
+    });
 }
 
 function cargarLocalidadesServ(callback) { 

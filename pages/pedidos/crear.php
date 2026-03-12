@@ -42,8 +42,8 @@ include '../../includes/header.php';
 <div class="row justify-content-center">
     <div class="col-md-8">
         <div class="d-flex align-items-center mb-3">
-            <a href="listar.php" class="btn btn-outline-secondary me-3"><i class="fas fa-arrow-left"></i></a>
-            <h1 class="mb-0">Nuevo Pedido</h1>
+            <a href="javascript:void(0);" onclick="cancelarPedido()" class="btn btn-outline-secondary me-3"><i class="fas fa-arrow-left"></i></a>
+            <h1 class="mb-0">Nuevo Pendiente</h1>
         </div>
         
             <div class="card shadow">
@@ -139,7 +139,7 @@ include '../../includes/header.php';
                         <div class="col-md-8" id="containerCrearAsignacion" style="display:none;">
                             <label class="form-label">Crear Insumo Asignado</label>
                             <div class="d-flex align-items-center">
-                                <a href="<?php echo app_base_url(); ?>/pages/insumos/agregar_nueva.php?retorno=pedido" class="btn btn-success">
+                                <a href="javascript:void(0);" onclick="guardarYCrearManual()" class="btn btn-success">
                                     <i class="fas fa-plus me-2"></i>Crear Insumo Asignado
                                 </a>
                             </div>
@@ -153,7 +153,6 @@ include '../../includes/header.php';
                                 <option value="Mantenimiento">Mantenimiento</option>
                                 <option value="Reparación">Reparación</option>
                                 <option value="Soporte">Soporte</option>
-                                <option value="Pedido Insumo">Pedido Insumo</option>
                             </select>
                         </div>
                     </div>
@@ -168,18 +167,7 @@ include '../../includes/header.php';
                         </div>
                     </div>
                     
-                    <!-- Info del insumo seleccionado -->
-                    <div class="alert alert-info mb-3" id="infoInsumoSeleccionado" style="display:none;">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <strong><i class="fas fa-box me-2"></i>Insumo Seleccionado:</strong>
-                                <div id="infoInsumoDetalles"></div>
-                            </div>
-                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="limpiarInsumoSeleccionado()">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                    </div>
+
                     
                     <div class="row mb-3">
                         <div class="col-md-4">
@@ -219,8 +207,8 @@ include '../../includes/header.php';
                     </div>
                     
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <a href="listar.php" class="btn btn-secondary me-md-2">Cancelar</a>
-                        <button type="submit" class="btn btn-primary px-5"><i class="fas fa-paper-plane me-2"></i>Enviar Solicitud</button>
+                        <a href="javascript:void(0);" onclick="cancelarPedido()" class="btn btn-secondary me-md-2">Cancelar</a>
+                        <button type="submit" class="btn btn-primary px-5"><i class="fas fa-print me-2"></i>Crear e Imprimir</button>
                     </div>
                 </form>
             </div>
@@ -267,7 +255,79 @@ $(document).ready(function() {
     // Limpiar sessionStorage (llamar después de enviar el formulario)
     function limpiarInsumosGuardados() {
         sessionStorage.removeItem(STORAGE_KEY);
+        sessionStorage.removeItem('pedido_form_data');
     }
+    
+    // ========================================
+    // PERSISTENCIA DEL FORMULARIO
+    // ========================================
+    var FORM_STORAGE_KEY = 'pedido_form_data';
+    
+    function guardarEstadoFormulario() {
+        var formData = {
+            solicitante_nombre: $('#solicitante_nombre').val(),
+            solicitante_apellido: $('#solicitante_apellido').val(),
+            solicitante_telefono: $('#solicitante_telefono').val(),
+            localidad: $('#localidad').val(),
+            sede: $('#sede').val(),
+            sede_html: $('#sede').html(),
+            area: $('#area').val(),
+            tipo: $('#tipo').val(),
+            prioridad: $('#priority').val() || $('#prioridad').val(),
+            descripcion: $('#descripcion').val()
+        };
+        sessionStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(formData));
+        console.log('Estado del formulario guardado');
+    }
+    
+    function restaurarEstadoFormulario() {
+        try {
+            var data = sessionStorage.getItem(FORM_STORAGE_KEY);
+            if (!data) return;
+            var formData = JSON.parse(data);
+            
+            if (formData.solicitante_nombre) $('#solicitante_nombre').val(formData.solicitante_nombre);
+            if (formData.solicitante_apellido) $('#solicitante_apellido').val(formData.solicitante_apellido);
+            if (formData.solicitante_telefono) $('#solicitante_telefono').val(formData.solicitante_telefono);
+            
+            if (formData.localidad) {
+                $('#localidad').val(formData.localidad);
+                if (formData.sede_html) {
+                    $('#sede').html(formData.sede_html).val(formData.sede).prop('disabled', false);
+                }
+            }
+            
+            if (formData.area) {
+                // El select de área se carga por AJAX, esperamos un poco o lo seteamos si ya cargó
+                setTimeout(function() { $('#area').val(formData.area); }, 1000);
+            }
+            
+            if (formData.tipo) $('#tipo').val(formData.tipo);
+            if (formData.prioridad) $('#prioridad').val(formData.prioridad);
+            if (formData.descripcion) $('#descripcion').val(formData.descripcion);
+            
+            console.log('Estado del formulario restaurado');
+        } catch(e) {
+            console.error('Error al restaurar formulario:', e);
+        }
+    }
+    
+    // Función global para guardar y saltar a creación manual
+    window.guardarYCrearManual = function() {
+        guardarEstadoFormulario();
+        window.location.href = '<?php echo app_base_url(); ?>/pages/insumos/agregar_nueva.php?retorno=pedido';
+    };
+
+    // Función global para cancelar y limpiar todo
+    window.cancelarPedido = function() {
+        limpiarInsumosGuardados();
+        window.location.href = 'listar.php';
+    };
+    
+    // Guardar estado al cambiar cualquier campo importante
+    $('#formCrearPedido input, #formCrearPedido select, #formCrearPedido textarea').on('change blur', function() {
+        guardarEstadoFormulario();
+    });
     
     // Función para actualizar la UI de insumos seleccionados
     function actualizarListaInsumos() {
@@ -280,7 +340,8 @@ $(document).ready(function() {
             return;
         }
         
-        var html = '<div class="alert alert-success alert-permanent py-2 mb-0"><strong><i class="fas fa-boxes me-1"></i>Insumos seleccionados:</strong><br>';
+        // Usamos clase 'insumos-box' en lugar de 'alert' para que el script global de footer.php no lo borre
+        var html = '<div class="card border-success bg-success-subtle py-2 mb-3 shadow-sm px-3"><div class="card-body p-1"><strong><i class="fas fa-boxes me-1"></i>Insumos seleccionados:</strong><br>';
         var ids = [];
         var textos = [];
         
@@ -299,7 +360,7 @@ $(document).ready(function() {
             html += '<button type="button" class="btn btn-sm btn-outline-danger py-0 px-1 ms-2 btn-remover-insumo" data-index="' + index + '"><i class="fas fa-times"></i></button>';
             html += '</div>';
         });
-        html += '</div>';
+        html += '</div></div>';
         
         $lista.html(html);
         $('#insumos_ids').val(ids.join(','));
@@ -336,6 +397,9 @@ $(document).ready(function() {
     
     // Siempre renderizar la lista (ya sea los guardados o con el nuevo)
     actualizarListaInsumos();
+    
+    // Restaurar datos del formulario
+    restaurarEstadoFormulario();
     
     // ========================================
     // BÚSQUEDA DE INSUMOS (AJAX Simple)
@@ -464,7 +528,7 @@ $(document).ready(function() {
     });
     
     // Cargar todas las áreas al inicio
-    function cargarAreas() {
+    function cargarAreas(callback) {
         var $area = $('#area');
         $area.prop('disabled', true).append('<option value="">Cargando...</option>');
         
@@ -475,6 +539,7 @@ $(document).ready(function() {
                     $area.append('<option value="' + a.id + '">' + a.nombre + '</option>');
                 });
                 $area.prop('disabled', false); // Enable always
+                if (callback) callback();
             } else {
                 $area.append('<option value="">No hay áreas disponibles</option>');
             }
@@ -482,7 +547,15 @@ $(document).ready(function() {
             $area.empty().append('<option value="">Error al cargar</option>');
         });
     }
-    cargarAreas();
+    
+    // Al cargar áreas, intentar restaurar el valor si existe
+    cargarAreas(function() {
+        var data = sessionStorage.getItem(FORM_STORAGE_KEY);
+        if (data) {
+            var formData = JSON.parse(data);
+            if (formData.area) $('#area').val(formData.area);
+        }
+    });
 
     // Manejo Sede -> Area (YA NO SE USA)
     /*
@@ -519,10 +592,16 @@ $(document).ready(function() {
                 if (resp.success) {
                     limpiarInsumosGuardados(); // Limpiar insumos guardados
                     showToast('¡Pedido creado exitosamente!', 'success');
+                    
+                    // Abrir constancia en nueva pestaña
+                    if (resp.id) {
+                        window.open('constancia_pdf.php?id=' + resp.id, '_blank');
+                    }
+                    
                     setTimeout(function(){ window.location.href = 'listar.php'; }, 1000);
                 } else {
                     showToast(resp.error || 'Error al crear pedido', 'error');
-                    btn.prop('disabled', false).html('<i class="fas fa-paper-plane me-2"></i>Enviar Solicitud');
+                    btn.prop('disabled', false).html('<i class="fas fa-print me-2"></i>Crear e Imprimir');
                 }
             },
             error: function(xhr, status, error) {
@@ -538,14 +617,9 @@ $(document).ready(function() {
     });
 });
 
-// Función global para limpiar insumo seleccionado
-function limpiarInsumoSeleccionado() {
-    $('#id_insumo_relacionado').val('');
-    $('#insumo_manual_hidden').val('');
-    $('#infoInsumoDetalles').html('');
-    $('#infoInsumoSeleccionado').fadeOut();
-    $('#buscar_insumo').val('');
-    $('#resultadosBusqueda').removeClass('show').empty();
-    $('#infoAsignacionCreada').hide();
+// Función para limpiar la lista de insumos completa (si fuera necesario, pero ya tenemos botones individuales)
+function resetearInsumos() {
+    insumosSeleccionados = [];
+    actualizarListaInsumos();
 }
 </script>

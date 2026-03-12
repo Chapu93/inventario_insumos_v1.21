@@ -352,8 +352,13 @@ $localidades = $stmt->fetchAll();
     // Helper para manejar errores CSRF
     function handleFetchError(err) {
         if (err.message.includes('CSRF')) {
-            alert('Su sesión ha expirado o el token de seguridad es inválido. La página se recargará.');
-            location.reload();
+            showConfirm({
+                titulo: 'Sesión Expirada',
+                mensaje: 'Su sesión ha expirado o el token de seguridad es inválido. La página se recargará.',
+                icono: 'fa-exclamation-circle text-warning',
+                textoAceptar: 'Recargar',
+                onConfirm: () => { location.reload(); }
+            });
             return true;
         }
         return false;
@@ -371,39 +376,55 @@ $localidades = $stmt->fetchAll();
                     msg = `El insumo está asignado a ${data.persona_asignada} (Remito ${data.remito_activo_numero}).\n` +
                         'Si confirma, también se eliminará la asignación asociada.\n¿Confirma eliminar?';
                 }
-                if (!confirm(msg)) return;
+                
+                showConfirm({
+                    titulo: 'Eliminar Insumo',
+                    mensaje: msg,
+                    icono: 'fa-exclamation-triangle text-danger',
+                    claseBoton: 'btn-danger',
+                    textoAceptar: 'Eliminar',
+                    onConfirm: () => {
+                        const token = getCsrfToken();
+                        if (!token) { console.error('Token CSRF no encontrado'); }
 
-                const token = getCsrfToken();
-                if (!token) { console.error('Token CSRF no encontrado'); }
-
-                fetch(`${getAppBase()}/ajax/insumos_eliminar.php`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': token },
-                    body: JSON.stringify({ id_insumo: id })
-                })
-                    .then(r => r.json())
-                    .then(resp => {
-                        if (!resp.success) { throw new Error(resp.error || 'Error al eliminar'); }
-                        showToast('Insumo eliminado correctamente', 'success');
-                        try { $('#tablaInsumos').DataTable().ajax.reload(); } catch (e) { location.reload(); }
-                    })
-                    .catch(err => {
-                        if (!handleFetchError(err)) showToast(err.message || 'Error al eliminar', 'error');
-                    });
+                        fetch(`${getAppBase()}/ajax/insumos_eliminar.php`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': token },
+                            body: JSON.stringify({ id_insumo: id })
+                        })
+                            .then(r => r.json())
+                            .then(resp => {
+                                if (!resp.success) { throw new Error(resp.error || 'Error al eliminar'); }
+                                showToast('Insumo eliminado correctamente', 'success');
+                                try { $('#tablaInsumos').DataTable().ajax.reload(); } catch (e) { location.reload(); }
+                            })
+                            .catch(err => {
+                                if (!handleFetchError(err)) showToast(err.message || 'Error al eliminar', 'error');
+                            });
+                    }
+                });
             })
             .catch((err) => {
                 // Si falla ver_ajax (ej: error de red), intentar eliminación directa
-                if (!confirm('¿Eliminar este insumo?')) return;
-                const token = getCsrfToken();
-                fetch(`${getAppBase()}/ajax/insumos_eliminar.php`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': token },
-                    body: JSON.stringify({ id_insumo: id })
-                }).then(r => r.json()).then(resp => {
-                    if (!resp.success) { throw new Error(resp.error || 'Error'); }
-                    showToast('Insumo eliminado', 'success');
-                    try { $('#tablaInsumos').DataTable().ajax.reload(); } catch (e) { location.reload(); }
-                }).catch(err => {
-                    if (!handleFetchError(err)) showToast(err.message || 'Error', 'error');
+                showConfirm({
+                    titulo: 'Eliminar Insumo',
+                    mensaje: '¿Desea eliminar este insumo?',
+                    icono: 'fa-exclamation-triangle text-danger',
+                    claseBoton: 'btn-danger',
+                    textoAceptar: 'Eliminar',
+                    onConfirm: () => {
+                        const token = getCsrfToken();
+                        fetch(`${getAppBase()}/ajax/insumos_eliminar.php`, {
+                            method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': token },
+                            body: JSON.stringify({ id_insumo: id })
+                        }).then(r => r.json()).then(resp => {
+                            if (!resp.success) { throw new Error(resp.error || 'Error'); }
+                            showToast('Insumo eliminado', 'success');
+                            try { $('#tablaInsumos').DataTable().ajax.reload(); } catch (e) { location.reload(); }
+                        }).catch(err => {
+                            if (!handleFetchError(err)) showToast(err.message || 'Error', 'error');
+                        });
+                    }
                 });
             });
     }

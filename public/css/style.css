@@ -379,6 +379,43 @@ body {
     }
 }
 
+/* === MODALES SITIA (Confirm/Alert) === */
+#modalConfirmacionSITIA .modal-content {
+    border-radius: 16px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    border: none;
+    background-color: var(--surface-3);
+}
+
+#modalConfirmacionSITIA .modal-header {
+    background-color: var(--surface-1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 16px 16px 0 0;
+}
+
+#modalConfirmacionSITIA .modal-footer {
+    background-color: var(--surface-1);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 0 0 16px 16px;
+}
+
+/* Oscurecer un poco más el fondo para dar protagonismo al modal (Efecto Glassmorphism) */
+.modal-backdrop.show {
+    opacity: 0.6 !important;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+}
+
+/* Ajustes para modo oscuro en modales SITIA */
+[data-theme="dark"] #modalConfirmacionSITIA .modal-content {
+    background-color: var(--surface-2);
+}
+[data-theme="dark"] #modalConfirmacionSITIA .modal-header,
+[data-theme="dark"] #modalConfirmacionSITIA .modal-footer {
+    background-color: var(--surface-1);
+}
+/* ================================================= */
+
 /* DataTables: asegurar ancho completo */
 .dataTables_wrapper .dataTable {
     width: 100% !important;

@@ -25,13 +25,13 @@ function obtenerMimeTypesPermitidos() {
         'png' => ['image/png'],
         'gif' => ['image/gif'],
         'webp' => ['image/webp'],
-        'doc' => ['application/msword'],
-        'docx' => ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
-        'xls' => ['application/vnd.ms-excel'],
-        'xlsx' => ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
-        'odt' => ['application/vnd.oasis.opendocument.text'],
-        'ods' => ['application/vnd.oasis.opendocument.spreadsheet'],
-        'zip' => ['application/zip', 'application/x-zip-compressed', 'application/octet-stream'],
+        'doc' => ['application/msword', 'application/vnd.ms-office', 'application/octet-stream'],
+        'docx' => ['application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/zip', 'application/octet-stream'],
+        'xls' => ['application/vnd.ms-excel', 'application/vnd.ms-office', 'application/octet-stream'],
+        'xlsx' => ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/zip', 'application/octet-stream'],
+        'odt' => ['application/vnd.oasis.opendocument.text', 'application/zip', 'application/octet-stream'],
+        'ods' => ['application/vnd.oasis.opendocument.spreadsheet', 'application/zip', 'application/octet-stream'],
+        'zip' => ['application/zip', 'application/x-zip-compressed', 'application/octet-stream', 'application/x-compress'],
         'txt' => ['text/plain'],
     ];
 }
@@ -182,9 +182,11 @@ function validarArchivo($archivo, $opciones = []) {
                     ]);
                 }
                 
+                // Si es un tipo que a veces se detecta genéricamente pero está en la lista de permitidos, podríamos ser más flexibles
+                // O al menos dar un error más descriptivo
                 return [
                     'valido' => false, 
-                    'error' => "El contenido del archivo no coincide con la extensión .{$extension}", 
+                    'error' => "El contenido del archivo (".($mimeReal ?: 'desconocido').") no coincide con la extensión .{$extension}", 
                     'extension' => $extension, 
                     'mime' => $mimeReal
                 ];

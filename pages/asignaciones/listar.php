@@ -210,10 +210,15 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
 <script>
     function cambiarEstadoPorRemito(remito, estado) {
         if (!remito || !estado) return;
-        if (confirm(`¿Está seguro que desea cambiar el estado del remito ${remito} a "${estado}"?`)) {
-            const base = typeof getAppBase === 'function' ? getAppBase() : '';
-            window.location.href = `${base}/pages/asignaciones/cambiar_estado.php?remito=${encodeURIComponent(remito)}&estado=${encodeURIComponent(estado)}`;
-        }
+        showConfirm({
+            titulo: 'Cambiar Estado',
+            mensaje: `¿Está seguro que desea cambiar el estado del remito ${remito} a "${estado}"?`,
+            icono: 'fa-sync-alt text-primary',
+            onConfirm: () => {
+                const base = typeof getAppBase === 'function' ? getAppBase() : '';
+                window.location.href = `${base}/pages/asignaciones/cambiar_estado.php?remito=${encodeURIComponent(remito)}&estado=${encodeURIComponent(estado)}`;
+            }
+        });
     }
 </script>
 
@@ -387,7 +392,11 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
         });
         console.log('Selección completa:', seleccion);
         if (seleccion.length === 0) {
-            alert('Debe seleccionar al menos un insumo a devolver');
+            showAlert({
+                titulo: 'Selección Requerida',
+                mensaje: 'Debe seleccionar al menos un insumo a devolver',
+                icono: 'fa-exclamation-circle text-warning'
+            });
             return;
         }
         fetch(`${getAppBase()}/ajax/devolver_insumos.php`, {

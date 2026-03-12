@@ -374,22 +374,27 @@ function deseleccionarTodos() {
 }
 
 function restaurarRol() {
-    if (!confirm('¿Restaurar los permisos predeterminados del rol? Esto eliminará los permisos personalizados.')) {
-        return;
-    }
-    
-    // Primero deseleccionar todos
-    deseleccionarTodos();
-    
-    // Luego marcar los del rol
-    for (const [modulo, acciones] of Object.entries(permisosRol)) {
-        acciones.forEach(accion => {
-            const checkbox = document.getElementById(`permiso_${modulo}_${accion}`);
-            if (checkbox) {
-                checkbox.checked = true;
+    showConfirm({
+        titulo: 'Restaurar Permisos',
+        mensaje: '¿Desea restaurar los permisos predeterminados del rol?<br><br><small class="text-muted">Esto eliminará los permisos personalizados actuales.</small>',
+        icono: 'fa-undo text-warning',
+        claseBoton: 'btn-warning',
+        textoAceptar: 'Restaurar',
+        onConfirm: () => {
+            // Primero deseleccionar todos
+            deseleccionarTodos();
+            
+            // Luego marcar los del rol
+            for (const [modulo, acciones] of Object.entries(permisosRol)) {
+                acciones.forEach(accion => {
+                    const checkbox = document.getElementById(`permiso_${modulo}_${accion}`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                    }
+                });
             }
-        });
-    }
+        }
+    });
 }
 
 // Validación antes de enviar
@@ -397,9 +402,18 @@ document.getElementById('formPermisos').addEventListener('submit', function(e) {
     const checkboxes = document.querySelectorAll('.permiso-checkbox:checked');
     
     if (checkboxes.length === 0) {
-        if (!confirm('No ha seleccionado ningún permiso. El usuario usará los permisos de su rol. ¿Continuar?')) {
-            e.preventDefault();
-        }
+        e.preventDefault();
+        showConfirm({
+            titulo: 'Sin Permisos Seleccionados',
+            mensaje: 'No ha seleccionado ningún permiso. El usuario usará los permisos predeterminados de su rol.<br><br>¿Continuar con la actualización?',
+            icono: 'fa-exclamation-triangle text-info',
+            claseBoton: 'btn-info',
+            textoAceptar: 'Continuar',
+            onConfirm: () => {
+                // Enviar el formulario manualmente ya que prevenimos el default
+                document.getElementById('formPermisos').submit();
+            }
+        });
     }
 });
 </script>

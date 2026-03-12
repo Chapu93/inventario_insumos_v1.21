@@ -554,7 +554,7 @@ include '../../includes/header.php';
             let btnEliminar = '';
             if (ES_ADMIN) {
               btnEliminar = `
-              <button class="btn btn-sm btn-danger" 
+              <button type="button" class="btn btn-sm btn-danger" 
                       onclick="eliminarDocumentoIngreso(${doc.id_documento}, ${id})" 
                       title="Eliminar documento">
                 <i class="fas fa-trash"></i>
@@ -625,58 +625,72 @@ include '../../includes/header.php';
 
   // Eliminar ingreso
   function eliminarIngreso(id) {
-    if (!confirm('¿Está seguro de eliminar este ingreso?\n\nLos insumos asociados quedarán sin ingreso asignado.')) return;
-
-    $.post({
-      url: BASE + '/ajax/ingresos_delete.php',
-      contentType: 'application/json',
-      data: JSON.stringify({
-        _csrf: (document.querySelector('meta[name="csrf-token"]') || {}).content || '',
-        id
-      }),
-      success: function (r) {
-        if (!r.success) {
-          showToast(r.error || 'Error al eliminar', 'error');
-          return;
+    showConfirm({
+        titulo: 'Eliminar Ingreso',
+        mensaje: '¿Está seguro de eliminar este ingreso?<br><br><small class="text-muted">Los insumos asociados quedarán sin ingreso asignado.</small>',
+        icono: 'fa-trash-alt text-danger',
+        claseBoton: 'btn-danger',
+        textoAceptar: 'Eliminar',
+        onConfirm: () => {
+            $.post({
+              url: BASE + '/ajax/ingresos_delete.php',
+              contentType: 'application/json',
+              data: JSON.stringify({
+                _csrf: (document.querySelector('meta[name="csrf-token"]') || {}).content || '',
+                id
+              }),
+              success: function (r) {
+                if (!r.success) {
+                  showToast(r.error || 'Error al eliminar', 'error');
+                  return;
+                }
+                showToast('Ingreso eliminado correctamente', 'success');
+                try { $('#tablaIngresos').DataTable().ajax.reload(); } catch (e) { location.reload(); }
+              },
+              error: function () {
+                showToast('Error al eliminar el ingreso', 'error');
+              }
+            });
         }
-        showToast('Ingreso eliminado correctamente', 'success');
-        try { $('#tablaIngresos').DataTable().ajax.reload(); } catch (e) { location.reload(); }
-      },
-      error: function () {
-        showToast('Error al eliminar el ingreso', 'error');
-      }
     });
   }
 
   // Eliminar documento adjunto (Solo Admin/Superadmin)
   function eliminarDocumentoIngreso(idDocumento, idIngreso) {
-    if (!confirm('¿Está seguro de eliminar este documento?\n\nEsta acción no se puede deshacer.')) return;
-
-    $.ajax({
-      url: BASE + '/ajax/ingresos_eliminar_documento.php',
-      method: 'POST',
-      contentType: 'application/json',
-      data: JSON.stringify({
-        _csrf: (document.querySelector('meta[name="csrf-token"]') || {}).content || '',
-        id: idDocumento
-      }),
-      success: function (r) {
-        if (!r.success) {
-          showToast(r.error || 'Error al eliminar documento', 'error');
-          return;
+    showConfirm({
+        titulo: 'Eliminar Documento',
+        mensaje: '¿Está seguro de eliminar este documento?<br><br><small class="text-muted">Esta acción no se puede deshacer.</small>',
+        icono: 'fa-file-excel text-danger',
+        claseBoton: 'btn-danger',
+        textoAceptar: 'Eliminar',
+        onConfirm: () => {
+            $.ajax({
+              url: BASE + '/ajax/ingresos_eliminar_documento.php',
+              method: 'POST',
+              contentType: 'application/json',
+              data: JSON.stringify({
+                _csrf: (document.querySelector('meta[name="csrf-token"]') || {}).content || '',
+                id: idDocumento
+              }),
+              success: function (r) {
+                if (!r.success) {
+                  showToast(r.error || 'Error al eliminar documento', 'error');
+                  return;
+                }
+                showToast('Documento eliminado correctamente', 'success');
+                // Recargar la lista de documentos
+                verDocumentosIngreso(idIngreso);
+              },
+              error: function (xhr) {
+                try {
+                  const response = JSON.parse(xhr.responseText);
+                  showToast(response.error || 'Error al eliminar documento', 'error');
+                } catch (e) {
+                  showToast('Error al eliminar documento', 'error');
+                }
+              }
+            });
         }
-        showToast('Documento eliminado correctamente', 'success');
-        // Recargar la lista de documentos
-        verDocumentosIngreso(idIngreso);
-      },
-      error: function (xhr) {
-        try {
-          const response = JSON.parse(xhr.responseText);
-          showToast(response.error || 'Error al eliminar documento', 'error');
-        } catch (e) {
-          showToast('Error al eliminar documento', 'error');
-        }
-      }
     });
   }
 </script>

@@ -627,7 +627,7 @@ $badgeModo = $modoActual === 'nuevo'
                                                 name="id_ingreso" onchange="cambiarTipoIngresoNueva()">
                                                 <option value="">Sin ingreso asociado</option>
                                                 <?php
-                                                $ingresos = $conexion->query("SELECT id_ingreso, tipo_ingreso, nro_referencia, created_at FROM ingresos ORDER BY created_at DESC")->fetchAll();
+                                                 $ingresos = $conexion->query("SELECT id_ingreso, tipo_ingreso, nro_referencia, DATE(fecha_finalizacion) as fecha_finalizacion FROM ingresos ORDER BY created_at DESC")->fetchAll();
                                                 $tipos = ['fondos' => 'Fondos', 'compra_directa' => 'Compra Directa', 'licitacion' => 'Licitación', 'otros' => 'Otros'];
 
                                                 foreach ($tipos as $tipoKey => $tipoLabel):
@@ -640,7 +640,8 @@ $badgeModo = $modoActual === 'nuevo'
                                                     <optgroup label="<?php echo $tipoLabel; ?>">
                                                         <?php foreach ($ingresosTipo as $ing): ?>
                                                             <option value="<?php echo $ing['id_ingreso']; ?>"
-                                                                data-tipo="<?php echo $ing['tipo_ingreso']; ?>">
+                                                                data-tipo="<?php echo $ing['tipo_ingreso']; ?>"
+                                                                data-fecha="<?php echo $ing['fecha_finalizacion'] ?? ''; ?>">
                                                                 <?php echo htmlspecialchars($ing['nro_referencia']); ?>
                                                             </option>
                                                         <?php endforeach; ?>
@@ -798,8 +799,7 @@ $badgeModo = $modoActual === 'nuevo'
                                                     <option value="">Seleccione conexión</option>
                                                     <option value="VGA">VGA</option>
                                                     <option value="HDMI">HDMI</option>
-                                                    <option value="DisplayPort">DisplayPort</option>
-                                                    <option value="DVI">DVI</option>
+                                                    <option value="Ambas">Ambas</option>
                                                 </select>
                                                 <div class="invalid-feedback">La conexión es obligatoria</div>
                                             </div>
@@ -1141,16 +1141,34 @@ $badgeModo = $modoActual === 'nuevo'
         validarDuplicados();
     });
 
-    // Función para cambiar label según tipo de ingreso
+    // Función para cambiar label según tipo de ingreso y bloquear fecha si se selecciona un ingreso
     function cambiarTipoIngresoNueva() {
         const select = document.getElementById('id_ingreso_nueva');
         const label = document.querySelector('label[for="id_ingreso_nueva"]');
         const help = document.getElementById('help_ingreso_nueva');
+        const fechaInput = document.getElementById('fecha_adquisicion_nueva');
 
         if (!select || !label) return;
 
         const selectedOption = select.options[select.selectedIndex];
         const tipo = selectedOption.getAttribute('data-tipo');
+        const fechaIngreso = selectedOption.getAttribute('data-fecha');
+
+        // Bloquear/desbloquear fecha según si hay ingreso seleccionado
+        if (fechaIngreso) {
+            fechaInput.value = fechaIngreso;
+            fechaInput.readOnly = true;
+            fechaInput.classList.add('bg-light', 'text-muted');
+            fechaInput.title = 'La fecha está definida por el ingreso seleccionado';
+        } else {
+            fechaInput.readOnly = false;
+            fechaInput.classList.remove('bg-light', 'text-muted');
+            fechaInput.title = '';
+            // Restaurar fecha de hoy solo si el campo quedó vacío
+            if (!fechaInput.value) {
+                fechaInput.value = new Date().toISOString().split('T')[0];
+            }
+        }
 
         switch (tipo) {
             case 'fondos':
@@ -1200,11 +1218,7 @@ $badgeModo = $modoActual === 'nuevo'
                 console.log('  - Campo:', this.name || this.id, 'Valor:', $(this).val(), 'Tipo:', this.type);
             });
             e.preventDefault();
-            if (typeof showToast === 'function') {
-                showToast('Hay campos requeridos sin completar. Por favor revise el formulario.', 'warning');
-            } else {
-                alert('Hay campos requeridos sin completar. Por favor revise el formulario.');
-            }
+            showAlert('Hay campos requeridos sin completar. Por favor revise el formulario.', 'warning');
             return false;
         }
 

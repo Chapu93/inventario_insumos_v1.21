@@ -13,6 +13,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     json_error('Método no permitido', 405);
 }
 
+// Verificar CSRF
+if (!verify_csrf($_POST['_csrf'] ?? '')) {
+    json_error('Token CSRF inválido', 403);
+}
+
 try {
     // Obtener ID del ingreso de la URL
     $idIngreso = isset($_GET['id']) ? (int)$_GET['id'] : 0;
@@ -30,7 +35,8 @@ try {
         json_error('Ingreso no encontrado', 404);
     }
     
-    // Procesar archivos adjuntos
+    $documentosGuardados = [];
+    $erroresCarga = [];
     $usuarioId = obtenerUsuarioId();
     $uploadDir = UPLOAD_BASE_DIR . 'ingresos/';
     
@@ -47,6 +53,7 @@ try {
         if ($resultado['success']) {
             $documentosGuardados['remito'] = $resultado;
         } else {
+            $erroresCarga[] = "Remito: " . $resultado['error'];
             Logger::warning("Error al cargar remito", ['error' => $resultado['error']]);
         }
     }
@@ -57,14 +64,20 @@ try {
         if ($resultado['success']) {
             $documentosGuardados['documentacion'] = $resultado;
         } else {
+            $erroresCarga[] = "Documentación: " . $resultado['error'];
             Logger::warning("Error al cargar documentación", ['error' => $resultado['error']]);
         }
     }
     
+    if (empty($documentosGuardados) && !empty($_FILES)) {
+        json_error('No se pudo guardar ninguno de los archivos: ' . implode(', ', $erroresCarga), 400);
+    }
+
     json_success([
         'id_ingreso' => $idIngreso,
         'documentos' => $documentosGuardados,
-        'message' => 'Documentos guardados correctamente'
+        'errores_archivos' => $erroresCarga,
+        'message' => 'Documentos procesados' . (empty($erroresCarga) ? ' correctamente' : '. Algunos archivos fallaron: ' . implode(', ', $erroresCarga))
     ]);
     
 } catch (Exception $e) {

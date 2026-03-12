@@ -345,8 +345,10 @@ try {
                                         </p>
                                     <?php endif; ?>
                                     <?php if ($datos_especificos['conexion']): ?>
-                                        <p><strong>Conexión:</strong> <?php echo htmlspecialchars($datos_especificos['conexion']); ?>
-                                        </p>
+                                        <p><strong>Conexión:</strong> <?php 
+                                            $cx = $datos_especificos['conexion'];
+                                            echo htmlspecialchars($cx . ($cx === 'Ambas' ? ' (HDMI-VGA)' : '')); 
+                                        ?></p>
                                     <?php endif; ?>
                                 </div>
                             </div>

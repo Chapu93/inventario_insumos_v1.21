@@ -792,7 +792,7 @@ CREATE TABLE `monitores` (
   `marca` varchar(100) NOT NULL,
   `modelo` varchar(100) NOT NULL,
   `pulgadas` decimal(4,1) DEFAULT NULL,
-  `conexion` enum('VGA','HDMI') NOT NULL
+  `conexion` enum('VGA','HDMI','Ambas') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --

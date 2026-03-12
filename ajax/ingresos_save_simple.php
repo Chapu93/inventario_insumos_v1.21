@@ -99,6 +99,7 @@ try {
     
     // Procesar archivos adjuntos
     $documentos = [];
+    $erroresCarga = [];
     $usuarioId = obtenerUsuarioId();
     // Directorio centralizado de uploads
     $uploadDir = UPLOAD_BASE_DIR . 'ingresos/';
@@ -120,6 +121,7 @@ try {
         if ($resultado['success']) {
             $documentos['remito'] = $resultado;
         } else {
+            $erroresCarga[] = "Remito: " . $resultado['error'];
             Logger::warning("Error al cargar remito", ['error' => $resultado['error']]);
         }
     }
@@ -130,14 +132,16 @@ try {
         if ($resultado['success']) {
             $documentos['documentacion'] = $resultado;
         } else {
+            $erroresCarga[] = "Documentación: " . $resultado['error'];
             Logger::warning("Error al cargar documentación", ['error' => $resultado['error']]);
         }
     }
     
     json_success([
         'id' => $id,
-        'message' => 'Ingreso creado correctamente',
-        'documentos' => $documentos
+        'message' => 'Ingreso creado correctamente' . (!empty($erroresCarga) ? '. Pero hubo errores en archivos: ' . implode(', ', $erroresCarga) : ''),
+        'documentos' => $documentos,
+        'errores_archivos' => $erroresCarga
     ]);
     
 } catch (Exception $e) {

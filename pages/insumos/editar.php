@@ -531,6 +531,7 @@ include '../../includes/header.php';
                                         <option value="">Seleccione</option>
                                         <option value="VGA" <?php echo $cx==='VGA'?'selected':''; ?>>VGA</option>
                                         <option value="HDMI" <?php echo $cx==='HDMI'?'selected':''; ?>>HDMI</option>
+                                        <option value="Ambas" <?php echo $cx==='Ambas'?'selected':''; ?>>Ambas</option>
                                     </select>
                                 </div>
                             <?php elseif ($tipo_insumo === 'Escaner'): ?>

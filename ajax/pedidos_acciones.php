@@ -369,10 +369,12 @@ try {
                  $db->rollBack();
                  json_error('Este pedido ya tiene un informe técnico', 400);
              }
+                         // Generar número de informe anual
+             $numeroInforme = generarNumeroInforme($db);
              
              // Insertar informe
-             $stmtI = $db->prepare("INSERT INTO pedidos_informes (id_pedido, diagnostico, trabajo_realizado, resultado) VALUES (?, ?, ?, ?)");
-             $stmtI->execute([$id, $diagnostico, $trabajo, $resultado]);
+             $stmtI = $db->prepare("INSERT INTO pedidos_informes (id_pedido, numero_informe, diagnostico, trabajo_realizado, resultado) VALUES (?, ?, ?, ?, ?)");
+             $stmtI->execute([$id, $numeroInforme, $diagnostico, $trabajo, $resultado]);
              
              // Actualizar pedido
              $stmt = $db->prepare("UPDATE pedidos SET estado = 'Completado' WHERE id_pedido = ?");

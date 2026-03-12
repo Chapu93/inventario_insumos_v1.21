@@ -395,9 +395,16 @@ function editServ(v) {
 }
 
 function delServ(id) { 
-    if(confirm('¿ADVERTENCIA: Está seguro de que desea eliminar este servicio y TODOS sus dispositivos? Esta acción no se puede deshacer.')) { 
-        document.getElementById('formDelServ').submit(); 
-    } 
+    showConfirm({
+        titulo: 'Eliminar Servicio de Vigilancia',
+        mensaje: '¿ADVERTENCIA: Está seguro de que desea eliminar este servicio y <strong>TODOS</strong> sus dispositivos?<br><br><small class="text-danger">Esta acción no se puede deshacer.</small>',
+        icono: 'fa-trash-alt text-danger',
+        claseBoton: 'btn-danger',
+        textoAceptar: 'Eliminar Todo',
+        onConfirm: () => {
+             document.getElementById('formDelServ').submit(); 
+        }
+    });
 }
 
 // Funciones para Dispositivos
@@ -425,10 +432,17 @@ function editDisp(d) {
 }
 
 function delDisp(id) { 
-    if(confirm('¿Eliminar este dispositivo?')) { 
-        $('#del_disp').val(id); 
-        $('#formDelDisp').submit(); 
-    } 
+    showConfirm({
+        titulo: 'Eliminar Dispositivo',
+        mensaje: '¿Está seguro de que desea eliminar este dispositivo?',
+        icono: 'fa-trash-alt text-danger',
+        claseBoton: 'btn-danger',
+        textoAceptar: 'Eliminar',
+        onConfirm: () => {
+            $('#del_disp').val(id); 
+            $('#formDelDisp').submit(); 
+        }
+    });
 }
 
 // Inicialización

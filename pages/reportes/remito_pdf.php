@@ -20,7 +20,8 @@ $conexion = conectarDB();
 
 // Cabecera: intentar nuevo esquema
 $stmt = $conexion->prepare("SELECT r.numero_remito, r.fecha_asignacion, r.nombre_persona_asignada, r.apellido_persona_asignada,
-                                   ar.nombre_area, s.nombre_sede, l.nombre_localidad, z.nombre_zona, r.observaciones, r.declaracion_jurada
+                                   ar.nombre_area, s.nombre_sede, l.nombre_localidad, z.nombre_zona, r.observaciones, r.declaracion_jurada,
+                                   r.estado, r.motivo_anulacion
                             FROM remitos r
                             JOIN sedes s ON r.id_sede = s.id_sede
                             JOIN localidades l ON s.id_localidad = l.id_localidad
@@ -309,6 +310,41 @@ foreach ($items as $it) {
     $y += 3;
     $colHeights[$colIndex] = $y;
     $colIndex = ($colIndex + 1) % $cols;
+}
+
+// Mostrar motivo de anulación si corresponde y dibujar sello
+if (isset($cab['estado']) && strcasecmp($cab['estado'], 'Anulado') === 0) {
+    
+    // Dibujar el sello de ANULADO por arriba del contenido de la tabla
+    // El agente termina cerca de Y=80, así que lo dibujamos a partir de Y=85.
+    // Altura del sello será ~68mm, por lo que llegará hasta Y=153 approx.
+    $selloPath = __DIR__ . '/../../public/img/sello_anulado_clean.png';
+    if (!file_exists($selloPath)) {
+        $selloPath = __DIR__ . '/../../public/img/sello_anulado.png';
+    }
+    if (file_exists($selloPath)) {
+        $currX = $pdf->GetX();
+        $currY = $pdf->GetY();
+        $pdf->Image($selloPath, 45, 85, 120);
+        $pdf->SetXY($currX, $currY);
+    }
+
+    // Asegurar que el motivo no se superponga con el sello si hay pocos items
+    $yMotivo = max($y, $pdf->GetY()) + 10;
+    if ($yMotivo < 155) {
+        $yMotivo = 155; // Forzar a que empiece por debajo del sello
+    }
+    $pdf->SetY($yMotivo);
+    
+    $pdf->SetFont('Arial', 'B', 11);
+    $pdf->SetTextColor(0, 0, 0); // Texto en negro, según solicitado
+    $pdf->Cell(0, 6, $enc('MOTIVO DE ANULACIÓN:'), 0, 1, 'L');
+    $pdf->SetFont('Arial', '', 10);
+    $pdf->MultiCell($contentWidth, 5, $enc($cab['motivo_anulacion'] ?: 'Sin motivo especificado'), 1, 'L');
+    $pdf->SetTextColor(0, 0, 0);
+    
+    // Actualizar Y para la firma
+    $y = $pdf->GetY();
 }
 
 // Área de firma: a 8 líneas del final de la tabla

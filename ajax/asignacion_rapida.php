@@ -69,8 +69,8 @@ try {
         $stmtDet = $db->prepare("INSERT INTO remitos_detalle (id_remito, id_insumo, cantidad) VALUES (?,?,1)");
         $stmtDet->execute([$idRemito, $idInsumo]);
         
-        // Actualizar estado del insumo
-        $stmtUpd = $db->prepare("UPDATE insumos SET estado = 'Asignado', id_sede_actual = ?, id_area_asignacion_actual = ?, id_punto_stock_actual = NULL WHERE id_insumo = ?");
+        // Actualizar estado del insumo (y marcar como usado si era nuevo)
+        $stmtUpd = $db->prepare("UPDATE insumos SET estado = 'Asignado', id_sede_actual = ?, id_area_asignacion_actual = ?, id_punto_stock_actual = NULL, es_nuevo = IF(es_nuevo = 1, 0, es_nuevo) WHERE id_insumo = ?");
         $stmtUpd->execute([$idSede, $idArea, $idInsumo]);
         
         $db->commit();

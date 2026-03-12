@@ -129,13 +129,23 @@ function csrf_input(): string {
     $t = htmlspecialchars(csrf_token(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     return "<input type=\"hidden\" name=\"_csrf\" value=\"$t\">";
 }
-function verify_csrf(): bool {
+function verify_csrf($token = null): bool {
     $session = isset($_SESSION['csrf_token']) ? (string)$_SESSION['csrf_token'] : '';
-    $header = isset($_SERVER['HTTP_X_CSRF_TOKEN']) ? (string)$_SERVER['HTTP_X_CSRF_TOKEN'] : '';
-    $post = isset($_POST['_csrf']) ? (string)$_POST['_csrf'] : '';
     if ($session === '') { return false; }
+
+    // 1. Verificar token pasado por argumento (útil para JSON)
+    if ($token !== null && hash_equals($session, (string)$token)) {
+        return true;
+    }
+
+    // 2. Verificar Header (útil para AJAX)
+    $header = isset($_SERVER['HTTP_X_CSRF_TOKEN']) ? (string)$_SERVER['HTTP_X_CSRF_TOKEN'] : '';
     if ($header && hash_equals($session, $header)) { return true; }
+
+    // 3. Verificar $_POST (formularios tradicionales)
+    $post = isset($_POST['_csrf']) ? (string)$_POST['_csrf'] : '';
     if ($post && hash_equals($session, $post)) { return true; }
+
     return false;
 }
 
@@ -248,7 +258,6 @@ function generarNumeroRemito($dbParam = null) {
         
         Logger::info("Remito generado", ['numero' => $numeroAUsar, 'anio' => $anio, 'formato' => sprintf('%04d_%d', $numeroAUsar, $anio)]);
         return sprintf('%04d_%d', $numeroAUsar, $anio);
-        
     } catch (Throwable $e) {
         if (isset($ownTxn) && $ownTxn && $db->inTransaction()) { $db->rollBack(); }
         Logger::error("Error en generarNumeroRemito", ['error' => $e->getMessage()]);
@@ -263,12 +272,41 @@ function generarNumeroRemito($dbParam = null) {
                 $secuencia = (int)$partes[0];
             }
         }
-        // Use the same connection for existence checks to avoid extra connections and reduce race windows
         do {
             $secuencia++;
             $numero = sprintf('%04d_%d', $secuencia, $anio);
         } while (remitoExiste($numero, $db));
         return $numero;
+    }
+}
+
+// Función para generar números de informe técnico únicos con formato nnnn_yyyy
+function generarNumeroInforme($dbParam = null) {
+    $db = $dbParam instanceof PDO ? $dbParam : conectarDB();
+    $anio = (int)date('Y');
+    try {
+        $ownTxn = !$db->inTransaction();
+        if ($ownTxn) { $db->beginTransaction(); }
+        
+        $stmtIns = $db->prepare("INSERT INTO pedidos_informes_secuencia (anio, ultimo_numero) VALUES (?, 0) ON DUPLICATE KEY UPDATE ultimo_numero = ultimo_numero");
+        $stmtIns->execute([$anio]);
+        
+        $stmtSel = $db->prepare("SELECT ultimo_numero FROM pedidos_informes_secuencia WHERE anio = ? FOR UPDATE");
+        $stmtSel->execute([$anio]);
+        $row = $stmtSel->fetch();
+        $actual = $row && isset($row['ultimo_numero']) ? (int)$row['ultimo_numero'] : 0;
+        $numeroAUsar = $actual + 1;
+        
+        $stmtUpd = $db->prepare("UPDATE pedidos_informes_secuencia SET ultimo_numero = ? WHERE anio = ?");
+        $stmtUpd->execute([$numeroAUsar, $anio]);
+
+        if ($ownTxn) { $db->commit(); }
+        
+        return sprintf('%04d_%d', $numeroAUsar, $anio);
+    } catch (Throwable $e) {
+        if (isset($ownTxn) && $ownTxn && $db->inTransaction()) { $db->rollBack(); }
+        Logger::error("Error en generarNumeroInforme", ['error' => $e->getMessage()]);
+        return 'ERR' . time(); // Fallback básico
     }
 }
 

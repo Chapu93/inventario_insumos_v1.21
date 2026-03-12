@@ -11,12 +11,6 @@ if (!tienePermiso('pedidos', 'ver_propios') && !tienePermiso('pedidos', 'ver_tod
 }
 
 $puedeVerPendientes = tienePermiso('pedidos', 'ver_todos') || tienePermiso('pedidos', 'gestionar');
-// Cargar sedes para filtro (si tiene permiso ver_todos)
-$sedes = [];
-if (tienePermiso('pedidos', 'ver_todos')) {
-    $db = conectarDB();
-    $sedes = $db->query("SELECT id_sede, nombre_sede FROM sedes ORDER BY nombre_sede")->fetchAll(PDO::FETCH_ASSOC);
-}
 
 include '../../includes/header.php';
 ?>
@@ -25,7 +19,7 @@ include '../../includes/header.php';
     <h1><i class="fas fa-clipboard-list me-2"></i>Gestión de Pedidos</h1>
     <?php if (tienePermiso('pedidos', 'crear')): ?>
     <a href="<?php echo app_base_url(); ?>/pages/pedidos/crear.php" class="btn btn-primary">
-        <i class="fas fa-plus me-2"></i>Nuevo Pedido
+        <i class="fas fa-plus me-2"></i>Nuevo Pendiente
     </a>
     <?php endif; ?>
 </div>
@@ -41,7 +35,7 @@ include '../../includes/header.php';
   <?php endif; ?>
   <li class="nav-item" role="presentation">
     <button class="nav-link<?php echo !$puedeVerPendientes ? ' active' : ''; ?>" id="mis-pedidos-tab" data-bs-toggle="tab" data-bs-target="#tab-content" type="button" role="tab" data-modo="mis_pedidos">
-        <i class="fas fa-user me-2"></i>Mis Pedidos
+        <i class="fas fa-user-clock me-2"></i>Mis Pendientes
     </button>
   </li>
   <?php if (tienePermiso('pedidos', 'ver_todos')): ?>
@@ -53,66 +47,66 @@ include '../../includes/header.php';
   <?php endif; ?>
 </ul>
 
+<!-- Filtros -->
+<div class="filtros-container mb-4">
+    <form id="formFiltros" class="row g-3 align-items-end">
+        <input type="hidden" id="filtroModo" name="modo" value="<?php echo $puedeVerPendientes ? 'pendientes' : 'mis_pedidos'; ?>">
+        
+        <div class="col-md-3">
+            <label class="form-label">Estado</label>
+            <select class="form-select" id="filtroEstado">
+                <option value="">Todos</option>
+                <option value="Pendiente">Pendiente</option>
+                <option value="En Proceso">En Proceso</option>
+                <option value="Completado">Completado</option>
+                <option value="Rechazado">Rechazado</option>
+            </select>
+        </div>
+        
+        <div class="col-md-3">
+            <label class="form-label">Tipo</label>
+            <select class="form-select" id="filtroTipo">
+                <option value="">Todos</option>
+                <option value="Mantenimiento">Mantenimiento</option>
+                <option value="Reparación">Reparación</option>
+                <option value="Soporte">Soporte</option>
+            </select>
+        </div>
+        
+        <div class="col-md-3">
+            <label class="form-label">Prioridad</label>
+            <select class="form-select" id="filtroPrioridad">
+                <option value="">Todas</option>
+                <option value="Alta">Alta</option>
+                <option value="Media">Media</option>
+                <option value="Baja">Baja</option>
+            </select>
+        </div>
+        
+        <div class="col-md-3 d-flex align-items-end ms-auto">
+            <div class="d-grid gap-1 w-100">
+                <button type="submit" class="btn btn-primary btn-sm" id="btnFiltrar">
+                    <i class="fas fa-search me-1"></i>Filtrar
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btnLimpiar">
+                    <i class="fas fa-times me-1"></i>Limpiar
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
 <div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-list me-2"></i>Listado de Pedidos</h5>
+    </div>
     <div class="card-body">
-        <!-- Filtros -->
-        <form id="formFiltros" class="row g-3 mb-4">
-            <input type="hidden" id="filtroModo" name="modo" value="<?php echo $puedeVerPendientes ? 'pendientes' : 'mis_pedidos'; ?>">
-            
-            <div class="col-md-3">
-                <label class="form-label">Estado</label>
-                <select class="form-select" id="filtroEstado">
-                    <option value="">Todos</option>
-                    <option value="Pendiente">Pendiente</option>
-                    <option value="En Proceso">En Proceso</option>
-                    <option value="Completado">Completado</option>
-                    <option value="Rechazado">Rechazado</option>
-                </select>
-            </div>
-            
-            <div class="col-md-3">
-                <label class="form-label">Tipo</label>
-                <select class="form-select" id="filtroTipo">
-                    <option value="">Todos</option>
-                    <option value="Mantenimiento">Mantenimiento</option>
-                    <option value="Reparación">Reparación</option>
-                    <option value="Soporte">Soporte</option>
-                    <option value="Pedido Insumo">Pedido Insumo</option>
-                </select>
-            </div>
-            
-            <div class="col-md-2">
-                <label class="form-label">Prioridad</label>
-                <select class="form-select" id="filtroPrioridad">
-                    <option value="">Todas</option>
-                    <option value="Alta">Alta</option>
-                    <option value="Media">Media</option>
-                    <option value="Baja">Baja</option>
-                </select>
-            </div>
-            
-            <?php if (!empty($sedes)): ?>
-            <div class="col-md-3">
-                <label class="form-label">Sede</label>
-                <select class="form-select" id="filtroSede">
-                    <option value="">Todas</option>
-                    <?php foreach($sedes as $s): ?>
-                        <option value="<?php echo $s['id_sede']; ?>"><?php echo htmlspecialchars($s['nombre_sede']); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <?php endif; ?>
-            
-            <div class="col-md-1 d-flex align-items-end">
-                <button type="button" class="btn btn-secondary w-100" id="btnLimpiar" title="Limpiar Filtros"><i class="fas fa-eraser"></i></button>
-            </div>
-        </form>
 
         <div class="table-responsive">
             <table class="table table-striped table-hover" id="tablaPedidos" style="width:100%">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th>Nro de Pedido</th>
                         <th>Solicitante / Sede</th>
                         <th>Tipo</th>
                         <th>Prioridad</th>
@@ -176,13 +170,12 @@ $(function() {
                 d.estado = $('#filtroEstado').val();
                 d.tipo = $('#filtroTipo').val();
                 d.prioridad = $('#filtroPrioridad').val();
-                d.sede = $('#filtroSede').val() || '';
             },
             xhrFields: { withCredentials: true },
             error: function(xhr, error, code) {
                 console.error('DataTables error:', xhr, error, code);
                 console.log('Response:', xhr.responseText);
-                alert('Error al cargar la tabla: ' + code + ' - Ver consola para detalles');
+                showAlert('Error al cargar la tabla: ' + code + ' - Ver consola para detalles', 'error');
             }
         },
         order: [[5, 'desc']], // Fecha creacion desc (Index 5 is Fecha now)
@@ -228,12 +221,12 @@ $(function() {
     });
 
     // Eventos de Filtros
-    $('#filtroEstado, #filtroTipo, #filtroPrioridad, #filtroSede').on('change', function() {
+    $('#filtroEstado, #filtroTipo, #filtroPrioridad').on('change', function() {
         dtPedidos.ajax.reload();
     });
 
     $('#btnLimpiar').on('click', function() {
-        $('#filtroEstado, #filtroTipo, #filtroPrioridad, #filtroSede').val('');
+        $('#filtroEstado, #filtroTipo, #filtroPrioridad').val('');
         dtPedidos.ajax.reload();
     });
 
@@ -241,6 +234,12 @@ $(function() {
     $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (event) {
         var modo = $(event.target).data('modo');
         $('#filtroModo').val(modo);
+        dtPedidos.ajax.reload();
+    });
+
+    // Manejar envío del formulario de filtros
+    $('#formFiltros').on('submit', function(e) {
+        e.preventDefault();
         dtPedidos.ajax.reload();
     });
 
@@ -283,27 +282,34 @@ function tomarPedido(id) {
 }
 
 function eliminarPedido(id) {
-    if (!confirm('¿Realmente deseas eliminar este pedido? Esta acción no se puede deshacer.')) return;
-    
-    $.ajax({
-        url: '<?php echo app_base_url(); ?>/ajax/pedidos_acciones.php',
-        type: 'POST',
-        data: {
-            accion: 'eliminar',
-            id: id,
-            _csrf: '<?php echo csrf_token(); ?>'
-        },
-        dataType: 'json',
-        xhrFields: { withCredentials: true },
-        success: function(resp) {
-            if (resp.success) {
-                showToast('Pedido eliminado correctamente', 'success');
-                dtPedidos.ajax.reload();
-            } else {
-                showToast(resp.error || 'Error al eliminar', 'error');
-            }
-        },
-        error: function() { showToast('Error de conexión', 'error'); }
+    showConfirm({
+        titulo: 'Eliminar Pedido',
+        mensaje: '¿Realmente deseas eliminar este pedido? Esta acción no se puede deshacer.',
+        icono: 'fa-trash-alt text-danger',
+        claseBoton: 'btn-danger',
+        textoAceptar: 'Eliminar',
+        onConfirm: () => {
+            $.ajax({
+                url: '<?php echo app_base_url(); ?>/ajax/pedidos_acciones.php',
+                type: 'POST',
+                data: {
+                    accion: 'eliminar',
+                    id: id,
+                    _csrf: '<?php echo csrf_token(); ?>'
+                },
+                dataType: 'json',
+                xhrFields: { withCredentials: true },
+                success: function(resp) {
+                    if (resp.success) {
+                        showToast('Pedido eliminado correctamente', 'success');
+                        dtPedidos.ajax.reload();
+                    } else {
+                        showToast(resp.error || 'Error al eliminar', 'error');
+                    }
+                },
+                error: function() { showToast('Error de conexión', 'error'); }
+            });
+        }
     });
 }
 

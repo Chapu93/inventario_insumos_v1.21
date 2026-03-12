@@ -1329,10 +1329,17 @@ function formatearFecha(fecha) {
 }
 
 function eliminarInternet(id){
-  if(confirm('¿Eliminar servicio de Internet?')){
-    $('#del_id').val(id);
-    $('#formEliminar').submit();
-  }
+  showConfirm({
+      titulo: 'Eliminar Servicio',
+      mensaje: '¿Está seguro de que desea eliminar este servicio de Internet?',
+      icono: 'fa-trash-alt text-danger',
+      claseBoton: 'btn-danger',
+      textoAceptar: 'Eliminar',
+      onConfirm: () => {
+          $('#del_id').val(id);
+          $('#formEliminar').submit();
+      }
+  });
 }
 // Funciones para mostrar/ocultar campos condicionales según el estado
 function toggleCamposPorEstado() {
@@ -1450,13 +1457,13 @@ $(function(){
       // Validar extensión
       const extension = file.name.split('.').pop().toLowerCase();
       if (extension !== 'pdf') {
-        alert('Solo se permiten archivos PDF');
+        showAlert('Solo se permiten archivos PDF', 'warning');
         $(this).val('');
         return;
       }
       // Validar tamaño (5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert('El archivo no debe superar 5MB');
+        showAlert('El archivo no debe superar 5MB', 'warning');
         $(this).val('');
         return;
       }
@@ -1521,53 +1528,68 @@ $(function(){
     
     // Validar que haya un servicio seleccionado
     if (!idServicio) {
-      alert('Error: No se pudo identificar el servicio');
+      showAlert({
+          titulo: 'Error',
+          mensaje: 'No se pudo identificar el servicio para el traslado',
+          icono: 'fa-exclamation-triangle text-danger'
+      });
       return;
     }
     
-    // Confirmar acción
-    if (!confirm('¿Está seguro de realizar un traslado/migración de este servicio?\n\n' +
-                 'Se dará de baja el servicio actual y se abrirá un formulario para crear el nuevo servicio.')) {
-      return;
-    }
-    
-    // Enviar solicitud para marcar como "Baja por Traslado"
-    const formData = new FormData();
-    formData.append('_csrf', $('input[name="_csrf"]').first().val());
-    formData.append('marcar_baja_traslado', '1');
-    formData.append('id_servicio', idServicio);
-    
-    fetch(window.location.href, {
-      method: 'POST',
-      body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        // Cerrar modal de edición
-        bootstrap.Modal.getInstance(document.getElementById('modalInternet')).hide();
-        
-        // Pre-cargar datos en el modal de traslado
-        $('#traslado_id_servicio_anterior').val(idServicio);
-        $('#traslado_id_sede').val(idSede);
-        $('#traslado_servicio_anterior_id').text('#' + idServicio);
-        $('#traslado_sede_nombre').val(sedeTexto);
-        $('#traslado_proveedor').val(proveedor);
-        $('#traslado_tipo_conexion').val(tipoConexion);
-        $('#traslado_velocidad').val(velocidad);
-        $('#traslado_simetrico').prop('checked', simetrico);
-        $('#traslado_wifi').prop('checked', wifi);
-        $('#traslado_observaciones').val(observaciones);
-        
-        // Abrir modal de traslado
-        new bootstrap.Modal(document.getElementById('modalTrasladoInternet')).show();
-      } else {
-        alert('Error: ' + (data.message || 'No se pudo marcar el servicio como baja por traslado'));
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert('Error al procesar la solicitud');
+    showConfirm({
+        titulo: 'Traslado de Servicio',
+        mensaje: '¿Está seguro de realizar un traslado/migración de este servicio?<br><br><small class="text-muted">Se dará de baja el servicio actual y se abrirá un formulario para crear el nuevo servicio.</small>',
+        icono: 'fa-exchange-alt text-warning',
+        claseBoton: 'btn-warning',
+        textoAceptar: 'Proceder al Traslado',
+        onConfirm: () => {
+            // Enviar solicitud para marcar como "Baja por Traslado"
+            const formData = new FormData();
+            formData.append('_csrf', $('input[name="_csrf"]').first().val());
+            formData.append('marcar_baja_traslado', '1');
+            formData.append('id_servicio', idServicio);
+            
+            fetch(window.location.href, {
+              method: 'POST',
+              body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                // Cerrar modal de edición
+                bootstrap.Modal.getInstance(document.getElementById('modalInternet')).hide();
+                
+                // Pre-cargar datos en el modal de traslado
+                $('#traslado_id_servicio_anterior').val(idServicio);
+                $('#traslado_id_sede').val(idSede);
+                $('#traslado_servicio_anterior_id').text('#' + idServicio);
+                $('#traslado_sede_nombre').val(sedeTexto);
+                $('#traslado_proveedor').val(proveedor);
+                $('#traslado_tipo_conexion').val(tipoConexion);
+                $('#traslado_velocidad').val(velocidad);
+                $('#traslado_simetrico').prop('checked', simetrico);
+                $('#traslado_wifi').prop('checked', wifi);
+                $('#traslado_observaciones').val(observaciones);
+                
+                // Abrir modal de traslado
+                new bootstrap.Modal(document.getElementById('modalTrasladoInternet')).show();
+              } else {
+                showAlert({
+                    titulo: 'Error',
+                    mensaje: data.message || 'No se pudo marcar el servicio como baja por traslado',
+                    icono: 'fa-exclamation-triangle text-danger'
+                });
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              showAlert({
+                  titulo: 'Error',
+                  mensaje: 'Error al procesar la solicitud',
+                  icono: 'fa-exclamation-triangle text-danger'
+              });
+            });
+        }
     });
   });
   
@@ -1578,14 +1600,14 @@ $(function(){
     if (file) {
       // Validar tipo
       if (file.type !== 'application/pdf') {
-        alert('El archivo debe ser un PDF');
+        showAlert('El archivo debe ser un PDF', 'warning');
         this.value = '';
         return;
       }
       
       // Validar tamaño (5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert('El archivo no puede superar 5 MB');
+        showAlert('El archivo no puede superar 5 MB', 'warning');
         this.value = '';
         return;
       }

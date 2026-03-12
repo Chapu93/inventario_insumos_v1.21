@@ -288,6 +288,28 @@
     <!-- Toast container (Bootstrap 5) -->
     <div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1080;" aria-live="polite" aria-atomic="true"></div>
 
+    <!-- Modal de Confirmación Global SITIA -->
+    <div class="modal fade" id="modalConfirmacionSITIA" tabindex="-1" aria-labelledby="modalConfirmacionSITIALabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold" id="modalConfirmacionSITIALabel">
+                        <i class="fas fa-question-circle text-primary me-2" id="modalConfirmacionIcono"></i>
+                        <span id="modalConfirmacionTitulo">Confirmar</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body py-4 text-center">
+                    <p class="fs-5 mb-0" id="modalConfirmacionMensaje"></p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal" id="btnConfirmacionCancelar">Cancelar</button>
+                    <button type="button" class="btn btn-primary px-4 shadow-sm" id="btnConfirmacionAceptar">Aceptar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     </div> <!-- Cierre del wrapper -->
 
     <script>

@@ -141,7 +141,7 @@ function cargarResumen(){
     })
     .catch(err => {
       console.error('Error al cargar contadores_telecom:', err);
-      alert('Error al cargar los datos: ' + err.message);
+      showAlert('Error al cargar los datos: ' + err.message, 'error');
     });
 }
 document.addEventListener('DOMContentLoaded', cargarResumen);

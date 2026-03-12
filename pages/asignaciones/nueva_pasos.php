@@ -165,15 +165,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $estado = ($nuevoOficina > 0) ? 'Disponible' : (($nuevoDeposito > 0) ? 'Disponible' : 'Asignado');
 
                 if ($cantidadTotal > 0) {
-                    $db->prepare("UPDATE insumos SET cantidad=?, cantidad_oficina=?, cantidad_deposito=?, estado=?, id_sede_actual=?, id_area_asignacion_actual=? WHERE id_insumo=?")
+                    $db->prepare("UPDATE insumos SET cantidad=?, cantidad_oficina=?, cantidad_deposito=?, estado=?, id_sede_actual=?, id_area_asignacion_actual=?, es_nuevo = IF(es_nuevo = 1, 0, es_nuevo) WHERE id_insumo=?")
                         ->execute([$cantidadTotal, $nuevoOficina, $nuevoDeposito, $estado, $idSede, $idArea, $idIns]);
                 } else {
                     // Si se agotó todo, limpiar punto de stock
-                    $db->prepare("UPDATE insumos SET cantidad=?, cantidad_oficina=?, cantidad_deposito=?, estado=?, id_sede_actual=?, id_area_asignacion_actual=?, id_punto_stock_actual=NULL WHERE id_insumo=?")
+                    $db->prepare("UPDATE insumos SET cantidad=?, cantidad_oficina=?, cantidad_deposito=?, estado=?, id_sede_actual=?, id_area_asignacion_actual=?, id_punto_stock_actual=NULL, es_nuevo = IF(es_nuevo = 1, 0, es_nuevo) WHERE id_insumo=?")
                         ->execute([$cantidadTotal, $nuevoOficina, $nuevoDeposito, $estado, $idSede, $idArea, $idIns]);
                 }
             } else {
-                $db->prepare("UPDATE insumos SET estado='Asignado', id_sede_actual=?, id_area_asignacion_actual=?, id_punto_stock_actual=NULL WHERE id_insumo=?")
+                $db->prepare("UPDATE insumos SET estado='Asignado', id_sede_actual=?, id_area_asignacion_actual=?, id_punto_stock_actual=NULL, es_nuevo = IF(es_nuevo = 1, 0, es_nuevo) WHERE id_insumo=?")
                     ->execute([$idSede, $idArea, $idIns]);
             }
         }
@@ -825,13 +825,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const form = document.getElementById('formPasos');
             const total = $('.hidden-insumo-input:not(:disabled)').length;
             if (total === 0) { 
-                if (typeof showToast === 'function') { showToast('Debe seleccionar al menos un insumo', 'warning'); } else { alert('Debe seleccionar al menos un insumo'); }
+                showAlert('Debe seleccionar al menos un insumo', 'warning');
                 return; 
             }
 
             const hayNotebook = $('.hidden-insumo-input:not(:disabled)[data-tipo="Notebook"]').length > 0;
             if (hayNotebook && !$('#declaracion_jurada').val()) {
-                if (typeof showToast === 'function') { showToast('Debe adjuntar la Declaración Jurada para asignar una Notebook.', 'warning'); } else { alert('Debe adjuntar la Declaración Jurada para asignar una Notebook.'); }
+                showAlert('Debe adjuntar la Declaración Jurada para asignar una Notebook.', 'warning');
                 $('#declaracion_jurada').addClass('is-invalid');
                 return;
             } else {

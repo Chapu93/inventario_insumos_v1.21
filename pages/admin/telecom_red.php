@@ -361,7 +361,19 @@ function editRed(r){
   $('#cantidad').val(r.cantidad||1); $('#ubicacion').val(r.ubicacion||''); $('#estado').val(r.estado); $('#observaciones').val(r.observaciones||'');
   new bootstrap.Modal(document.getElementById('modalRed')).show();
 }
-function delRed(id){ if(confirm('¿Eliminar dispositivo?')){ $('#del_id').val(id); $('#formDel').submit(); } }
+function delRed(id){ 
+  showConfirm({
+      titulo: 'Eliminar Dispositivo de Red',
+      mensaje: '¿Está seguro de que desea eliminar este dispositivo de la infraestructura?',
+      icono: 'fa-trash-alt text-danger',
+      claseBoton: 'btn-danger',
+      textoAceptar: 'Eliminar',
+      onConfirm: () => {
+          $('#del_id').val(id); 
+          $('#formDel').submit(); 
+      }
+  });
+}
 $('#modalRed').on('hidden.bs.modal', function(){ $('#modalRedTitle').text('Agregar Dispositivo'); $('#accion').val('agregar'); $('#formRed')[0].reset(); $('#id_sede').val('').trigger('change'); $('#formRed').removeClass('was-validated'); });
 $('#formRed').on('submit', function(e){ if(!this.checkValidity()){ e.preventDefault(); e.stopPropagation(); } $(this).addClass('was-validated'); });
 const BASE = '<?php echo app_base_url(); ?>';
