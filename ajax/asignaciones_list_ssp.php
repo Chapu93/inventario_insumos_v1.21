@@ -148,7 +148,7 @@ try {
         }
         
         if ($puedeEliminar && $estado === 'Activa') {
-            $botones[] = '<button type="button" class="btn btn-sm btn-danger" aria-label="Eliminar asignación" onclick="eliminarAsignacion(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Eliminar asignación"><i class="fas fa-trash" aria-hidden="true"></i></button>';
+            $botones[] = '<button type="button" class="btn btn-sm btn-danger" aria-label="Anular remito" onclick="eliminarAsignacion(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Anular remito"><i class="fas fa-trash" aria-hidden="true"></i></button>';
         }
         
         $acciones = '<div class="btn-group" role="group">' . implode(' ', $botones) . '</div>';

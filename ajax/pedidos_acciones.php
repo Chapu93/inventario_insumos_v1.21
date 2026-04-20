@@ -51,11 +51,16 @@ try {
             $sedeId = (int)($_POST['sede'] ?? 0);
             $areaId = (int)($_POST['area'] ?? 0);
             $asignadoA = (int)($_POST['asignado_a'] ?? 0) ?: null;
+            $metodoEntrega = $_POST['metodo_entrega'] ?? 'No aplica';
             
             // Validación
             if (empty($solNombre) || empty($solApellido)) json_error('El nombre y apellido del solicitante son obligatorios', 400);
-            if (empty($tipo) || empty($descripcion) || empty($insumoManual)) {
+            if (empty($tipo) || empty($descripcion)) {
                 json_error('Datos incompletos. Verifique todos los campos requeridos.', 400);
+            }
+            // Para pedidos técnicos, el insumo relacionado es requerido
+            if ($tipo !== 'Pedido Insumo' && empty($insumoManual)) {
+                json_error('Debe indicar el insumo o equipo relacionado con la solicitud.', 400);
             }
             
             if ($sedeId <= 0) {
@@ -99,8 +104,8 @@ try {
             try {
                 // Insertar pedido (incluyendo id_insumo_relacionado y solicitante_apellido)
                 $stmt = $db->prepare("INSERT INTO pedidos 
-                    (id_usuario_solicitante, id_sede, id_area, tipo, prioridad, descripcion, insumo_relacionado, id_insumo_relacionado, asignado_a, estado, fecha_creacion, pdf_nota, solicitante_nombre, solicitante_apellido, solicitante_telefono)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pendiente', NOW(), ?, ?, ?, ?)");
+                    (id_usuario_solicitante, id_sede, id_area, tipo, prioridad, descripcion, insumo_relacionado, id_insumo_relacionado, asignado_a, estado, fecha_creacion, pdf_nota, solicitante_nombre, solicitante_apellido, solicitante_telefono, metodo_entrega)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pendiente', NOW(), ?, ?, ?, ?, ?)");
                 
                 $stmt->execute([
                     $usuarioId,
@@ -115,7 +120,8 @@ try {
                     $fileName,
                     $solNombre,
                     $solApellido,
-                    $solTel ?: null
+                    $solTel ?: null,
+                    $metodoEntrega
                 ]);
                 
                 $idPedido = $db->lastInsertId();
@@ -133,63 +139,7 @@ try {
             }
             break;
 
-        case 'editar':
-            if (!tienePermiso('pedidos', 'gestionar') && !tienePermiso('pedidos', 'crear') && !defined('TESTING')) json_error('Sin permiso', 403);
-            
-            $id = (int)($_POST['id'] ?? 0);
-            // $titulo = trim($_POST['titulo'] ?? ''); // Removed
-            $tipo = $_POST['tipo'] ?? '';
-            $prioridad = $_POST['prioridad'] ?? 'Media';
-            $descripcion = trim($_POST['descripcion'] ?? '');
-            $insumoManual = trim($_POST['insumo_manual'] ?? '');
-            
-            // Editables nuevos (opcional, si el front lo permite)
-            $solNombre = trim($_POST['solicitante_nombre'] ?? '');
-            
-            if ($id <= 0 || empty($tipo) || empty($descripcion) || empty($insumoManual)) {
-                json_error('Datos incompletos', 400);
-            }
-            
-            $db->beginTransaction();
-            
-            // Validar ownership
-            $stmt = $db->prepare("SELECT id_usuario_solicitante FROM pedidos WHERE id_pedido = ?");
-            $stmt->execute([$id]);
-            $p = $stmt->fetch();
-            
-            if (!$p) json_error('Pedido no encontrado', 404);
-            
-            if (!tienePermiso('pedidos', 'gestionar') && $p['id_usuario_solicitante'] != $usuarioId && !defined('TESTING')) {
-                json_error('No tienes permiso para editar este pedido', 403);
-            }
-            
-            // Update simple (sin solicitante por ahora si no viene, o agregamos campos hidden en editar)
-            // Asumimos que editar viene desde un form que incluye campos nuevos?
-            // Si el usuario no modificó el form de edicion, esto fallará si requerimos nombre.
-            // Por ahora solo actualizamos lo que habia.
-            // Si viene nombre, actualizamos.
-            
-            $sqlInfo = "";
-            $params = [$tipo, $prioridad, $descripcion, $insumoManual];
-            
-            if (!empty($solNombre)) {
-                 $sqlInfo = ", solicitante_nombre = ?, solicitante_telefono = ?, solicitante_email = ?";
-                 $params[] = $solNombre;
-                 $params[] = $_POST['solicitante_telefono'] ?? null;
-                 $params[] = $_POST['solicitante_email'] ?? null;
-            }
 
-            $params[] = $id; // WHERE
-
-            $stmt = $db->prepare("UPDATE pedidos SET tipo = ?, prioridad = ?, descripcion = ?, insumo_relacionado = ? $sqlInfo WHERE id_pedido = ?");
-            $stmt->execute($params);
-            
-            $stmtH = $db->prepare("INSERT INTO pedidos_historial (id_pedido, id_usuario, accion, detalle) VALUES (?, ?, 'Edición', 'Se actualizaron los datos del pedido')");
-            $stmtH->execute([$id, $usuarioId]);
-            
-            $db->commit();
-            json_success(['mensaje' => 'Pedido actualizado']);
-            break;
 
         case 'obtener':
             $id = (int)($_GET['id'] ?? 0);
@@ -200,12 +150,14 @@ try {
                                     u_sol.username as sol_user, u_sol.nombre as sol_nom, u_sol.apellido as sol_ape,
                                     u_asig.username as asig_user, u_asig.nombre as asig_nom, u_asig.apellido as asig_ape,
                                     s.nombre_sede,
-                                    i.nombre_insumo, i.numero_serie
+                                    i.nombre_insumo, i.numero_serie,
+                                    r.numero_remito
                                   FROM pedidos p
                                   JOIN usuarios u_sol ON p.id_usuario_solicitante = u_sol.id_usuario
                                   JOIN sedes s ON p.id_sede = s.id_sede
                                   LEFT JOIN usuarios u_asig ON p.asignado_a = u_asig.id_usuario
                                   LEFT JOIN insumos i ON p.id_insumo_relacionado = i.id_insumo
+                                  LEFT JOIN remitos r ON p.id_remito = r.id_remito
                                   WHERE p.id_pedido = ?");
             $stmt->execute([$id]);
             $pedido = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -226,7 +178,19 @@ try {
             $stmtI->execute([$id]);
             $informe = $stmtI->fetch(PDO::FETCH_ASSOC);
             
-            json_success(['pedido' => $pedido, 'historial' => $historial, 'informe' => $informe]);
+            // Obtener items del remito si el pedido tiene uno asociado
+            $remito_items = [];
+            if (!empty($pedido['id_remito'])) {
+                $stmtRI = $db->prepare("SELECT rd.cantidad, i.id_insumo, i.nombre_insumo, i.tipo_insumo, i.numero_serie, i.id_fisico
+                                        FROM remitos_detalle rd
+                                        JOIN insumos i ON rd.id_insumo = i.id_insumo
+                                        WHERE rd.id_remito = ?
+                                        ORDER BY i.nombre_insumo");
+                $stmtRI->execute([$pedido['id_remito']]);
+                $remito_items = $stmtRI->fetchAll(PDO::FETCH_ASSOC);
+            }
+
+            json_success(['pedido' => $pedido, 'historial' => $historial, 'informe' => $informe, 'remito_items' => $remito_items]);
             break;
 
         case 'rechazar':
@@ -362,10 +326,14 @@ try {
 
              $db->beginTransaction();
              
-             // Verificar si ya tiene informe
-             $stmtCheck = $db->prepare("SELECT id_informe FROM pedidos_informes WHERE id_pedido = ?");
+             // Verificar tipo y si ya tiene informe
+             $stmtCheck = $db->prepare("SELECT tipo, (SELECT id_informe FROM pedidos_informes WHERE id_pedido = p.id_pedido) as id_informe FROM pedidos p WHERE p.id_pedido = ?");
              $stmtCheck->execute([$id]);
-             if ($stmtCheck->fetch()) {
+             $check = $stmtCheck->fetch();
+
+             if (!$check) json_error('Pedido no encontrado', 404);
+             if ($check['tipo'] === 'Pedido Insumo') json_error('Los pedidos de insumo no requieren informe técnico. Deben marcarse como Preparados.', 400);
+             if ($check['id_informe']) {
                  $db->rollBack();
                  json_error('Este pedido ya tiene un informe técnico', 400);
              }
@@ -376,9 +344,20 @@ try {
              $stmtI = $db->prepare("INSERT INTO pedidos_informes (id_pedido, numero_informe, diagnostico, trabajo_realizado, resultado) VALUES (?, ?, ?, ?, ?)");
              $stmtI->execute([$id, $numeroInforme, $diagnostico, $trabajo, $resultado]);
              
+             // Datos de Entrega (opcionales al completar tecnico, pero recomendados)
+             $metodoEntrega = $_POST['metodo_entrega'] ?? 'No aplica';
+             $fechaEstimada = $_POST['fecha_estimada_entrega'] ?? null;
+             $notasEntrega = trim($_POST['notas_entrega'] ?? '');
+
              // Actualizar pedido
-             $stmt = $db->prepare("UPDATE pedidos SET estado = 'Completado' WHERE id_pedido = ?");
-             $stmt->execute([$id]);
+             $stmt = $db->prepare("UPDATE pedidos SET 
+                                     estado = 'Completado', 
+                                     estado_entrega = 'Preparado', 
+                                     metodo_entrega = ?, 
+                                     fecha_estimada_entrega = ?, 
+                                     notas_entrega = ? 
+                                   WHERE id_pedido = ?");
+             $stmt->execute([$metodoEntrega, $fechaEstimada, $notasEntrega, $id]);
              
              // Historial
              $stmtH = $db->prepare("INSERT INTO pedidos_historial (id_pedido, id_usuario, accion, detalle) VALUES (?, ?, 'Informe generado', ?)");
@@ -503,7 +482,6 @@ try {
                  json_error('Error al guardar archivo en servidor', 500);
              }
              break;
-
         case 'obtener_adjuntos':
              $id = (int)($_GET['id'] ?? 0);
              if ($id <= 0) json_error('ID inválido', 400);
@@ -518,6 +496,123 @@ try {
              
              json_success(['adjuntos' => $adjuntos]);
              break;
+
+        case 'actualizar_entrega':
+            if (!tienePermiso('pedidos', 'gestionar')) json_error('Sin permiso', 403);
+            
+            $id = (int)($_POST['id'] ?? 0);
+            $estadoEntrega = $_POST['estado_entrega'] ?? '';
+            $metodoEntrega = $_POST['metodo_entrega'] ?? '';
+            $receptor = trim($_POST['receptor_nombre'] ?? '');
+            
+            if ($id <= 0 || empty($estadoEntrega)) json_error('Datos incompletos', 400);
+            
+            $db->beginTransaction();
+            
+            $sql = "UPDATE pedidos SET estado_entrega = ?";
+            $params = [$estadoEntrega];
+            
+            if (!empty($metodoEntrega)) {
+                $sql .= ", metodo_entrega = ?";
+                $params[] = $metodoEntrega;
+            }
+            
+            if ($estadoEntrega === 'Entregado') {
+                // Validar carga obligatoria del remito firmado
+                if (empty($_FILES['remito_firmado']) || $_FILES['remito_firmado']['error'] !== UPLOAD_ERR_OK) {
+                    $db->rollBack();
+                    json_error('Debe adjuntar el archivo del remito firmado o constancia de entrega.', 400);
+                }
+                
+                // Usar validarArchivoPlano que permite PDF e imágenes (JPG, PNG)
+                require_once '../includes/validar_archivo.php';
+                $validacion = validarArchivoPlano($_FILES['remito_firmado'], 10 * 1024 * 1024);
+                
+                if (!$validacion['valido']) {
+                    $db->rollBack();
+                    json_error('Error en el archivo adjunto: ' . $validacion['error'], 400);
+                }
+                
+                $uploadDir = UPLOAD_BASE_DIR . 'pedidos/';
+                if (!file_exists($uploadDir)) {
+                    mkdir($uploadDir, 0755, true);
+                }
+                
+                $extension = $validacion['extension'];
+                $fileName = 'remito_entregado_' . time() . '_' . uniqid() . '.' . $extension;
+                $targetPath = $uploadDir . $fileName;
+                
+                if (defined('TESTING') && TESTING) {
+                    rename($_FILES['remito_firmado']['tmp_name'], $targetPath);
+                } else {
+                    if (!move_uploaded_file($_FILES['remito_firmado']['tmp_name'], $targetPath)) {
+                        $db->rollBack();
+                        json_error('Error al guardar el archivo adjunto en el servidor', 500);
+                    }
+                }
+
+                $sql .= ", fecha_entrega = NOW(), receptor_nombre = ?, estado = 'Completado', remito_firmado = ?";
+                $params[] = $receptor ?: 'No especificado';
+                $params[] = $fileName;
+            }
+            
+            $sql .= " WHERE id_pedido = ?";
+            $params[] = $id;
+            
+            $stmt = $db->prepare($sql);
+            $stmt->execute($params);
+            
+            // Historial
+            $stmtH = $db->prepare("INSERT INTO pedidos_historial (id_pedido, id_usuario, accion, detalle) VALUES (?, ?, 'Entrega', ?)");
+            $detalle = "Estado de entrega cambiado a: $estadoEntrega";
+            if ($metodoEntrega) $detalle .= " (Método: $metodoEntrega)";
+            if ($receptor) $detalle .= ". Receptor: $receptor";
+            $stmtH->execute([$id, $usuarioId, $detalle]);
+            
+            $db->commit();
+            json_success(['mensaje' => 'Estado de entrega actualizado']);
+            break;
+
+        case 'preparar':
+            // Marcar un Pedido de Insumo como "Preparado" para que pase a logística
+            if (!tienePermiso('pedidos', 'gestionar')) json_error('Sin permiso', 403);
+            
+            $id = (int)($_POST['id'] ?? 0);
+            if ($id <= 0) json_error('ID inválido', 400);
+            
+            $db->beginTransaction();
+            
+            // Verificar tipo
+            $stmt = $db->prepare("SELECT tipo, estado FROM pedidos WHERE id_pedido = ?");
+            $stmt->execute([$id]);
+            $p = $stmt->fetch();
+            
+            if (!$p) json_error('Pedido no encontrado', 404);
+            if ($p['tipo'] !== 'Pedido Insumo') json_error('Solo los pedidos de insumo pueden marcarse como preparados', 400);
+            
+            $stmt = $db->prepare("UPDATE pedidos SET estado = 'Preparado', estado_entrega = 'Preparado' WHERE id_pedido = ?");
+            $stmt->execute([$id]);
+            
+            $stmtH = $db->prepare("INSERT INTO pedidos_historial (id_pedido, id_usuario, accion, detalle) VALUES (?, ?, 'Preparado', 'Pedido de insumos preparado y listo para logística')");
+            $stmtH->execute([$id, $usuarioId]);
+            
+            $db->commit();
+            json_success(['mensaje' => 'Pedido marcado como preparado']);
+            break;
+
+        case 'obtener_entregas_pendientes':
+            if (!tienePermiso('pedidos', 'ver_todos')) json_error('Sin permiso', 403);
+            
+            $stmt = $db->query("SELECT p.id_pedido, p.tipo, p.descripcion, p.solicitante_nombre, p.solicitante_apellido, 
+                                       p.metodo_entrega, p.estado_entrega, p.fecha_creacion, s.nombre_sede, a.nombre_area
+                                FROM pedidos p
+                                JOIN sedes s ON p.id_sede = s.id_sede
+                                LEFT JOIN areas a ON p.id_area = a.id_area
+                                WHERE p.tipo = 'Pedido Insumo' AND p.estado_entrega != 'Entregado'
+                                ORDER BY p.fecha_creacion DESC");
+            $entregas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            json_success(['entregas' => $entregas]);
+            break;
 
         default:
             json_error('Acción no válida', 400);

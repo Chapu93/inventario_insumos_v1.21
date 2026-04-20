@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost
--- Tiempo de generación: 14-01-2026 a las 16:19:57
+-- Tiempo de generación: 30-03-2026 a las 16:27:21
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -459,7 +459,63 @@ INSERT INTO `auditoria_acciones` (`id_auditoria`, `id_usuario`, `id_sesion`, `ac
 (454, 1, 188, 'sesion_expirada', 'usuarios', 'Sesión expirada por inactividad', NULL, NULL, NULL, NULL, '::1', 'exito', NULL, '2026-01-12 11:46:32'),
 (455, 1, 188, 'logout', 'usuarios', 'Cierre de sesión', NULL, NULL, NULL, NULL, '::1', 'exito', NULL, '2026-01-12 11:46:33'),
 (456, 1, NULL, 'login_fallido', 'usuarios', 'Intento de login fallido - Contraseña incorrecta para: admin', NULL, NULL, NULL, NULL, '::1', 'error', 'Contraseña incorrecta', '2026-01-12 11:50:23'),
-(457, 1, 189, 'login', 'usuarios', 'Login exitoso: admin', NULL, NULL, NULL, NULL, '::1', 'exito', NULL, '2026-01-12 11:53:25');
+(457, 1, 189, 'login', 'usuarios', 'Login exitoso: admin', NULL, NULL, NULL, NULL, '::1', 'exito', NULL, '2026-01-12 11:53:25'),
+(458, 20, 190, 'login', 'usuarios', 'Login exitoso: jvillaverde', NULL, NULL, NULL, NULL, '::1', 'exito', NULL, '2026-01-26 08:22:30'),
+(459, 20, 190, 'sesion_expirada', 'usuarios', 'Sesión expirada por inactividad', NULL, NULL, NULL, NULL, '::1', 'exito', NULL, '2026-01-26 10:09:29'),
+(460, 20, 190, 'logout', 'usuarios', 'Cierre de sesión', NULL, NULL, NULL, NULL, '::1', 'exito', NULL, '2026-01-26 10:09:29'),
+(461, 20, 191, 'login', 'usuarios', 'Login exitoso: jvillaverde', NULL, NULL, NULL, NULL, '::1', 'exito', NULL, '2026-01-26 10:09:35'),
+(462, 1, 192, 'login', 'usuarios', 'Login exitoso: admin', NULL, NULL, NULL, NULL, '::1', 'exito', NULL, '2026-01-26 11:20:40'),
+(463, 20, 193, 'login', 'usuarios', 'Login exitoso: jvillaverde', NULL, NULL, NULL, NULL, '::1', 'exito', NULL, '2026-01-26 13:14:58'),
+(464, 1, 194, 'login', 'usuarios', 'Login exitoso: admin', NULL, NULL, NULL, NULL, '::1', 'exito', NULL, '2026-01-26 13:18:31'),
+(465, 1, 195, 'login', 'usuarios', 'Login exitoso: admin', NULL, NULL, NULL, NULL, '127.0.0.1', 'exito', NULL, '2026-02-02 11:32:43'),
+(466, 1, 195, 'editar_insumo', 'insumos', 'Insumo editado: Tesr (ID: 94)', 'insumo', 94, '{\"id_insumo\":94,\"nombre_insumo\":\"Tesr\",\"tipo_insumo\":\"PC Escritorio\",\"subcategoria_varios\":null,\"descripcion_general\":null,\"numero_serie\":\"asdaaf\",\"id_fisico\":\"asdfa\",\"id_patrimonio\":\"asdfaasd\",\"cantidad\":1,\"cantidad_oficina\":null,\"cantidad_deposito\":null,\"fecha_adquisicion\":\"2025-10-30\",\"estado\":\"Disponible\",\"id_punto_stock_actual\":2,\"id_sede_actual\":null,\"id_ingreso\":null,\"es_nuevo\":1,\"id_area_asignacion_actual\":null,\"id_patrimonio_idx\":\"asdfaasd\"}', '{\"nombre_insumo\":\"Tesr\",\"tipo_insumo\":\"PC Escritorio\",\"cantidad\":1}', '127.0.0.1', 'exito', NULL, '2026-02-02 11:42:48'),
+(467, 1, 196, 'login', 'usuarios', 'Login exitoso: admin', NULL, NULL, NULL, NULL, '127.0.0.1', 'exito', NULL, '2026-02-02 14:01:26'),
+(468, 20, 197, 'login', 'usuarios', 'Login exitoso: jvillaverde', NULL, NULL, NULL, NULL, '::1', 'exito', NULL, '2026-03-02 09:58:19'),
+(469, 20, 198, 'login', 'usuarios', 'Login exitoso: jvillaverde', NULL, NULL, NULL, NULL, '10.114.85.1', 'exito', NULL, '2026-03-02 13:10:06'),
+(470, 1, 199, 'login', 'usuarios', 'Login exitoso: admin', NULL, NULL, NULL, NULL, '127.0.0.1', 'exito', NULL, '2026-03-04 09:29:35'),
+(471, 1, 200, 'login', 'usuarios', 'Login exitoso: admin', NULL, NULL, NULL, NULL, '127.0.0.1', 'exito', NULL, '2026-03-04 11:18:32'),
+(472, 1, 201, 'login', 'usuarios', 'Login exitoso: admin', NULL, NULL, NULL, NULL, '127.0.0.1', 'exito', NULL, '2026-03-04 12:17:45'),
+(473, 1, 201, 'sesion_expirada', 'usuarios', 'Sesión expirada por inactividad', NULL, NULL, NULL, NULL, '127.0.0.1', 'exito', NULL, '2026-03-04 13:33:14'),
+(474, 1, 201, 'logout', 'usuarios', 'Cierre de sesión', NULL, NULL, NULL, NULL, '127.0.0.1', 'exito', NULL, '2026-03-04 13:33:14'),
+(475, 1, 202, 'login', 'usuarios', 'Login exitoso: admin', NULL, NULL, NULL, NULL, '127.0.0.1', 'exito', NULL, '2026-03-04 13:34:37'),
+(476, 1, 203, 'login', 'usuarios', 'Login exitoso: admin', NULL, NULL, NULL, NULL, '127.0.0.1', 'exito', NULL, '2026-03-10 08:08:30'),
+(477, 20, 204, 'login', 'usuarios', 'Login exitoso: jvillaverde', NULL, NULL, NULL, NULL, '::1', 'exito', NULL, '2026-03-11 08:40:35'),
+(478, 20, 204, 'logout', 'usuarios', 'Cierre de sesión', NULL, NULL, NULL, NULL, '::1', 'exito', NULL, '2026-03-11 08:40:39'),
+(479, 1, 205, 'login', 'usuarios', 'Login exitoso: admin', NULL, NULL, NULL, NULL, '::1', 'exito', NULL, '2026-03-11 08:40:44'),
+(480, 1, 205, 'crear_asignacion', 'asignaciones', 'Asignación creada - Remito: 0007_2026 - Persona: khk hkjhj', 'asignacion', 96, NULL, '{\"numero_remito\":\"0007_2026\",\"sede\":51,\"area\":11,\"persona\":\"khk hkjhj\",\"insumos_count\":1}', '::1', 'exito', NULL, '2026-03-11 09:12:44'),
+(481, 1, 205, 'crear_asignacion', 'asignaciones', 'Asignación creada - Remito: 0008_2026 - Persona: asd asd', 'asignacion', 97, NULL, '{\"numero_remito\":\"0008_2026\",\"sede\":50,\"area\":11,\"persona\":\"asd asd\",\"insumos_count\":2}', '::1', 'exito', NULL, '2026-03-11 09:49:11'),
+(482, 1, 205, 'crear_asignacion', 'asignaciones', 'Asignación creada - Remito: 0009_2026 - Persona: asda asda', 'asignacion', 98, NULL, '{\"numero_remito\":\"0009_2026\",\"sede\":38,\"area\":9,\"persona\":\"asda asda\",\"insumos_count\":1}', '::1', 'exito', NULL, '2026-03-11 10:04:25'),
+(483, 1, 205, 'crear_asignacion', 'asignaciones', 'Asignación creada - Remito: 0011_2026 - Persona: asdasd asda', 'asignacion', 100, NULL, '{\"numero_remito\":\"0011_2026\",\"sede\":43,\"area\":9,\"persona\":\"asdasd asda\",\"insumos_count\":1}', '::1', 'exito', NULL, '2026-03-11 10:32:07'),
+(484, 20, 206, 'login', 'usuarios', 'Login exitoso: jvillaverde', NULL, NULL, NULL, NULL, '127.0.0.1', 'exito', NULL, '2026-03-11 10:49:07'),
+(485, 1, 205, 'sesion_expirada', 'usuarios', 'Sesión expirada por inactividad', NULL, NULL, NULL, NULL, '::1', 'exito', NULL, '2026-03-11 12:56:20'),
+(486, 1, 205, 'logout', 'usuarios', 'Cierre de sesión', NULL, NULL, NULL, NULL, '::1', 'exito', NULL, '2026-03-11 12:56:20'),
+(487, 1, 207, 'login', 'usuarios', 'Login exitoso: admin', NULL, NULL, NULL, NULL, '::1', 'exito', NULL, '2026-03-11 12:56:25'),
+(488, 1, 208, 'login', 'usuarios', 'Login exitoso: admin', NULL, NULL, NULL, NULL, '127.0.0.1', 'exito', NULL, '2026-03-12 08:07:34'),
+(489, 1, 208, 'crear_insumo', 'insumos', 'Insumo creado:  (Tipo: Notebook)', 'insumo', 138, NULL, '{\"nombre_insumo\":\"\",\"tipo_insumo\":\"Notebook\",\"cantidad\":\"1\",\"estado\":\"Disponible\"}', '127.0.0.1', 'exito', NULL, '2026-03-12 08:21:07'),
+(490, 1, 208, 'crear_asignacion', 'asignaciones', 'Asignación creada - Remito: 0012_2026 - Persona: ricardo saez', 'asignacion', 103, NULL, '{\"numero_remito\":\"0012_2026\",\"sede\":38,\"area\":4,\"persona\":\"ricardo saez\",\"insumos_count\":1}', '127.0.0.1', 'exito', NULL, '2026-03-12 08:22:44'),
+(491, 1, 208, 'crear_asignacion', 'asignaciones', 'Asignación creada - Remito: 0013_2026 - Persona: maria laura', 'asignacion', 104, NULL, '{\"numero_remito\":\"0013_2026\",\"sede\":38,\"area\":2,\"persona\":\"maria laura\",\"insumos_count\":1}', '127.0.0.1', 'exito', NULL, '2026-03-12 08:52:56'),
+(492, 1, 208, 'crear_insumo', 'insumos', 'Insumo creado:  (Tipo: Monitor)', 'insumo', 139, NULL, '{\"nombre_insumo\":\"\",\"tipo_insumo\":\"Monitor\",\"cantidad\":\"1\",\"estado\":\"Disponible\"}', '127.0.0.1', 'exito', NULL, '2026-03-12 09:41:43'),
+(493, 1, 208, 'crear_asignacion', 'asignaciones', 'Asignación creada - Remito: 0014_2026 - Persona: pepe sanches', 'asignacion', 105, NULL, '{\"numero_remito\":\"0014_2026\",\"sede\":38,\"area\":2,\"persona\":\"pepe sanches\",\"insumos_count\":1}', '127.0.0.1', 'exito', NULL, '2026-03-12 10:02:12'),
+(494, 20, 209, 'login', 'usuarios', 'Login exitoso: jvillaverde', NULL, NULL, NULL, NULL, '127.0.0.1', 'exito', NULL, '2026-03-12 10:39:40'),
+(495, 1, 208, 'sesion_expirada', 'usuarios', 'Sesión expirada por inactividad', NULL, NULL, NULL, NULL, '127.0.0.1', 'exito', NULL, '2026-03-12 11:37:03'),
+(496, 1, 208, 'logout', 'usuarios', 'Cierre de sesión', NULL, NULL, NULL, NULL, '127.0.0.1', 'exito', NULL, '2026-03-12 11:37:03'),
+(497, 1, 210, 'login', 'usuarios', 'Login exitoso: admin', NULL, NULL, NULL, NULL, '127.0.0.1', 'exito', NULL, '2026-03-12 11:37:05'),
+(498, 1, 210, 'devolver_insumos', 'asignaciones', 'Devolución de insumos - Remito: 5_2026_hist', 'asignacion', 107, NULL, '{\"devueltos\":[{\"id\":141,\"cantidad\":1}],\"restantes\":0}', '127.0.0.1', 'exito', NULL, '2026-03-12 13:19:54'),
+(499, 1, 211, 'login', 'usuarios', 'Login exitoso: admin', NULL, NULL, NULL, NULL, '127.0.0.1', 'exito', NULL, '2026-03-13 08:27:06'),
+(500, 1, 211, 'sesion_expirada', 'usuarios', 'Sesión expirada por inactividad', NULL, NULL, NULL, NULL, '127.0.0.1', 'exito', NULL, '2026-03-13 11:48:06'),
+(501, 1, 211, 'logout', 'usuarios', 'Cierre de sesión', NULL, NULL, NULL, NULL, '127.0.0.1', 'exito', NULL, '2026-03-13 11:48:06'),
+(502, 1, 212, 'login', 'usuarios', 'Login exitoso: admin', NULL, NULL, NULL, NULL, '127.0.0.1', 'exito', NULL, '2026-03-13 11:48:08'),
+(503, 1, 212, 'sesion_expirada', 'usuarios', 'Sesión expirada por inactividad', NULL, NULL, NULL, NULL, '127.0.0.1', 'exito', NULL, '2026-03-13 13:25:05'),
+(504, 1, 212, 'logout', 'usuarios', 'Cierre de sesión', NULL, NULL, NULL, NULL, '127.0.0.1', 'exito', NULL, '2026-03-13 13:25:05'),
+(505, 1, 213, 'login', 'usuarios', 'Login exitoso: admin', NULL, NULL, NULL, NULL, '127.0.0.1', 'exito', NULL, '2026-03-13 13:25:07'),
+(506, 1, 214, 'login', 'usuarios', 'Login exitoso: admin', NULL, NULL, NULL, NULL, '127.0.0.1', 'exito', NULL, '2026-03-16 08:30:36'),
+(507, 1, 214, 'sesion_expirada', 'usuarios', 'Sesión expirada por inactividad', NULL, NULL, NULL, NULL, '127.0.0.1', 'exito', NULL, '2026-03-16 11:37:09'),
+(508, 1, 214, 'logout', 'usuarios', 'Cierre de sesión', NULL, NULL, NULL, NULL, '127.0.0.1', 'exito', NULL, '2026-03-16 11:37:09'),
+(509, 1, 215, 'login', 'usuarios', 'Login exitoso: admin', NULL, NULL, NULL, NULL, '127.0.0.1', 'exito', NULL, '2026-03-17 08:10:20'),
+(510, 1, 216, 'login', 'usuarios', 'Login exitoso: admin', NULL, NULL, NULL, NULL, '::1', 'exito', NULL, '2026-03-18 08:13:10'),
+(511, 1, 216, 'crear_asignacion', 'asignaciones', 'Asignación creada - Remito: 0028_2026 - Persona: dv sdf', 'asignacion', 128, NULL, '{\"numero_remito\":\"0028_2026\",\"sede\":51,\"area\":5,\"persona\":\"dv sdf\",\"insumos_count\":1}', '::1', 'exito', NULL, '2026-03-18 10:51:47'),
+(512, 1, 217, 'login', 'usuarios', 'Login exitoso: admin', NULL, NULL, NULL, NULL, '::1', 'exito', NULL, '2026-03-19 08:10:16'),
+(513, 20, 218, 'login', 'usuarios', 'Login exitoso: jvillaverde', NULL, NULL, NULL, NULL, '::1', 'exito', NULL, '2026-03-30 10:48:06');
 
 -- --------------------------------------------------------
 
@@ -480,7 +536,9 @@ CREATE TABLE `escaneres` (
 
 INSERT INTO `escaneres` (`id_escaner`, `id_insumo`, `marca`, `modelo`) VALUES
 (9, 7, 'Epsonnn', 'V3923'),
-(11, 23, 'Ficha', 'a la entrada');
+(11, 23, 'Ficha', 'a la entrada'),
+(13, 143, 'adasdasd', '222dadad222'),
+(14, 145, 'epson', '235');
 
 -- --------------------------------------------------------
 
@@ -503,7 +561,9 @@ INSERT INTO `impresoras` (`id_impresora`, `id_insumo`, `marca`, `modelo`) VALUES
 (4, 29, 'Lexmark', 'MS 215k'),
 (8, 47, 'epson', 'lija '),
 (17, 92, 'Hp', 'Mc 2023'),
-(18, 120, 'asdfa', 'e333');
+(18, 120, 'asdfa', 'e333'),
+(19, 140, 'hp', '400'),
+(20, 141, 'hp', '400');
 
 -- --------------------------------------------------------
 
@@ -553,9 +613,9 @@ CREATE TABLE `ingresos_documentos` (
 INSERT INTO `ingresos_documentos` (`id_documento`, `id_ingreso`, `nombre_archivo`, `ruta_archivo`, `tipo_documento`, `fecha_carga`, `cargado_por`) VALUES
 (10, 42, 'Este Joaquin.xlsx', 'remito_42_1767793479.xlsx', 'remito', '2026-01-07 10:44:39', 1),
 (11, 42, 'Este Joaquin.xlsx', 'documentacion_42_1767793504.xlsx', 'documentacion', '2026-01-07 10:45:04', 1),
-(12, 43, 'Formulario para la rendicion de la comision de servicios-1.pdf', 'remito_43_1767793582.pdf', 'remito', '2026-01-07 10:46:22', 1),
-(13, 43, 'Este Joaquin(4).xlsx', 'documentacion_43_1767793582.xlsx', 'documentacion', '2026-01-07 10:46:22', 1),
-(14, 43, 'Este Joaquin(3).xlsx', 'documentacion_43_1767793599.xlsx', 'documentacion', '2026-01-07 10:46:39', 1);
+(14, 43, 'Este Joaquin(3).xlsx', 'documentacion_43_1767793599.xlsx', 'documentacion', '2026-01-07 10:46:39', 1),
+(15, 43, 'Captura desde 2025-07-01 12-42-00.png', 'documentacion_43_1773332086.png', 'documentacion', '2026-03-12 13:14:46', 1),
+(16, 44, 'Fuente Coradir 22 de Septiembre.pdf', 'documentacion_44_1773332134.pdf', 'documentacion', '2026-03-12 13:15:34', 1);
 
 -- --------------------------------------------------------
 
@@ -590,42 +650,42 @@ CREATE TABLE `insumos` (
 --
 
 INSERT INTO `insumos` (`id_insumo`, `nombre_insumo`, `tipo_insumo`, `subcategoria_varios`, `descripcion_general`, `numero_serie`, `id_fisico`, `id_patrimonio`, `cantidad`, `cantidad_oficina`, `cantidad_deposito`, `fecha_adquisicion`, `estado`, `id_punto_stock_actual`, `id_sede_actual`, `id_ingreso`, `es_nuevo`, `id_area_asignacion_actual`) VALUES
-(6, 'Monitor recuperado en comision', 'Monitor', NULL, NULL, '32', '84621359', '646546gg', 1, NULL, NULL, '2025-08-18', 'Disponible', NULL, NULL, NULL, 1, NULL),
-(7, 'Escarner Nuevo', 'Escaner', NULL, NULL, '108923', 'E45333', 'asfd123', 1, NULL, NULL, '2025-08-18', 'Disponible', NULL, NULL, NULL, 1, NULL),
+(6, 'Monitor recuperado en comision', 'Monitor', NULL, NULL, '32', '84621359', '646546gg', 1, NULL, NULL, '2025-08-18', 'Asignado', NULL, 27, NULL, 1, 11),
+(7, 'Escarner Nuevo', 'Escaner', NULL, NULL, '108923', 'E45333', 'asfd123', 1, NULL, NULL, '2025-08-18', 'Asignado', NULL, 38, NULL, 1, 2),
 (16, 'PC Escritorio Oficina recuperada en comision', 'PC Escritorio', NULL, NULL, 'PC COMPLETA-SN0004', 'PC COMPLETA-ID0004', 'PAT00004', 1, NULL, NULL, '2025-09-16', 'De Baja', 2, NULL, NULL, 0, NULL),
-(17, 'Notebook 14\"', 'Notebook', NULL, NULL, 'fdgd4444', 'NOTEBOOK-ID0005', 'PAT00005', 1, NULL, NULL, '2025-09-16', 'Disponible', NULL, NULL, NULL, 1, NULL),
+(17, 'Notebook 14\"', 'Notebook', NULL, NULL, 'fdgd4444', 'NOTEBOOK-ID0005', 'PAT00005', 1, NULL, NULL, '2025-09-16', 'Asignado', NULL, 51, NULL, 1, 11),
 (19, 'Monitor 24\"', 'Monitor', NULL, NULL, 'MONITOR-SN0007', 'MONITOR-ID0007', 'PAT00007', 1, NULL, NULL, '2025-09-16', 'De Baja', 2, NULL, NULL, 1, NULL),
 (23, 'Fichero', 'Escaner', NULL, NULL, '65468614', 'D466', 'D466', 1, NULL, NULL, '2025-10-14', 'Asignado', NULL, 38, NULL, 1, 2),
 (27, 'Coradir 2020', 'PC Escritorio', NULL, NULL, '8768976', 'D342', 'D423', 1, NULL, NULL, '2025-10-17', 'Asignado', NULL, 51, NULL, 1, 5),
 (29, 'Nueva', 'Impresora', NULL, NULL, '646979', 'D458', 'D748', 1, NULL, NULL, '2025-10-17', 'Asignado', NULL, 32, NULL, 1, 6),
-(31, 'Test Accesorios', 'Notebook', NULL, NULL, '9879789', 'Df97', 'Df97', 1, NULL, NULL, '2025-10-17', 'Disponible', NULL, NULL, NULL, 1, NULL),
+(31, 'Test Accesorios', 'Notebook', NULL, NULL, '9879789', 'Df97', 'Df97', 1, NULL, NULL, '2025-10-17', 'Asignado', NULL, 38, NULL, 1, 9),
 (47, 'impresora con scanner', 'Impresora', NULL, NULL, '3652656887795', '887795', '887795', 1, NULL, NULL, '2025-10-21', 'Asignado', NULL, 51, NULL, 1, 5),
-(54, 'nueva fecha', 'Notebook', NULL, NULL, '2342', 's23', 's23', 1, NULL, NULL, '2025-11-23', 'Disponible', 2, NULL, NULL, 1, NULL),
+(54, 'nueva fecha', 'Notebook', NULL, NULL, '2342', 's23', 's23', 1, NULL, NULL, '2025-11-23', 'Asignado', NULL, 27, NULL, 1, 5),
 (60, 'probando si la agregaa', 'PC Escritorio', NULL, NULL, 'asdlfkj', 'sdfj', 'adslfgk', 1, NULL, NULL, '2025-10-22', 'Disponible', 2, NULL, NULL, 1, NULL),
 (61, 'Coradir', 'PC Escritorio', NULL, NULL, '394702', 'F45', 'F45', 1, NULL, NULL, '2025-05-01', 'Asignado', NULL, 51, NULL, 1, 5),
-(75, 'asdfa', 'Monitor', NULL, NULL, 'asdfas', 'asdfasd', 'asdfa', 1, NULL, NULL, '2025-10-01', 'Disponible', NULL, NULL, NULL, 1, NULL),
-(88, 'note note', 'Notebook', NULL, NULL, 'qsfeqsdf', 'asdfasdf', 'asdfasdf', 1, NULL, NULL, '2025-10-24', 'Disponible', 2, NULL, NULL, 1, NULL),
+(75, 'asdfa', 'Monitor', NULL, NULL, 'asdfas', 'asdfasd', 'asdfa', 1, NULL, NULL, '2025-10-01', 'Asignado', NULL, 27, NULL, 1, 11),
+(88, 'note note', 'Notebook', NULL, NULL, 'qsfeqsdf', 'asdfasdf', 'asdfasdf', 1, NULL, NULL, '2025-10-24', 'Asignado', NULL, 50, NULL, 1, 11),
 (90, NULL, 'PC Escritorio', NULL, NULL, '54646', NULL, NULL, 1, NULL, NULL, '2025-10-24', 'Asignado', NULL, 27, NULL, 1, 11),
-(91, 'moni moni', 'Monitor', NULL, NULL, 'sasdkf023\'204', 'saldfj3', '04\'0284lkm', 1, NULL, NULL, '2025-10-24', 'Disponible', 2, NULL, NULL, 1, NULL),
+(91, 'moni moni', 'Monitor', NULL, NULL, 'sasdkf023\'204', 'saldfj3', '04\'0284lkm', 1, NULL, NULL, '2025-10-24', 'Asignado', NULL, 38, NULL, 1, 2),
 (92, 'Recuperada en comision', 'Impresora', NULL, NULL, '123123123', '123123123', '123123123', 1, NULL, NULL, '2025-10-30', 'Asignado', NULL, 32, NULL, 1, 6),
-(94, 'Tesr', 'PC Escritorio', NULL, NULL, 'asdaaf', 'asdfa', 'asdfaasd', 1, NULL, NULL, '2025-10-30', 'Disponible', 2, NULL, NULL, 1, NULL),
+(94, 'Tesr', 'PC Escritorio', NULL, NULL, '1232345', '123123123123', 'asdfaasd', 1, NULL, NULL, '2025-10-30', 'Asignado', NULL, 38, NULL, 1, 8),
 (95, NULL, 'PC Escritorio', NULL, NULL, '3908204', '0293420', '09283402', 1, NULL, NULL, '2025-10-30', 'Asignado', NULL, 27, NULL, 1, 11),
-(97, 'sdf', 'PC Escritorio', NULL, NULL, NULL, 'sd', 'sdf', 1, NULL, NULL, '2025-11-04', 'Disponible', 2, NULL, NULL, 1, NULL),
-(98, 'qwerqw', 'PC Escritorio', NULL, NULL, NULL, 'qwer', 'qwer', 1, NULL, NULL, '2025-11-04', 'Disponible', 2, NULL, NULL, 1, NULL),
-(100, 'dfgh', 'Notebook', NULL, NULL, 'dfgh', NULL, NULL, 1, NULL, NULL, '2025-11-05', 'Disponible', NULL, NULL, NULL, 1, NULL),
+(97, 'sdf', 'PC Escritorio', NULL, NULL, NULL, 'sd', 'sdf', 1, NULL, NULL, '2025-11-04', 'Asignado', NULL, 51, NULL, 1, 9),
+(98, 'qwerqw', 'PC Escritorio', NULL, NULL, NULL, 'qwer', 'qwer', 1, NULL, NULL, '2025-11-04', 'Asignado', NULL, 27, NULL, 1, 9),
+(100, 'dfgh', 'Notebook', NULL, NULL, 'dfgh', NULL, NULL, 1, NULL, NULL, '2025-11-05', 'Asignado', NULL, 38, NULL, 1, 2),
 (101, 'asdf', 'PC Escritorio', NULL, NULL, 'asdf', 'asdf', 'asdf', 1, NULL, NULL, '2025-11-18', 'Asignado', NULL, 38, NULL, 1, 9),
-(102, 'Style USB', 'Varios', 'Hardware', 'para si algun dia compramos IPAds', NULL, NULL, NULL, 110, 110, 0, '2025-05-01', 'Disponible', NULL, 51, 43, 1, 5),
-(104, 'm', 'Notebook', NULL, NULL, 'h', 'h', 'h', 1, NULL, NULL, '2025-11-20', 'Disponible', NULL, NULL, NULL, 1, NULL),
+(102, 'Style USB', 'Varios', 'Hardware', 'para si algun dia compramos IPAds', NULL, NULL, NULL, 110, 110, 0, '2025-05-01', 'Disponible', NULL, 38, 43, 1, 8),
+(104, 'm', 'Notebook', NULL, NULL, 'h', 'h', 'h', 1, NULL, NULL, '2025-11-20', 'Asignado', NULL, 43, NULL, 1, 9),
 (105, 'asdas', 'Notebook', NULL, NULL, 'asdasda', 'asdasda', 'asdasda', 1, NULL, NULL, '2025-11-25', 'Asignado', NULL, 27, NULL, 1, 5),
-(106, 'Insumo 2.2', 'Varios', 'Periféricos', NULL, NULL, NULL, NULL, 11, 6, 5, '2025-11-02', 'Disponible', NULL, NULL, 44, 1, NULL),
+(106, 'Insumo 2.2', 'Varios', 'Periféricos', NULL, NULL, NULL, NULL, 7, 2, 5, '2025-11-02', 'Disponible', NULL, 27, 44, 1, 9),
 (108, 'asdf', 'PC Escritorio', NULL, NULL, 'asdfasaaa', 'adfdasd', 'adfaf', 1, NULL, NULL, '2025-12-03', 'Asignado', NULL, 27, NULL, 1, 5),
-(109, 'Cable HDMI 2m5Cable HDMI 2m', 'Varios', 'Hardware', 'Cables HDMI de 2 metros para monitores', NULL, NULL, NULL, 109, 5, 104, '2025-12-03', 'Disponible', NULL, 2, NULL, 0, 1),
+(109, 'Cable HDMI 2m5Cable HDMI 2m', 'Varios', 'Hardware', 'Cables HDMI de 2 metros para monitores', NULL, NULL, NULL, 108, 4, 104, '2025-12-03', 'Disponible', NULL, 38, NULL, 0, 8),
 (110, NULL, 'Monitor', NULL, NULL, 'NB2025001', 'FIS-MON-001', NULL, 1, NULL, NULL, '2025-12-03', 'Asignado', NULL, 38, NULL, 1, 2),
 (112, 'sdf', 'PC Escritorio', NULL, NULL, 'gfgfggfdssdggsfd', 'sdggfdsdgffgsgdf', 'sdgfdsgdsfgfdsgs', 1, NULL, NULL, '2025-12-10', 'Asignado', 2, 38, NULL, 1, 2),
 (113, NULL, 'PC Escritorio', NULL, NULL, NULL, 'qwerq', 'qwerqqq', 1, NULL, NULL, '2025-12-10', 'Asignado', NULL, 51, NULL, 0, 9),
 (114, NULL, 'PC Escritorio', NULL, NULL, NULL, NULL, NULL, 1, NULL, NULL, '2025-12-10', 'Asignado', NULL, 51, NULL, 0, 5),
 (115, NULL, 'PC Escritorio', NULL, NULL, NULL, NULL, NULL, 1, NULL, NULL, '2025-12-10', 'Asignado', NULL, 51, NULL, 0, 9),
-(116, 'sadfasdfas', 'Varios', 'Hardware', 'cbfdbdfb', NULL, NULL, NULL, 4, 2, 2, '2025-12-17', 'Disponible', NULL, NULL, NULL, 1, NULL),
+(116, 'sadfasdfas', 'Varios', 'Hardware', 'cbfdbdfb', NULL, NULL, NULL, 4, 2, 2, '2025-12-17', 'Disponible', NULL, 38, NULL, 1, 11),
 (117, 'fasdf', 'Varios', 'Hardware', NULL, NULL, NULL, NULL, 0, 0, 0, '2025-12-22', 'Asignado', NULL, 39, NULL, 0, 10),
 (118, 'asdasd', 'PC Escritorio', NULL, NULL, 'asdasd', 'asdasdasd', 'asdasdasd', 1, NULL, NULL, '2025-12-22', 'Asignado', NULL, 27, NULL, 0, 6),
 (119, NULL, 'PC Escritorio', NULL, NULL, '45612548', '46584687', '46584687', 1, NULL, NULL, '2025-12-23', 'Asignado', NULL, 50, NULL, 0, 11),
@@ -636,13 +696,25 @@ INSERT INTO `insumos` (`id_insumo`, `nombre_insumo`, `tipo_insumo`, `subcategori
 (124, 'asda', 'Varios', 'Hardware', NULL, NULL, NULL, NULL, 0, 0, 0, '2025-12-26', 'Disponible', NULL, 38, NULL, 0, 11),
 (125, 'asdasd', 'PC Escritorio', NULL, NULL, 'asdasdas111', 'asdasdas', 'asdasdads', 1, NULL, NULL, '2025-12-26', 'Asignado', NULL, 51, NULL, 1, 9),
 (126, 'aseasdasd', 'Varios', 'Periféricos', NULL, NULL, NULL, NULL, 0, 0, 0, '2025-12-26', 'Asignado', NULL, 43, NULL, 0, 6),
-(127, 'asdfasdf', 'Varios', 'Hardware', NULL, NULL, NULL, NULL, 4, 2, 2, '2026-01-02', 'Disponible', NULL, NULL, NULL, 1, NULL),
-(128, 'sdfaf', 'Notebook', NULL, NULL, '232wef', 'wer23234', 'sefsdf2342', 1, NULL, NULL, '2025-12-10', 'Disponible', NULL, NULL, NULL, 1, NULL),
+(127, 'asdfasdf', 'Varios', 'Hardware', NULL, NULL, NULL, NULL, 2, 0, 2, '2026-01-02', 'Disponible', NULL, 27, NULL, 0, 11),
+(128, 'sdfaf', 'Notebook', NULL, NULL, '232wef', 'wer23234', 'sefsdf2342', 1, NULL, NULL, '2025-12-10', 'Asignado', NULL, 27, NULL, 1, 9),
 (129, 'asdfas', 'Varios', 'Hardware', NULL, NULL, NULL, NULL, 3, 1, 2, '2026-01-02', 'Disponible', NULL, 38, NULL, 1, 9),
-(130, 'asdfa', 'PC Escritorio', NULL, NULL, 'adfas', 'sdfasdfa', 'asdfadfa', 1, NULL, NULL, '2026-01-02', 'Disponible', NULL, NULL, NULL, 1, NULL),
+(130, 'asdfa', 'PC Escritorio', NULL, NULL, 'adfas', 'sdfasdfa', 'asdfadfa', 1, NULL, NULL, '2026-01-02', 'Asignado', NULL, 27, NULL, 1, 11),
 (131, 'PC', 'PC Escritorio', NULL, NULL, '1', '1', '1', 1, NULL, NULL, '2026-01-10', 'Asignado', NULL, 2, 44, 1, 1),
-(132, 'Toner MS421', 'Varios', 'Periféricos', 'Toners para la impresora', NULL, NULL, NULL, 30, 15, 15, '2026-01-10', 'Disponible', NULL, NULL, 44, 1, NULL),
-(133, 'LG 32\"', 'Monitor', NULL, NULL, '2131321', '2', '2', 1, NULL, NULL, '2026-01-10', 'Asignado', NULL, 2, 44, 1, 1);
+(132, 'Toner MS421', 'Varios', 'Periféricos', 'Toners para la impresora', NULL, NULL, NULL, 30, 15, 15, '2026-01-10', 'Disponible', NULL, 27, 44, 1, 11),
+(133, 'LG 32\"', 'Monitor', NULL, NULL, '2131321', '2', '2', 1, NULL, NULL, '2026-01-10', 'Asignado', NULL, 2, 44, 1, 1),
+(134, 'asdasd', 'Notebook', NULL, NULL, '123123awd', '1231adada', '12312312asdad', 1, NULL, NULL, '2026-01-26', 'Asignado', NULL, 51, NULL, 0, 5),
+(135, NULL, 'Notebook', NULL, NULL, 'asdasdasdasdasd', 'asdasdasda', 'sdasdasdasdasd', 1, NULL, NULL, '2026-01-10', 'Asignado', NULL, 51, 44, 0, 5),
+(136, NULL, 'Notebook', NULL, NULL, 'asdfasdfasdfasdf', 'asdfasdfasdf', 'asdfasdfasdf', 1, NULL, NULL, '2026-03-11', 'Asignado', NULL, 51, NULL, 0, 11),
+(137, NULL, 'Notebook', NULL, NULL, NULL, '3434', '45345345', 1, NULL, NULL, '2026-03-11', 'Asignado', NULL, 38, NULL, 0, 5),
+(138, NULL, 'Notebook', NULL, NULL, '123456789', '123123123123123', '321321', 1, NULL, NULL, '2026-03-12', 'Asignado', NULL, 27, NULL, 0, 5),
+(139, NULL, 'Monitor', NULL, NULL, '515253', NULL, NULL, 1, NULL, NULL, '2026-03-12', 'Asignado', NULL, 38, NULL, 0, 2),
+(140, NULL, 'Impresora', NULL, NULL, '415263', NULL, NULL, 1, NULL, NULL, '2026-03-12', 'Asignado', NULL, 38, NULL, 0, 2),
+(141, NULL, 'Impresora', NULL, NULL, NULL, '1254', NULL, 1, NULL, NULL, '2026-03-12', 'Asignado', NULL, 38, NULL, 1, 2),
+(142, NULL, 'Notebook', NULL, NULL, 'sdfs', 'qwe1213', NULL, 1, NULL, NULL, '2026-03-12', 'Asignado', NULL, 51, NULL, 0, 5),
+(143, NULL, 'Escaner', NULL, NULL, 'asdasd2222222', NULL, NULL, 1, NULL, NULL, '2026-03-12', 'Asignado', NULL, 50, NULL, 0, 9),
+(144, 'asdasd', 'Varios', 'Hardware', NULL, NULL, NULL, NULL, 2, 2, 0, '2026-03-12', 'Disponible', NULL, 51, NULL, 0, 9),
+(145, NULL, 'Escaner', NULL, NULL, '12344543321', NULL, NULL, 1, NULL, NULL, '2026-03-12', 'Asignado', NULL, 51, NULL, 0, 10);
 
 --
 -- Disparadores `insumos`
@@ -792,7 +864,7 @@ CREATE TABLE `monitores` (
   `marca` varchar(100) NOT NULL,
   `modelo` varchar(100) NOT NULL,
   `pulgadas` decimal(4,1) DEFAULT NULL,
-  `conexion` enum('VGA','HDMI') NOT NULL
+  `conexion` enum('VGA','HDMI','Ambas') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -804,7 +876,8 @@ INSERT INTO `monitores` (`id_monitor`, `id_insumo`, `marca`, `modelo`, `pulgadas
 (9, 75, 'asdfa', 'asdf', 12.0, 'VGA'),
 (11, 91, 'waefj', 'oskdjf', 3.0, 'HDMI'),
 (12, 110, 'Samsung', '27 Curved', 27.0, 'HDMI'),
-(13, 133, 'LG', 'TVR32', 32.0, 'HDMI');
+(13, 133, 'LG', 'TVR32', 32.0, 'HDMI'),
+(14, 139, 'Philips', 'PH3', 18.5, 'Ambas');
 
 -- --------------------------------------------------------
 
@@ -854,7 +927,13 @@ INSERT INTO `notebooks` (`id_notebook`, `id_insumo`, `marca`, `modelo`, `procesa
 (23, 104, 'h', 'h', 'h', 5, 5, 0, 0, 0, NULL, 0, 0),
 (24, 105, 'aasd', 'asda', 'aasd', 2, 2, 0, 1, 0, NULL, 0, 0),
 (26, 17, 'Hp', 'Pavilion', 'I3-4478', 4, 500, 1, 1, 0, NULL, 0, 1),
-(27, 128, 'sqdfqf', 'qfqfq', '234', 333, 333, 1, 1, 1, 64, 1, 1);
+(27, 128, 'sqdfqf', 'qfqfq', '234', 333, 333, 1, 1, 1, 64, 1, 1),
+(28, 134, 'asdasd222', 'asdas22', 'ad2', 22, 22, 0, 0, 0, NULL, 0, 0),
+(29, 135, 'Gfast', 'N-574R', 'AMD Ryzen 5 7430U', 8, 320, 0, 1, 1, 65, 0, 0),
+(30, 136, 'probando hist', 'asdasd', '2234', 521, 523, 0, 0, 0, NULL, 0, 0),
+(31, 137, 'erte', 'erteer', 'ert', 34, 34, 0, 0, 0, NULL, 0, 0),
+(32, 138, 'gfast', 'g435', 'i9', 7, 8, 0, 1, 0, NULL, 1, 0),
+(33, 142, 'saasd', 'asda', 'asd', 2, 22, 0, 0, 0, NULL, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -880,7 +959,6 @@ INSERT INTO `pcs_completas` (`id_pc_completa`, `id_insumo`, `procesador`, `ram_g
 (17, 60, 'sdlkg', 3, 3, 'sdfj', NULL),
 (18, 27, 'I7-7845', 8, 500, 'ASUS H110M VK', NULL),
 (30, 95, 'I5-15882U', 4, 45, '431', 'Ubuntu 24'),
-(32, 94, 'I9 ultra core', 3, 3, 'asdf', 'Linux Mint 16.05'),
 (35, 97, 'sdf', 3, 3, 'sdf2', 'sdf'),
 (37, 98, 'qwer', 3, 3, 'qwer', 'qwer'),
 (38, 16, 'sfaddfg', 3, 3, 'sdf', 'Win 11'),
@@ -896,7 +974,8 @@ INSERT INTO `pcs_completas` (`id_pc_completa`, `id_insumo`, `procesador`, `ram_g
 (49, 119, 'Ryzen 11', 8, 500, 'asus h110', 'Winwods 12'),
 (50, 125, 'asdasd', 22, 22, 'aasddd222', 'asdasd22'),
 (51, 130, 'sadfadsf', 2, 2, 'asdfasf', 'adsf'),
-(53, 131, 'Threadripper', 64, 4096, 'ASUS X7', 'Windows 14');
+(53, 131, 'Threadripper', 64, 4096, 'ASUS X7', 'Windows 14'),
+(54, 94, 'I9 ultra core', 3, 3, 'asdf', 'Linux Mint 16.05');
 
 -- --------------------------------------------------------
 
@@ -913,7 +992,7 @@ CREATE TABLE `pedidos` (
   `solicitante_telefono` varchar(50) DEFAULT NULL,
   `solicitante_email` varchar(100) DEFAULT NULL,
   `prioridad` enum('Baja','Media','Alta') NOT NULL DEFAULT 'Media',
-  `estado` enum('Pendiente','En Proceso','Completado','Rechazado') NOT NULL DEFAULT 'Pendiente',
+  `estado` enum('Pendiente','En Proceso','Preparado','Completado','Rechazado') NOT NULL DEFAULT 'Pendiente',
   `id_usuario_solicitante` int(11) NOT NULL,
   `id_sede` int(11) NOT NULL,
   `id_area` int(11) DEFAULT NULL,
@@ -922,25 +1001,48 @@ CREATE TABLE `pedidos` (
   `asignado_a` int(11) DEFAULT NULL,
   `id_insumo_relacionado` int(11) DEFAULT NULL,
   `insumo_relacionado` varchar(255) DEFAULT NULL,
-  `pdf_nota` varchar(255) DEFAULT NULL
+  `id_remito` int(11) DEFAULT NULL,
+  `metodo_entrega` enum('No aplica','Envío','Retiro') NOT NULL DEFAULT 'No aplica',
+  `estado_entrega` enum('Pendiente','Preparado','Enviado','Entregado') NOT NULL DEFAULT 'Pendiente',
+  `fecha_entrega` datetime DEFAULT NULL,
+  `fecha_estimada_entrega` date DEFAULT NULL,
+  `receptor_nombre` varchar(255) DEFAULT NULL,
+  `notas_entrega` text DEFAULT NULL,
+  `pdf_nota` varchar(255) DEFAULT NULL,
+  `remito_firmado` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Volcado de datos para la tabla `pedidos`
 --
 
-INSERT INTO `pedidos` (`id_pedido`, `tipo`, `descripcion`, `solicitante_nombre`, `solicitante_apellido`, `solicitante_telefono`, `solicitante_email`, `prioridad`, `estado`, `id_usuario_solicitante`, `id_sede`, `id_area`, `fecha_creacion`, `fecha_actualizacion`, `asignado_a`, `id_insumo_relacionado`, `insumo_relacionado`, `pdf_nota`) VALUES
-(30, 'Reparación', 'No enciende posiblemente erroe initframt', 'Jorge', 'Torres', '2915120832', NULL, 'Alta', 'Completado', 1, 43, 7, '2026-01-02 08:45:00', '2026-01-02 08:48:45', 20, 105, 'Notebook - asdas (S/N: asdasda)', 'pedido_1767354300_6957afbc81851.pdf'),
-(31, 'Mantenimiento', 'Nesecita limpieza', 'ruben', 'castro', NULL, NULL, 'Media', 'En Proceso', 1, 27, 3, '2026-01-02 08:53:02', '2026-01-02 09:04:37', 1, 125, 'PC Escritorio - asdasd (S/N: asdasdas111)', 'pedido_1767354782_6957b19e95cc1.pdf'),
-(32, 'Mantenimiento', 'asdfa', 'asdfasd', 'asdfa', NULL, NULL, 'Media', 'En Proceso', 1, 50, 3, '2026-01-02 09:10:18', '2026-01-02 09:13:06', 15, 110, 'Monitor (S/N: NB2025001)', NULL),
-(33, 'Reparación', 'sadfa', 'asdfasdf', 'asdfasdf', NULL, NULL, 'Media', 'En Proceso', 1, 51, 8, '2026-01-02 09:40:30', '2026-01-02 09:55:10', 15, 95, 'PC Escritorio (S/N: 3908204)', 'pedido_1767357630_6957bcbeba09c.pdf'),
-(34, 'Soporte', 'sdfa', 'asdfasdf', 'asdfa', NULL, NULL, 'Baja', 'En Proceso', 1, 50, 8, '2026-01-02 09:41:02', '2026-01-02 09:48:04', 15, 105, 'Notebook - asdas (S/N: asdasda)', NULL),
-(35, 'Mantenimiento', 'ssdf', 'asdfaww333', 'asdf333', NULL, NULL, 'Media', 'En Proceso', 1, 40, 2, '2026-01-02 09:41:18', '2026-01-02 09:44:36', 15, 110, 'Monitor (S/N: NB2025001)', NULL),
-(36, 'Soporte', 'wer', 'sfdsdfsdf', 'sdfsdf', NULL, NULL, 'Media', 'En Proceso', 1, 38, 3, '2026-01-02 09:59:32', '2026-01-02 10:02:50', 17, 110, 'Monitor (S/N: NB2025001)', NULL),
-(37, 'Reparación', 'sdfsdf', 'qwerq', 'qwer', NULL, NULL, 'Media', 'Rechazado', 1, 41, 8, '2026-01-02 10:03:12', '2026-01-02 10:32:22', 1, 110, 'Monitor (S/N: NB2025001)', NULL),
-(38, 'Mantenimiento', 'sdfsfff', '654dsf', 'asdf', NULL, NULL, 'Media', 'En Proceso', 1, 41, 8, '2026-01-02 10:13:24', '2026-01-02 10:21:59', 17, 110, 'Monitor (S/N: NB2025001)', 'pedido_1767359604_6957c474b9a80.pdf'),
-(39, 'Reparación', 'fghdh', 'qwerqwer', 'qwerqwer', NULL, NULL, 'Media', 'En Proceso', 1, 15, 2, '2026-01-02 10:14:01', '2026-01-02 10:14:21', 19, 110, 'Monitor (S/N: NB2025001)', 'pedido_1767359641_6957c499a0591.pdf'),
-(40, 'Reparación', 'adfasdfaf', 'asdfasdf', 'dfasdfas', NULL, NULL, 'Media', 'En Proceso', 1, 33, 8, '2026-01-02 10:27:10', '2026-01-02 10:27:32', 19, 128, 'Notebook - sdfaf (S/N: 232wef)', NULL);
+INSERT INTO `pedidos` (`id_pedido`, `tipo`, `descripcion`, `solicitante_nombre`, `solicitante_apellido`, `solicitante_telefono`, `solicitante_email`, `prioridad`, `estado`, `id_usuario_solicitante`, `id_sede`, `id_area`, `fecha_creacion`, `fecha_actualizacion`, `asignado_a`, `id_insumo_relacionado`, `insumo_relacionado`, `id_remito`, `metodo_entrega`, `estado_entrega`, `fecha_entrega`, `fecha_estimada_entrega`, `receptor_nombre`, `notas_entrega`, `pdf_nota`) VALUES
+(30, 'Reparación', 'No enciende posiblemente erroe initframt', 'Jorge', 'Torres', '2915120832', NULL, 'Alta', 'Completado', 1, 43, 7, '2026-01-02 08:45:00', '2026-03-13 10:47:06', 20, 105, 'Notebook - asdas (S/N: asdasda)', NULL, 'No aplica', 'Enviado', NULL, NULL, NULL, NULL, 'pedido_1767354300_6957afbc81851.pdf'),
+(32, 'Mantenimiento', 'asdfa', 'asdfasd', 'asdfa', NULL, NULL, 'Media', 'En Proceso', 1, 50, 3, '2026-01-02 09:10:18', '2026-01-02 09:13:06', 15, 110, 'Monitor (S/N: NB2025001)', NULL, 'No aplica', 'Pendiente', NULL, NULL, NULL, NULL, NULL),
+(33, 'Reparación', 'sadfa', 'asdfasdf', 'asdfasdf', NULL, NULL, 'Media', 'En Proceso', 1, 51, 8, '2026-01-02 09:40:30', '2026-01-02 09:55:10', 15, 95, 'PC Escritorio (S/N: 3908204)', NULL, 'No aplica', 'Pendiente', NULL, NULL, NULL, NULL, 'pedido_1767357630_6957bcbeba09c.pdf'),
+(34, 'Soporte', 'sdfa', 'asdfasdf', 'asdfa', NULL, NULL, 'Baja', 'En Proceso', 1, 50, 8, '2026-01-02 09:41:02', '2026-01-02 09:48:04', 15, 105, 'Notebook - asdas (S/N: asdasda)', NULL, 'No aplica', 'Pendiente', NULL, NULL, NULL, NULL, NULL),
+(35, 'Mantenimiento', 'ssdf', 'asdfaww333', 'asdf333', NULL, NULL, 'Media', 'En Proceso', 1, 40, 2, '2026-01-02 09:41:18', '2026-01-02 09:44:36', 15, 110, 'Monitor (S/N: NB2025001)', NULL, 'No aplica', 'Pendiente', NULL, NULL, NULL, NULL, NULL),
+(36, 'Soporte', 'wer', 'sfdsdfsdf', 'sdfsdf', NULL, NULL, 'Media', 'En Proceso', 1, 38, 3, '2026-01-02 09:59:32', '2026-01-02 10:02:50', 17, 110, 'Monitor (S/N: NB2025001)', NULL, 'No aplica', 'Pendiente', NULL, NULL, NULL, NULL, NULL),
+(37, 'Reparación', 'sdfsdf', 'qwerq', 'qwer', NULL, NULL, 'Media', 'Rechazado', 1, 41, 8, '2026-01-02 10:03:12', '2026-01-02 10:32:22', 1, 110, 'Monitor (S/N: NB2025001)', NULL, 'No aplica', 'Pendiente', NULL, NULL, NULL, NULL, NULL),
+(45, 'Reparación', 'xcv', 'xcv', 'xcv', NULL, NULL, 'Media', 'Completado', 1, 38, 8, '2026-03-12 10:07:08', '2026-03-13 10:48:17', 1, 140, 'Impresora (S/N: 415263)', NULL, 'No aplica', 'Entregado', '2026-03-13 10:48:17', NULL, 'juan roman', NULL, NULL),
+(46, 'Mantenimiento', 'asdasd', 'probando', 'carga', '2312185463', NULL, 'Media', 'Completado', 1, 27, 2, '2026-03-12 10:31:27', '2026-03-13 10:38:44', 20, 144, 'Varios - asdasd|Notebook - asdasd (S/N: 123123awd)', NULL, 'No aplica', 'Entregado', '2026-03-13 10:38:44', NULL, 'jj lopez', NULL, NULL),
+(55, 'Pedido Insumo', 'se les rompio un pc y nesecitan una nueva', 'Jose', 'Carlo', NULL, NULL, 'Media', 'Preparado', 1, 50, 10, '2026-03-16 09:55:48', '2026-03-16 10:01:11', NULL, NULL, 'Cable HDMI 2m5Cable HDMI 2m | Insumo 2.2', 119, 'Retiro', 'Enviado', NULL, '2026-03-10', NULL, 'pasa un chofer a buscar ', 'nota_sol_1773665748_69b7fdd44daf2.pdf'),
+(56, 'Pedido Insumo', 'asdasdad', 'juan', 'Carlos', NULL, NULL, 'Alta', 'Completado', 1, 38, 2, '2026-03-16 09:58:16', '2026-03-18 12:35:13', NULL, NULL, 'moni moni (S/N: sasdkf023\'204) | Insumo 2.2', 120, 'Retiro', 'Entregado', '2026-03-18 12:35:13', '2026-03-24', 'asda', 'Explicar el programa que falta \r\n', 'nota_sol_1773665896_69b7fe689e27a.pdf'),
+(57, 'Pedido Insumo', 'falta una pc para un usuario', 'test', 'test', NULL, NULL, 'Alta', 'Preparado', 1, 38, 2, '2026-03-18 08:17:03', '2026-03-18 09:07:09', NULL, NULL, 'Insumo 2.2 | Escarner Nuevo (S/N: 108923)', 121, 'Retiro', 'Preparado', NULL, '2026-03-10', NULL, 'asdasda', 'nota_sol_1773832623_69ba89af7d38b.pdf'),
+(58, 'Pedido Insumo', 'sadfasdf', 'sfsdf', 'sdfsf', NULL, NULL, 'Media', 'Preparado', 1, 51, 9, '2026-03-18 09:09:01', '2026-03-18 09:52:11', NULL, NULL, 'sdf', 122, 'Retiro', 'Preparado', NULL, '2026-03-10', NULL, '', 'nota_sol_1773835741_69ba95dd36a11.pdf'),
+(59, 'Pedido Insumo', 'adasd', 'sdfsdfs', 'dfsdfs', NULL, NULL, 'Media', 'Completado', 1, 27, 9, '2026-03-18 10:00:23', '2026-03-18 10:46:40', NULL, NULL, 'sdfaf (S/N: 232wef) | Insumo 2.2', 123, 'Retiro', 'Entregado', '2026-03-18 10:46:40', '2026-03-21', 'jhgh', 'adasd', 'nota_sol_1773838823_69baa1e743e83.pdf'),
+(60, 'Pedido Insumo', 'sasdfff', 'asdasd', 'asdad', NULL, NULL, 'Media', 'Preparado', 1, 27, 9, '2026-03-18 10:12:22', '2026-03-18 10:13:48', NULL, NULL, 'qwerqw', 124, 'Retiro', 'Preparado', NULL, '2026-03-21', NULL, 'hjkh', 'nota_sol_1773839542_69baa4b69f9e3.pdf'),
+(61, 'Pedido Insumo', 'asda', 'sdfsdf', 'sdfsdf', NULL, NULL, 'Media', 'Preparado', 1, 27, 7, '2026-03-18 10:25:00', '2026-03-18 10:46:04', NULL, NULL, 'Cable HDMI 2m5Cable HDMI 2m', 125, 'Envío', 'Enviado', NULL, '2026-03-21', NULL, '', 'nota_sol_1773840300_69baa7accc2d9.pdf'),
+(62, 'Pedido Insumo', 'xcvbxcvb', 'cvbxcvbx', 'cvbxcvbxcvb', NULL, NULL, 'Media', 'Preparado', 1, 27, 11, '2026-03-18 10:44:23', '2026-03-18 12:41:28', NULL, NULL, 'Toner MS421', 126, 'Retiro', 'Enviado', NULL, '2026-03-21', NULL, 'xcvbx', 'nota_sol_1773841463_69baac37e7b11.pdf'),
+(63, 'Pedido Insumo', 'asdasd', 'alberto', 'gomez', NULL, NULL, 'Alta', 'Preparado', 1, 38, 2, '2026-03-18 10:50:40', '2026-03-18 12:34:29', NULL, NULL, 'dfgh (S/N: dfgh)', 127, 'Retiro', 'Enviado', NULL, '2026-03-21', NULL, 'asdasd', 'nota_sol_1773841840_69baadb0b9544.pdf'),
+(64, 'Pedido Insumo', '', 'sasd', 'asdad', NULL, NULL, 'Media', 'Completado', 1, 38, 11, '2026-03-18 11:01:02', '2026-03-18 12:35:00', NULL, NULL, 'sadfasdfas', 129, 'Envío', 'Entregado', '2026-03-18 12:35:00', '2026-03-21', 'juan c', '', 'nota_sol_1773842462_69bab01ec6be9.pdf'),
+(65, 'Pedido Insumo', '', 'asdasd', 'asdasd', NULL, NULL, 'Media', 'Completado', 1, 38, 10, '2026-03-18 11:11:32', '2026-03-18 11:15:45', NULL, NULL, 'Cable HDMI 2m5Cable HDMI 2m', 130, 'Retiro', 'Entregado', '2026-03-18 11:15:45', '2026-03-21', 'sadda', 'asda', 'nota_sol_1773843092_69bab294158fc.pdf'),
+(66, 'Pedido Insumo', '', 'kljñklñjklñ', 'jklñjklñ', NULL, NULL, 'Media', 'Preparado', 1, 51, 11, '2026-03-18 11:46:59', '2026-03-18 11:47:31', NULL, NULL, 'Style USB', 131, 'Envío', 'Enviado', NULL, '2026-03-21', NULL, '', 'nota_sol_1773845219_69babae383c6e.pdf'),
+(67, 'Reparación', 'no prender', 'juen', 'romen', '2915120325', NULL, 'Media', 'En Proceso', 1, 27, 10, '2026-03-18 12:37:12', '2026-03-19 08:11:40', 1, 90, 'PC Escritorio (S/N: 54646)', NULL, 'No aplica', 'Pendiente', NULL, NULL, NULL, NULL, 'pedido_1773848232_69bac6a8efdbd.pdf'),
+(68, 'Pedido Insumo', 'SE COMIO EL CABLE UNA RATA', 'ASDASD', 'ASDASD', NULL, NULL, 'Media', 'Preparado', 1, 27, 11, '2026-03-18 12:46:43', '2026-03-18 12:48:18', NULL, NULL, 'Monitor recuperado en comision (S/N: 32) | asdfasdf', 132, 'Retiro', 'Preparado', NULL, '2026-03-21', NULL, 'EXPLICARLE QUE LOS CABLE NO SE COMEN', 'nota_sol_1773848803_69bac8e329ea9.pdf'),
+(69, 'Reparación', 'no prende', 'prueb 6', 'xcvx', '2915120325', NULL, 'Media', 'Completado', 1, 40, 8, '2026-03-18 13:26:28', '2026-03-18 13:36:28', 1, 138, 'Notebook (S/N: 123456789)', NULL, 'Retiro', 'Entregado', '2026-03-18 13:36:28', '2026-03-24', 'PEDRITO FIRMA', '', 'pedido_1773851188_69bad2342ccfe.pdf'),
+(70, 'Pedido Insumo', 'quere ver netflix', 'pedro', 'pepe', NULL, NULL, 'Alta', 'Preparado', 1, 38, 8, '2026-03-18 13:53:19', '2026-03-19 08:17:06', NULL, NULL, 'Tesr (S/N: 1232345) | Cable HDMI 2m5Cable HDMI 2m | Style USB', 133, 'Envío', 'Enviado', NULL, '2026-03-25', NULL, 'los lleva el chofer navarro\r\n', 'nota_sol_1773852799_69bad87f55dfc.pdf'),
+(71, 'Mantenimiento', 'init fram', 'maria', 'laura', '29152320', NULL, 'Media', 'Pendiente', 1, 40, 8, '2026-03-19 08:21:49', '2026-03-30 11:03:56', NULL, 135, 'Notebook (S/N: asdasdasdasdasd)', NULL, 'No aplica', 'Pendiente', NULL, NULL, NULL, NULL, 'pedido_1773919309_69bbdc4db63ad.pdf');
 
 -- --------------------------------------------------------
 
@@ -980,8 +1082,6 @@ INSERT INTO `pedidos_historial` (`id_historial`, `id_pedido`, `id_usuario`, `acc
 (78, 30, 1, 'Creación', 'Pedido de agente externo creado', '2026-01-02 08:45:00'),
 (79, 30, 1, 'Asignación', 'Asignado manualmente por admin a jvillaverde', '2026-01-02 08:46:52'),
 (80, 30, 20, 'Informe generado', 'Informe generado. Resultado: Solucionado', '2026-01-02 08:48:45'),
-(81, 31, 1, 'Creación', 'Pedido de agente externo creado', '2026-01-02 08:53:02'),
-(82, 31, 1, 'Asignación', 'Asignado manualmente por admin a admin', '2026-01-02 09:04:37'),
 (83, 32, 1, 'Creación', 'Pedido de agente externo creado', '2026-01-02 09:10:18'),
 (84, 32, 1, 'Asignación', 'Asignado manualmente por admin a adminis', '2026-01-02 09:13:06'),
 (85, 33, 1, 'Creación', 'Pedido de agente externo creado', '2026-01-02 09:40:30'),
@@ -994,13 +1094,69 @@ INSERT INTO `pedidos_historial` (`id_historial`, `id_pedido`, `id_usuario`, `acc
 (92, 36, 1, 'Asignación', 'Asignado manualmente por admin a opera', '2026-01-02 10:02:50'),
 (93, 37, 1, 'Creación', 'Pedido de agente externo creado', '2026-01-02 10:03:12'),
 (94, 37, 1, 'Asignación', 'Asignado manualmente por admin a admin', '2026-01-02 10:03:37'),
-(95, 38, 1, 'Creación', 'Pedido de agente externo creado', '2026-01-02 10:13:24'),
-(96, 39, 1, 'Creación', 'Pedido de agente externo creado', '2026-01-02 10:14:01'),
-(97, 39, 1, 'Asignación', 'Asignado manualmente por admin a opop', '2026-01-02 10:14:21'),
-(98, 38, 1, 'Asignación', 'Asignado manualmente por admin a opera', '2026-01-02 10:21:59'),
-(99, 40, 1, 'Creación', 'Pedido de agente externo creado', '2026-01-02 10:27:10'),
-(100, 40, 1, 'Asignación', 'Asignado manualmente por admin a opop', '2026-01-02 10:27:32'),
-(101, 37, 1, 'Rechazado', 'Motivo: no quiero hacerlo', '2026-01-02 10:32:22');
+(101, 37, 1, 'Rechazado', 'Motivo: no quiero hacerlo', '2026-01-02 10:32:22'),
+(114, 45, 1, 'Creación', 'Pedido de agente externo creado', '2026-03-12 10:07:08'),
+(115, 45, 1, 'Cambio Estado', 'Auto-asignado y puesto En Proceso', '2026-03-12 10:16:12'),
+(116, 45, 1, 'Informe generado', 'Informe generado. Resultado: Solucionado', '2026-03-12 10:16:48'),
+(117, 46, 1, 'Creación', 'Pedido de agente externo creado', '2026-03-12 10:31:27'),
+(118, 46, 1, 'Asignación', 'Asignado manualmente por admin a jvillaverde', '2026-03-12 10:39:11'),
+(120, 46, 20, 'Informe generado', 'Informe generado. Resultado: Solucionado', '2026-03-12 11:04:16'),
+(128, 46, 1, 'Entrega', 'Estado de entrega cambiado a: Enviado', '2026-03-13 10:38:28'),
+(129, 46, 1, 'Entrega', 'Estado de entrega cambiado a: Entregado. Receptor: jj lopez', '2026-03-13 10:38:44'),
+(130, 45, 1, 'Entrega', 'Estado de entrega cambiado a: Enviado', '2026-03-13 10:39:45'),
+(131, 30, 1, 'Entrega', 'Estado de entrega cambiado a: Enviado', '2026-03-13 10:47:06'),
+(132, 45, 1, 'Entrega', 'Estado de entrega cambiado a: Entregado. Receptor: juan roman', '2026-03-13 10:48:17'),
+(133, 55, 1, 'Creación', 'Pedido de insumos solicitado con nota adjunta', '2026-03-16 09:55:48'),
+(134, 55, 1, 'Preparación', 'Pedido preparado, se generó Remito #0019_2026', '2026-03-16 09:57:13'),
+(135, 56, 1, 'Creación', 'Pedido de insumos solicitado con nota adjunta', '2026-03-16 09:58:16'),
+(136, 55, 1, 'Entrega', 'Estado de entrega cambiado a: Enviado', '2026-03-16 10:01:11'),
+(137, 56, 1, 'Preparación', 'Pedido preparado, se generó Remito #0020_2026', '2026-03-18 08:14:35'),
+(138, 57, 1, 'Creación', 'Pedido de insumos solicitado con nota adjunta', '2026-03-18 08:17:03'),
+(139, 57, 1, 'Preparación', 'Pedido preparado, se generó Remito #0021_2026', '2026-03-18 09:07:09'),
+(140, 58, 1, 'Creación', 'Pedido de insumos solicitado con nota adjunta', '2026-03-18 09:09:01'),
+(141, 58, 1, 'Preparación', 'Pedido preparado, se generó Remito #0022_2026', '2026-03-18 09:52:11'),
+(142, 59, 1, 'Creación', 'Pedido de insumos solicitado con nota adjunta', '2026-03-18 10:00:23'),
+(143, 59, 1, 'Preparación', 'Pedido preparado, se generó Remito #0023_2026', '2026-03-18 10:00:42'),
+(144, 60, 1, 'Creación', 'Pedido de insumos solicitado con nota adjunta', '2026-03-18 10:12:22'),
+(145, 60, 1, 'Preparación', 'Pedido preparado, se generó Remito #0024_2026', '2026-03-18 10:13:48'),
+(146, 61, 1, 'Creación', 'Pedido de insumos solicitado con nota adjunta', '2026-03-18 10:25:00'),
+(147, 61, 1, 'Preparación', 'Pedido preparado, se generó Remito #0025_2026', '2026-03-18 10:44:07'),
+(148, 62, 1, 'Creación', 'Pedido de insumos solicitado con nota adjunta', '2026-03-18 10:44:23'),
+(149, 62, 1, 'Preparación', 'Pedido preparado, se generó Remito #0026_2026', '2026-03-18 10:44:33'),
+(150, 61, 1, 'Entrega', 'Estado de entrega cambiado a: Enviado', '2026-03-18 10:46:04'),
+(151, 59, 1, 'Entrega', 'Estado de entrega cambiado a: Entregado. Receptor: jhgh', '2026-03-18 10:46:40'),
+(152, 63, 1, 'Creación', 'Pedido de insumos solicitado con nota adjunta', '2026-03-18 10:50:40'),
+(153, 63, 1, 'Preparación', 'Pedido preparado, se generó Remito #0027_2026', '2026-03-18 10:51:22'),
+(154, 64, 1, 'Creación', 'Pedido de insumos solicitado con nota adjunta', '2026-03-18 11:01:02'),
+(155, 64, 1, 'Preparación', 'Pedido preparado, se generó Remito #0029_2026', '2026-03-18 11:01:22'),
+(156, 64, 1, 'Entrega', 'Estado de entrega cambiado a: Enviado', '2026-03-18 11:04:53'),
+(157, 65, 1, 'Creación', 'Pedido de insumos solicitado con nota adjunta', '2026-03-18 11:11:32'),
+(158, 65, 1, 'Preparación', 'Pedido preparado, se generó Remito #0030_2026', '2026-03-18 11:15:08'),
+(159, 65, 1, 'Entrega', 'Estado de entrega cambiado a: Entregado. Receptor: sadda', '2026-03-18 11:15:45'),
+(160, 66, 1, 'Creación', 'Pedido de insumos solicitado con nota adjunta', '2026-03-18 11:46:59'),
+(161, 66, 1, 'Preparación', 'Pedido preparado, se generó Remito #0031_2026', '2026-03-18 11:47:13'),
+(162, 66, 1, 'Entrega', 'Estado de entrega cambiado a: Enviado', '2026-03-18 11:47:31'),
+(163, 63, 1, 'Entrega', 'Estado de entrega cambiado a: Enviado', '2026-03-18 12:34:29'),
+(164, 64, 1, 'Entrega', 'Estado de entrega cambiado a: Entregado. Receptor: juan c', '2026-03-18 12:35:00'),
+(165, 56, 1, 'Entrega', 'Estado de entrega cambiado a: Entregado. Receptor: asda', '2026-03-18 12:35:13'),
+(166, 67, 1, 'Creación', 'Pedido de agente externo creado', '2026-03-18 12:37:12'),
+(167, 62, 1, 'Entrega', 'Estado de entrega cambiado a: Enviado', '2026-03-18 12:41:28'),
+(168, 68, 1, 'Creación', 'Pedido de insumos solicitado con nota adjunta', '2026-03-18 12:46:43'),
+(169, 68, 1, 'Preparación', 'Pedido preparado, se generó Remito #0032_2026', '2026-03-18 12:48:18'),
+(170, 69, 1, 'Creación', 'Pedido de agente externo creado', '2026-03-18 13:26:28'),
+(171, 69, 1, 'Cambio Estado', 'Auto-asignado y puesto En Proceso', '2026-03-18 13:27:26'),
+(172, 69, 1, 'Informe generado', 'Informe generado. Resultado: Solucionado', '2026-03-18 13:29:01'),
+(173, 69, 1, 'Entrega', 'Estado de entrega cambiado a: Enviado', '2026-03-18 13:34:37'),
+(174, 69, 1, 'Entrega', 'Estado de entrega cambiado a: Entregado. Receptor: PEDRITO FIRMA', '2026-03-18 13:36:28'),
+(175, 70, 1, 'Creación', 'Pedido de insumos solicitado con nota adjunta', '2026-03-18 13:53:19'),
+(176, 70, 1, 'Preparación', 'Pedido preparado, se generó Remito #0033_2026', '2026-03-18 13:54:19'),
+(177, 67, 1, 'Cambio Estado', 'Auto-asignado y puesto En Proceso', '2026-03-19 08:11:40'),
+(178, 70, 1, 'Entrega', 'Estado de entrega cambiado a: Enviado', '2026-03-19 08:17:06'),
+(179, 71, 1, 'Creación', 'Pedido de agente externo creado', '2026-03-19 08:21:49'),
+(180, 71, 1, 'Cambio Estado', 'Auto-asignado y puesto En Proceso', '2026-03-19 08:22:41'),
+(181, 71, 1, 'Rechazado', 'Rechazado por: Administrador Sistema (admin)\nMotivo: sdksl', '2026-03-19 08:25:18'),
+(182, 71, 20, 'Cambio Estado', 'Auto-asignado y puesto En Proceso', '2026-03-30 10:50:37'),
+(183, 71, 20, 'Rechazado', 'Rechazado por: joaquin villaverde (jvillaverde)\nMotivo: no tengo repuesto', '2026-03-30 11:03:56');
 
 -- --------------------------------------------------------
 
@@ -1011,6 +1167,7 @@ INSERT INTO `pedidos_historial` (`id_historial`, `id_pedido`, `id_usuario`, `acc
 CREATE TABLE `pedidos_informes` (
   `id_informe` int(11) NOT NULL,
   `id_pedido` int(11) NOT NULL,
+  `numero_informe` varchar(50) DEFAULT NULL,
   `diagnostico` text DEFAULT NULL,
   `trabajo_realizado` text DEFAULT NULL,
   `resultado` enum('Solucionado','Sin Solución','Requiere Repuestos') NOT NULL,
@@ -1021,8 +1178,29 @@ CREATE TABLE `pedidos_informes` (
 -- Volcado de datos para la tabla `pedidos_informes`
 --
 
-INSERT INTO `pedidos_informes` (`id_informe`, `id_pedido`, `diagnostico`, `trabajo_realizado`, `resultado`, `fecha_informe`) VALUES
-(13, 30, 'no encendia', 'la repare', 'Solucionado', '2026-01-02 08:48:45');
+INSERT INTO `pedidos_informes` (`id_informe`, `id_pedido`, `numero_informe`, `diagnostico`, `trabajo_realizado`, `resultado`, `fecha_informe`) VALUES
+(13, 30, NULL, 'no encendia', 'la repare', 'Solucionado', '2026-01-02 08:48:45'),
+(14, 45, NULL, 'ni prendia las impresora', 'se limpio y quedo funcionando', 'Solucionado', '2026-03-12 10:16:48'),
+(15, 46, '0001_2026', 'no andaba nada', 'un poco de magia y andubo', 'Solucionado', '2026-03-12 11:04:16'),
+(16, 69, '0002_2026', 'no prendi', 'LE REEMPLAZAMOS LA FUENTE', 'Solucionado', '2026-03-18 13:29:01');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `pedidos_informes_secuencia`
+--
+
+CREATE TABLE `pedidos_informes_secuencia` (
+  `anio` int(11) NOT NULL,
+  `ultimo_numero` int(11) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `pedidos_informes_secuencia`
+--
+
+INSERT INTO `pedidos_informes_secuencia` (`anio`, `ultimo_numero`) VALUES
+(2026, 2);
 
 -- --------------------------------------------------------
 
@@ -1062,48 +1240,86 @@ CREATE TABLE `remitos` (
   `fecha_devolucion` date DEFAULT NULL,
   `observaciones` varchar(255) DEFAULT NULL,
   `motivo_anulacion` text DEFAULT NULL,
-  `fecha_anulacion` datetime DEFAULT NULL
+  `fecha_anulacion` datetime DEFAULT NULL,
+  `declaracion_jurada` varchar(255) DEFAULT NULL,
+  `nota_solicitud` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `remitos`
 --
 
-INSERT INTO `remitos` (`id_remito`, `numero_remito`, `id_sede`, `id_area`, `nombre_persona_asignada`, `apellido_persona_asignada`, `fecha_asignacion`, `estado`, `fecha_devolucion`, `observaciones`, `motivo_anulacion`, `fecha_anulacion`) VALUES
-(49, '0036_2025', 38, 5, 'varios', 'devulucion', '2025-10-23', 'Activa', NULL, NULL, NULL, NULL),
-(50, '0037_2025', 38, 9, 'QWEQ', 'QWEQ', '2025-10-23', 'Activa', NULL, NULL, NULL, NULL),
-(58, '0045_2025', 27, 5, 'asdasda', 'sdfadf', '2025-10-24', 'Devuelta', '2025-10-24', NULL, NULL, NULL),
-(60, '0047_2025', 51, 9, 'diego', 'garcia', '2025-10-24', 'Anulado', NULL, NULL, 'asda', '2025-11-25 13:01:11'),
-(61, '0048_2025', 38, 2, 'joaquin', 'villaverde', '2025-10-24', 'Anulado', '2025-10-24', NULL, 'asdasd', '2025-12-02 08:50:09'),
-(62, '0001_2025', 44, 6, 'cintia', 'cuassolo', '2025-10-24', 'Anulado', NULL, NULL, 'Cambio de area', '2025-10-28 08:21:30'),
-(64, '0050_2025', 38, 2, 'Probando', 'borrar', '2025-10-31', 'Anulado', NULL, NULL, 'Renuncio', '2025-10-31 11:47:33'),
-(65, '0051_2025', 51, 11, 'qwer', 'qwer', '2025-11-04', 'Anulado', NULL, NULL, 'adsa', '2025-11-20 09:12:56'),
-(68, 'HIST_20251125094013_435', 38, 2, 'probando hist', 'hist', '2025-11-25', 'Anulado', NULL, NULL, 'asdasd', '2025-11-25 13:01:07'),
-(69, '0053_2025', 51, 5, 'apskgdj', 'asdf', '2025-11-25', 'Anulado', NULL, NULL, 'skadf', '2025-12-01 10:02:41'),
-(70, '0054_2025', 38, 2, 'roberto', 'kaka', '2025-12-02', 'Activa', NULL, NULL, NULL, NULL),
-(72, '112_2025_hist', 38, 2, 'histo', 'rico', '2025-12-10', 'Activa', NULL, NULL, NULL, NULL),
-(73, '1_2025_hist', 51, 9, 'Genaro', 'Rodriguez', '2025-12-10', 'Activa', NULL, NULL, NULL, NULL),
-(74, '2_2025_hist', 51, 5, 'pkmplm', 'ĺop,', '2025-12-10', 'Activa', NULL, NULL, NULL, NULL),
-(75, '3_2025_hist', 51, 9, 'sdfasdf', 'asdfasdf', '2025-12-10', 'Activa', NULL, NULL, NULL, NULL),
-(76, '0055_2025', 51, 5, 'ñkjlk', 'fsghsg', '2025-12-11', 'Activa', NULL, NULL, NULL, NULL),
-(77, '0056_2025', 27, 11, 'dgd', 'dfgd', '2025-12-12', 'Activa', NULL, NULL, NULL, NULL),
-(78, '0057_2025', 27, 5, 'asfasdfa', 'asdfasdfa', '2025-12-17', 'Activa', NULL, NULL, NULL, NULL),
-(79, '4_2025_hist', 39, 10, 'juan', 'encargado', '2025-12-22', 'Activa', NULL, NULL, NULL, NULL),
-(80, '5_2025_hist', 27, 6, 'asdasdasd', 'asdasdasd', '2025-12-22', 'Activa', NULL, NULL, NULL, NULL),
-(81, '6_2025_hist', 50, 11, 'juan', 'sdfs', '2025-12-23', 'Activa', NULL, NULL, NULL, NULL),
-(82, '7_2025_hist', 50, 11, 'asdasdasd', 'asdasdasda', '2025-12-26', 'Activa', NULL, NULL, NULL, NULL),
-(83, '8_2025_hist', 27, 6, 'asda', 'asdasd', '2025-12-26', 'Activa', NULL, NULL, NULL, NULL),
-(84, '9_2025_hist', 51, 11, 'testo', 'testa', '2025-12-26', 'Activa', NULL, NULL, NULL, NULL),
-(85, '10_2025_hist', 38, 2, 'Test', 'User', '2025-12-26', 'Activa', NULL, NULL, NULL, NULL),
-(86, '11_2025_hist', 38, 11, 'asdasd', 'asdasd', '2025-12-26', 'Anulado', NULL, NULL, 'asdasd', '2026-01-02 10:57:33'),
-(87, '12_2025_hist', 51, 9, 'asdasdasdasd', 'asdasdasd', '2025-12-26', 'Activa', NULL, NULL, NULL, NULL),
-(88, '13_2025_hist', 43, 6, 'asdasdasda', 'asdasdasdad', '2025-12-26', 'Activa', NULL, NULL, NULL, NULL),
-(89, '0001_2026', 38, 2, 'año', 'nuevo', '2026-01-02', 'Activa', NULL, NULL, NULL, NULL),
-(90, '1_2026_hist', 51, 5, 'qsdfasdf', 'asdfasdf', '2026-01-02', 'Anulado', NULL, NULL, 'sdasdf', '2026-01-02 11:01:07'),
-(91, '0002_2026', 38, 9, 'sadfas', 'asdfa', '2026-01-02', 'Activa', NULL, NULL, NULL, NULL),
-(92, '0003_2026', 32, 6, 'sdfsdf', 'sdfsdf', '2026-01-02', 'Activa', NULL, NULL, NULL, NULL),
-(93, '0004_2026', 2, 1, 'Erika V.', 'Gimenez', '2026-01-07', 'Activa', NULL, 'PC COMPLETA PORQUE LA QUEMO CON MATE', NULL, NULL),
-(94, '0005_2026', 2, 1, 'Erika V.', 'Gimenez', '2026-01-07', 'Activa', NULL, 'Me olvide', NULL, NULL);
+INSERT INTO `remitos` (`id_remito`, `numero_remito`, `id_sede`, `id_area`, `nombre_persona_asignada`, `apellido_persona_asignada`, `fecha_asignacion`, `estado`, `fecha_devolucion`, `observaciones`, `motivo_anulacion`, `fecha_anulacion`, `declaracion_jurada`, `nota_solicitud`) VALUES
+(49, '0036_2025', 38, 5, 'varios', 'devulucion', '2025-10-23', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(50, '0037_2025', 38, 9, 'QWEQ', 'QWEQ', '2025-10-23', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(58, '0045_2025', 27, 5, 'asdasda', 'sdfadf', '2025-10-24', 'Devuelta', '2025-10-24', NULL, NULL, NULL, NULL, NULL),
+(60, '0047_2025', 51, 9, 'diego', 'garcia', '2025-10-24', 'Anulado', NULL, NULL, 'asda', '2025-11-25 13:01:11', NULL, NULL),
+(61, '0048_2025', 38, 2, 'joaquin', 'villaverde', '2025-10-24', 'Anulado', '2025-10-24', NULL, 'asdasd', '2025-12-02 08:50:09', NULL, NULL),
+(62, '0001_2025', 44, 6, 'cintia', 'cuassolo', '2025-10-24', 'Anulado', NULL, NULL, 'Cambio de area', '2025-10-28 08:21:30', NULL, NULL),
+(64, '0050_2025', 38, 2, 'Probando', 'borrar', '2025-10-31', 'Anulado', NULL, NULL, 'Renuncio', '2025-10-31 11:47:33', NULL, NULL),
+(65, '0051_2025', 51, 11, 'qwer', 'qwer', '2025-11-04', 'Anulado', NULL, NULL, 'adsa', '2025-11-20 09:12:56', NULL, NULL),
+(68, 'HIST_20251125094013_435', 38, 2, 'probando hist', 'hist', '2025-11-25', 'Anulado', NULL, NULL, 'asdasd', '2025-11-25 13:01:07', NULL, NULL),
+(69, '0053_2025', 51, 5, 'apskgdj', 'asdf', '2025-11-25', 'Anulado', NULL, NULL, 'skadf', '2025-12-01 10:02:41', NULL, NULL),
+(70, '0054_2025', 38, 2, 'roberto', 'kaka', '2025-12-02', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(72, '112_2025_hist', 38, 2, 'histo', 'rico', '2025-12-10', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(73, '1_2025_hist', 51, 9, 'Genaro', 'Rodriguez', '2025-12-10', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(74, '2_2025_hist', 51, 5, 'pkmplm', 'ĺop,', '2025-12-10', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(75, '3_2025_hist', 51, 9, 'sdfasdf', 'asdfasdf', '2025-12-10', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(76, '0055_2025', 51, 5, 'ñkjlk', 'fsghsg', '2025-12-11', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(77, '0056_2025', 27, 11, 'dgd', 'dfgd', '2025-12-12', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(78, '0057_2025', 27, 5, 'asfasdfa', 'asdfasdfa', '2025-12-17', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(79, '4_2025_hist', 39, 10, 'juan', 'encargado', '2025-12-22', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(80, '5_2025_hist', 27, 6, 'asdasdasd', 'asdasdasd', '2025-12-22', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(81, '6_2025_hist', 50, 11, 'juan', 'sdfs', '2025-12-23', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(82, '7_2025_hist', 50, 11, 'asdasdasd', 'asdasdasda', '2025-12-26', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(83, '8_2025_hist', 27, 6, 'asda', 'asdasd', '2025-12-26', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(84, '9_2025_hist', 51, 11, 'testo', 'testa', '2025-12-26', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(85, '10_2025_hist', 38, 2, 'Test', 'User', '2025-12-26', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(86, '11_2025_hist', 38, 11, 'asdasd', 'asdasd', '2025-12-26', 'Anulado', NULL, NULL, 'asdasd', '2026-01-02 10:57:33', NULL, NULL),
+(87, '12_2025_hist', 51, 9, 'asdasdasdasd', 'asdasdasd', '2025-12-26', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(88, '13_2025_hist', 43, 6, 'asdasdasda', 'asdasdasdad', '2025-12-26', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(89, '0001_2026', 38, 2, 'año', 'nuevo', '2026-01-02', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(90, '1_2026_hist', 51, 5, 'qsdfasdf', 'asdfasdf', '2026-01-02', 'Anulado', NULL, NULL, 'sdasdf', '2026-01-02 11:01:07', NULL, NULL),
+(91, '0002_2026', 38, 9, 'sadfas', 'asdfa', '2026-01-02', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(92, '0003_2026', 32, 6, 'sdfsdf', 'sdfsdf', '2026-01-02', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(93, '0004_2026', 2, 1, 'Erika V.', 'Gimenez', '2026-01-07', 'Activa', NULL, 'PC COMPLETA PORQUE LA QUEMO CON MATE', NULL, NULL, NULL, NULL),
+(94, '0005_2026', 2, 1, 'Erika V.', 'Gimenez', '2026-01-07', 'Activa', NULL, 'Me olvide', NULL, NULL, NULL, NULL),
+(95, '0006_2026', 51, 5, 'asdasdasd', 'pepe', '2026-01-26', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(96, '0007_2026', 51, 11, 'khk', 'hkjhj', '2026-03-11', 'Activa', NULL, NULL, NULL, NULL, 'dj_1773231164_69b15c3c0a3c1.png', NULL),
+(97, '0008_2026', 50, 11, 'asd', 'asd', '2026-03-11', 'Activa', NULL, NULL, NULL, NULL, 'dj_1773233351_69b164c768217.png', NULL),
+(98, '0009_2026', 38, 9, 'asda', 'asda', '2026-03-11', 'Activa', NULL, NULL, NULL, NULL, 'dj_1773234265_69b16859ccea6.pdf', NULL),
+(99, '0010_2026', 51, 5, 'sdf', 'sdf', '2026-03-11', 'Activa', NULL, NULL, NULL, NULL, 'dj_1773235867_69b16e9b2511e.png', NULL),
+(100, '0011_2026', 43, 9, 'asdasd', 'asda', '2026-03-11', 'Activa', NULL, NULL, NULL, NULL, 'dj_1773235927_69b16ed73512c.png', NULL),
+(101, '2_2026_hist', 51, 11, 'sdfsf', 'sdf', '2026-03-11', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(102, '3_2026_hist', 38, 5, 'igjlfg', 'aslñkd{', '2026-03-11', 'Activa', NULL, NULL, NULL, NULL, 'dj_1773237340_69b1745c66684.png', NULL),
+(103, '0012_2026', 38, 4, 'ricardo', 'saez', '2026-03-12', 'Anulado', NULL, NULL, 'Error de asignacion insumo incorrecto', '2026-03-12 09:04:10', 'dj_1773314564_69b2a204d2e5d.pdf', NULL),
+(104, '0013_2026', 38, 2, 'maria', 'laura', '2026-03-12', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(105, '0014_2026', 38, 2, 'pepe', 'sanches', '2026-03-12', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(106, '4_2026_hist', 38, 2, 'jj', 'lopez', '2026-03-12', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(107, '5_2026_hist', 51, 5, 'tt', 'ttt', '2026-03-12', 'Devuelta', '2026-03-12', NULL, NULL, NULL, NULL, NULL),
+(108, '6_2026_hist', 51, 5, 'sdf', 'sdf', '2026-03-12', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(109, '7_2026_hist', 50, 9, 'asdasd', 'asdasd', '2026-03-12', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(110, '8_2026_hist', 51, 9, 'asda', 'asd', '2026-03-12', 'Anulado', NULL, NULL, 'asd', '2026-03-12 13:20:03', NULL, NULL),
+(111, '9_2026_hist', 51, 10, 'juan', 'carlos', '2026-03-12', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(115, '0015_2026', 27, 5, 'GFJGHJ', 'FGHJFHJ', '2026-03-13', 'Activa', NULL, NULL, NULL, NULL, NULL, 'pedidos/nota_sol_1773405311_69b4047f1f3ea.pdf'),
+(116, '0016_2026', 38, 2, 'juan', 'carlos', '2026-03-13', 'Activa', NULL, NULL, NULL, NULL, NULL, 'pedidos/nota_sol_1773407422_69b40cbe777cb.pdf'),
+(117, '0017_2026', 27, 11, 'ghfghf', 'fghfgh', '2026-03-13', 'Activa', NULL, NULL, NULL, NULL, NULL, 'pedidos/nota_sol_1773407729_69b40df1bd5b4.pdf'),
+(118, '0018_2026', 38, 2, 'juan', 'sadfklj', '2026-03-13', 'Activa', NULL, NULL, NULL, NULL, NULL, 'pedidos/nota_sol_1773407856_69b40e706f56c.pdf'),
+(119, '0019_2026', 50, 10, 'Jose', 'Carlo', '2026-03-16', 'Activa', NULL, 'Generado automáticamente desde Pedido #55', NULL, NULL, NULL, 'pedidos/nota_sol_1773665748_69b7fdd44daf2.pdf'),
+(120, '0020_2026', 38, 2, 'juan', 'Carlos', '2026-03-18', 'Activa', NULL, 'Generado automáticamente desde Pedido #56', NULL, NULL, NULL, 'pedidos/nota_sol_1773665896_69b7fe689e27a.pdf'),
+(121, '0021_2026', 38, 2, 'test', 'test', '2026-03-18', 'Activa', NULL, NULL, NULL, NULL, NULL, 'pedidos/nota_sol_1773832623_69ba89af7d38b.pdf'),
+(122, '0022_2026', 51, 9, 'sfsdf', 'sdfsf', '2026-03-18', 'Activa', NULL, NULL, NULL, NULL, NULL, 'pedidos/nota_sol_1773835741_69ba95dd36a11.pdf'),
+(123, '0023_2026', 27, 9, 'sdfsdfs', 'dfsdfs', '2026-03-18', 'Activa', NULL, NULL, NULL, NULL, NULL, 'pedidos/nota_sol_1773838823_69baa1e743e83.pdf'),
+(124, '0024_2026', 27, 9, 'asdasd', 'asdad', '2026-03-18', 'Activa', NULL, NULL, NULL, NULL, NULL, 'pedidos/nota_sol_1773839542_69baa4b69f9e3.pdf'),
+(125, '0025_2026', 27, 7, 'sdfsdf', 'sdfsdf', '2026-03-18', 'Activa', NULL, 'Preparado desde Pedido #61', NULL, NULL, NULL, 'pedidos/nota_sol_1773840300_69baa7accc2d9.pdf'),
+(126, '0026_2026', 27, 11, 'cvbxcvbx', 'cvbxcvbxcvb', '2026-03-18', 'Activa', NULL, 'Preparado desde Pedido #62', NULL, NULL, NULL, 'pedidos/nota_sol_1773841463_69baac37e7b11.pdf'),
+(127, '0027_2026', 38, 2, 'alberto', 'gomez', '2026-03-18', 'Activa', NULL, 'Preparado desde Pedido #63', NULL, NULL, NULL, 'pedidos/nota_sol_1773841840_69baadb0b9544.pdf'),
+(128, '0028_2026', 51, 5, 'dv', 'sdf', '2026-03-18', 'Activa', NULL, NULL, NULL, NULL, NULL, NULL),
+(129, '0029_2026', 38, 11, 'sasd', 'asdad', '2026-03-18', 'Activa', NULL, 'Preparado desde Pedido #64', NULL, NULL, NULL, 'pedidos/nota_sol_1773842462_69bab01ec6be9.pdf'),
+(130, '0030_2026', 38, 10, 'asdasd', 'asdasd', '2026-03-18', 'Activa', NULL, 'Preparado desde Pedido #65', NULL, NULL, NULL, 'pedidos/nota_sol_1773843092_69bab294158fc.pdf'),
+(131, '0031_2026', 51, 11, 'kljñklñjklñ', 'jklñjklñ', '2026-03-18', 'Activa', NULL, 'Preparado desde Pedido #66', NULL, NULL, NULL, 'pedidos/nota_sol_1773845219_69babae383c6e.pdf'),
+(132, '0032_2026', 27, 11, 'ASDASD', 'ASDASD', '2026-03-18', 'Activa', NULL, 'Preparado desde Pedido #68', NULL, NULL, NULL, 'pedidos/nota_sol_1773848803_69bac8e329ea9.pdf'),
+(133, '0033_2026', 38, 8, 'pedro', 'pepe', '2026-03-18', 'Activa', NULL, 'Preparado desde Pedido #70', NULL, NULL, NULL, 'pedidos/nota_sol_1773852799_69bad87f55dfc.pdf');
 
 -- --------------------------------------------------------
 
@@ -1171,7 +1387,53 @@ INSERT INTO `remitos_detalle` (`id_detalle`, `id_remito`, `id_insumo`, `cantidad
 (155, 92, 29, 1, 0),
 (156, 93, 131, 1, 0),
 (157, 93, 133, 1, 0),
-(158, 94, 109, 1, 0);
+(158, 94, 109, 1, 0),
+(159, 95, 134, 1, 0),
+(160, 96, 17, 1, 0),
+(161, 97, 88, 1, 0),
+(162, 97, 106, 1, 0),
+(163, 98, 31, 1, 0),
+(164, 99, 135, 1, 0),
+(165, 100, 104, 1, 0),
+(166, 101, 136, 1, 0),
+(167, 102, 137, 1, 0),
+(168, 103, 138, 1, 0),
+(169, 104, 127, 1, 0),
+(170, 105, 139, 1, 0),
+(171, 106, 140, 1, 0),
+(172, 107, 141, 1, 1),
+(173, 108, 142, 1, 0),
+(174, 109, 143, 1, 0),
+(175, 110, 144, 2, 0),
+(176, 111, 145, 1, 0),
+(181, 115, 138, 1, 0),
+(182, 115, 54, 1, 0),
+(183, 116, 141, 1, 0),
+(184, 117, 75, 1, 0),
+(185, 117, 130, 1, 0),
+(186, 118, 106, 1, 0),
+(187, 119, 109, 1, 0),
+(188, 119, 106, 1, 0),
+(189, 120, 91, 1, 0),
+(190, 120, 106, 1, 0),
+(191, 121, 106, 1, 0),
+(192, 121, 7, 1, 0),
+(193, 122, 97, 1, 0),
+(194, 123, 128, 1, 0),
+(195, 123, 106, 5, 0),
+(196, 124, 98, 1, 0),
+(197, 125, 109, 1, 0),
+(198, 126, 132, 1, 0),
+(199, 127, 100, 1, 0),
+(200, 128, 127, 1, 0),
+(201, 129, 116, 1, 0),
+(202, 130, 109, 1, 0),
+(203, 131, 102, 1, 0),
+(204, 132, 6, 1, 0),
+(205, 132, 127, 1, 0),
+(206, 133, 94, 1, 0),
+(207, 133, 109, 3, 0),
+(208, 133, 102, 1, 0);
 
 -- --------------------------------------------------------
 
@@ -1190,7 +1452,7 @@ CREATE TABLE `remitos_historicos_secuencia` (
 
 INSERT INTO `remitos_historicos_secuencia` (`anio`, `ultimo_numero`) VALUES
 (2025, 13),
-(2026, 1);
+(2026, 9);
 
 -- --------------------------------------------------------
 
@@ -1209,7 +1471,7 @@ CREATE TABLE `remito_secuencia` (
 
 INSERT INTO `remito_secuencia` (`anio`, `ultimo`) VALUES
 (2025, 57),
-(2026, 5);
+(2026, 33);
 
 -- --------------------------------------------------------
 
@@ -1361,7 +1623,7 @@ CREATE TABLE `sedes_planos` (
 --
 
 INSERT INTO `sedes_planos` (`id_plano`, `id_sede`, `tipo_plano`, `archivo`, `descripcion`, `fecha_subida`) VALUES
-(2, 2, 'Red', 'public/uploads/planos/plano_2_Red_1758112560.pdf', 'Relevamiento 11/09/2025', '2025-09-17 09:36:00');
+(2, 2, 'Red', 'uploads/planos/plano_2_Red_1758112560.pdf', 'Relevamiento 11/09/2025', '2025-09-17 09:36:00');
 
 -- --------------------------------------------------------
 
@@ -1602,7 +1864,7 @@ INSERT INTO `sesiones` (`id_sesion`, `id_usuario`, `token_sesion`, `ip_address`,
 (167, 1, 'b1b64672e9fc7ccce7bc68ede21646092fb4789af4d899f0dd2e36a30b237a75', '::1', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', '2025-12-26 11:39:59', '2026-01-02 10:02:35', '2026-01-02 10:02:35', 0),
 (168, 1, 'ce847bd982194a1872aba1bc2163af5625e18e5f10d4d2d4da035b880b127910', '::1', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', '2025-12-26 12:01:23', '2026-01-02 08:14:07', '2026-01-02 08:14:07', 0),
 (169, 1, 'b35699afb90a181ee78c1866e2a3b7bb022b6d35c9d75c155477e0bb20419abf', '127.0.0.1', 'Mozilla/5.0 (X11; Linux x86_64; rv:139.0) Gecko/20100101 Firefox/139.0', '2026-01-02 08:14:07', '2026-01-02 08:58:27', '2026-01-02 08:58:27', 0),
-(170, 20, 'f92c3451d1d0a1b7ce41f78f3540d75dbcdf07176565a4ef56872c73fb096e92', '127.0.0.1', 'Mozilla/5.0 (X11; Linux x86_64; rv:139.0) Gecko/20100101 Firefox/139.0', '2026-01-02 08:48:03', '2026-01-02 08:48:04', NULL, 1),
+(170, 20, 'f92c3451d1d0a1b7ce41f78f3540d75dbcdf07176565a4ef56872c73fb096e92', '127.0.0.1', 'Mozilla/5.0 (X11; Linux x86_64; rv:139.0) Gecko/20100101 Firefox/139.0', '2026-01-02 08:48:03', '2026-01-26 08:22:30', '2026-01-26 08:22:30', 0),
 (171, 1, '05f0d8f3c71fa145e32ee7d5e2dcbcb47146bce4b7f45ff60a79e32e83cdef99', '::1', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', '2026-01-02 08:58:27', '2026-01-02 09:59:10', '2026-01-02 09:41:47', 0),
 (172, 1, '2d3f83bf047df17531ea1ed347a5a0d275c4a636583282f0be4c3de468ef2034', '::1', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', '2026-01-02 09:41:47', '2026-01-02 10:02:39', '2026-01-02 10:02:39', 0),
 (173, 1, '712756d2132aef10dc66b6bb31c2eb624b0277404fa948fe3d64adcad4d05830', '::1', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', '2026-01-02 10:02:39', '2026-01-02 12:16:32', '2026-01-02 12:16:32', 0),
@@ -1621,7 +1883,36 @@ INSERT INTO `sesiones` (`id_sesion`, `id_usuario`, `token_sesion`, `ip_address`,
 (186, 1, 'bbfa7e7f82df9cf7a780fdd548d1209dad1e0dc2bc202915432796c1d1858331', '::1', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', '2026-01-12 09:15:29', '2026-01-12 09:48:24', '2026-01-12 09:48:24', 0),
 (187, 1, '4c038fe364a24cf45fa81f69ca41f987ac7daf316df278df347ecdc17eb900ff', '::1', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', '2026-01-12 09:48:25', '2026-01-12 10:12:33', '2026-01-12 10:12:33', 0),
 (188, 1, 'a9b45600757a70eba6e774d3b731ed6a7a22b768318b759ad955e8367c7dc4a0', '::1', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', '2026-01-12 10:12:33', '2026-01-12 11:46:33', '2026-01-12 11:46:33', 0),
-(189, 1, '0ee804f1af024f89d9ff58d448e3da00b29ee717c3d4419d40fbc50365642e1d', '::1', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', '2026-01-12 11:53:24', '2026-01-12 12:38:15', NULL, 1);
+(189, 1, '0ee804f1af024f89d9ff58d448e3da00b29ee717c3d4419d40fbc50365642e1d', '::1', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', '2026-01-12 11:53:24', '2026-01-26 11:20:40', '2026-01-26 11:20:40', 0),
+(190, 20, '90161b68afabd083b51890f86deb22eeaca86ba34d302bdda59b4f080bf2b53b', '::1', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-01-26 08:22:30', '2026-01-26 10:09:29', '2026-01-26 10:09:29', 0),
+(191, 20, '91b9c561a7e50d7a8a144c48c81ec4ab9c5335ee6a761a41eabcf0b1648bb82a', '::1', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-01-26 10:09:35', '2026-01-26 13:14:58', '2026-01-26 13:14:58', 0),
+(192, 1, '839c9e6a7c93332e58e788438d0b8e854175886c15aa7da50d9e974c53743367', '::1', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-01-26 11:20:40', '2026-01-26 13:18:31', '2026-01-26 13:18:31', 0),
+(193, 20, '33502e7aa6a71c4078237a3f5777f2436dec5aff31511174bb2c2cf46686a9e5', '::1', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-01-26 13:14:58', '2026-03-02 09:58:19', '2026-03-02 09:58:19', 0),
+(194, 1, '14fb508e414215250a2dddcb4f9c5ae88d669b4ed166669293ac5918937b7860', '::1', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-01-26 13:18:31', '2026-02-02 11:32:43', '2026-02-02 11:32:43', 0),
+(195, 1, 'b6f16f1f050ce93835d50df61039d51756df3a478d2322fbd183dacc8339977d', '127.0.0.1', 'Mozilla/5.0 (X11; Linux x86_64; rv:139.0) Gecko/20100101 Firefox/139.0', '2026-02-02 11:32:43', '2026-02-02 14:01:26', '2026-02-02 14:01:26', 0),
+(196, 1, '9d09031e69579c48e725ae651d7dff28e9e36cff4425e8642ee4d04858ac8f6a', '127.0.0.1', 'Mozilla/5.0 (X11; Linux x86_64; rv:139.0) Gecko/20100101 Firefox/139.0', '2026-02-02 14:01:26', '2026-03-04 09:29:35', '2026-03-04 09:29:35', 0),
+(197, 20, '2f2e06f979843c191ef2f1e2e010dc1afd595d6adc6866e27f490692a9a123ea', '::1', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-03-02 09:58:19', '2026-03-02 13:10:06', '2026-03-02 13:10:06', 0),
+(198, 20, 'e7a0665474a242e72a4419a378730ba6dce24039e181d092747f77997d5a8f3f', '10.114.85.1', 'Mozilla/5.0 (X11; Linux x86_64; rv:139.0) Gecko/20100101 Firefox/139.0', '2026-03-02 13:10:06', '2026-03-11 08:40:35', '2026-03-11 08:40:35', 0),
+(199, 1, '7a55b48cdf776e33bdca5be68ef25aeeafa9d1c7de04d52f5140e3b44a767eb1', '127.0.0.1', 'Mozilla/5.0 (X11; Linux x86_64; rv:139.0) Gecko/20100101 Firefox/139.0', '2026-03-04 09:29:35', '2026-03-04 11:18:32', '2026-03-04 11:18:32', 0),
+(200, 1, '9b47f62d31145a18e6a40bf67ccc987fee2649bd627e09852890e403c4dc1e83', '127.0.0.1', 'Mozilla/5.0 (X11; Linux x86_64; rv:139.0) Gecko/20100101 Firefox/139.0', '2026-03-04 11:18:32', '2026-03-04 12:17:45', '2026-03-04 12:17:45', 0),
+(201, 1, '7fc4604033e744e2139088c941beceaa9dc214538edeb03e203a8f2edab2b6e1', '127.0.0.1', 'Mozilla/5.0 (X11; Linux x86_64; rv:139.0) Gecko/20100101 Firefox/139.0', '2026-03-04 12:17:45', '2026-03-04 13:33:14', '2026-03-04 13:33:14', 0),
+(202, 1, '4891057d407b1a6683d2d6757fb91b60cd2b902e3b46f72feb62c9fb695ba78d', '127.0.0.1', 'Mozilla/5.0 (X11; Linux x86_64; rv:139.0) Gecko/20100101 Firefox/139.0', '2026-03-04 13:34:37', '2026-03-10 08:08:30', '2026-03-10 08:08:30', 0),
+(203, 1, 'e7c65c1b63cc8bc3c2f8ffac05a1c1a8050d5cf9714055b07d003bd2c3e1ae3b', '127.0.0.1', 'Mozilla/5.0 (X11; Linux x86_64; rv:139.0) Gecko/20100101 Firefox/139.0', '2026-03-10 08:08:30', '2026-03-11 08:40:44', '2026-03-11 08:40:44', 0),
+(204, 20, '831955a95553951ba47b2b0f2a7beb4cec766a08964bb8a4d4af11d30aa59dcb', '::1', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-03-11 08:40:35', '2026-03-11 08:40:39', '2026-03-11 08:40:39', 0),
+(205, 1, '1c0dec9977fe6409fed01b47695286061973dcee3daaf698412121efde65b87c', '::1', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-03-11 08:40:44', '2026-03-11 12:56:20', '2026-03-11 12:56:20', 0),
+(206, 20, '731d83b4dd4baf3751d9aa5bba795945814605cd513579a976cf150c0f6702d3', '127.0.0.1', 'Mozilla/5.0 (X11; Linux x86_64; rv:139.0) Gecko/20100101 Firefox/139.0', '2026-03-11 10:49:07', '2026-03-12 10:39:40', '2026-03-12 10:39:40', 0),
+(207, 1, 'b41d6145d892d42629d8518f6ea042d0451485f61d626c0976ccee03503991e9', '::1', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-03-11 12:56:25', '2026-03-12 08:07:34', '2026-03-12 08:07:34', 0),
+(208, 1, '479911fdd1228520254853d760c61caddd28f569a21d7aa2d7782005e13c27fa', '127.0.0.1', 'Mozilla/5.0 (X11; Linux x86_64; rv:139.0) Gecko/20100101 Firefox/139.0', '2026-03-12 08:07:34', '2026-03-12 11:37:03', '2026-03-12 11:37:03', 0),
+(209, 20, 'd8b46222600c2aa1a47667278a8c1b40de7c534d1059b0d5d49c0d71620cd333', '127.0.0.1', 'Mozilla/5.0 (X11; Linux x86_64; rv:139.0) Gecko/20100101 Firefox/139.0', '2026-03-12 10:39:40', '2026-03-30 10:48:06', '2026-03-30 10:48:06', 0),
+(210, 1, '998f2416c66166b7e5c8b2a679e3bc3251ce505e21890dda31ed12d0e2d6acba', '127.0.0.1', 'Mozilla/5.0 (X11; Linux x86_64; rv:139.0) Gecko/20100101 Firefox/139.0', '2026-03-12 11:37:05', '2026-03-13 08:27:06', '2026-03-13 08:27:06', 0),
+(211, 1, 'e9199c2251af6143b568c2bb0a7170b4fd109afe799e7f4db6d7e4469b704b61', '127.0.0.1', 'Mozilla/5.0 (X11; Linux x86_64; rv:139.0) Gecko/20100101 Firefox/139.0', '2026-03-13 08:27:06', '2026-03-13 11:48:06', '2026-03-13 11:48:06', 0),
+(212, 1, 'efe55b1ec8dbb8ee70b3f397cdb5a2bde5c0d81c784f13a9b62773c8216e22a4', '127.0.0.1', 'Mozilla/5.0 (X11; Linux x86_64; rv:139.0) Gecko/20100101 Firefox/139.0', '2026-03-13 11:48:08', '2026-03-13 13:25:05', '2026-03-13 13:25:05', 0),
+(213, 1, 'e475856f6eb982dfe492d52b9ed9b8b19f7c7c0066e6d35237093471fd018ff7', '127.0.0.1', 'Mozilla/5.0 (X11; Linux x86_64; rv:139.0) Gecko/20100101 Firefox/139.0', '2026-03-13 13:25:07', '2026-03-16 08:30:36', '2026-03-16 08:30:36', 0),
+(214, 1, '118d0d643f55b5f4d1c1956b1d53130e3beedd1c9df3f5cbf8e854f05eeed3f3', '127.0.0.1', 'Mozilla/5.0 (X11; Linux x86_64; rv:139.0) Gecko/20100101 Firefox/139.0', '2026-03-16 08:30:36', '2026-03-16 11:37:09', '2026-03-16 11:37:09', 0),
+(215, 1, '5ae75635494643af1b592aa2a6ffad3cd1728cc2a1ace3276f610a00e73c20c1', '127.0.0.1', 'Mozilla/5.0 (X11; Linux x86_64; rv:139.0) Gecko/20100101 Firefox/139.0', '2026-03-17 08:10:20', '2026-03-18 08:13:10', '2026-03-18 08:13:10', 0),
+(216, 1, '23c2565287cc32cf9e8ef7346b9784246ac4a2e34bfcf6a6cb57c4be33df72a6', '::1', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-03-18 08:13:10', '2026-03-19 08:10:16', '2026-03-19 08:10:16', 0),
+(217, 1, '0e17aeb21ab6873ccc8a23bc355e33079c5d56b97542faa7935ea1b4d6d31a84', '::1', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-03-19 08:10:16', '2026-03-19 08:38:28', NULL, 1),
+(218, 20, 'c16e67c2ccceea4ed0678981f81cf073b364c26f712248004fdd0ab8fb53609a', '::1', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-03-30 10:48:06', '2026-03-30 11:14:34', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -1650,13 +1941,13 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id_usuario`, `username`, `email`, `password_hash`, `nombre`, `apellido`, `id_rol`, `permisos_personalizados`, `activo`, `fecha_creacion`, `ultimo_acceso`, `modificado_por`, `fecha_modificacion`) VALUES
-(1, 'admin', 'admin@inventario.local', '$2y$10$acRUJEKWeTLjLv5WF6M1sOa1hjCAWdFJQbqeQDytS2aLvVbFypMvS', 'Administrador', 'Sistema', 1, NULL, 1, '2025-11-06 09:08:29', '2026-01-12 11:53:25', NULL, '2026-01-12 11:53:25'),
+(1, 'admin', 'admin@inventario.local', '$2y$10$acRUJEKWeTLjLv5WF6M1sOa1hjCAWdFJQbqeQDytS2aLvVbFypMvS', 'Administrador', 'Sistema', 1, NULL, 1, '2025-11-06 09:08:29', '2026-03-19 08:10:16', NULL, '2026-03-19 08:10:16'),
 (15, 'adminis', 'adminis@gmail.com', '$2y$10$W5OZvHrCIMh9kXi4.uzLIOMAeP8YPg40sMBXGFOQ1AawtI5jRFdSe', 'admi', 'nitador', 2, NULL, 0, '2025-12-12 08:23:50', '2025-12-16 09:03:39', 1, '2026-01-02 11:02:43'),
 (16, 'consul', 'consul@gmail.com', '$2y$10$aYRNl21Ip/TbS6CEiEBBuuWz52S1VEFhuN7sdhtTm/euBDTN9vOFW', 'consul', 'tor', 4, NULL, 1, '2025-12-12 08:25:03', '2025-12-12 08:26:13', 1, '2025-12-12 08:26:13'),
 (17, 'opera', 'opera@gmail.com', '$2y$10$xpyal1nVCgcmgUAMSz2CDejflVA8UmITH3.SQle6k5Y2rAVSmFM2e', 'opera', 'opera', 3, '{\"insumos\":[\"ver\",\"crear\",\"editar\",\"eliminar\",\"baja\"],\"asignaciones\":[\"ver\",\"crear\",\"editar\",\"anular\",\"devolver\"],\"reportes\":[\"ver\",\"exportar\"],\"usuarios\":[\"ver\",\"crear\",\"editar\",\"eliminar\",\"cambiar_rol\",\"reset_password\"],\"auditoria\":[\"ver_todo\"],\"sedes\":[\"ver\",\"crear\",\"editar\",\"eliminar\"],\"sistema\":[\"backup\"],\"telecom\":[\"ver\",\"crear\",\"editar\",\"eliminar\"],\"areas\":[\"ver\",\"crear\",\"editar\",\"eliminar\"]}', 1, '2025-12-12 08:25:32', '2025-12-12 08:30:46', 18, '2025-12-12 08:30:46'),
 (18, 'super', 'super@gmail.com', '$2y$10$PqAExH8UxKre9cpBxAFIpeOO.UBiEzoQxUosDPs0FKfIPsXgvTuQe', 'super', 'visor', 1, NULL, 1, '2025-12-12 08:25:58', '2025-12-12 08:29:47', 1, '2025-12-12 08:29:47'),
 (19, 'opop', 'ospera@gmail.com', '$2y$10$tG65DDMyTKz4sjxLBaujGOwzhPX.x3Ds7xPd5j9Rq3z4oCD1pQxDK', 'opop', 'opop', 3, '{\"insumos\":[\"ver\",\"crear\",\"editar\",\"baja\"],\"asignaciones\":[\"ver\",\"crear\",\"editar\",\"devolver\"],\"reportes\":[\"ver\",\"exportar\"],\"sedes\":[\"ver\",\"crear\",\"editar\"],\"telecom\":[\"ver\",\"crear\",\"editar\"],\"areas\":[\"ver\",\"crear\",\"editar\"]}', 1, '2025-12-12 08:33:11', '2025-12-12 08:33:21', 1, '2025-12-17 11:35:19'),
-(20, 'jvillaverde', 'jvillaverde@senaf.rionegro.gov.ar', '$2y$10$7XByW.wEFSz.5YPBpRI7aOtOUie5VAFXDo.mhdfO53sfJAkTfQZzy', 'joaquin', 'villaverde', 3, NULL, 1, '2025-12-15 11:37:17', '2026-01-02 08:48:03', 1, '2026-01-02 08:48:03');
+(20, 'jvillaverde', 'jvillaverde@senaf.rionegro.gov.ar', '$2y$10$7XByW.wEFSz.5YPBpRI7aOtOUie5VAFXDo.mhdfO53sfJAkTfQZzy', 'joaquin', 'villaverde', 3, NULL, 1, '2025-12-15 11:37:17', '2026-03-30 10:48:06', 1, '2026-03-30 10:48:06');
 
 --
 -- Disparadores `usuarios`
@@ -1859,7 +2150,10 @@ ALTER TABLE `pedidos`
   ADD KEY `idx_pedidos_sede` (`id_sede`),
   ADD KEY `idx_pedidos_estado` (`estado`),
   ADD KEY `idx_pedidos_asignado` (`asignado_a`),
-  ADD KEY `fk_pedidos_area` (`id_area`);
+  ADD KEY `fk_pedidos_area` (`id_area`),
+  ADD KEY `idx_pedidos_metodo_entrega` (`metodo_entrega`),
+  ADD KEY `idx_pedidos_estado_entrega` (`estado_entrega`),
+  ADD KEY `idx_pedidos_id_remito` (`id_remito`);
 
 --
 -- Indices de la tabla `pedidos_adjuntos`
@@ -1883,6 +2177,12 @@ ALTER TABLE `pedidos_historial`
 ALTER TABLE `pedidos_informes`
   ADD PRIMARY KEY (`id_informe`),
   ADD KEY `idx_informes_pedido` (`id_pedido`);
+
+--
+-- Indices de la tabla `pedidos_informes_secuencia`
+--
+ALTER TABLE `pedidos_informes_secuencia`
+  ADD PRIMARY KEY (`anio`);
 
 --
 -- Indices de la tabla `puntos_stock`
@@ -2040,19 +2340,19 @@ ALTER TABLE `areas`
 -- AUTO_INCREMENT de la tabla `auditoria_acciones`
 --
 ALTER TABLE `auditoria_acciones`
-  MODIFY `id_auditoria` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=458;
+  MODIFY `id_auditoria` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=514;
 
 --
 -- AUTO_INCREMENT de la tabla `escaneres`
 --
 ALTER TABLE `escaneres`
-  MODIFY `id_escaner` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id_escaner` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT de la tabla `impresoras`
 --
 ALTER TABLE `impresoras`
-  MODIFY `id_impresora` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id_impresora` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT de la tabla `ingresos`
@@ -2064,13 +2364,13 @@ ALTER TABLE `ingresos`
 -- AUTO_INCREMENT de la tabla `ingresos_documentos`
 --
 ALTER TABLE `ingresos_documentos`
-  MODIFY `id_documento` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id_documento` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT de la tabla `insumos`
 --
 ALTER TABLE `insumos`
-  MODIFY `id_insumo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=134;
+  MODIFY `id_insumo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=146;
 
 --
 -- AUTO_INCREMENT de la tabla `insumos_bajas`
@@ -2094,7 +2394,7 @@ ALTER TABLE `localidades`
 -- AUTO_INCREMENT de la tabla `monitores`
 --
 ALTER TABLE `monitores`
-  MODIFY `id_monitor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id_monitor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT de la tabla `notas_pedidos`
@@ -2106,37 +2406,37 @@ ALTER TABLE `notas_pedidos`
 -- AUTO_INCREMENT de la tabla `notebooks`
 --
 ALTER TABLE `notebooks`
-  MODIFY `id_notebook` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id_notebook` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT de la tabla `pcs_completas`
 --
 ALTER TABLE `pcs_completas`
-  MODIFY `id_pc_completa` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+  MODIFY `id_pc_completa` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
 
 --
 -- AUTO_INCREMENT de la tabla `pedidos`
 --
 ALTER TABLE `pedidos`
-  MODIFY `id_pedido` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
+  MODIFY `id_pedido` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=72;
 
 --
 -- AUTO_INCREMENT de la tabla `pedidos_adjuntos`
 --
 ALTER TABLE `pedidos_adjuntos`
-  MODIFY `id_adjunto` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_adjunto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT de la tabla `pedidos_historial`
 --
 ALTER TABLE `pedidos_historial`
-  MODIFY `id_historial` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=111;
+  MODIFY `id_historial` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=184;
 
 --
 -- AUTO_INCREMENT de la tabla `pedidos_informes`
 --
 ALTER TABLE `pedidos_informes`
-  MODIFY `id_informe` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id_informe` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT de la tabla `puntos_stock`
@@ -2148,13 +2448,13 @@ ALTER TABLE `puntos_stock`
 -- AUTO_INCREMENT de la tabla `remitos`
 --
 ALTER TABLE `remitos`
-  MODIFY `id_remito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=95;
+  MODIFY `id_remito` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=134;
 
 --
 -- AUTO_INCREMENT de la tabla `remitos_detalle`
 --
 ALTER TABLE `remitos_detalle`
-  MODIFY `id_detalle` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=159;
+  MODIFY `id_detalle` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=209;
 
 --
 -- AUTO_INCREMENT de la tabla `roles`
@@ -2214,7 +2514,7 @@ ALTER TABLE `sede_areas`
 -- AUTO_INCREMENT de la tabla `sesiones`
 --
 ALTER TABLE `sesiones`
-  MODIFY `id_sesion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=190;
+  MODIFY `id_sesion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=219;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios`

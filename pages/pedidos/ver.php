@@ -84,6 +84,37 @@ include '../../includes/header.php';
                 </div>
             </div>
 
+            <!-- Información de Entrega (Para Pedidos de Insumos) -->
+            <div id="entregaContainer" class="card mb-4 shadow-sm" style="display:none;">
+                <div class="card-header" style="background-color: #cfe2ff; color: #084298;">
+                    <h5 class="mb-0"><i class="fas fa-shipping-fast me-2"></i>Información de Entrega</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-2"><strong>Método:</strong> <span id="metodoEntrega" class="fw-bold"></span></div>
+                        <div class="col-md-6 mb-2"><strong>Estado Entrega:</strong> <span id="badgeEstadoEntrega" class="badge fs-6"></span></div>
+                        <div class="col-md-6 mb-3" id="fechaEntregaRow" style="display:none;">
+                            <strong>Fecha de Entrega:</strong> <span id="fechaEntrega"></span>
+                        </div>
+                        <div class="col-md-6 mb-3" id="receptorEntregaRow" style="display:none;">
+                            <strong>Recibido por:</strong> <span id="receptorEntrega" class="fw-bold"></span>
+                        </div>
+                        <div class="col-md-6 mb-2" id="remitoPedidoRow" style="display:none;">
+                            <strong>Remito Asociado:</strong> <span id="remitoPedido"></span>
+                        </div>
+                        <div class="col-md-6 mb-2" id="fechaEstimadaRow" style="display:none;">
+                            <strong>Fecha Estimada:</strong> <span id="fechaEstimada"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3 pt-3 border-top" id="controlesEntrega" style="display:none;">
+                        <h6 class="mb-3">Cambiar Estado de Entrega:</h6>
+                        <div class="row g-2" id="botonesEstadoEntrega">
+                            <!-- Los botones se generan dinámicamente según el estado actual -->
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Columna Derecha: Notas e Historial -->
@@ -91,21 +122,6 @@ include '../../includes/header.php';
             
             <!-- Notas -->
             <!-- Adjuntar Archivos -->
-            <div class="card mb-3 shadow-sm" id="cardAdjuntarNota">
-                <div class="card-header" style="background-color: #d1e7dd;">
-                    <h5 class="mb-0"><i class="fas fa-paperclip me-2"></i>Adjuntar Nota (.pdf)</h5>
-                </div>
-                <div class="card-body bg-light">
-                    <form id="formSubirNota" class="mb-3" enctype="multipart/form-data">
-                         <label class="form-label small fw-bold">Subir Nota de Pedido:</label>
-                         <div class="input-group">
-                             <input type="file" class="form-control" name="nota_pdf" accept="application/pdf" required>
-                             <button class="btn btn-primary" type="submit" title="Subir Nota"><i class="fas fa-upload"></i></button>
-                         </div>
-                         <div class="form-text small">Solo archivos .pdf. Al subirla, se habilitará la visualización.</div>
-                    </form>
-                </div>
-            </div>
 
 
 
@@ -170,54 +186,27 @@ include '../../includes/header.php';
 
 
 
-<!-- Modal Editar Pedido -->
-<div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
+
+<!-- Modal Entregar Pedido -->
+<div class="modal fade" id="modalEntregar" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Editar Pedido</h5>
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fas fa-check-double me-2"></i>Finalizar Entrega</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="formEditar">
-                    <input type="hidden" name="accion" value="editar">
-                    <input type="hidden" name="id" id="editId">
-                    <input type="hidden" name="_csrf" value="<?php echo csrf_token(); ?>">
-                    
-                    <div class="mb-3">
-                        <label class="form-label">Nombre Solicitante</label>
-                        <input type="text" class="form-control" name="solicitante_nombre" id="editSolicitante" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Tipo</label>
-                        <select class="form-select" name="tipo" id="editTipo" required>
-                            <option value="Mantenimiento">Mantenimiento</option>
-                            <option value="Reparación">Reparación</option>
-                            <option value="Soporte">Soporte</option>
-                            <option value="Pedido Insumo">Pedido Insumo</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Prioridad</label>
-                        <select class="form-select" name="prioridad" id="editPrioridad">
-                            <option value="Alta">Alta</option>
-                            <option value="Media">Media</option>
-                            <option value="Baja">Baja</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Insumo Relacionado</label>
-                        <input type="text" class="form-control" name="insumo_manual" id="editInsumo" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Descripción</label>
-                        <textarea class="form-control" name="descripcion" id="editDescripcion" rows="4" required></textarea>
-                    </div>
-                </form>
+                <div class="mb-3">
+                    <label class="form-label">Recibido por: (Nombre y Apellido) <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="receptorNombre" placeholder="Ej: Juan Pérez">
+                </div>
+                <div class="alert alert-info py-2">
+                    <small><i class="fas fa-info-circle me-1"></i> Al marcar como entregado, el estado de la entrega pasará a ser definitivo.</small>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="$('#formEditar').submit()">Guardar Cambios</button>
+                <button type="button" id="btnConfirmarEntrega" class="btn btn-success">Confirmar Entrega</button>
             </div>
         </div>
     </div>
@@ -267,6 +256,7 @@ function cargarPedido() {
         const pedido = resp.pedido || resp.data.pedido;
         const historial = resp.historial || resp.data.historial;
         const informe = resp.informe || resp.data.informe;
+        const remitoItems = resp.remito_items || [];
 
         if (!pedido) { 
             console.error('No pedido data in response:', resp);
@@ -306,6 +296,13 @@ function cargarPedido() {
         } catch(e) {
             console.error('renderBotones error:', e);
         }
+
+        try {
+            renderRemitoItems(remitoItems, pedido);
+            console.log('renderRemitoItems OK');
+        } catch(e) {
+            console.error('renderRemitoItems error:', e);
+        }
         
         try {
             mostrarRechazo(pedido, historial);
@@ -339,26 +336,20 @@ function renderPedido(p) {
     $('#tipoPedido').html(`<span class="badge bg-dark">${p.tipo}</span>`);
     $('#prioridadPedido').html(`<span class="badge bg-${p.prioridad==='Alta'?'danger':(p.prioridad==='Baja'?'success':'warning text-dark')}">${p.prioridad}</span>`);
     
-    // Insumo Relacionado
-    if (p.insumo_relacionado) {
+    // Insumo Relacionado: si hay items del remito se renderiza por renderRemitoItems
+    // Si está pendiente (sin remito), mostrar el texto descriptivo si existe
+    if (p.tipo !== 'Pedido Insumo' && p.insumo_relacionado) {
         $('#insumoRelacionadoContainer').show();
-        const insumos = p.insumo_relacionado.split('|');
-        if (insumos.length > 1) {
-            let listHtml = '<ul class="mb-0 ps-3">';
-            insumos.forEach(ins => listHtml += `<li>${ins}</li>`);
-            listHtml += '</ul>';
-            $('#insumoRelacionado').html(listHtml);
-        } else {
-            $('#insumoRelacionado').text(p.insumo_relacionado);
-        }
-    } else {
+        $('#insumoRelacionado').text(p.insumo_relacionado);
+    } else if (p.tipo !== 'Pedido Insumo') {
         $('#insumoRelacionadoContainer').hide();
     }
+    // Para Pedido Insumo: renderRemitoItems se encarga de mostrar los items
 
     $('#sedePedido').text(p.nombre_sede);
     
     // Solicitante Externo
-    let solText = p.solicitante_nombre;
+    let solText = p.solicitante_nombre + (p.solicitante_apellido ? ' ' + p.solicitante_apellido : '');
     if (p.solicitante_telefono) solText += ` (Tel: ${p.solicitante_telefono})`;
     if (p.solicitante_email) solText += ` <br><small class="text-muted"><i class="fas fa-envelope me-1"></i>${p.solicitante_email}</small>`;
     
@@ -374,33 +365,114 @@ function renderPedido(p) {
     };
     $('#badgeEstado').attr('class', 'badge ms-3 fs-6 ' + (badgeCls[p.estado] || 'bg-secondary')).text(p.estado);
     
-    if (p.asignado_a && p.asignado_a != 0) {
+    if (p.tipo === 'Pedido Insumo') {
+        $('#asignadoPedido').parent().hide(); // Ocultar fila de asignado para Pedido Insumo
+    } else if (p.asignado_a && p.asignado_a != 0) {
+        $('#asignadoPedido').parent().show();
         $('#asignadoPedido').removeClass('bg-secondary').addClass('bg-info text-dark').text(p.asig_nom + ' ' + p.asig_ape);
     } else {
+        $('#asignadoPedido').parent().show();
         $('#asignadoPedido').addClass('bg-secondary').removeClass('bg-info text-dark').text('Sin Asignar');
     }
 
-    // Ocultar card de adjuntar si ya tiene nota
-    if (p.pdf_nota) {
-        $('#cardAdjuntarNota').hide();
+    // Información de Entrega (Si es Pedido Insumo)
+    if (p.tipo === 'Pedido Insumo') {
+        $('#entregaContainer').show();
+
+        // Método de entrega
+        const metodoText = (!p.metodo_entrega || p.metodo_entrega === 'No aplica') ? 'No definido' : p.metodo_entrega;
+        $('#metodoEntrega').text(metodoText);
+
+        // Remito Link (solo mostrar si realmente existe)
+        if (p.numero_remito) {
+            $('#remitoPedidoRow').show();
+            $('#remitoPedido').html(`<a href="${BASE}/pages/reportes/remito_pdf.php?remito=${encodeURIComponent(p.numero_remito)}" target="_blank" class="btn btn-sm btn-outline-primary py-0"><i class="fas fa-file-invoice me-1"></i>${p.numero_remito}</a>`);
+        } else {
+            $('#remitoPedidoRow').hide();
+        }
+
+        // Fecha Estimada
+        if (p.fecha_estimada_entrega) {
+            $('#fechaEstimadaRow').show();
+            const dateParts = p.fecha_estimada_entrega.split('-');
+            $('#fechaEstimada').text(`${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`);
+        } else {
+            $('#fechaEstimadaRow').hide();
+        }
+
+        // Estado de entrega: derivar del estado general si no está definido
+        const entregaCls = {
+            'Pendiente':  'bg-secondary',
+            'Preparado':  'bg-info text-dark',
+            'Enviado':    'bg-primary',
+            'Entregado':  'bg-success'
+        };
+        // Si estado_entrega es null/vacío, derivar del estado del pedido
+        let estadoEntrega = p.estado_entrega;
+        if (!estadoEntrega) {
+            if (p.estado === 'Completado') estadoEntrega = 'Entregado';
+            else if (p.estado === 'Preparado') estadoEntrega = 'Preparado';
+            else estadoEntrega = 'Pendiente';
+        }
+        $('#badgeEstadoEntrega')
+            .attr('class', 'badge fs-6 ' + (entregaCls[estadoEntrega] || 'bg-secondary'))
+            .text(estadoEntrega);
+
+        if (estadoEntrega === 'Entregado') {
+            if (p.fecha_entrega) {
+                $('#fechaEntregaRow').show();
+                $('#fechaEntrega').text(new Date(p.fecha_entrega).toLocaleString());
+            }
+            if (p.receptor_nombre) {
+                $('#receptorEntregaRow').show();
+                $('#receptorEntrega').text(p.receptor_nombre);
+            }
+            $('#controlesEntrega').hide();
+        } else {
+            $('#fechaEntregaRow').hide();
+            $('#receptorEntregaRow').hide();
+            if (PERMISOS.gestionar && p.insumo_relacionado && p.insumo_relacionado !== '') {
+                $('#controlesEntrega').show();
+                // Construir botones según estado_entrega actual
+                const $btns = $('#botonesEstadoEntrega').empty();
+                // "Marcar Preparado" solo si aún está Pendiente
+                if (estadoEntrega === 'Pendiente') {
+                    $btns.append(`
+                        <div class="col">
+                            <button type="button" class="btn btn-outline-primary w-100 btn-sm" onclick="actualizarEstadoEntrega('Preparado')">
+                                <i class="fas fa-box me-1"></i>Marcar Preparado
+                            </button>
+                        </div>`);
+                }
+                // "Enviado/Retiro" si está Pendiente o Preparado
+                if (estadoEntrega === 'Preparado' || estadoEntrega === 'Pendiente') {
+                    const labelEnviar = (p.metodo_entrega === 'Retiro')
+                        ? '<i class="fas fa-hand-holding me-1"></i>Listo para Retiro'
+                        : '<i class="fas fa-truck me-1"></i>Marcar Enviado';
+                    $btns.append(`
+                        <div class="col">
+                            <button type="button" class="btn btn-warning text-dark w-100 btn-sm" onclick="actualizarEstadoEntrega('Enviado')">
+                                ${labelEnviar}
+                            </button>
+                        </div>`);
+                }
+                // "Confirmar Entrega" siempre disponible
+                $btns.append(`
+                    <div class="col">
+                        <button type="button" class="btn btn-success w-100 btn-sm" onclick="abrirModalEntregar()">
+                            <i class="fas fa-check-double me-1"></i>Confirmar Entrega
+                        </button>
+                    </div>`);
+            } else {
+                $('#controlesEntrega').hide();
+            }
+        }
     } else {
-        $('#cardAdjuntarNota').show();
+        $('#entregaContainer').hide();
     }
+
 }
 
-window.abrirModalEditar = function() {
-    if(!window.currentPedido) return;
-    const p = window.currentPedido;
-    
-    $('#editId').val(p.id_pedido);
-    $('#editSolicitante').val(p.solicitante_nombre);
-    $('#editPrioridad').val(p.prioridad);
-    $('#editTipo').val(p.tipo);
-    $('#editDescripcion').val(p.descripcion);
-    $('#editInsumo').val(p.insumo_relacionado || '');
-    
-    $('#modalEditar').modal('show');
-};
 
 function renderHistorial(hist) {
     const $ul = $('#listaHistorial').empty();
@@ -445,30 +517,51 @@ function renderBotones(p) {
     if (p.pdf_nota) {
         $c.append(`<a href="<?php echo app_base_url(); ?>/uploads/pedidos/${p.pdf_nota}" target="_blank" class="btn btn-info text-white me-2"><i class="fas fa-file-pdf me-2"></i>Ver Nota</a>`);
     }
-
-    $c.append(`<a href="constancia_pdf.php?id=${p.id_pedido}" target="_blank" class="btn btn-outline-dark me-2"><i class="fas fa-print me-2"></i>Constancia</a>`);
     
-    // Editar
-    if ((PERMISOS.gestionar || isOwner) && !isCompleted) {
-         $c.append(`<button class="btn btn-warning me-2" onclick="abrirModalEditar()"><i class="fas fa-edit me-2"></i>Editar</button>`);
+    if (p.remito_firmado) {
+        $c.append(`<a href="<?php echo app_base_url(); ?>/uploads/pedidos/${p.remito_firmado}" target="_blank" class="btn btn-success me-2 text-white" data-bs-toggle="tooltip" title="Ver Constancia Firmada de Entrega"><i class="fas fa-file-signature me-2"></i>Ver Constancia Firmada</a>`);
     }
+
+    // Imprimir Remito (Solo Insumos con remito)
+    if (p.tipo === 'Pedido Insumo' && p.numero_remito) {
+        $c.append(`<button class="btn btn-primary me-2" onclick="imprimirRemito('${p.numero_remito}')"><i class="fas fa-print me-2"></i>Imprimir Remito</button>`);
+    }
+
+    // Ver Constancia (Solo para Tareas Técnicas)
+    if (p.tipo !== 'Pedido Insumo') {
+        $c.append(`<a href="constancia_pdf.php?id=${p.id_pedido}" target="_blank" class="btn btn-outline-dark me-2" data-bs-toggle="tooltip" title="Imprimir constancia de visita técnica"><i class="fas fa-print me-2"></i>Constancia</a>`);
+    }
+    
 
     // Acciones de Gestión
     if (PERMISOS.gestionar && !isCompleted) {
         // Tomar si no tiene asignado O si tiene asignado 0/null
         if (!p.asignado_a || p.asignado_a == 0) {
-            $c.append(`<button class="btn btn-primary me-2" onclick="accionTomar()"><i class="fas fa-hand-paper me-2"></i>Tomar Pedido</button>`);
+            // Solo se permite "Tomar" si es un pedido técnico. 
+            // Los pedidos de insumo los "Prepara" cualquier gestor desde el detalle.
+            if (p.tipo !== 'Pedido Insumo') {
+                $c.append(`<button class="btn btn-primary me-2" onclick="accionTomar()"><i class="fas fa-hand-paper me-2"></i>Tomar Pedido</button>`);
+            }
         } else if (p.asignado_a == USER_ID) {
-            $c.append(`<button class="btn btn-success me-2" onclick="$('#modalInforme').modal('show')"><i class="fas fa-check me-2"></i>Completar con Informe</button>`);
+            // Solo pedidos técnicos llevan informe
+            if (p.tipo !== 'Pedido Insumo') {
+                $c.append(`<button class="btn btn-success me-2" onclick="$('#modalInforme').modal('show')"><i class="fas fa-check me-2"></i>Completar con Informe</button>`);
+            }
         }
         
-        // Boton Asignar (Solo Admin/SuperAdmin y si no tiene asignado)
-        if ((!p.asignado_a || p.asignado_a == 0) && (CURRENT_USER_ROL_ID == 1 || CURRENT_USER_ROL_ID == 2)) {
+        // Boton Asignar (Solo Admin/SuperAdmin y si no tiene asignado) - NO para Pedidos de Insumo
+        if (p.tipo !== 'Pedido Insumo' && (!p.asignado_a || p.asignado_a == 0) && (CURRENT_USER_ROL_ID == 1 || CURRENT_USER_ROL_ID == 2)) {
              $c.append(`<button class="btn btn-outline-primary me-2" onclick="accionAsignar()"><i class="fas fa-user-plus me-2"></i>Asignar a...</button>`);
         }
         // Boton Rechazar - Solo para el usuario asignado
         if (p.asignado_a == USER_ID) {
              $c.append(`<button class="btn btn-danger me-2" onclick="accionRechazar()"><i class="fas fa-times me-2"></i>Rechazar</button>`);
+        }
+
+        // Nuevo Botón para Preparar (Solo Insumos en estado Pendiente) - Redirige a la página de preparación interactiva
+        if (p.tipo === 'Pedido Insumo' && p.estado === 'Pendiente') {
+            const urlPreparar = '<?php echo app_base_url(); ?>/pages/pedidos/preparar.php?id=' + p.id_pedido;
+            $c.append(`<a href="${urlPreparar}" class="btn btn-success me-2"><i class="fas fa-box-open me-2"></i>PREPARAR PEDIDO</a>`);
         }
     }
     
@@ -519,6 +612,74 @@ window.accionTomar = function() {
     });
 };
 
+window.accionPreparar = function() {
+    showConfirm({
+        titulo: 'Preparar Pedido',
+        mensaje: '¿Deseas marcar este pedido como PREPARADO? <br><br>Esto lo moverá automáticamente a la <strong>Gestión de Envíos</strong>.',
+        icono: 'fa-box-open text-success',
+        btnAceptar: 'Confirmar Preparado',
+        onConfirm: () => {
+            $.ajax({
+                url: '<?php echo app_base_url(); ?>/ajax/pedidos_acciones.php',
+                type: 'POST',
+                data: { accion: 'preparar', id: PEDIDO_ID, _csrf: CSRF_TOKEN },
+                dataType: 'json',
+                xhrFields: { withCredentials: true },
+                success: function(r){
+                    if(r.success) {
+                        showToast('Pedido marcado como preparado', 'success');
+                        cargarPedido();
+                    }
+                    else showToast(r.error || 'Error al preparar pedido', 'error');
+                },
+                error: function() { showToast('Error de conexión', 'error'); }
+            });
+        }
+    });
+};
+
+window.imprimirRemito = function(num) {
+    if(!num) return;
+    const url = '<?php echo app_base_url(); ?>/pages/reportes/remito_pdf.php?remito=' + encodeURIComponent(num);
+    window.open(url, 'remitoPrint');
+};
+
+function renderRemitoItems(items, pedido) {
+    if (pedido.tipo !== 'Pedido Insumo') return;
+
+    const $container = $('#insumoRelacionadoContainer');
+    const $content   = $('#insumoRelacionado');
+
+    if (items && items.length > 0) {
+        $container.show();
+        let html = `<table class="table table-sm table-bordered mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Insumo</th>
+                    <th class="text-center">Cant.</th>
+                    <th>N° Serie / ID</th>
+                </tr>
+            </thead><tbody>`;
+        items.forEach(item => {
+            const link = `<a href="${BASE}/pages/insumos/ver.php?id=${item.id_insumo}" target="_blank" class="text-decoration-none">
+                <i class="fas fa-external-link-alt fa-xs me-1"></i>${item.nombre_insumo}
+                <small class="text-muted">(${item.tipo_insumo})</small></a>`;
+            const ref = item.numero_serie
+                ? `<small class="text-muted">S/N: ${item.numero_serie}</small>`
+                : (item.id_fisico ? `<small class="text-muted">ID: ${item.id_fisico}</small>` : '-');
+            html += `<tr><td>${link}</td><td class="text-center">${item.cantidad}</td><td>${ref}</td></tr>`;
+        });
+        html += '</tbody></table>';
+        $content.html(html);
+    } else if (pedido.tipo === 'Pedido Insumo' && !pedido.id_remito) {
+        // Pedido aún no preparado
+        $container.show();
+        $content.html('<span class="text-muted fst-italic"><i class="fas fa-clock me-1"></i>Pendiente de preparación — los insumos aún no fueron seleccionados.</span>');
+    } else {
+        $container.hide();
+    }
+}
+
 window.accionEliminar = function() {
     showConfirm({
         titulo: 'Eliminar Pedido',
@@ -561,41 +722,6 @@ $(function(){
         // Esperar a cargar para verificar estado
     }
     
-    // AJAX Upload Adjunto
-    // AJAX Upload Nota Pedido
-    $('#formSubirNota').on('submit', function(e){
-        e.preventDefault();
-        var formData = new FormData(this);
-        formData.append('accion', 'subir_nota');
-        formData.append('id', PEDIDO_ID);
-        
-        var btn = $(this).find('button[type="submit"]');
-        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
-        
-        $.ajax({
-            url: '<?php echo app_base_url(); ?>/ajax/pedidos_acciones.php',
-            type: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
-            dataType: 'json',
-            xhrFields: { withCredentials: true },
-            success: function(resp){
-                if(resp.success) {
-                    $('#formSubirNota')[0].reset();
-                    showToast('Nota adjuntada correctamente', 'success');
-                    cargarPedido();
-                } else {
-                    showToast(resp.error || 'Error al subir nota', 'error');
-                }
-                btn.prop('disabled', false).html('<i class="fas fa-upload"></i>');
-            },
-            error: function() {
-                showToast('Error de conexión', 'error');
-                btn.prop('disabled', false).html('<i class="fas fa-upload"></i>');
-            }
-        });
-    });
 
     $('#formInforme').on('submit', function(e){
         e.preventDefault();
@@ -690,6 +816,63 @@ $(function(){
                 showToast('Error de conexión', 'error');
             }
         });
+    });
+    
+    // Funciones de Gestión de Entrega
+    window.actualizarEstadoEntrega = function(nuevoEstado) {
+        if (nuevoEstado === 'Enviado' || nuevoEstado === 'Preparado') {
+            const textoConfirm = nuevoEstado === 'Enviado' ? 
+                (window.currentPedido.metodo_entrega === 'Retiro' ? '¿Confirmar que está listo para retiro?' : '¿Confirmar que el paquete fue enviado?') : 
+                '¿Confirmar que el pedido está preparado?';
+            
+            showConfirm({
+                titulo: 'Actualizar Entrega',
+                mensaje: textoConfirm,
+                icono: 'fa-shipping-fast text-primary',
+                onConfirm: () => {
+                    ejecutarActualizarEntrega(nuevoEstado);
+                }
+            });
+        }
+    };
+
+    window.abrirModalEntregar = function() {
+        $('#modalEntregar').modal('show');
+    };
+
+    function ejecutarActualizarEntrega(estado, receptor = '') {
+        $.ajax({
+            url: '<?php echo app_base_url(); ?>/ajax/pedidos_acciones.php',
+            type: 'POST',
+            data: { 
+                accion: 'actualizar_entrega', 
+                id: PEDIDO_ID, 
+                estado_entrega: estado,
+                receptor_nombre: receptor,
+                _csrf: CSRF_TOKEN 
+            },
+            dataType: 'json',
+            xhrFields: { withCredentials: true },
+            success: function(r) {
+                if (r.success) {
+                    showToast('Entrega actualizada correctamente', 'success');
+                    if (estado === 'Entregado') $('#modalEntregar').modal('hide');
+                    cargarPedido();
+                } else {
+                    showToast(r.error || 'Error al actualizar entrega', 'error');
+                }
+            },
+            error: function() { showToast('Error de conexión', 'error'); }
+        });
+    }
+
+    $('#btnConfirmarEntrega').click(function() {
+        const receptor = $('#receptorNombre').val().trim();
+        if (!receptor) {
+            showToast('Debe ingresar el nombre de quien recibe', 'warning');
+            return;
+        }
+        ejecutarActualizarEntrega('Entregado', receptor);
     });
 
 

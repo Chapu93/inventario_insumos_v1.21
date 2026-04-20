@@ -7,3 +7,4 @@ public/uploads/*
 
 # Logs del sistema
 logs/*.log
+.aider*

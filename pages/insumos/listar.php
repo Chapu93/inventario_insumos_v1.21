@@ -129,6 +129,15 @@ $localidades = $stmt->fetchAll();
             </select>
         </div>
 
+        <div class="col-md-3 filtro-condicion">
+            <label for="es_nuevo" class="form-label">Condición</label>
+            <select name="es_nuevo" id="es_nuevo" class="form-select">
+                <option value="">Todas</option>
+                <option value="1">Nuevo</option>
+                <option value="0">Usado</option>
+            </select>
+        </div>
+
         <!-- Filtros de Ubicación (Solo visibles en Asignados/Todos) -->
         <div class="col-md-3 filtro-ubicacion" style="display:none;">
             <label for="id_localidad" class="form-label">Localidad</label>
@@ -684,6 +693,14 @@ $localidades = $stmt->fetchAll();
                 $('#id_localidad').val('').trigger('change');
                 $('#id_sede').val('').prop('disabled', true);
             }
+            
+            // Mostrar condición primordialmente en Disponibles
+            if (estado === 'Disponible') {
+                $('.filtro-condicion').fadeIn();
+            } else {
+                $('.filtro-condicion').hide();
+                $('#es_nuevo').val('');
+            }
         }
 
         // Establecer tab activo y valor inicial
@@ -705,6 +722,7 @@ $localidades = $stmt->fetchAll();
                         d.estado = $('#estado').val() || '';
                         d.id_localidad = $('#id_localidad').val() || '';
                         d.id_sede = $('#id_sede').val() || '';
+                        d.es_nuevo = $('#es_nuevo').val() || '';
                     }
                 },
                 order: [[$t.data('default-order-col') || 1, $t.data('default-order-dir') || 'asc']],
@@ -782,6 +800,7 @@ $localidades = $stmt->fetchAll();
         // Botón Limpiar
         $('#btnLimpiarFiltros').on('click', function () {
             $('#tipo').val('');
+            $('#es_nuevo').val('');
             $('#id_localidad').val('').trigger('change');
 
             // Resetear a Disponible por defecto

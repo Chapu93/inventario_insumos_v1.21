@@ -12,6 +12,9 @@ $db = conectarDB();
 $filtroTipo = $_GET['tipo'] ?? '';
 $filtroEstado = $_GET['estado'] ?? '';
 $busqueda = trim($_GET['q'] ?? '');
+$fechaDesde = $_GET['fecha_desde'] ?? '';
+$fechaHasta = $_GET['fecha_hasta'] ?? '';
+
 
 // Consulta para obtener insumos que tienen pedidos relacionados
 $sql = "SELECT DISTINCT
@@ -48,6 +51,17 @@ if ($busqueda) {
     $params[] = $like;
     $params[] = $like;
 }
+
+if ($fechaDesde) {
+    $sql .= " AND DATE(p.fecha_creacion) >= ?";
+    $params[] = $fechaDesde;
+}
+
+if ($fechaHasta) {
+    $sql .= " AND DATE(p.fecha_creacion) <= ?";
+    $params[] = $fechaHasta;
+}
+
 
 $sql .= " GROUP BY i.id_insumo ORDER BY ultima_intervencion DESC";
 
@@ -115,12 +129,12 @@ include '../../includes/header.php';
     <!-- Filtros -->
     <div class="filtros-container mb-4">
         <form method="GET" class="row g-3 align-items-end">
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <label class="form-label">Buscar Insumo</label>
-                <input type="text" class="form-control" name="q" placeholder="Nombre, tipo, serie..." value="<?php echo htmlspecialchars($busqueda); ?>">
+                <input type="text" class="form-control" name="q" placeholder="Serie, IP..." value="<?php echo htmlspecialchars($busqueda); ?>">
             </div>
-            <div class="col-md-3">
-                <label class="form-label">Tipo de Intervención</label>
+            <div class="col-md-2">
+                <label class="form-label">Tipo de Avería</label>
                 <select class="form-select" name="tipo">
                     <option value="">Todos</option>
                     <option value="Mantenimiento" <?php echo $filtroTipo === 'Mantenimiento' ? 'selected' : ''; ?>>Mantenimiento</option>
@@ -138,14 +152,24 @@ include '../../includes/header.php';
                     <option value="Rechazado" <?php echo $filtroEstado === 'Rechazado' ? 'selected' : ''; ?>>Rechazado</option>
                 </select>
             </div>
-            <div class="col-md-3 d-flex align-items-end ms-auto">
-                <div class="d-grid gap-1 w-100">
-                    <button type="submit" class="btn btn-primary btn-sm">
-                        <i class="fas fa-search me-1"></i>Filtrar
-                    </button>
-                    <a href="intervenidos.php" class="btn btn-secondary btn-sm">
+            
+            <div class="col-md-2">
+                <label class="form-label">Desde Fecha</label>
+                <input type="date" class="form-control" name="fecha_desde" value="<?php echo htmlspecialchars($fechaDesde); ?>">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Hasta Fecha</label>
+                <input type="date" class="form-control" name="fecha_hasta" value="<?php echo htmlspecialchars($fechaHasta); ?>">
+            </div>
+            
+            <div class="col-md-2 d-flex align-items-end">
+                <div class="d-flex gap-2 w-100">
+                    <a href="intervenidos.php" class="btn btn-secondary btn-sm flex-fill">
                         <i class="fas fa-times me-1"></i>Limpiar
                     </a>
+                    <button type="submit" class="btn btn-primary btn-sm flex-fill">
+                        <i class="fas fa-search me-1"></i>Filtrar
+                    </button>
                 </div>
             </div>
         </form>
@@ -268,6 +292,15 @@ include '../../includes/header.php';
 
 <?php include '../../includes/footer.php'; ?>
 
+<!-- DataTables Buttons (Exportar) -->
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+
 <script>
 $(document).ready(function() {
     // DataTable
@@ -277,7 +310,49 @@ $(document).ready(function() {
                 url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
             },
             order: [[6, 'desc']], // Ordenar por última intervención
-            pageLength: 25
+            pageLength: 25,
+            dom: '<"row mb-3"<"col-sm-12 col-md-6"B><"col-sm-12 col-md-6 text-end"f>>' +
+                 '<"row"<"col-sm-12"tr>>' +
+                 '<"row mt-3"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel me-1"></i> Excel',
+                    className: 'btn btn-success btn-sm ms-2 text-white',
+                    title: 'Reporte de Insumos Intervenidos',
+                    exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6, 7] },
+                    init: function(api, node, config) {
+                       $(node).removeClass('dt-button');
+                    }
+                },
+                {
+                    extend: 'pdfHtml5',
+                    text: '<i class="fas fa-file-pdf me-1"></i> PDF',
+                    className: 'btn btn-danger btn-sm ms-2 text-white',
+                    title: 'Reporte de Insumos Intervenidos',
+                    orientation: 'landscape',
+                    pageSize: 'A4',
+                    exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6, 7] },
+                    customize: function (doc) {
+                        doc.defaultStyle.fontSize = 9;
+                        doc.styles.tableHeader.fontSize = 10;
+                        doc.styles.tableHeader.fillColor = '#198754';
+                    },
+                    init: function(api, node, config) {
+                       $(node).removeClass('dt-button');
+                    }
+                },
+                {
+                    extend: 'print',
+                    text: '<i class="fas fa-print me-1"></i> Imprimir',
+                    className: 'btn btn-primary btn-sm ms-2 text-white',
+                    title: 'Reporte de Insumos Intervenidos',
+                    exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6, 7] },
+                    init: function(api, node, config) {
+                       $(node).removeClass('dt-button');
+                    }
+                }
+            ]
         });
     }
     

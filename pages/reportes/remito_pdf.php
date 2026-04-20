@@ -130,8 +130,7 @@ $headerOffset = $templateLoaded ? (is_numeric($envHeaderOffset) ? (float) $envHe
 
 // Encabezado: Número (izq) y Fecha (esquina superior derecha) debajo del membrete
 $y = $topMargin + $headerOffset;
-$pdf->SetFont('Arial', '', 11);
-$pdf->SetXY($leftMargin, $y);
+
 $enc = function ($s) {
     if ($s === null) {
         return '';
@@ -142,6 +141,16 @@ $enc = function ($s) {
     }
     return $out;
 };
+
+// Título REMITO centrado, acercándolo al membrete (restamos -8 unidades)
+$y_titulo = $y - 8; 
+$pdf->SetFont('Arial', 'B', 16);
+$pdf->SetXY($leftMargin, $y_titulo);
+$pdf->Cell($contentWidth, 6, $enc('REMITO'), 0, 1, 'C');
+$y = $pdf->GetY() + 2;
+
+$pdf->SetFont('Arial', '', 11);
+$pdf->SetXY($leftMargin, $y);
 // Truncador para ajustar textos a ancho de celda (con margen interno)
 $fit = function ($text, $width) use ($pdf, $enc) {
     $padding = 2; // mm
@@ -199,14 +208,6 @@ $pdf->MultiCell($colWidth, 6, $enc($destinoTexto), 0, 'L');
 // Calcular la posición Y más baja de ambas columnas
 $y = max($pdf->GetY(), $yRightStart + 7 + 3 * $lineHeight);
 
-if (!empty($cab['observaciones'])) {
-    $pdf->SetXY($leftMargin, $y += 10);
-    $pdf->SetFont('Arial', 'B', 12);
-    $pdf->Cell(0, 6, $enc('Observaciones'), 0, 1);
-    $pdf->SetFont('Arial', '', 11);
-    $pdf->SetXY($leftMargin, $y += 7);
-    $pdf->MultiCell($contentWidth, 6, $enc($cab['observaciones']));
-}
 
 // Lista de insumos en 3 columnas (sin título)
 $pdf->SetXY($leftMargin, $y += 10);
@@ -312,12 +313,30 @@ foreach ($items as $it) {
     $colIndex = ($colIndex + 1) % $cols;
 }
 
-// Mostrar motivo de anulación si corresponde y dibujar sello
-if (isset($cab['estado']) && strcasecmp($cab['estado'], 'Anulado') === 0) {
+// Asegurar que el siguiente bloque inicie debajo de la columna más larga
+$yFinalColumnas = !empty($colHeights) ? max($colHeights) : $y;
+$y = $yFinalColumnas + 5;
+
+// Observaciones
+if (!empty(trim((string)$cab['observaciones']))) {
+    // Si la Y actual está muy cerca del final de página, forzar salto de página (Fallback manual)
+    if ($y > $pageHeight - 50) {
+        $pdf->AddPage();
+        if ($templateLoaded && $TPL_ID !== null) { $pdf->useTemplate($TPL_ID); }
+        $y = $topMargin + $headerOffset;
+    }
     
-    // Dibujar el sello de ANULADO por arriba del contenido de la tabla
-    // El agente termina cerca de Y=80, así que lo dibujamos a partir de Y=85.
-    // Altura del sello será ~68mm, por lo que llegará hasta Y=153 approx.
+    $pdf->SetXY($leftMargin, $y);
+    $pdf->SetFont('Arial', 'B', 11);
+    $pdf->Cell($contentWidth, 6, $enc('Observaciones:'), 0, 1, 'L');
+    $pdf->SetX($leftMargin);
+    $pdf->SetFont('Arial', '', 10);
+    $pdf->MultiCell($contentWidth, 5, $enc($cab['observaciones']), 0, 'L');
+    $y = $pdf->GetY() + 5;
+}
+
+// Dibujar el sello de ANULADO si corresponde y mostrar motivo al final
+if (isset($cab['estado']) && strcasecmp($cab['estado'], 'Anulado') === 0) {
     $selloPath = __DIR__ . '/../../public/img/sello_anulado_clean.png';
     if (!file_exists($selloPath)) {
         $selloPath = __DIR__ . '/../../public/img/sello_anulado.png';
@@ -325,25 +344,25 @@ if (isset($cab['estado']) && strcasecmp($cab['estado'], 'Anulado') === 0) {
     if (file_exists($selloPath)) {
         $currX = $pdf->GetX();
         $currY = $pdf->GetY();
+        // Dibujamos el sello en la posición central
         $pdf->Image($selloPath, 45, 85, 120);
         $pdf->SetXY($currX, $currY);
     }
 
-    // Asegurar que el motivo no se superponga con el sello si hay pocos items
+    // El motivo vuelve a estar al final, por debajo del sello
     $yMotivo = max($y, $pdf->GetY()) + 10;
     if ($yMotivo < 155) {
-        $yMotivo = 155; // Forzar a que empiece por debajo del sello
+        $yMotivo = 155; 
     }
-    $pdf->SetY($yMotivo);
+    $pdf->SetXY($leftMargin, $yMotivo);
     
     $pdf->SetFont('Arial', 'B', 11);
-    $pdf->SetTextColor(0, 0, 0); // Texto en negro, según solicitado
     $pdf->Cell(0, 6, $enc('MOTIVO DE ANULACIÓN:'), 0, 1, 'L');
+    $pdf->SetX($leftMargin);
     $pdf->SetFont('Arial', '', 10);
-    $pdf->MultiCell($contentWidth, 5, $enc($cab['motivo_anulacion'] ?: 'Sin motivo especificado'), 1, 'L');
-    $pdf->SetTextColor(0, 0, 0);
+    // MultiCell con borde 0 y alineado a la izquierda ($leftMargin)
+    $pdf->MultiCell($contentWidth, 5, $enc($cab['motivo_anulacion'] ?: 'Sin motivo especificado'), 0, 'L');
     
-    // Actualizar Y para la firma
     $y = $pdf->GetY();
 }
 

@@ -489,6 +489,7 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
             <p class="mb-1"><strong>Fecha:</strong> ${c.fecha_asignacion || ''}</p>
             <p class="mb-1"><strong>Estado:</strong> <span class="badge ${c.estado === 'Activa' ? 'bg-warning' : 'bg-success'}">${c.estado || 'Desconocido'}</span></p>
             ${c.estado === 'Devuelta' && c.fecha_devolucion ? `<p class="mb-1"><strong>Fecha devolución:</strong> ${c.fecha_devolucion}</p>` : ''}
+            ${c.nota_solicitud ? `<p class="mb-1"><strong>Nota Solicitud:</strong> <a href="${getAppBase()}/uploads/${c.nota_solicitud}" target="_blank" class="btn btn-xs btn-outline-danger py-0 px-1"><i class="fas fa-file-pdf me-1"></i>Ver Nota</a></p>` : ''}
           </div>
           <div class="col-md-6">
             <p class="mb-1"><strong>Persona:</strong> ${c.nombre_persona_asignada || ''} ${c.apellido_persona_asignada || ''}</p>

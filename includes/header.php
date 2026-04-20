@@ -90,6 +90,7 @@
                         <li>
                             <a href="<?php echo app_base_url(); ?>/pages/insumos/intervenidos.php" class="<?php echo strpos($currentPath, '/pages/insumos/intervenidos.php') !== false ? 'active' : ''; ?>" role="menuitem">Insumos Intervenidos</a>
                         </li>
+
                     </ul>
                 </li>
                 

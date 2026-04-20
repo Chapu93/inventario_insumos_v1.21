@@ -208,7 +208,7 @@ include '../../includes/header.php';
                     
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                         <a href="javascript:void(0);" onclick="cancelarPedido()" class="btn btn-secondary me-md-2">Cancelar</a>
-                        <button type="submit" class="btn btn-primary px-5"><i class="fas fa-print me-2"></i>Crear e Imprimir</button>
+                        <button type="submit" class="btn btn-primary px-5"><i class="fas fa-paper-plane me-2"></i>Crear Pendiente</button>
                     </div>
                 </form>
             </div>
@@ -273,6 +273,7 @@ $(document).ready(function() {
             sede_html: $('#sede').html(),
             area: $('#area').val(),
             tipo: $('#tipo').val(),
+            metodo_entrega: $('#metodo_entrega').val(),
             prioridad: $('#priority').val() || $('#prioridad').val(),
             descripcion: $('#descripcion').val()
         };
@@ -302,7 +303,10 @@ $(document).ready(function() {
                 setTimeout(function() { $('#area').val(formData.area); }, 1000);
             }
             
-            if (formData.tipo) $('#tipo').val(formData.tipo);
+            if (formData.tipo) {
+                $('#tipo').val(formData.tipo).trigger('change');
+            }
+            if (formData.metodo_entrega) $('#metodo_entrega').val(formData.metodo_entrega);
             if (formData.prioridad) $('#prioridad').val(formData.prioridad);
             if (formData.descripcion) $('#descripcion').val(formData.descripcion);
             
@@ -488,6 +492,17 @@ $(document).ready(function() {
         }
     });
     
+    // Toggle para Pedido Insumo (mostrar/ocultar metodo entrega)
+    $('#tipo').on('change', function() {
+        if ($(this).val() === 'Pedido Insumo') {
+            $('#colMetodoEntrega').fadeIn();
+            $('#metodo_entrega').prop('required', true);
+        } else {
+            $('#colMetodoEntrega').fadeOut();
+            $('#metodo_entrega').prop('required', false).val('No aplica');
+        }
+    });
+
     // Toggle entre modo búsqueda y crear asignación
     $('input[name="modoInsumo"]').change(function() {
         var modo = $(this).val();
@@ -498,9 +513,7 @@ $(document).ready(function() {
             $('#containerBuscarInsumo').hide();
             $('#containerCrearAsignacion').show();
         }
-        // La lista de insumos seleccionados es unificada, no se limpia al cambiar de modo
     });
-    
     // Manejo de Localidad -> Sede
     $('#localidad').change(function() {
         var idLoc = $(this).val();
@@ -573,6 +586,18 @@ $(document).ready(function() {
         if (!insumosIds || insumosIds.trim() === '') {
             showToast('Debe seleccionar al menos un insumo', 'warning');
             return false;
+        }
+
+        // Validaciones específicas para Pedido Insumo
+        if ($('#tipo').val() === 'Pedido Insumo') {
+            if ($('#metodo_entrega').val() === 'No aplica') {
+                showToast('Debe seleccionar un método de entrega para pedidos de insumos', 'warning');
+                return false;
+            }
+            if ($('#nota_pdf').get(0).files.length === 0) {
+                showToast('Debe adjuntar la nota PDF para pedidos de insumos', 'warning');
+                return false;
+            }
         }
         
         $('#sede').prop('disabled', false); // Fix: Ensure disabled field is sent

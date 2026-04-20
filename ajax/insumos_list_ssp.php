@@ -34,6 +34,7 @@ try {
     $filtroEstado = isset($_GET['estado']) ? trim($_GET['estado']) : '';
     $filtroLocalidad = isset($_GET['id_localidad']) ? trim($_GET['id_localidad']) : '';
     $filtroSede = isset($_GET['id_sede']) ? trim($_GET['id_sede']) : '';
+    $filtroCondicion = isset($_GET['es_nuevo']) ? trim($_GET['es_nuevo']) : '';
 
     // Total sin filtros
     $total = (int) $db->query("SELECT COUNT(*) FROM insumos")->fetchColumn();
@@ -56,6 +57,10 @@ try {
     if ($filtroSede !== '') {
         $where[] = 'i.id_sede_actual = ?';
         $params[] = $filtroSede;
+    }
+    if ($filtroCondicion !== '') {
+        $where[] = 'i.es_nuevo = ?';
+        $params[] = $filtroCondicion;
     }
     $expandirAsignaciones = ($filtroEstado === 'Asignado');
 
