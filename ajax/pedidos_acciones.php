@@ -204,12 +204,19 @@ try {
             $db->beginTransaction();
             
             // Verificar estado actual y si el usuario está asignado
-            $stmtCurr = $db->prepare("SELECT estado, asignado_a FROM pedidos WHERE id_pedido = ?");
+            $stmtCurr = $db->prepare("SELECT estado, asignado_a, id_remito FROM pedidos WHERE id_pedido = ?");
             $stmtCurr->execute([$id]);
             $curr = $stmtCurr->fetch();
             
             if (!$curr) { $db->rollBack(); json_error('Pedido no encontrado', 404); }
-            if ($curr['estado'] === 'Completado') { $db->rollBack(); json_error('No se puede rechazar un pedido completado', 400); }
+            if ($curr['estado'] === 'Completado' || $curr['estado'] === 'Preparado') { 
+                $db->rollBack(); 
+                if (!empty($curr['id_remito'])) {
+                    json_error('No se puede rechazar un pedido que ya generó un remito. Anule el remito primero.', 400);
+                } else {
+                    json_error('No se puede rechazar un pedido procesado o completado', 400); 
+                }
+            }
             if ($curr['estado'] === 'Pendiente') { $db->rollBack(); json_error('El pedido ya está pendiente', 400); }
             
             // Solo el usuario asignado o un admin pueden rechazar
@@ -372,6 +379,26 @@ try {
             $id = (int)($_POST['id'] ?? 0);
             
             $db->beginTransaction();
+            
+            // Verificar estado para evitar borrar remitos/stock huérfano
+            $stmtCheck = $db->prepare("SELECT estado, id_remito FROM pedidos WHERE id_pedido = ?");
+            $stmtCheck->execute([$id]);
+            $pedido = $stmtCheck->fetch();
+            
+            if (!$pedido) {
+                $db->rollBack();
+                json_error('Pedido no encontrado', 404);
+            }
+            
+            if (in_array($pedido['estado'], ['Preparado', 'Completado'])) {
+                $db->rollBack();
+                if (!empty($pedido['id_remito'])) {
+                    json_error('No se puede eliminar un pedido que ya generó un remito. Para devolver el stock, anule el remito en el módulo de Asignaciones.', 400);
+                } else {
+                    json_error('No se puede eliminar un pedido que ya está procesado o completado.', 400);
+                }
+            }
+            
             // Borrar informe si hay (ON DELETE CASCADE está en DB, pero por seguridad)
             // Borrar historial (ON DELETE CASCADE)
             $db->prepare("DELETE FROM pedidos WHERE id_pedido = ?")->execute([$id]);

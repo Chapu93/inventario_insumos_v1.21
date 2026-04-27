@@ -64,7 +64,8 @@ inventario_app/
 |--------|---------|-------------|
 | **Insumos** | `pages/insumos/` | Inventario de equipos informáticos |
 | **Asignaciones** | `pages/asignaciones/` | Remitos y asignación de insumos |
-| **Pedidos** | `pages/pedidos/` | Solicitudes de soporte/mantenimiento |
+| **Pedidos** | `pages/pedidos/` | Solicitudes de soporte técnico y mantenimiento |
+| **Tareas** | `pages/pedidos/` | Tareas internas del área técnica (`tareas_internas`) |
 | **Administración** | `pages/admin/` | Usuarios, roles, telecomunicaciones, auditoría |
 | **Reportes** | `pages/reportes/` | Generación de PDFs |
 
@@ -81,9 +82,10 @@ inventario_app/
 - `remitos` - Cabecera de asignaciones
 - `remitos_detalle` - Detalle de insumos asignados
 
-### Pedidos
+### Pedidos y Tareas
 - `pedidos` - Solicitudes de soporte
-- `pedidos_historial`, `pedidos_adjuntos`, `pedidos_informes`
+- `pedidos_historial`, `pedidos_adjuntos`, `pedidos_informes`, `pedidos_informes_secuencia`
+- `tareas_internas`, `tipos_tarea_interna` - Tareas exclusivas del área técnica
 
 ### Telecomunicaciones
 - `sedes_internet`, `sedes_telefonia_lineas`, `sedes_vigilancia`, `sedes_planos`
@@ -248,6 +250,12 @@ Ubicación: `setup/`
 
 - `inventario_insumos_v1.sql` - Esquema completo de la base de datos
 - `migracion_pedidos.sql` - Módulo de pedidos
+- `migracion_tareas_internas.sql` - Tabla para tareas internas
+- `migracion_tipo_tarea_interna.sql` - Tipos categorizados de tareas
+- `migracion_remito_firmado.sql` - Adjuntar remitos escaneados
+- `migracion_uploads.sql` - Adaptación de base para paths de uploads
+- `migracion_informes_numeracion.sql` - Secuencia anual para informes
+- `migracion_nota_solicitud.sql` - Nota PDF adjunta a remitos
 
 Para nuevas migraciones, crear archivo con formato: `migracion_[modulo].sql`
 
@@ -260,6 +268,8 @@ Para nuevas migraciones, crear archivo con formato: `migracion_[modulo].sql`
 - `app_base_url()` - URL base de la aplicación
 - `csrf_token()`, `csrf_input()`, `verify_csrf()` - Protección CSRF
 - `procesarArchivoAdjunto()` - Guardar archivos de ingresos
+- `generarNumeroRemito()` / `generarNumeroInforme()` - Secuencias por año
+- `getFromCache()`, `setToCache()`, `invalidarCache()` - Caché simple (ej. Dashboard)
 
 ### En `auth.php`
 - `estaAutenticado()` - Verificar si hay sesión activa
@@ -268,6 +278,7 @@ Para nuevas migraciones, crear archivo con formato: `migracion_[modulo].sql`
 - `verificarPermiso($modulo, $accion)` - Redirigir si no tiene permiso
 - `obtenerUsuarioId()` - ID del usuario actual
 - `tieneRol($nombreRol)` - Verificar rol del usuario
+- `verificarRateLimitLogin()`, `registrarIntentoLogin()` - Bloqueos contra fuerza bruta
 
 ### En `validar_archivo.php`
 - `validarArchivo($archivo, $opciones)` - Validación completa
@@ -341,9 +352,14 @@ Para nuevas migraciones, crear archivo con formato: `migracion_[modulo].sql`
    Insumo "Asignado" → Devolver desde Remito → Insumo vuelve a "Disponible"
    ```
 
-4. **Pedido de Soporte:**
+4. **Pedido de Soporte / Insumos:**
    ```
-   Crear Pedido → (opcional) Relacionar con Insumo → Asignar Técnico → Completar con Informe
+   Crear Pedido → Relacionar con Insumo → Asignar Técnico → Completar con Informe (Soporte) o Preparar Remito (Insumo)
+   ```
+
+5. **Tareas Internas:**
+   ```
+   Crear Tarea Interna → Disponible → Técnico "Toma" la tarea → En Proceso → Se marca Completada
    ```
 
 ---

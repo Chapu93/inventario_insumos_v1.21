@@ -559,7 +559,11 @@ function tomarPedido(id) {
                 showToast(resp.error || 'Error al tomar pedido', 'error');
             }
         },
-        error: function() { showToast('Error de conexión', 'error'); }
+        error: function(xhr) { 
+            let msg = 'Error de conexión';
+            if (xhr.responseJSON && xhr.responseJSON.error) msg = xhr.responseJSON.error;
+            showToast(msg, 'error'); 
+        }
     });
 }
 
@@ -589,7 +593,11 @@ function eliminarPedido(id) {
                         showToast(resp.error || 'Error al eliminar', 'error');
                     }
                 },
-                error: function() { showToast('Error de conexión', 'error'); }
+                error: function(xhr) { 
+                    let msg = 'Error de conexión';
+                    if (xhr.responseJSON && xhr.responseJSON.error) msg = xhr.responseJSON.error;
+                    showToast(msg, 'error'); 
+                }
             });
         }
     });
@@ -615,7 +623,11 @@ function abrirModalAsignar(id) {
                 showToast('Error al cargar usuarios: ' + r.error, 'error');
             }
         },
-        error: function() { showToast('Error de conexión', 'error'); }
+        error: function(xhr) { 
+            let msg = 'Error de conexión';
+            if (xhr.responseJSON && xhr.responseJSON.error) msg = xhr.responseJSON.error;
+            showToast(msg, 'error'); 
+        }
     });
 }
 
@@ -650,7 +662,11 @@ $(document).ready(function() {
                     showToast(r.error || 'Error al asignar', 'error');
                 }
             },
-            error: function() { showToast('Error de conexión', 'error'); }
+            error: function(xhr) { 
+                let msg = 'Error de conexión';
+                if (xhr.responseJSON && xhr.responseJSON.error) msg = xhr.responseJSON.error;
+                showToast(msg, 'error'); 
+            }
         });
     });
 
@@ -694,9 +710,11 @@ $(document).ready(function() {
                     showToast(resp.error || 'Error', 'error');
                 }
             },
-            error: function() { 
+            error: function(xhr) { 
                 $btn.prop('disabled', false).html('Registrar Entrega');
-                showToast('Error de conexión al subir los datos', 'error'); 
+                let msg = 'Error de conexión al subir los datos';
+                if (xhr.responseJSON && xhr.responseJSON.error) msg = xhr.responseJSON.error;
+                showToast(msg, 'error'); 
             }
         });
     });
@@ -731,7 +749,11 @@ function actualizarLogistica(id, estadoActual, metodo) {
                         showToast(resp.error || 'Error', 'error');
                     }
                 },
-                error: function() { showToast('Error de conexión', 'error'); }
+                error: function(xhr) { 
+                    let msg = 'Error de conexión';
+                    if (xhr.responseJSON && xhr.responseJSON.error) msg = xhr.responseJSON.error;
+                    showToast(msg, 'error'); 
+                }
             });
         }
     });

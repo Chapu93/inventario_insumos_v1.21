@@ -145,6 +145,71 @@ include '../../includes/header.php';
   </div>
 </div>
 
+<!-- Modal Exportar Insumos -->
+<div class="modal fade" id="modalExportarInsumos" tabindex="-1" aria-labelledby="modalExportarInsumosLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content shadow-lg border-0">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="modalExportarInsumosLabel">
+          <i class="fas fa-boxes me-2"></i>Distribución de Insumos - Ref: <span id="spanRefExportar"></span>
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="row mb-3 align-items-end">
+          <div class="col-md-3">
+            <label class="form-label small fw-bold">Filtrar por Tipo</label>
+            <select class="form-select form-select-sm" id="filtroExportarTipo" onchange="aplicarFiltrosExportar()">
+              <option value="">Todos los tipos</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small fw-bold">Filtrar por Localidad</label>
+            <select class="form-select form-select-sm" id="filtroExportarLocalidad" onchange="aplicarFiltrosExportar()">
+              <option value="">Todas las localidades</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small fw-bold">Filtrar por Sede</label>
+            <select class="form-select form-select-sm" id="filtroExportarSede" onchange="aplicarFiltrosExportar()">
+              <option value="">Todas las sedes</option>
+            </select>
+          </div>
+          <div class="col-md-3 text-end">
+            <button type="button" class="btn btn-success shadow-sm btn-sm" id="btnDescargarExcel" onclick="descargarExcelInsumos()" style="display:none;">
+              <i class="fas fa-file-excel me-2"></i>Exportar a Excel
+            </button>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-striped table-hover align-middle border" id="tablaExportarInsumos">
+            <thead class="table-light">
+              <tr>
+                <th>Producto</th>
+                <th>Tipo</th>
+                <th>Nro Serie</th>
+                <th>Estado</th>
+                <th>Localidad</th>
+                <th>Sede Actual</th>
+                <th>Área Actual</th>
+                <th>Remito</th>
+                <th>Asignado A</th>
+                <th>Fecha Entrega</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyExportarInsumos">
+              <tr><td colspan="10" class="text-center text-muted">Cargando...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
   const BASE = '<?php echo app_base_url(); ?>';
   const PERMISOS = {
@@ -231,7 +296,8 @@ include '../../includes/header.php';
             }
 
             botones += `
-            <button class="btn btn-sm btn-success" 
+            <button class="btn btn-sm text-white" 
+                    style="background-color: #fd7e14; border-color: #fd7e14;"
                     onclick="verDocumentosIngreso(${row.id_ingreso})" 
                     data-bs-toggle="tooltip" 
                     title="Ver documentos"
@@ -249,6 +315,16 @@ include '../../includes/header.php';
                 <i class="fas fa-trash"></i>
               </button>`;
             }
+
+            // Nuevo botón de Excel / Distribución
+            botones += `
+            <button class="btn btn-sm btn-success" 
+                    onclick="abrirModalExportarInsumos(${row.id_ingreso})" 
+                    data-bs-toggle="tooltip" 
+                    title="Ver distribución y exportar Excel"
+                    aria-label="Ver y exportar a Excel">
+              <i class="fas fa-file-excel"></i>
+            </button>`;
 
             botones += '</div>';
             return botones;
@@ -692,6 +768,135 @@ include '../../includes/header.php';
             });
         }
     });
+  }
+
+  // --- Lógica de Exportación de Insumos y Distribución ---
+  let excelDataActual = [];
+  let excelDataFiltrada = [];
+  let nroReferenciaActual = '';
+
+  function abrirModalExportarInsumos(id_ingreso) {
+    const modal = new bootstrap.Modal(document.getElementById('modalExportarInsumos'));
+    $('#tbodyExportarInsumos').html('<tr><td colspan="10" class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x text-muted mb-2"></i><br>Cargando datos de distribución...</td></tr>');
+    $('#btnDescargarExcel').hide();
+    $('#spanRefExportar').text('...');
+    
+    // Limpiar filtros
+    $('#filtroExportarTipo, #filtroExportarLocalidad, #filtroExportarSede').html('<option value="">Todos</option>');
+    
+    modal.show();
+
+    $.ajax({
+      url: BASE + '/ajax/ingresos_exportar_insumos.php',
+      type: 'GET',
+      data: { id: id_ingreso },
+      dataType: 'json',
+      success: function(r) {
+        if (!r.success) {
+          $('#tbodyExportarInsumos').html(`<tr><td colspan="10" class="text-center text-danger py-3">Error: ${r.error}</td></tr>`);
+          return;
+        }
+        
+        nroReferenciaActual = r.data.ingreso.nro_referencia || 'Desconocido';
+        $('#spanRefExportar').text(nroReferenciaActual);
+        excelDataActual = r.data.data;
+        excelDataFiltrada = [...excelDataActual];
+        
+        if (excelDataActual.length === 0) {
+           $('#tbodyExportarInsumos').html('<tr><td colspan="10" class="text-center text-muted py-3">No hay insumos registrados para este ingreso.</td></tr>');
+           return;
+        }
+
+        // Llenar selects de filtros dinámicamente
+        const tipos = [...new Set(excelDataActual.map(i => i.tipo_insumo).filter(Boolean))].sort();
+        const localidades = [...new Set(excelDataActual.map(i => i.nombre_localidad).filter(Boolean))].sort();
+        const sedes = [...new Set(excelDataActual.map(i => i.nombre_sede).filter(Boolean))].sort();
+
+        $('#filtroExportarTipo').html('<option value="">Todos los tipos</option>' + tipos.map(t => `<option value="${t}">${t}</option>`).join(''));
+        $('#filtroExportarLocalidad').html('<option value="">Todas las localidades</option>' + localidades.map(l => `<option value="${l}">${l}</option>`).join(''));
+        $('#filtroExportarSede').html('<option value="">Todas las sedes</option>' + sedes.map(s => `<option value="${s}">${s}</option>`).join(''));
+
+        renderTablaExportarInsumos();
+        $('#btnDescargarExcel').show();
+      },
+      error: function() {
+        $('#tbodyExportarInsumos').html(`<tr><td colspan="10" class="text-center text-danger py-3">Error de conexión al cargar datos.</td></tr>`);
+      }
+    });
+  }
+
+  function aplicarFiltrosExportar() {
+      const tipo = $('#filtroExportarTipo').val();
+      const localidad = $('#filtroExportarLocalidad').val();
+      const sede = $('#filtroExportarSede').val();
+
+      excelDataFiltrada = excelDataActual.filter(item => {
+          if (tipo && item.tipo_insumo !== tipo) return false;
+          if (localidad && item.nombre_localidad !== localidad) return false;
+          if (sede && item.nombre_sede !== sede) return false;
+          return true;
+      });
+
+      renderTablaExportarInsumos();
+  }
+
+  function renderTablaExportarInsumos() {
+      let html = '';
+      if (excelDataFiltrada.length === 0) {
+          html = '<tr><td colspan="10" class="text-center text-muted py-3">No hay insumos que coincidan con los filtros.</td></tr>';
+      } else {
+          excelDataFiltrada.forEach(item => {
+             let asignadoA = item.nombre_persona_asignada ? (item.nombre_persona_asignada + ' ' + item.apellido_persona_asignada) : '-';
+             let colorBadge = item.estado === 'Disponible' ? 'bg-success' : (item.estado === 'Asignado' ? 'bg-primary' : 'bg-secondary');
+             
+             html += `<tr>
+               <td><strong>${$('<div>').text(item.nombre_insumo || '-').html()}</strong></td>
+               <td>${$('<div>').text(item.tipo_insumo || '-').html()}</td>
+               <td><small class="text-muted">${$('<div>').text(item.numero_serie || '-').html()}</small></td>
+               <td><span class="badge ${colorBadge}">${item.estado}</span></td>
+               <td>${$('<div>').text(item.nombre_localidad || '-').html()}</td>
+               <td>${$('<div>').text(item.nombre_sede || '-').html()}</td>
+               <td>${$('<div>').text(item.nombre_area || '-').html()}</td>
+               <td>${$('<div>').text(item.numero_remito || '-').html()}</td>
+               <td>${$('<div>').text(asignadoA).html()}</td>
+               <td>${formatearFecha(item.fecha_asignacion) || '-'}</td>
+             </tr>`;
+          });
+      }
+      $('#tbodyExportarInsumos').html(html);
+  }
+
+  function descargarExcelInsumos() {
+    if (excelDataFiltrada.length === 0) return;
+    
+    // Preparar array de objetos para SheetJS (usando los datos filtrados)
+    const dataAExportar = excelDataFiltrada.map(item => ({
+       'Licitación/Referencia': item.nro_referencia || '',
+       'Producto': item.nombre_insumo || '',
+       'Tipo': item.tipo_insumo || '',
+       'Número de Serie': item.numero_serie || '',
+       'Estado': item.estado || '',
+       'Localidad': item.nombre_localidad || '',
+       'Sede Actual': item.nombre_sede || '',
+       'Área Actual': item.nombre_area || '',
+       'Remito de Entrega': item.numero_remito || '',
+       'Asignado A': item.nombre_persona_asignada ? (item.nombre_persona_asignada + ' ' + item.apellido_persona_asignada) : '',
+       'Fecha Asignación': formatearFecha(item.fecha_asignacion) || ''
+    }));
+
+    // Crear libro usando SheetJS (XLSX global)
+    if (typeof XLSX === 'undefined') {
+        showToast('Error: Librería de exportación no cargada. Pruebe recargando la página.', 'error');
+        return;
+    }
+    
+    const ws = XLSX.utils.json_to_sheet(dataAExportar);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Distribución");
+    
+    // Generar archivo y descargar
+    const filename = `distribucion_insumos_${nroReferenciaActual.replace(/[^a-z0-9]/gi, '_')}.xlsx`;
+    XLSX.writeFile(wb, filename);
   }
 </script>
 <?php include '../../includes/footer.php'; ?>
