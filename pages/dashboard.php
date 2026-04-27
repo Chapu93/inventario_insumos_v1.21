@@ -82,17 +82,38 @@ $totalStockOficina = (int)($stockTotales['oficina'] ?? 0);
 $totalStockDeposito = (int)($stockTotales['deposito'] ?? 0);
 $totalStockSistema = $totalStockOficina + $totalStockDeposito;
 
-// Contar Pedidos Pendientes
-$sqlPedidos = "SELECT COUNT(*) FROM pedidos WHERE estado IN ('Pendiente', 'En Proceso')";
-$paramsPedidos = [];
-if (!tienePermiso('pedidos', 'ver_todos')) {
-    $uId = obtenerUsuarioId();
-    $sqlPedidos .= " AND (id_usuario_solicitante = ? OR asignado_a = ?)";
-    $paramsPedidos = [$uId, $uId];
-}
+// Contar Pedidos por tipo (Técnicos e Insumos) - Lógica "Accionable" (Pool + Propio)
+$uId = obtenerUsuarioId();
+$sqlPedidos = "SELECT tipo, COUNT(*) as cant FROM pedidos WHERE estado IN ('Pendiente', 'En Proceso')
+               AND (asignado_a = ? OR asignado_a IS NULL OR asignado_a = 0 OR (id_usuario_solicitante = ? AND estado = 'Pendiente'))
+               GROUP BY tipo";
+$paramsPedidos = [$uId, $uId];
+
 $stmtP = $conexion->prepare($sqlPedidos);
 $stmtP->execute($paramsPedidos);
-$pendientes_count = $stmtP->fetchColumn();
+$resultsP = $stmtP->fetchAll();
+
+$tecnicos_count = 0;
+$insumos_count = 0;
+foreach ($resultsP as $row) {
+    if ($row['tipo'] === 'Pedido Insumo') {
+        $insumos_count = (int)$row['cant'];
+    } else {
+        $tecnicos_count += (int)$row['cant'];
+    }
+}
+$pedidos_count = $tecnicos_count + $insumos_count;
+
+// Contar Tareas Internas Pendientes - Lógica "Accionable" (Pool + Propio)
+$sqlTareas = "SELECT COUNT(*) FROM tareas_internas WHERE estado IN ('Pendiente', 'En Proceso')
+               AND (asignado_a = ? OR asignado_a IS NULL OR asignado_a = 0 OR (creado_por = ? AND estado = 'Pendiente'))";
+$paramsTareas = [$uId, $uId];
+
+$stmtT = $conexion->prepare($sqlTareas);
+$stmtT->execute($paramsTareas);
+$tareas_count = (int)$stmtT->fetchColumn();
+
+$pendientes_count = $pedidos_count + $tareas_count;
 ?>
 <?php include '../includes/header.php'; ?>
 
@@ -111,7 +132,16 @@ $pendientes_count = $stmtP->fetchColumn();
             <div class="dashboard-card dashboard-card--primary" style="background: linear-gradient(45deg, #FF512F, #DD2476); border-left-color: #DD2476; cursor: pointer;">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <h3 id="pedidos-pendientes"><?php echo $pendientes_count; ?></h3>
+                        <?php 
+                        $tooltip = "Pedidos Técnicos: $tecnicos_count <br> Pedidos Insumos: $insumos_count <br> Tareas Internas: $tareas_count";
+                        ?>
+                        <h3 id="pedidos-pendientes" 
+                            data-bs-toggle="tooltip" 
+                            data-bs-placement="top" 
+                            data-bs-html="true" 
+                            title="<?php echo $tooltip; ?>">
+                            <?php echo $pendientes_count; ?>
+                        </h3>
                         <p><i class="fas fa-tasks me-2"></i>Pendientes</p>
                     </div>
                     <div class="align-self-center">

@@ -12,6 +12,33 @@ if (!tienePermiso('pedidos', 'ver_propios') && !tienePermiso('pedidos', 'ver_tod
 
 $puedeVerPendientes = tienePermiso('pedidos', 'ver_todos') || tienePermiso('pedidos', 'gestionar');
 
+// Obtener contadores para las pestañas
+$uId = obtenerUsuarioId();
+$db = conectarDB();
+
+// 1. Tareas Internas (Pool)
+$n_tareas = (int)$db->query("SELECT COUNT(*) FROM tareas_internas WHERE estado IN ('Pendiente', 'En Proceso') AND (asignado_a IS NULL OR asignado_a = 0)")->fetchColumn();
+
+// 2. Pendientes Técnicos (Pool)
+$n_pend_tec = (int)$db->query("SELECT COUNT(*) FROM pedidos WHERE tipo IN ('Mantenimiento', 'Reparación', 'Soporte') AND estado IN ('Pendiente', 'En Proceso') AND (asignado_a IS NULL OR asignado_a = 0)")->fetchColumn();
+
+// 3. Pedidos de Insumos (Pendientes)
+$n_insumos = (int)$db->query("SELECT COUNT(*) FROM pedidos WHERE tipo = 'Pedido Insumo' AND estado = 'Pendiente'")->fetchColumn();
+
+// 4. Logística (En Tránsito)
+$n_logistica = (int)$db->query("SELECT COUNT(*) FROM pedidos WHERE tipo = 'Pedido Insumo' AND estado_entrega IN ('Preparado', 'Enviado')")->fetchColumn();
+
+// 5. Mis Tareas (Asignadas a mi)
+$stmtMP = $db->prepare("SELECT COUNT(*) FROM pedidos WHERE asignado_a = ? AND estado IN ('Pendiente', 'En Proceso')");
+$stmtMP->execute([$uId]);
+$total_mis_pedidos = (int)$stmtMP->fetchColumn();
+
+$stmtMT = $db->prepare("SELECT COUNT(*) FROM tareas_internas WHERE asignado_a = ? AND estado IN ('Pendiente', 'En Proceso')");
+$stmtMT->execute([$uId]);
+$total_mis_tareas = (int)$stmtMT->fetchColumn();
+
+$total_mis_cosas = $total_mis_pedidos + $total_mis_tareas;
+
 include '../../includes/header.php';
 ?>
 
@@ -36,14 +63,14 @@ include '../../includes/header.php';
 <ul class="nav nav-tabs mb-0" id="pedidosTabs" role="tablist">
   <li class="nav-item" role="presentation">
     <button class="nav-link active" id="tareas-tab" data-bs-toggle="tab" data-bs-target="#tab-content" type="button" role="tab" data-modo="tareas_internas" data-section="tareas" title="Tareas internas del área (depósito, racks, limpieza, etc.)">
-        <i class="fas fa-tasks me-2"></i>Tareas Internas
+        <i class="fas fa-tasks me-2"></i>Tareas Internas (<?php echo $n_tareas; ?>)
     </button>
   </li>
 
   <?php if ($puedeVerPendientes): ?>
   <li class="nav-item" role="presentation">
     <button class="nav-link" id="pendientes-tab" data-bs-toggle="tab" data-bs-target="#tab-content" type="button" role="tab" data-modo="pendientes" data-bs-toggle="tooltip" title="Tareas técnicas sin asignar">
-        <i class="fas fa-tools me-2"></i>Pendientes Técnicos
+        <i class="fas fa-tools me-2"></i>Pendientes Técnicos (<?php echo $n_pend_tec; ?>)
     </button>
   </li>
   <?php endif; ?>
@@ -51,19 +78,19 @@ include '../../includes/header.php';
   <?php if (tienePermiso('pedidos', 'ver_todos')): ?>
   <li class="nav-item" role="presentation">
     <button class="nav-link" id="insumos-tab" data-bs-toggle="tab" data-bs-target="#tab-content" type="button" role="tab" data-modo="pedidos_insumos" title="Solicitudes de insumos pendientes de preparación">
-        <i class="fas fa-boxes me-2"></i>Pedidos de Insumos
+        <i class="fas fa-boxes me-2"></i>Pedidos de Insumos (<?php echo $n_insumos; ?>)
     </button>
   </li>
   <li class="nav-item" role="presentation">
     <button class="nav-link" id="transito-tab" data-bs-toggle="tab" data-bs-target="#tab-content" type="button" role="tab" data-modo="logistica" title="Pedidos preparados en proceso de entrega">
-        <i class="fas fa-shipping-fast me-2"></i>En Tránsito
+        <i class="fas fa-shipping-fast me-2"></i>En Tránsito (<?php echo $n_logistica; ?>)
     </button>
   </li>
   <?php endif; ?>
 
   <li class="nav-item" role="presentation">
     <button class="nav-link" id="mis-pedidos-tab" data-bs-toggle="tab" data-bs-target="#tab-content" type="button" role="tab" data-modo="mis_pedidos" title="Tareas técnicas y tareas internas asignadas a mi usuario">
-        <i class="fas fa-user-clock me-2"></i>Mis Tareas
+        <i class="fas fa-user-clock me-2"></i>Mis Tareas (<?php echo $total_mis_cosas; ?>)
     </button>
   </li>
 
@@ -187,7 +214,6 @@ include '../../includes/header.php';
                         <tr>
                             <th style="width:60px">#</th>
                             <th>Título</th>
-                            <th>Descripción</th>
                             <th style="width:120px">Estado</th>
                             <th>Creado por</th>
                             <th>Asignado a</th>
@@ -868,17 +894,16 @@ function iniciarTablaTareas(overrideModo) {
                     showToast('Error al cargar tareas: ' + code, 'error');
                 }
             },
-            order: [[6, 'desc']],
+            order: [[5, 'desc']],
             columns: [
                 { data: 0, width: '60px' },
                 { data: 1 },
-                { data: 2 },
-                { data: 3, width: '120px' },
+                { data: 2, width: '120px' },
+                { data: 3 },
                 { data: 4 },
                 { data: 5 },
-                { data: 6 },
-                { data: 7 }, // Fecha finalización (oculta en activas)
-                { data: 8, orderable: false, width: '110px' }
+                { data: 6 }, // Fecha finalización (oculta en activas)
+                { data: 7, orderable: false, width: '110px' }
             ],
             drawCallback: function() {
                 if (typeof inicializarTooltips === 'function') inicializarTooltips();
@@ -888,8 +913,8 @@ function iniciarTablaTareas(overrideModo) {
         dtTareas.ajax.reload();
     }
 
-    // La visibilidad de la columna 7 (Fecha Finalización) ahora depende del modo
-    dtTareas.column(7).visible(currentTareasModo === 'historial' || currentTareasModo === 'completadas');
+    // La visibilidad de la columna 6 (Fecha Finalización) ahora depende del modo
+    dtTareas.column(6).visible(currentTareasModo === 'historial' || currentTareasModo === 'completadas');
 }
 
 // La función cambiarVistaTareas ha sido reemplazada por la lógica en adaptarFiltros y el evento de cambio de #filtroVista

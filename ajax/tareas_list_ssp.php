@@ -24,15 +24,14 @@ try {
     $columns = [
         0 => 't.id_tarea',
         1 => 't.titulo',
-        2 => 't.descripcion',
-        3 => 't.estado',
-        4 => 'uc.apellido',
-        5 => 'ua.apellido',
-        6 => 't.fecha_creacion',
-        7 => 't.fecha_finalizacion',
+        2 => 't.estado',
+        3 => 'uc.apellido',
+        4 => 'ua.apellido',
+        5 => 't.fecha_creacion',
+        6 => 't.fecha_finalizacion',
     ];
 
-    $orderColIdx = isset($_GET['order'][0]['column']) ? (int)$_GET['order'][0]['column'] : 6;
+    $orderColIdx = isset($_GET['order'][0]['column']) ? (int)$_GET['order'][0]['column'] : 5;
     $orderDir    = (isset($_GET['order'][0]['dir']) && strtolower($_GET['order'][0]['dir']) === 'asc') ? 'ASC' : 'DESC';
     $orderBy     = $columns[$orderColIdx] ?? 't.fecha_creacion';
 
@@ -141,7 +140,6 @@ try {
         return [
             '#' . $r['id_tarea'],
             '<strong>' . htmlspecialchars($r['titulo']) . '</strong>',
-            $descCorta,
             $estadoHtml,
             htmlspecialchars($r['creador_nombre'] . ' ' . $r['creador_apellido']),
             $asignadoHtml,
