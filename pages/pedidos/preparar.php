@@ -124,11 +124,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             // Lógica de Stock
             if ($ins['tipo_insumo'] === 'Varios') {
-                $cantidadTotal = (int)$ins['cantidad'] - $reps;
+                $stockOficina = (int) ($ins['cantidad_oficina'] ?? $ins['cantidad']);
+                $stockDeposito = (int) ($ins['cantidad_deposito'] ?? 0);
+
+                $descontarOficina = min($reps, $stockOficina); // Lo que se puede descontar de oficina
+                $descontarDeposito = $reps - $descontarOficina; // El resto del depósito
+
+                $nuevoOficina = $stockOficina - $descontarOficina;
+                $nuevoDeposito = $stockDeposito - $descontarDeposito;
+                $cantidadTotal = $nuevoOficina + $nuevoDeposito;
+
+                // Si hay stock remanente (en oficina o depósito), mantener disponible; si no, asignado
                 $estado = ($cantidadTotal > 0) ? 'Disponible' : 'Asignado';
 
-                $db->prepare("UPDATE insumos SET cantidad=?, estado=?, id_sede_actual=?, id_area_asignacion_actual=?, id_punto_stock_actual=".($cantidadTotal > 0 ? "id_punto_stock_actual" : "NULL")." WHERE id_insumo=?")
-                   ->execute([$cantidadTotal, $estado, $pedido['id_sede'], $pedido['id_area'], $idIns]);
+                if ($cantidadTotal > 0) {
+                    $db->prepare("UPDATE insumos SET cantidad=?, cantidad_oficina=?, cantidad_deposito=?, estado=?, id_sede_actual=?, id_area_asignacion_actual=?, id_punto_stock_actual=id_punto_stock_actual WHERE id_insumo=?")
+                       ->execute([$cantidadTotal, $nuevoOficina, $nuevoDeposito, $estado, $pedido['id_sede'], $pedido['id_area'], $idIns]);
+                } else {
+                    // Si se agotó todo, limpiar punto de stock
+                    $db->prepare("UPDATE insumos SET cantidad=?, cantidad_oficina=?, cantidad_deposito=?, estado=?, id_sede_actual=?, id_area_asignacion_actual=?, id_punto_stock_actual=NULL WHERE id_insumo=?")
+                       ->execute([$cantidadTotal, $nuevoOficina, $nuevoDeposito, $estado, $pedido['id_sede'], $pedido['id_area'], $idIns]);
+                }
             } else {
                 $db->prepare("UPDATE insumos SET estado='Asignado', id_sede_actual=?, id_area_asignacion_actual=?, id_punto_stock_actual=NULL WHERE id_insumo=?")
                    ->execute([$pedido['id_sede'], $pedido['id_area'], $idIns]);

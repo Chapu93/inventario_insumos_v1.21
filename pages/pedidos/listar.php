@@ -94,11 +94,13 @@ include '../../includes/header.php';
     </button>
   </li>
 
+  <?php if (tieneRol([1, 2])): ?>
   <li class="nav-item" role="presentation">
     <button class="nav-link" id="todos-tab" data-bs-toggle="tab" data-bs-target="#tab-content" type="button" role="tab" data-modo="todos" title="Historial completo de pedidos">
         <i class="fas fa-history me-2"></i>Historial
     </button>
   </li>
+  <?php endif; ?>
 </ul>
 
 <div id="seccionPedidos" class="d-none">

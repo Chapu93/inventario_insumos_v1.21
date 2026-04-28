@@ -69,9 +69,38 @@ try {
         $stmtDet = $db->prepare("INSERT INTO remitos_detalle (id_remito, id_insumo, cantidad) VALUES (?,?,1)");
         $stmtDet->execute([$idRemito, $idInsumo]);
         
-        // Actualizar estado del insumo (y marcar como usado si era nuevo)
-        $stmtUpd = $db->prepare("UPDATE insumos SET estado = 'Asignado', id_sede_actual = ?, id_area_asignacion_actual = ?, id_punto_stock_actual = NULL, es_nuevo = IF(es_nuevo = 1, 0, es_nuevo) WHERE id_insumo = ?");
-        $stmtUpd->execute([$idSede, $idArea, $idInsumo]);
+        // Actualizar estado del insumo (manejo de stock dual para Varios)
+        if ($insumo['tipo_insumo'] === 'Varios') {
+            // Recargar info completa para tener cantidades
+            $st = $db->prepare("SELECT cantidad, cantidad_oficina, cantidad_deposito FROM insumos WHERE id_insumo = ? FOR UPDATE");
+            $st->execute([$idInsumo]);
+            $i = $st->fetch();
+            
+            $reps = 1; // Asignación rápida siempre es 1
+            $stockOficina = (int) ($i['cantidad_oficina'] ?? $i['cantidad']);
+            $stockDeposito = (int) ($i['cantidad_deposito'] ?? 0);
+
+            $descontarOficina = min($reps, $stockOficina);
+            $descontarDeposito = $reps - $descontarOficina;
+
+            $nuevoOficina = $stockOficina - $descontarOficina;
+            $nuevoDeposito = $stockDeposito - $descontarDeposito;
+            $cantidadTotal = $nuevoOficina + $nuevoDeposito;
+
+            $estado = ($cantidadTotal > 0) ? 'Disponible' : 'Asignado';
+            
+            if ($cantidadTotal > 0) {
+                $db->prepare("UPDATE insumos SET cantidad=?, cantidad_oficina=?, cantidad_deposito=?, estado=?, id_sede_actual=?, id_area_asignacion_actual=?, es_nuevo = IF(es_nuevo = 1, 0, es_nuevo) WHERE id_insumo=?")
+                   ->execute([$cantidadTotal, $nuevoOficina, $nuevoDeposito, $estado, $idSede, $idArea, $idInsumo]);
+            } else {
+                $db->prepare("UPDATE insumos SET cantidad=?, cantidad_oficina=?, cantidad_deposito=?, estado=?, id_sede_actual=?, id_area_asignacion_actual=?, id_punto_stock_actual=NULL, es_nuevo = IF(es_nuevo = 1, 0, es_nuevo) WHERE id_insumo=?")
+                   ->execute([$cantidadTotal, $nuevoOficina, $nuevoDeposito, $estado, $idSede, $idArea, $idInsumo]);
+            }
+        } else {
+            // Para unitarios, lógica estándar
+            $stmtUpd = $db->prepare("UPDATE insumos SET estado = 'Asignado', id_sede_actual = ?, id_area_asignacion_actual = ?, id_punto_stock_actual = NULL, es_nuevo = IF(es_nuevo = 1, 0, es_nuevo) WHERE id_insumo = ?");
+            $stmtUpd->execute([$idSede, $idArea, $idInsumo]);
+        }
         
         $db->commit();
         

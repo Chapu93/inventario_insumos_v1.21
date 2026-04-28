@@ -80,11 +80,18 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
             <h1>
                 <i class="fas fa-handshake me-2"></i>Gestión de Asignaciones
             </h1>
-            <?php if (tienePermiso('asignaciones', 'crear')): ?>
+            <div class="d-flex gap-2">
+                <?php if (tienePermiso('asignaciones', 'crear') && tienePermiso('asignaciones', 'devolver')): ?>
+                <button type="button" class="btn btn-warning" id="btnAbrirTransferencia">
+                    <i class="fas fa-exchange-alt me-2"></i>Transferir Insumos
+                </button>
+                <?php endif; ?>
+                <?php if (tienePermiso('asignaciones', 'crear')): ?>
                 <a href="nueva_pasos.php" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>Nueva Asignación
                 </a>
-            <?php endif; ?>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 </div>
@@ -622,6 +629,348 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
         </div>
     </div>
 </div>
+
+<!-- Modal Transferencia de Insumos -->
+<div class="modal fade" id="modalTransferencia" tabindex="-1" aria-labelledby="modalTransferenciaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTransferenciaLabel">
+                    <i class="fas fa-exchange-alt me-2"></i>Transferencia de Insumos
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+
+                <!-- Paso 1: Buscar persona origen -->
+                <div id="transf-paso1">
+                    <p class="text-muted mb-2 small">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Busque la persona cuyos insumos desea transferir. Se listarán todos sus insumos asignados activos.
+                    </p>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <input type="text" class="form-control" id="transfBuscarPersona"
+                            placeholder="Escriba nombre o apellido (mín. 2 caracteres)..." autocomplete="off">
+                    </div>
+                    <div id="transfResultadosBusqueda"></div>
+                </div>
+
+                <!-- Paso 2: Selección de insumos y datos del destino -->
+                <div id="transf-paso2" style="display:none;">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">
+                            <i class="fas fa-user me-2 text-muted"></i>
+                            Insumos asignados a: <strong id="transfNombreOrigen"></strong>
+                        </h6>
+                        <button class="btn btn-sm btn-outline-secondary" id="btnTransfVolver">
+                            <i class="fas fa-arrow-left me-1"></i>Cambiar persona
+                        </button>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input type="checkbox" id="transfChkAll" class="form-check-input">
+                        <label for="transfChkAll" class="form-check-label small text-muted">Seleccionar / deseleccionar todos</label>
+                    </div>
+                    <div class="table-responsive" style="max-height:260px;overflow-y:auto;">
+                        <table class="table table-sm table-striped w-100 align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th style="width:40px;"><i class="fas fa-check text-muted"></i></th>
+                                    <th>Insumo</th>
+                                    <th>Tipo</th>
+                                    <th>Remito</th>
+                                    <th>Sede / Área actual</th>
+                                    <th style="width:90px;">A transferir</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transfTablaInsumos"></tbody>
+                        </table>
+                    </div>
+
+                    <hr class="my-3">
+                    <h6><i class="fas fa-map-marker-alt me-2 text-muted"></i>Datos del destinatario</h6>
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Nombre <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-sm" id="transfNombreDest" placeholder="Nombre">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Apellido <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-sm" id="transfApellidoDest" placeholder="Apellido">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Sede <span class="text-danger">*</span></label>
+                            <select class="form-select form-select-sm" id="transfSedeDest">
+                                <option value="">Cargando sedes...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-semibold">Área <span class="text-danger">*</span></label>
+                            <select class="form-select form-select-sm" id="transfAreaDest">
+                                <option value="">Cargando áreas...</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-semibold">Observaciones</label>
+                            <input type="text" class="form-control form-control-sm" id="transfObservaciones"
+                                placeholder="Motivo de la transferencia (opcional)">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alerta de resultado -->
+                <div id="transfAlerta" class="mt-3" style="display:none;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnConfirmarTransferencia" style="display:none;">
+                    <i class="fas fa-exchange-alt me-1"></i>Confirmar Transferencia
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    // Estado interno del modal
+    var transfOrigen = {}; // { nombre, apellido }
+
+    // Cargar sedes y áreas al abrir el modal
+    function cargarSedesYAreas() {
+        const base = getAppBase();
+
+        // Sedes: usar modo=sedes del endpoint propio (sin filtro de localidad)
+        fetch(base + '/ajax/insumos_por_persona.php?modo=sedes')
+            .then(r => r.json())
+            .then(resp => {
+                const sedes = (resp.success && Array.isArray(resp.data && resp.data.sedes)) ? resp.data.sedes : [];
+                const $sel = document.getElementById('transfSedeDest');
+                $sel.innerHTML = '<option value="">-- Seleccione sede --</option>';
+                sedes.forEach(s => {
+                    $sel.innerHTML += `<option value="${s.id}">${s.nombre}</option>`;
+                });
+                if (!sedes.length) $sel.innerHTML += '<option disabled>Sin sedes disponibles</option>';
+            }).catch(() => {});
+
+        // Áreas: areas_listar devuelve array directo en resp.data
+        fetch(base + '/ajax/areas_listar.php')
+            .then(r => r.json())
+            .then(resp => {
+                // areas_listar.php usa json_success($areas) → resp.data es el array
+                const areas = Array.isArray(resp.data) ? resp.data : [];
+                const $sel = document.getElementById('transfAreaDest');
+                $sel.innerHTML = '<option value="">-- Seleccione área --</option>';
+                areas.forEach(a => {
+                    // areas_listar devuelve { id, nombre }
+                    $sel.innerHTML += `<option value="${a.id}">${a.nombre}</option>`;
+                });
+                if (!areas.length) $sel.innerHTML += '<option disabled>Sin áreas disponibles</option>';
+            }).catch(() => {});
+    }
+
+    // Abrir modal
+    document.getElementById('btnAbrirTransferencia') && document.getElementById('btnAbrirTransferencia').addEventListener('click', function () {
+        // Reset
+        document.getElementById('transfBuscarPersona').value = '';
+        document.getElementById('transfResultadosBusqueda').innerHTML = '';
+        document.getElementById('transfTablaInsumos').innerHTML = '';
+        document.getElementById('transfAlerta').style.display = 'none';
+        document.getElementById('transfNombreDest').value = '';
+        document.getElementById('transfApellidoDest').value = '';
+        document.getElementById('transfObservaciones').value = '';
+        document.getElementById('transf-paso1').style.display = '';
+        document.getElementById('transf-paso2').style.display = 'none';
+        document.getElementById('btnConfirmarTransferencia').style.display = 'none';
+        transfOrigen = {};
+        cargarSedesYAreas();
+        new bootstrap.Modal(document.getElementById('modalTransferencia')).show();
+    });
+
+    // Buscar persona con debounce
+    var buscarTimer;
+    document.getElementById('transfBuscarPersona').addEventListener('input', function () {
+        clearTimeout(buscarTimer);
+        const q = this.value.trim();
+        const $res = document.getElementById('transfResultadosBusqueda');
+        if (q.length < 2) { $res.innerHTML = ''; return; }
+        $res.innerHTML = '<div class="text-muted small"><i class="fas fa-spinner fa-spin me-1"></i>Buscando...</div>';
+        buscarTimer = setTimeout(function () {
+            fetch(getAppBase() + '/ajax/insumos_por_persona.php?modo=buscar&q=' + encodeURIComponent(q))
+                .then(r => r.json())
+                .then(resp => {
+                    if (!resp.success) throw new Error(resp.error || 'Error');
+                    const personas = resp.data.personas || [];
+                    if (!personas.length) {
+                        $res.innerHTML = '<div class="alert alert-info py-2">No se encontraron personas con insumos asignados.</div>';
+                        return;
+                    }
+                    let html = '<div class="list-group">';
+                    personas.forEach(p => {
+                        html += `<button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                            data-nombre="${p.nombre}" data-apellido="${p.apellido}" data-sede="${p.id_sede}" data-area="${p.id_area}">
+                            <div>
+                                <strong>${p.nombre_completo}</strong>
+                                <small class="text-muted d-block">${p.nombre_sede} &mdash; ${p.nombre_area} &mdash; ${p.localidad}</small>
+                            </div>
+                            <span class="badge bg-primary rounded-pill">${p.total_insumos} insumo(s)</span>
+                        </button>`;
+                    });
+                    html += '</div>';
+                    $res.innerHTML = html;
+                    // Click en persona
+                    $res.querySelectorAll('.list-group-item').forEach(btn => {
+                        btn.addEventListener('click', function () {
+                            seleccionarPersonaOrigen(this.dataset.nombre, this.dataset.apellido, this.dataset.sede, this.dataset.area);
+                        });
+                    });
+                })
+                .catch(err => { $res.innerHTML = `<div class="alert alert-danger py-2">${err.message}</div>`; });
+        }, 350);
+    });
+
+    // Seleccionar persona origen y cargar sus insumos
+    function seleccionarPersonaOrigen(nombre, apellido, idSede, idArea) {
+        transfOrigen = { nombre, apellido };
+        document.getElementById('transfNombreOrigen').textContent = nombre + ' ' + apellido;
+        
+        // Pre-completar sede y área del destino (requerimiento: misma que el origen)
+        if (idSede) document.getElementById('transfSedeDest').value = idSede;
+        if (idArea) document.getElementById('transfAreaDest').value = idArea;
+
+        const $tbody = document.getElementById('transfTablaInsumos');
+        $tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted"><i class="fas fa-spinner fa-spin me-1"></i>Cargando insumos...</td></tr>';
+        document.getElementById('transf-paso1').style.display = 'none';
+        document.getElementById('transf-paso2').style.display = '';
+        document.getElementById('btnConfirmarTransferencia').style.display = '';
+
+        fetch(getAppBase() + '/ajax/insumos_por_persona.php?modo=insumos&nombre=' + encodeURIComponent(nombre) + '&apellido=' + encodeURIComponent(apellido))
+            .then(r => r.json())
+            .then(resp => {
+                if (!resp.success) throw new Error(resp.error || 'Error');
+                const insumos = resp.data.insumos || [];
+                if (!insumos.length) {
+                    $tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Sin insumos activos</td></tr>';
+                    return;
+                }
+                let rows = '';
+                insumos.forEach(i => {
+                    const esVarios = i.tipo_insumo === 'Varios';
+                    const cantInput = esVarios
+                        ? `<input type="number" class="form-control form-control-sm transf-cant" min="1" max="${i.pendiente}" value="${i.pendiente}" data-max="${i.pendiente}" style="width:75px;">`
+                        : `<span class="badge bg-secondary">1</span>`;
+                    const identif = i.numero_serie ? `<small class="text-muted d-block">S/N: ${i.numero_serie}</small>`
+                        : (i.id_fisico ? `<small class="text-muted d-block">ID: ${i.id_fisico}</small>` : '');
+                    rows += `<tr>
+                        <td><input type="checkbox" class="form-check-input chk-transf" checked
+                            data-id="${i.id_insumo}" data-remito="${i.id_remito}" data-max="${i.pendiente}"></td>
+                        <td><strong>${i.nombre_insumo || i.tipo_insumo}</strong>${identif}</td>
+                        <td><span class="badge ${esVarios ? 'bg-info' : 'bg-primary'}">${i.tipo_insumo}</span></td>
+                        <td><small>${i.numero_remito}</small></td>
+                        <td><small>${i.sede}<br><span class="text-muted">${i.area}</span></small></td>
+                        <td>${cantInput}</td>
+                    </tr>`;
+                });
+                $tbody.innerHTML = rows;
+            })
+            .catch(err => {
+                $tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${err.message}</td></tr>`;
+            });
+    }
+
+    // Volver al paso 1
+    document.getElementById('btnTransfVolver').addEventListener('click', function () {
+        document.getElementById('transf-paso1').style.display = '';
+        document.getElementById('transf-paso2').style.display = 'none';
+        document.getElementById('btnConfirmarTransferencia').style.display = 'none';
+        document.getElementById('transfAlerta').style.display = 'none';
+    });
+
+    // Seleccionar todos
+    document.getElementById('transfChkAll').addEventListener('change', function () {
+        document.querySelectorAll('#transfTablaInsumos .chk-transf').forEach(c => { c.checked = this.checked; });
+    });
+
+    // Confirmar transferencia
+    document.getElementById('btnConfirmarTransferencia').addEventListener('click', function () {
+        const $alerta = document.getElementById('transfAlerta');
+        $alerta.style.display = 'none';
+
+        // Recolectar insumos seleccionados
+        const items = [];
+        document.querySelectorAll('#transfTablaInsumos .chk-transf:checked').forEach(chk => {
+            const id    = parseInt(chk.dataset.id, 10);
+            const remito= parseInt(chk.dataset.remito, 10);
+            const cantEl= chk.closest('tr').querySelector('.transf-cant');
+            const cant  = cantEl ? Math.max(1, Math.min(parseInt(cantEl.value || '1'), parseInt(chk.dataset.max || '1'))) : 1;
+            items.push({ id_insumo: id, id_remito: remito, cantidad: cant });
+        });
+
+        if (!items.length) {
+            $alerta.className = 'alert alert-warning'; $alerta.textContent = 'Seleccione al menos un insumo.';
+            $alerta.style.display = ''; return;
+        }
+
+        const nombre   = document.getElementById('transfNombreDest').value.trim();
+        const apellido = document.getElementById('transfApellidoDest').value.trim();
+        const sede     = document.getElementById('transfSedeDest').value;
+        const area     = document.getElementById('transfAreaDest').value;
+
+        if (!nombre || !apellido || !sede || !area) {
+            $alerta.className = 'alert alert-warning'; $alerta.textContent = 'Complete todos los datos del destino.';
+            $alerta.style.display = ''; return;
+        }
+
+        showConfirm({
+            titulo: 'Confirmar Transferencia',
+            mensaje: `¿Transferir ${items.length} insumo(s) de <strong>${transfOrigen.nombre} ${transfOrigen.apellido}</strong> a <strong>${nombre} ${apellido}</strong>?`,
+            icono: 'fa-exchange-alt text-warning',
+            onConfirm: function () {
+                const btn = document.getElementById('btnConfirmarTransferencia');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Procesando...';
+
+                const token = (document.querySelector('meta[name="csrf-token"]') || {}).content || '';
+                fetch(getAppBase() + '/ajax/transferir_insumos.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': token },
+                    body: JSON.stringify({
+                        nombre_origen   : transfOrigen.nombre,
+                        apellido_origen : transfOrigen.apellido,
+                        nombre_destino  : nombre,
+                        apellido_destino: apellido,
+                        id_sede_destino : parseInt(sede, 10),
+                        id_area_destino : parseInt(area, 10),
+                        observaciones   : document.getElementById('transfObservaciones').value.trim(),
+                        items           : items
+                    })
+                })
+                .then(r => r.json())
+                .then(resp => {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-exchange-alt me-1"></i>Confirmar Transferencia';
+                    if (!resp.success) throw new Error(resp.error || 'Error en transferencia');
+                    $alerta.className = 'alert alert-success';
+                    $alerta.innerHTML = `<i class="fas fa-check-circle me-1"></i><strong>Transferencia exitosa.</strong> Remito generado: <strong>${resp.data.numero_remito}</strong> (${resp.data.total_transferidos} insumo(s) transferidos).`;
+                    $alerta.style.display = '';
+                    document.getElementById('btnConfirmarTransferencia').style.display = 'none';
+                    setTimeout(() => {
+                        bootstrap.Modal.getInstance(document.getElementById('modalTransferencia')).hide();
+                        try { $('#tablaAsignaciones').DataTable().ajax.reload(); } catch(e) { location.reload(); }
+                    }, 2500);
+                })
+                .catch(err => {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-exchange-alt me-1"></i>Confirmar Transferencia';
+                    $alerta.className = 'alert alert-danger';
+                    $alerta.textContent = err.message;
+                    $alerta.style.display = '';
+                });
+            }
+        });
+    });
+})();
+</script>
 
 <?php include '../../includes/footer.php'; ?>
 
