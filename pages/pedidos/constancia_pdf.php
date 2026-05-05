@@ -6,7 +6,7 @@ if (!tienePermiso('pedidos', 'ver_propios') && !tienePermiso('pedidos', 'ver_tod
     die('No tienes permiso');
 }
 
-use setasign\Fpdi\Fpdi;
+// use setasign\Fpdi\Fpdi;
 
 $id = (int)($_GET['id'] ?? 0);
 if ($id <= 0) die('ID inválido');
@@ -28,10 +28,12 @@ $data = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$data) die('Pedido no encontrado');
 
 // Helper para decode utf8
-function u($s) { return utf8_decode($s ?? ''); }
+if (!function_exists('u')) {
+    function u($s) { return utf8_decode($s ?? ''); }
+}
 
 // Crear PDF con soporte FPDI para membrete
-$pdf = new Fpdi();
+$pdf = new \setasign\Fpdi\Fpdi();
 
 // Cargar plantilla membrete
 $templatePath = __DIR__ . '/../../membretada.pdf';
@@ -154,6 +156,9 @@ $pdf->Cell(60, 4, u($data['solicitante_nombre'] . ' ' . $data['solicitante_apell
 $pdf->SetXY(130, $y + 2);
 $pdf->Cell(60, 4, u('Recibido por (Firma y aclaración)'), 0, 0, 'C');
 
-$pdf->Output('I', 'Constancia_Recepcion.pdf');
-?>
+if (!isset($no_exit_pdf)) {
+    $pdf->Output('I', 'Constancia_Recepcion.pdf');
+} else {
+    echo $pdf->Output('S');
+}
 

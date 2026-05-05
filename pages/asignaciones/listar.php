@@ -74,6 +74,47 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
 
 <?php include '../../includes/header.php'; ?>
 
+<!-- Modal: Subir Remito Firmado (Reubicado al inicio para mayor compatibilidad) -->
+<div class="modal fade" id="modalSubirRemito" tabindex="-1" aria-labelledby="modalSubirRemitoLabel" aria-hidden="true" style="z-index: 1060;">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0">
+            <div class="modal-header bg-primary text-white py-3">
+                <h5 class="modal-title fw-bold" id="modalSubirRemitoLabel">
+                    <i class="fas fa-upload me-2"></i>Adjuntar Remito Firmado
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formSubirRemito" enctype="multipart/form-data">
+                <input type="hidden" name="id_remito" id="id_remito_firmado">
+                <div class="modal-body py-4">
+                    <div class="mb-4 text-center">
+                        <div class="icon-shape bg-light-primary text-primary rounded-circle mb-3 mx-auto" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-file-pdf fa-2x"></i>
+                        </div>
+                        <p class="text-muted">Seleccione el documento escaneado (PDF o Imagen)</p>
+                    </div>
+                    <div class="mb-3">
+                        <label for="archivo_remito_firmado" class="form-label fw-bold">Archivo del Remito</label>
+                        <input type="file" class="form-control" id="archivo_remito_firmado" name="archivo" accept=".pdf,image/*" required>
+                        <div class="form-text mt-2">Formatos permitidos: PDF, JPG, PNG. Máx. 10MB.</div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light d-flex justify-content-between py-3">
+                    <button type="button" class="btn btn-outline-danger px-3 shadow-sm" id="btnEliminarRemitoFirmado" style="display: none;">
+                        <i class="fas fa-trash-alt me-1"></i>Eliminar Actual
+                    </button>
+                    <div class="d-flex gap-2 ms-auto">
+                        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary px-4 shadow-sm" id="btnGuardarRemitoFirmado">
+                            <i class="fas fa-check me-1"></i>Subir Archivo
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div class="row">
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -975,6 +1016,90 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
 <?php include '../../includes/footer.php'; ?>
 
 <script>
+    $(document).on('click', '.btn-subir-remito', function(e) {
+        e.preventDefault();
+        const id = $(this).data('id');
+        const numero = $(this).data('numero');
+        const hasFile = $(this).data('has-file') == '1';
+        
+        const modalEl = document.getElementById('modalSubirRemito');
+        if (!modalEl) return;
+
+        document.getElementById('id_remito_firmado').value = id;
+        document.getElementById('modalSubirRemitoLabel').innerHTML = (hasFile ? '<i class="fas fa-sync me-2"></i>Reemplazar' : '<i class="fas fa-upload me-2"></i>Adjuntar') + ' Remito Firmado: ' + numero;
+        
+        // Mostrar/Ocultar botón de eliminar
+        document.getElementById('btnEliminarRemitoFirmado').style.display = hasFile ? 'block' : 'none';
+        
+        bootstrap.Modal.getOrCreateInstance(modalEl).show();
+    });
+
+    // Manejar eliminación
+    $(document).on('click', '#btnEliminarRemitoFirmado', function() {
+        const id = document.getElementById('id_remito_firmado').value;
+        if (!id) return;
+
+        showConfirm({
+            titulo: 'Eliminar Remito Firmado',
+            mensaje: '¿Está seguro de que desea eliminar el documento escaneado? Esta acción no se puede deshacer.',
+            claseBoton: 'btn-danger',
+            textoAceptar: 'Eliminar',
+            onConfirm: () => {
+                const btn = document.getElementById('btnEliminarRemitoFirmado');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+                fetch(getAppBase() + '/ajax/asignacion_eliminar_firmado.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `id_remito=${id}&_csrf=${(document.querySelector('meta[name="csrf-token"]') || {}).content || ''}`
+                })
+                .then(r => r.json())
+                .then(res => {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-trash-alt me-1"></i>Eliminar Actual';
+                    if (res.success) {
+                        showToast('Documento eliminado correctamente', 'success');
+                        bootstrap.Modal.getOrCreateInstance(document.getElementById('modalSubirRemito')).hide();
+                        try { $('#tablaAsignaciones').DataTable().ajax.reload(null, false); } catch(e) { location.reload(); }
+                    } else {
+                        showToast(res.error || 'Error al eliminar', 'error');
+                    }
+                });
+            }
+        });
+    });
+
+    // Manejar envío del formulario
+    $(document).on('submit', '#formSubirRemito', function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btnGuardarRemitoFirmado');
+        const file = document.getElementById('archivo_remito_firmado');
+        
+        if (!file.files.length) { showToast('Seleccione un archivo', 'warning'); return; }
+        
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subiendo...';
+        
+        const fd = new FormData(this);
+        fd.append('_csrf', (document.querySelector('meta[name="csrf-token"]') || {}).content || '');
+
+        fetch(getAppBase() + '/ajax/asignacion_subir_firmado.php', { method: 'POST', body: fd })
+        .then(r => r.json())
+        .then(res => {
+            btn.disabled = false; btn.innerHTML = '<i class="fas fa-check"></i> Subir Archivo';
+            if (res.success) {
+                showToast('Remito firmado guardado correctamente', 'success');
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('modalSubirRemito')).hide();
+                this.reset();
+                try { $('#tablaAsignaciones').DataTable().ajax.reload(null, false); } catch(e) { location.reload(); }
+            } else { showToast(res.error || 'Error al subir', 'error'); }
+        }).catch(e => {
+            btn.disabled = false; btn.innerHTML = '<i class="fas fa-check"></i> Subir Archivo';
+            showToast('Error de conexión', 'error');
+        });
+    });
+
     $(function () {
         // Inicializar estado desde URL o por defecto 'Activa'
         const urlParams = new URLSearchParams(window.location.search);

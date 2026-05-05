@@ -76,7 +76,7 @@ try {
     $total = (int)$db->query($sqlTotal)->fetchColumn();
 
     // Filtrado y agrupado por remito
-    $sqlGroup = "SELECT r.numero_remito,
+    $sqlGroup = "SELECT r.id_remito, r.numero_remito,
                         r.fecha_asignacion,
                         r.nombre_persona_asignada,
                         r.apellido_persona_asignada,
@@ -84,6 +84,7 @@ try {
                         s.nombre_sede,
                         l.nombre_localidad,
                         r.estado,
+                        r.remito_firmado,
                         SUM(d.cantidad) AS cantidad_insumos,
                         SUM(GREATEST(d.cantidad - COALESCE(d.cantidad_devuelta,0), 0)) AS activas
                  $baseFrom
@@ -112,6 +113,8 @@ try {
     $data = array_map(function($r){
         $activas = (int)$r['activas'];
         $estadoRemito = trim((string)$r['estado']);
+        $idRemito = $r['id_remito'];
+        $archivoFirmado = $r['remito_firmado'];
         
         // Determinar el estado a mostrar
         if ($estadoRemito === 'Anulado') {
@@ -126,6 +129,7 @@ try {
         // Verificar permisos para cada acción
         $puedeVer = tienePermiso('asignaciones', 'ver');
         $puedeImprimir = tienePermiso('asignaciones', 'ver'); // Same permission as ver
+        $puedeSubirFirmado = tienePermiso('asignaciones', 'crear'); // Permiso para adjuntar
         $puedeDevolver = tienePermiso('asignaciones', 'devolver');
         $puedeEliminar = tienePermiso('asignaciones', 'anular');
         
@@ -133,11 +137,23 @@ try {
         $botones = [];
         
         if ($puedeVer) {
-            $botones[] = '<button type="button" class="btn btn-sm btn-info" aria-label="Ver asignación" onclick="abrirVerAsignacion(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Ver asignación"><i class="fas fa-eye" aria-hidden="true"></i></button>';
+            $botones[] = '<button type="button" class="btn btn-sm btn-info text-white" aria-label="Ver asignación" onclick="abrirVerAsignacion(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Ver detalle"><i class="fas fa-eye" aria-hidden="true"></i></button>';
         }
         
         if ($puedeImprimir) {
-            $botones[] = '<button type="button" class="btn btn-sm btn-primary" aria-label="Imprimir remito" onclick="generarRemitoPDF(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Imprimir remito"><i class="fas fa-print" aria-hidden="true"></i></button>';
+            $botones[] = '<button type="button" class="btn btn-sm btn-primary" aria-label="Imprimir remito" onclick="generarRemitoPDF(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Imprimir PDF"><i class="fas fa-print" aria-hidden="true"></i></button>';
+        }
+
+        // Botón de Remito Firmado
+        if ($puedeSubirFirmado && $estadoRemito !== 'Anulado') {
+            $numRemitoEscapado = htmlspecialchars($r['numero_remito'], ENT_QUOTES);
+            if ($archivoFirmado) {
+                $urlArchivo = app_base_url() . '/uploads/remitos_firmados/' . $archivoFirmado;
+                $botones[] = '<a href="' . $urlArchivo . '" target="_blank" class="btn btn-sm btn-success text-white" data-bs-toggle="tooltip" title="Ver Remito Firmado"><i class="fas fa-file-signature"></i></a>';
+                $botones[] = '<button type="button" class="btn btn-sm btn-outline-secondary btn-subir-remito" data-id="' . $idRemito . '" data-numero="' . $numRemitoEscapado . '" data-has-file="1" data-bs-toggle="tooltip" title="Reemplazar remito firmado"><i class="fas fa-upload"></i></button>';
+            } else {
+                $botones[] = '<button type="button" class="btn btn-sm btn-outline-primary btn-subir-remito" data-id="' . $idRemito . '" data-numero="' . $numRemitoEscapado . '" data-has-file="0" data-bs-toggle="tooltip" title="Adjuntar remito firmado"><i class="fas fa-upload"></i></button>';
+            }
         }
         
         if ($puedeDevolver && $estado === 'Activa') {

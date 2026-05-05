@@ -33,7 +33,13 @@ try {
     ];
     $orderColIdx = isset($_GET['order'][0]['column']) ? (int)$_GET['order'][0]['column'] : 5; // Default fecha
     $orderDir = isset($_GET['order'][0]['dir']) && strtolower($_GET['order'][0]['dir']) === 'asc' ? 'ASC' : 'DESC';
-    $orderBy = $columns[$orderColIdx] ?? 'p.fecha_creacion';
+    
+    // Si estamos en logística y pedimos la columna de fecha (5), usar fecha_preparacion para el ORDER BY
+    if ($modo === 'logistica' && $orderColIdx === 5) {
+        $orderBy = 'p.fecha_preparacion';
+    } else {
+        $orderBy = $columns[$orderColIdx] ?? 'p.fecha_creacion';
+    }
 
     // Filtros
     $filtro_estado = $_GET['estado'] ?? '';
@@ -84,6 +90,7 @@ try {
         }
         $where[] = "((p.tipo = 'Pedido Insumo' AND p.estado = 'Preparado') OR (p.tipo != 'Pedido Insumo' AND p.estado = 'Completado'))";
         $where[] = "p.estado_entrega != 'Entregado'";
+        $where[] = "p.estado_entrega != 'De Baja'";
 
     } elseif ($modo === 'todos') {
          // Historial completo
@@ -209,6 +216,7 @@ try {
                  'Preparado' => 'info text-dark',
                  'Enviado' => 'primary',
                  'Entregado' => 'success',
+                 'De Baja' => 'warning text-dark',
                  default => 'secondary'
              };
              $entregaHtml = '<span class="badge bg-' . $entregaCls . '">' . $r['estado_entrega'] . '</span>';
@@ -223,7 +231,7 @@ try {
             '<span class="badge bg-dark">' . $r['tipo'] . '</span>',
             $prioridad,
             $estado,
-            date('d/m/Y H:i', strtotime($r['fecha_creacion'])),
+            date('d/m/Y H:i', strtotime(($modo === 'logistica' && !empty($r['fecha_preparacion'])) ? $r['fecha_preparacion'] : $r['fecha_creacion'])),
             $asignado,
             $entregaHtml,
             '<div class="btn-group">' . implode('', $botones) . '</div>'

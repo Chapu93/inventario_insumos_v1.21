@@ -157,28 +157,64 @@ include '../../includes/header.php';
                     <input type="hidden" name="id" value="<?php echo $id; ?>">
                     <input type="hidden" name="_csrf" value="<?php echo csrf_token(); ?>">
                     
-                    <div class="mb-3">
-                        <label class="form-label">Diagnóstico Inicial <span class="text-danger">*</span></label>
-                        <textarea class="form-control" name="diagnostico" rows="3" required></textarea>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label fw-bold">Diagnóstico Inicial <span class="text-danger">*</span></label>
+                            <textarea class="form-control" name="diagnostico" rows="2" required placeholder="Describa el problema detectado"></textarea>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label fw-bold">Trabajo Realizado <span class="text-danger">*</span></label>
+                            <textarea class="form-control" name="trabajo" rows="3" required placeholder="Describa las tareas realizadas"></textarea>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Resultado Final</label>
+                            <select class="form-select" name="resultado">
+                                <option value="Solucionado">Solucionado</option>
+                                <option value="Sin Solución">Sin Solución</option>
+                                <option value="Requiere Repuestos">Requiere Repuestos</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Trabajo Realizado <span class="text-danger">*</span></label>
-                        <textarea class="form-control" name="trabajo" rows="4" required></textarea>
-                        <div class="form-text">Detalle las tareas efectuadas para resolver la solicitud.</div>
+
+                    <hr>
+                    <div id="seccionLogistica" class="bg-light p-3 rounded">
+                        <h6 class="text-primary mb-3"><i class="fas fa-shipping-fast me-2"></i>Datos de Logística (para devolución o entrega)</h6>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Método de Entrega/Retiro</label>
+                                <select class="form-select" name="metodo_entrega">
+                                    <option value="Envío">Envío por Logística</option>
+                                    <option value="Retiro">Retiro en Oficina</option>
+                                    <option value="No aplica">No aplica / En el lugar</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Fecha Estimada</label>
+                                <input type="date" class="form-control" name="fecha_estimada_entrega" value="<?php echo date('Y-m-d'); ?>">
+                            </div>
+                            <div class="col-md-12 mb-0">
+                                <label class="form-label fw-bold">Notas de Entrega (opcional)</label>
+                                <textarea class="form-control" name="notas_entrega" rows="2" placeholder="Observaciones para el transporte o retiro..."></textarea>
+                            </div>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Resultado Final</label>
-                        <select class="form-select" name="resultado">
-                            <option value="Solucionado">Solucionado</option>
-                            <option value="Sin Solución">Sin Solución</option>
-                            <option value="Requiere Repuestos">Requiere Repuestos</option>
-                        </select>
+
+                    <div id="seccionBaja" class="bg-light p-3 rounded border-danger border mt-3" style="display: none;">
+                        <h6 class="text-danger mb-3"><i class="fas fa-exclamation-triangle me-2"></i>Resultado no satisfactorio</h6>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="checkBaja" name="dar_de_baja" value="1">
+                            <label class="form-check-label fw-bold text-danger" for="checkBaja">¿Desea dar de baja el insumo relacionado?</label>
+                        </div>
+                        <p class="small text-muted mb-0">Al marcar esta opción, el equipo pasará a estado 'Baja' y el informe servirá como justificativo técnico.</p>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-success" onclick="$('#formInforme').submit()">Guardar y Finalizar</button>
+                <button type="button" class="btn btn-success" onclick="$('#formInforme').submit()">
+                    <i class="fas fa-save me-2"></i>Guardar y Finalizar
+                </button>
             </div>
         </div>
     </div>
@@ -444,15 +480,12 @@ function renderPedido(p) {
                             </button>
                         </div>`);
                 }
-                // "Enviado/Retiro" si está Pendiente o Preparado
-                if (estadoEntrega === 'Preparado' || estadoEntrega === 'Pendiente') {
-                    const labelEnviar = (p.metodo_entrega === 'Retiro')
-                        ? '<i class="fas fa-hand-holding me-1"></i>Listo para Retiro'
-                        : '<i class="fas fa-truck me-1"></i>Marcar Enviado';
+                // "Enviado" solo si es Envío por Logística (para Retiro es redundante)
+                if ((estadoEntrega === 'Preparado' || estadoEntrega === 'Pendiente') && p.metodo_entrega === 'Envío') {
                     $btns.append(`
                         <div class="col">
                             <button type="button" class="btn btn-warning text-dark w-100 btn-sm" onclick="actualizarEstadoEntrega('Enviado')">
-                                ${labelEnviar}
+                                <i class="fas fa-truck me-1"></i>Marcar Enviado
                             </button>
                         </div>`);
                 }
@@ -522,6 +555,9 @@ function renderBotones(p) {
         $c.append(`<a href="<?php echo app_base_url(); ?>/uploads/pedidos/${p.remito_firmado}" target="_blank" class="btn btn-success me-2 text-white" data-bs-toggle="tooltip" title="Ver Constancia Firmada de Entrega"><i class="fas fa-file-signature me-2"></i>Ver Constancia Firmada</a>`);
     }
 
+    // Botón Descargar Todo (Merge PDF)
+    $c.append(`<a href="descargar_todo.php?id=${p.id_pedido}" target="_blank" class="btn btn-dark me-2" title="Descargar toda la documentación en un solo PDF"><i class="fas fa-file-archive me-2"></i>Descargar Todo</a>`);
+
     // Imprimir Remito (Solo Insumos con remito)
     if (p.tipo === 'Pedido Insumo' && p.numero_remito) {
         $c.append(`<button class="btn btn-primary me-2" onclick="imprimirRemito('${p.numero_remito}')"><i class="fas fa-print me-2"></i>Imprimir Remito</button>`);
@@ -535,6 +571,13 @@ function renderBotones(p) {
 
     // Acciones de Gestión
     if (PERMISOS.gestionar && !isCompleted) {
+        let urlEditar = 'editar.php';
+        if (p.tipo === 'Pedido Insumo') {
+            urlEditar = 'editar_pedido_insumo.php';
+        } else if (p.tipo === 'Tarea Interna') {
+            urlEditar = 'editar_tarea_interna.php';
+        }
+        $c.append(`<a href="${urlEditar}?id=${p.id_pedido}" class="btn btn-warning me-2"><i class="fas fa-edit me-2"></i>Editar</a>`);
         // Tomar si no tiene asignado O si tiene asignado 0/null
         if (!p.asignado_a || p.asignado_a == 0) {
             // Solo se permite "Tomar" si es un pedido técnico. 
@@ -716,6 +759,19 @@ window.accionRechazar = function() {
 $(function(){
     cargarPedido();
     
+    // Manejo de visibilidad condicional en el Informe Técnico
+    $('select[name="resultado"]').on('change', function() {
+        const val = $(this).val();
+        if (val === 'Sin Solución' || val === 'Requiere Repuestos') {
+            $('#seccionLogistica').hide();
+            $('#seccionBaja').slideDown();
+        } else {
+            $('#seccionLogistica').show();
+            $('#seccionBaja').slideUp();
+            $('#checkBaja').prop('checked', false);
+        }
+    });
+
     // Auto-abrir modal si viene en URL
     const urlParams = new URLSearchParams(window.location.search);
     if(urlParams.get('accion') === 'completar') {
@@ -985,3 +1041,6 @@ $(function(){
         </div>
     </div>
 </div>
+
+<script>
+</script>

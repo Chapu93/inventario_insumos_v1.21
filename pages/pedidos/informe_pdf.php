@@ -6,7 +6,7 @@ if (!tienePermiso('pedidos', 'informe') && !tienePermiso('pedidos', 'ver_todos')
     die('No tienes permiso para ver informes');
 }
 
-use setasign\Fpdi\Fpdi;
+// use setasign\Fpdi\Fpdi;
 
 $id = (int)($_GET['id'] ?? 0);
 if ($id <= 0) die('ID inválido');
@@ -31,10 +31,12 @@ $data = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$data) die('Informe no encontrado o pedido sin informe');
 
 // Helper para decode
-function u($s) { return utf8_decode($s ?? ''); }
+if (!function_exists('u')) {
+    function u($s) { return utf8_decode($s ?? ''); }
+}
 
 // Generar PDF con soporte FPDI para membrete
-$pdf = new Fpdi();
+$pdf = new \setasign\Fpdi\Fpdi();
 
 // Cargar plantilla membrete
 $templatePath = __DIR__ . '/../../membretada.pdf';
@@ -188,6 +190,9 @@ $pdf->Cell(60, 4, u('Firma Técnico / Responsable'), 0, 0, 'C');
 $pdf->SetXY(130, $y + 6);
 $pdf->Cell(60, 4, u($data['asig_nom'] . ' ' . $data['asig_ape']), 0, 0, 'C');
 
-$pdf->Output('I', 'Informe_' . ($data['numero_informe'] ?? $id) . '.pdf');
-?>
+if (!isset($no_exit_pdf)) {
+    $pdf->Output('I', 'Informe_' . ($data['numero_informe'] ?? $id) . '.pdf');
+} else {
+    echo $pdf->Output('S');
+}
 

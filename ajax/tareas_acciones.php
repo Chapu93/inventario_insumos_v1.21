@@ -18,6 +18,44 @@ try {
     switch ($accion) {
 
         // ──────────────────────────────────────────────
+        case 'editar':
+            if (!tienePermiso('pedidos', 'gestionar')) json_error('Sin permiso para editar tareas', 403);
+
+            $id          = (int)($_POST['id'] ?? 0);
+            $titulo      = trim($_POST['titulo']      ?? '');
+            $descripcion = trim($_POST['descripcion'] ?? '');
+            $asignadoA   = (int)($_POST['asignado_a'] ?? 0) ?: null;
+
+            if ($id <= 0)            json_error('ID de tarea inválido', 400);
+            if (empty($titulo))      json_error('El título es obligatorio', 400);
+            if (empty($descripcion)) json_error('La descripción es obligatoria', 400);
+
+            // Verificar estado actual
+            $stmt = $db->prepare("SELECT estado FROM tareas_internas WHERE id_tarea = ?");
+            $stmt->execute([$id]);
+            $tarea = $stmt->fetch();
+            if (!$tarea) json_error('Tarea no encontrada', 404);
+            if ($tarea['estado'] === 'Completada') json_error('No se puede editar una tarea completada', 400);
+
+            // Ajustar estado según asignación si no ha cambiado manualmente
+            $nuevoEstado = $tarea['estado'];
+            if ($asignadoA && $tarea['estado'] === 'Pendiente') {
+                $nuevoEstado = 'En Proceso';
+            } elseif (!$asignadoA && $tarea['estado'] === 'En Proceso') {
+                $nuevoEstado = 'Pendiente';
+            }
+
+            $stmt = $db->prepare(
+                "UPDATE tareas_internas 
+                 SET titulo = ?, descripcion = ?, asignado_a = ?, estado = ?
+                 WHERE id_tarea = ?"
+            );
+            $stmt->execute([$titulo, $descripcion, $asignadoA, $nuevoEstado, $id]);
+
+            json_success(['mensaje' => 'Tarea actualizada correctamente']);
+            break;
+
+        // ──────────────────────────────────────────────
         case 'crear':
             if (!tienePermiso('pedidos', 'crear')) json_error('Sin permiso para crear tareas', 403);
 
@@ -112,6 +150,8 @@ try {
             if (!$tarea) { $db->rollBack(); json_error('Tarea no encontrada', 404); }
             if ($tarea['estado'] === 'Completada') { $db->rollBack(); json_error('La tarea ya está completada', 400); }
 
+            $comentario = trim($_POST['comentario'] ?? '');
+
             // Solo el asignado o un admin pueden completar
             $esAdmin = tieneRol([1, 2]);
             if ($tarea['asignado_a'] != $usuarioId && !$esAdmin) {
@@ -119,12 +159,42 @@ try {
                 json_error('Solo el usuario asignado puede completar esta tarea', 403);
             }
 
+            // Procesar adjunto si existe
+            $adjuntoPath = null;
+            if (isset($_FILES['adjunto']) && $_FILES['adjunto']['error'] === UPLOAD_ERR_OK) {
+                require_once '../includes/validar_archivo.php';
+                $validacion = validarArchivoDocumento($_FILES['adjunto']);
+                if (!$validacion['valido']) {
+                    $db->rollBack();
+                    json_error($validacion['error'], 400);
+                }
+                
+                $uploadDir = UPLOAD_BASE_DIR . 'tareas/';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0755, true);
+                }
+                
+                $extension = $validacion['extension'];
+                $nombreArchivo = 'tarea_' . $id . '_' . time() . '_' . uniqid() . '.' . $extension;
+                
+                if (move_uploaded_file($_FILES['adjunto']['tmp_name'], $uploadDir . $nombreArchivo)) {
+                    $adjuntoPath = $nombreArchivo;
+                } else {
+                    $db->rollBack();
+                    json_error('Error al guardar el archivo adjunto', 500);
+                }
+            }
+
             $stmt = $db->prepare(
                 "UPDATE tareas_internas
-                 SET estado = 'Completada', fecha_finalizacion = NOW(), asignado_a = COALESCE(asignado_a, ?)
+                 SET estado = 'Completada', 
+                     fecha_finalizacion = NOW(), 
+                     asignado_a = COALESCE(asignado_a, ?), 
+                     comentario = ?,
+                     adjunto_path = ?
                  WHERE id_tarea = ?"
             );
-            $stmt->execute([$usuarioId, $id]);
+            $stmt->execute([$usuarioId, $comentario, $adjuntoPath, $id]);
 
             $db->commit();
             json_success(['mensaje' => 'Tarea marcada como completada']);

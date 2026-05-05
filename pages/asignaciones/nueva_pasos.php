@@ -377,41 +377,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                     $tipo = (string) $ins['tipo_insumo'];
                                                     $displayName = (string) $ins['nombre_insumo'];
                                                     $esPc = ($tipo === 'PC Escritorio' || $tipo === 'PC Completa');
-                                                    if ($esPc) {
-                                                        if (!empty($ins['pc_sist_op'])) {
-                                                            $displayName = $ins['pc_sist_op'];
-                                                        }
-                                                    } elseif ($tipo !== 'Varios') {
+                                                    $displayName = (string) $ins['nombre_insumo'];
+                                                    
+                                                    // Determinar nombre descriptivo según tipo
+                                                    if (in_array($tipo, ['Notebook', 'Impresora', 'Monitor', 'Escaner'])) {
                                                         $marca = '';
                                                         $modelo = '';
-                                                        switch ($tipo) {
-                                                            case 'Notebook':
-                                                                $marca = $ins['nb_marca'] ?? '';
-                                                                $modelo = $ins['nb_modelo'] ?? '';
-                                                                break;
-                                                            case 'Impresora':
-                                                                $marca = $ins['imp_marca'] ?? '';
-                                                                $modelo = $ins['imp_modelo'] ?? '';
-                                                                break;
-                                                            case 'Monitor':
-                                                                $marca = $ins['mon_marca'] ?? '';
-                                                                $modelo = $ins['mon_modelo'] ?? '';
-                                                                break;
-                                                            case 'Escaner':
-                                                                $marca = $ins['esc_marca'] ?? '';
-                                                                $modelo = $ins['esc_modelo'] ?? '';
-                                                                break;
-                                                            default:
-                                                                $marca = $ins['nb_marca'] ?? $ins['imp_marca'] ?? $ins['mon_marca'] ?? $ins['esc_marca'] ?? '';
-                                                                $modelo = $ins['nb_modelo'] ?? $ins['imp_modelo'] ?? $ins['mon_modelo'] ?? $ins['esc_modelo'] ?? '';
-                                                                break;
-                                                        }
-                                                        $marca = trim((string) $marca);
-                                                        $modelo = trim((string) $modelo);
-                                                        if ($marca !== '' || $modelo !== '') {
-                                                            $separator = ($marca !== '' && $modelo !== '') ? ' - ' : '';
-                                                            $displayName = trim($marca . $separator . $modelo);
-                                                        }
+                                                        if ($tipo === 'Notebook') { $marca = $ins['nb_marca']; $modelo = $ins['nb_modelo']; }
+                                                        elseif ($tipo === 'Impresora') { $marca = $ins['imp_marca']; $modelo = $ins['imp_modelo']; }
+                                                        elseif ($tipo === 'Monitor') { $marca = $ins['mon_marca']; $modelo = $ins['mon_modelo']; }
+                                                        elseif ($tipo === 'Escaner') { $marca = $ins['esc_marca']; $modelo = $ins['esc_modelo']; }
+                                                        
+                                                        $marcaModelo = trim(($marca ?? '') . ' ' . ($modelo ?? ''));
+                                                        if (!empty($marcaModelo)) $displayName = $marcaModelo;
+                                                    } elseif ($esPc && !empty($ins['pc_sist_op'])) {
+                                                        $displayName .= ' (' . $ins['pc_sist_op'] . ')';
                                                     }
                                                     $originalName = (string) $ins['nombre_insumo'];
                                                     $filterSource = $displayName;

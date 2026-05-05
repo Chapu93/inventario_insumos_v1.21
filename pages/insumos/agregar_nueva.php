@@ -16,8 +16,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (!verify_csrf()) {
         $_SESSION['mensaje'] = 'CSRF inválido';
         $_SESSION['tipo_mensaje'] = 'danger';
-        $redirectModo = isset($_GET['modo']) ? '?modo=' . urlencode($_GET['modo']) : '';
-        header('Location: agregar_nueva.php' . $redirectModo);
+        $redirectParams = $_GET;
+        $queryString = !empty($redirectParams) ? '?' . http_build_query($redirectParams) : '';
+        header('Location: agregar_nueva.php' . $queryString);
         exit;
     }
     Logger::debug('Formulario POST recibido en agregar_nueva.php', ['post_data' => $_POST]);
@@ -29,8 +30,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             Logger::warning('Campo de asignación faltante', ['campo' => $campo]);
             $_SESSION['mensaje'] = "Error: Complete todos los datos de asignación";
             $_SESSION['tipo_mensaje'] = "danger";
-            $redirectModo = isset($_GET['modo']) ? '?modo=' . urlencode($_GET['modo']) : '';
-            header("Location: agregar_nueva.php" . $redirectModo);
+            $redirectParams = $_GET;
+            $queryString = !empty($redirectParams) ? '?' . http_build_query($redirectParams) : '';
+            header("Location: agregar_nueva.php" . $queryString);
             exit;
         }
     }
@@ -41,8 +43,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         Logger::warning('Campo requerido faltante: tipo_insumo');
         $_SESSION['mensaje'] = "Error: Debe seleccionar un tipo de insumo";
         $_SESSION['tipo_mensaje'] = "danger";
-        $redirectModo = isset($_GET['modo']) ? '?modo=' . urlencode($_GET['modo']) : '';
-        header("Location: agregar_nueva.php" . $redirectModo);
+        $redirectParams = $_GET;
+        $queryString = !empty($redirectParams) ? '?' . http_build_query($redirectParams) : '';
+        header("Location: agregar_nueva.php" . $queryString);
         exit;
     }
 
@@ -53,8 +56,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         Logger::warning('Campo requerido faltante: nombre_insumo (tipo Varios)');
         $_SESSION['mensaje'] = "Error: El nombre del insumo es obligatorio para tipo Varios";
         $_SESSION['tipo_mensaje'] = "danger";
-        $redirectModo = isset($_GET['modo']) ? '?modo=' . urlencode($_GET['modo']) : '';
-        header("Location: agregar_nueva.php" . $redirectModo);
+        $redirectParams = $_GET;
+        $queryString = !empty($redirectParams) ? '?' . http_build_query($redirectParams) : '';
+        header("Location: agregar_nueva.php" . $queryString);
         exit;
     }
 
@@ -95,8 +99,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (!$validacion['valido']) {
             $_SESSION['mensaje'] = 'Error: ' . implode('. ', $validacion['errores']);
             $_SESSION['tipo_mensaje'] = 'danger';
-            $redirectModo = isset($_GET['modo']) ? '?modo=' . urlencode($_GET['modo']) : '';
-            header('Location: agregar_nueva.php' . $redirectModo);
+            $redirectParams = $_GET;
+            $queryString = !empty($redirectParams) ? '?' . http_build_query($redirectParams) : '';
+            header('Location: agregar_nueva.php' . $queryString);
             exit;
         }
 
@@ -321,17 +326,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['tipo_mensaje'] = "success";
 
         // Si viene del formulario de pedidos, redirigir de vuelta con el insumo seleccionado
-        if (!empty($_GET['retorno']) && $_GET['retorno'] === 'pedido') {
-            // Construir la descripción del insumo
-            $insumoTexto = $tipo_insumo;
-            if (!empty($_POST['nombre_insumo'])) {
-                $insumoTexto .= ' - ' . $_POST['nombre_insumo'];
-            }
-            if (!empty($_POST['numero_serie'])) {
-                $insumoTexto .= ' (S/N: ' . $_POST['numero_serie'] . ')';
-            }
+        $insumoTexto = $tipo_insumo;
+        if (!empty($_POST['nombre_insumo'])) {
+            $insumoTexto .= ' - ' . $_POST['nombre_insumo'];
+        }
+        if (!empty($_POST['numero_serie'])) {
+            $insumoTexto .= ' (S/N: ' . $_POST['numero_serie'] . ')';
+        }
 
+        if (!empty($_GET['retorno']) && $_GET['retorno'] === 'pedido') {
             $returnUrl = app_base_url() . '/pages/pedidos/crear.php?insumo_id=' . $id_insumo . '&insumo_texto=' . urlencode($insumoTexto);
+            header('Location: ' . $returnUrl);
+            exit;
+        }
+
+        if (!empty($_GET['retorno']) && $_GET['retorno'] === 'pedido_edit') {
+            $pedido_id = (int)($_GET['pedido_id'] ?? 0);
+            $returnUrl = app_base_url() . '/pages/pedidos/editar.php?id=' . $pedido_id . '&insumo_id=' . $id_insumo . '&insumo_texto=' . urlencode($insumoTexto);
             header('Location: ' . $returnUrl);
             exit;
         }
@@ -344,8 +355,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         Logger::error('Error al agregar insumo asignado', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
         $_SESSION['mensaje'] = "Error: " . $e->getMessage();
         $_SESSION['tipo_mensaje'] = "danger";
-        $redirectModo = isset($_GET['modo']) ? '?modo=' . urlencode($_GET['modo']) : '';
-        header("Location: agregar_nueva.php" . $redirectModo);
+        $redirectParams = $_GET;
+        $queryString = !empty($redirectParams) ? '?' . http_build_query($redirectParams) : '';
+        header("Location: agregar_nueva.php" . $queryString);
         exit;
     }
 }
@@ -379,7 +391,7 @@ $badgeModo = $modoActual === 'nuevo'
 
 <div class="card">
     <div class="card-body">
-        <form method="POST" id="formAgregarNueva" class="needs-validation" enctype="multipart/form-data" novalidate>
+        <form method="POST" action="<?php echo htmlspecialchars($_SERVER['REQUEST_URI']); ?>" id="formAgregarNueva" class="needs-validation" enctype="multipart/form-data" novalidate>
             <?php echo csrf_input(); ?>
             <!-- Paso 1: Cabecera asignación -->
             <div id="paso1">

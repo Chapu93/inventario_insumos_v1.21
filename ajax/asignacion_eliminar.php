@@ -42,18 +42,31 @@ try {
     }
 
     // Revertir estado de insumos solo si el remito está Activa; si ya está Devuelta, no tocar stock/estado
-    $items = $db->prepare('SELECT d.id_insumo, d.cantidad, i.tipo_insumo, i.cantidad AS stock_actual, COALESCE(d.cantidad_devuelta,0) AS cantidad_devuelta FROM remitos_detalle d JOIN insumos i ON i.id_insumo = d.id_insumo WHERE d.id_remito = ?');
+    $items = $db->prepare('SELECT d.id_insumo, d.cantidad, i.tipo_insumo, i.cantidad AS stock_actual, i.cantidad_oficina, COALESCE(d.cantidad_devuelta,0) AS cantidad_devuelta FROM remitos_detalle d JOIN insumos i ON i.id_insumo = d.id_insumo WHERE d.id_remito = ?');
     $items->execute([$idRemito]);
+    $itemsArray = $items->fetchAll();
+
     if (strcasecmp((string)$r['estado'], 'Activa') === 0) {
-        foreach ($items as $it) {
+        foreach ($itemsArray as $it) {
+            $idIns = (int)$it['id_insumo'];
+            $pendiente = max(0, (int)$it['cantidad'] - (int)$it['cantidad_devuelta']);
+
             if ($it['tipo_insumo'] === 'Varios') {
-                $pendiente = max(0, (int)$it['cantidad'] - (int)$it['cantidad_devuelta']);
-                $nuevo = (int)$it['stock_actual'] + $pendiente;
-                $db->prepare("UPDATE insumos SET cantidad = ?, estado = 'Disponible' WHERE id_insumo = ?")->execute([$nuevo, (int)$it['id_insumo']]);
+                if ($pendiente > 0) {
+                    $nuevoTotal = (int)$it['stock_actual'] + $pendiente;
+                    $nuevaOficina = (int)($it['cantidad_oficina'] ?? $it['stock_actual']) + $pendiente;
+                    
+                    $db->prepare("UPDATE insumos SET cantidad = ?, cantidad_oficina = ?, estado = 'Disponible' WHERE id_insumo = ?")
+                       ->execute([$nuevoTotal, $nuevaOficina, $idIns]);
+                }
             } else {
                 $db->prepare("UPDATE insumos SET estado = 'Disponible', id_sede_actual = NULL, id_area_asignacion_actual = NULL, id_punto_stock_actual = id_punto_stock_actual WHERE id_insumo = ?")
-                   ->execute([(int)$it['id_insumo']]);
+                   ->execute([$idIns]);
             }
+
+            // IMPORTANTE: Registrar en el detalle que los insumos fueron devueltos (por la anulación)
+            $db->prepare("UPDATE remitos_detalle SET cantidad_devuelta = cantidad WHERE id_remito = ? AND id_insumo = ?")
+               ->execute([$idRemito, $idIns]);
         }
     }
 

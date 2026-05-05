@@ -25,8 +25,10 @@ $n_pend_tec = (int)$db->query("SELECT COUNT(*) FROM pedidos WHERE tipo IN ('Mant
 // 3. Pedidos de Insumos (Pendientes)
 $n_insumos = (int)$db->query("SELECT COUNT(*) FROM pedidos WHERE tipo = 'Pedido Insumo' AND estado = 'Pendiente'")->fetchColumn();
 
-// 4. Logística (En Tránsito)
-$n_logistica = (int)$db->query("SELECT COUNT(*) FROM pedidos WHERE tipo = 'Pedido Insumo' AND estado_entrega IN ('Preparado', 'Enviado')")->fetchColumn();
+// 4. Logística (En Tránsito) - Tanto pedidos de insumos preparados como técnicos completados
+$n_logistica = (int)$db->query("SELECT COUNT(*) FROM pedidos 
+    WHERE ((tipo = 'Pedido Insumo' AND estado = 'Preparado') OR (tipo != 'Pedido Insumo' AND estado = 'Completado')) 
+    AND estado_entrega NOT IN ('Entregado', 'De Baja')")->fetchColumn();
 
 // 5. Mis Tareas (Asignadas a mi)
 $stmtMP = $db->prepare("SELECT COUNT(*) FROM pedidos WHERE asignado_a = ? AND estado IN ('Pendiente', 'En Proceso')");
@@ -315,6 +317,8 @@ include '../../includes/header.php';
             <div class="modal-body py-4">
                 <form id="formNuevaTarea">
                     <input type="hidden" name="_csrf" value="<?php echo csrf_token(); ?>">
+                    <input type="hidden" name="accion" id="tareasAccion" value="crear">
+                    <input type="hidden" name="id" id="tareasId" value="">
 
                     <div class="mb-3">
                         <label class="form-label fw-bold">Título <span class="text-danger">*</span></label>
@@ -361,7 +365,7 @@ include '../../includes/header.php';
                 <div class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
             </div>
             <div class="modal-footer border-0">
-                <button type="button" class="btn btn-light px-4" data-bs-modal="modal">Cerrar</button>
+                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
@@ -492,16 +496,32 @@ $(function() {
             
             if (dtPedidos) {
                 // Columnas Visibles según modo
+                const colTipo = 2;
+                const colPrioridad = 3;
+                const colEstado = 4;
                 const colAsignado = 6;
                 const colLogistica = 7;
                 
+                // Resetear visibilidad por defecto
+                dtPedidos.column(colTipo).visible(true);
+                dtPedidos.column(colPrioridad).visible(true);
+                dtPedidos.column(colEstado).visible(true);
                 dtPedidos.column(colAsignado).visible(true);
                 dtPedidos.column(colLogistica).visible(true);
 
-                if (['pedidos_insumos', 'pendientes', 'mis_pedidos'].includes(modo)) {
+                if (modo === 'pedidos_insumos') {
+                    dtPedidos.column(colTipo).visible(false);
+                    dtPedidos.column(colAsignado).visible(false);
+                    dtPedidos.column(colLogistica).visible(false);
+                } else if (['pendientes', 'mis_pedidos'].includes(modo)) {
+                    if (modo === 'mis_pedidos') {
+                        dtPedidos.column(colEstado).visible(false);
+                    }
                     dtPedidos.column(colAsignado).visible(false);
                     dtPedidos.column(colLogistica).visible(false);
                 } else if (modo === 'logistica') {
+                    dtPedidos.column(colPrioridad).visible(false);
+                    dtPedidos.column(colEstado).visible(false);
                     dtPedidos.column(colAsignado).visible(false);
                     dtPedidos.column(colLogistica).visible(true);
                 }
@@ -915,7 +935,8 @@ function iniciarTablaTareas(overrideModo) {
         dtTareas.ajax.reload();
     }
 
-    // La visibilidad de la columna 6 (Fecha Finalización) ahora depende del modo
+    // La visibilidad de las columnas ahora depende del modo
+    dtTareas.column(2).visible(currentTareasModo !== 'mis_tareas');
     dtTareas.column(6).visible(currentTareasModo === 'historial' || currentTareasModo === 'completadas');
 }
 
@@ -924,6 +945,11 @@ function iniciarTablaTareas(overrideModo) {
 function abrirModalNuevaTarea() {
     // Resetear formulario
     $('#formNuevaTarea')[0].reset();
+    $('#tareasId').val('');
+    $('#tareasAccion').val('crear');
+    $('#modalNuevaTarea .modal-title').html('<i class="fas fa-plus-circle me-2"></i>Nueva Tarea Interna');
+    $('#btnGuardarTarea').html('<i class="fas fa-save me-1"></i>Guardar Tarea');
+
     // Cargar usuarios en el select de asignación
     var $sel = $('#tareasAsignadoA').empty()
         .append('<option value="">Sin asignar — quedará disponible para tomar</option>');
@@ -943,9 +969,58 @@ function abrirModalNuevaTarea() {
     $('#modalNuevaTarea').modal('show');
 }
 
+function editarTarea(id) {
+    // Resetear formulario
+    $('#formNuevaTarea')[0].reset();
+    $('#tareasId').val(id);
+    $('#tareasAccion').val('editar');
+    $('#modalNuevaTarea .modal-title').html('<i class="fas fa-edit me-2"></i>Editar Tarea Interna');
+    $('#btnGuardarTarea').html('<i class="fas fa-save me-1"></i>Actualizar Tarea');
+
+    // Cargar datos de la tarea
+    $.ajax({
+        url: '<?php echo app_base_url(); ?>/ajax/tareas_acciones.php',
+        type: 'GET',
+        data: { accion: 'obtener', id: id },
+        dataType: 'json',
+        xhrFields: { withCredentials: true },
+        success: function(r) {
+            if (r.success) {
+                var t = r.data.tarea;
+                $('#tareasTitulo').val(t.titulo);
+                $('#tareasDescripcion').val(t.descripcion);
+                
+                // Cargar usuarios en el select de asignación
+                var $sel = $('#tareasAsignadoA').empty()
+                    .append('<option value="">Sin asignar — quedará disponible para tomar</option>');
+                $.ajax({
+                    url: '<?php echo app_base_url(); ?>/ajax/usuarios_listar_asignables.php',
+                    type: 'GET',
+                    dataType: 'json',
+                    xhrFields: { withCredentials: true },
+                    success: function(ru) {
+                        if (ru.success) {
+                            ru.usuarios.forEach(function(u) {
+                                let selected = (t.asignado_a == u.id_usuario) ? 'selected' : '';
+                                $sel.append('<option value="' + u.id_usuario + '" ' + selected + '>' + u.apellido + ', ' + u.nombre + ' (' + u.username + ')</option>');
+                            });
+                        }
+                    }
+                });
+                $('#modalNuevaTarea').modal('show');
+            } else {
+                showToast(r.error || 'Error al obtener datos', 'error');
+            }
+        }
+    });
+}
+
 $(document).on('click', '#btnGuardarTarea', function() {
     var titulo = $('#tareasTitulo').val().trim();
     var desc   = $('#tareasDescripcion').val().trim();
+    var accion = $('#tareasAccion').val();
+    var label  = (accion === 'editar') ? 'Actualizar Tarea' : 'Guardar Tarea';
+
     if (!titulo) { showToast('El título es obligatorio', 'warning'); return; }
     if (!desc)   { showToast('La descripción es obligatoria', 'warning'); return; }
 
@@ -953,21 +1028,21 @@ $(document).on('click', '#btnGuardarTarea', function() {
     $.ajax({
         url: '<?php echo app_base_url(); ?>/ajax/tareas_acciones.php',
         type: 'POST',
-        data: $('#formNuevaTarea').serialize() + '&accion=crear',
+        data: $('#formNuevaTarea').serialize(),
         dataType: 'json',
         xhrFields: { withCredentials: true },
         success: function(r) {
-            $btn.prop('disabled', false).html('<i class="fas fa-save me-1"></i>Guardar Tarea');
+            $btn.prop('disabled', false).html('<i class="fas fa-save me-1"></i>' + label);
             if (r.success) {
                 $('#modalNuevaTarea').modal('hide');
-                showToast(r.data.mensaje || 'Tarea creada', 'success');
+                showToast(r.mensaje || r.data.mensaje || 'Tarea guardada', 'success');
                 if (dtTareas) dtTareas.ajax.reload();
             } else {
-                showToast(r.error || 'Error al crear tarea', 'error');
+                showToast(r.error || 'Error al guardar tarea', 'error');
             }
         },
         error: function() {
-            $btn.prop('disabled', false).html('<i class="fas fa-save me-1"></i>Guardar Tarea');
+            $btn.prop('disabled', false).html('<i class="fas fa-save me-1"></i>' + label);
             showToast('Error de conexión', 'error');
         }
     });
@@ -1002,6 +1077,8 @@ function verTarea(id) {
                   '<p class="mb-0">' + new Date(t.fecha_creacion).toLocaleString('es-AR') + '</p></div>'
                 + '<div class="col-md-6"><label class="fw-bold text-muted small">FECHA FINALIZACIÓN</label>' +
                   '<p class="mb-0">' + fechaFin + '</p></div>'
+                + (t.comentario ? '<div class="col-12 mt-3"><label class="fw-bold text-muted small">COMENTARIO FINAL</label><div class="p-2 bg-light border rounded" style="white-space:pre-wrap">' + $('<span>').text(t.comentario).html() + '</div></div>' : '')
+                + (t.adjunto_path ? '<div class="col-12 mt-2"><label class="fw-bold text-muted small">ADJUNTO</label><br><a href="<?php echo app_base_url(); ?>/uploads/tareas/' + t.adjunto_path + '" target="_blank" class="btn btn-sm btn-outline-primary mt-1"><i class="fas fa-paperclip me-1"></i>Ver adjunto</a></div>' : '')
                 + '</div>'
             );
         },
@@ -1025,22 +1102,50 @@ function tomarTarea(id) {
 }
 
 function completarTarea(id) {
+    // Hacer el modal más ancho temporalmente para comodidad del comentario
+    const $m = $('#modalConfirmacionSITIA');
+    $m.find('.modal-dialog').addClass('modal-lg');
+    $m.one('hidden.bs.modal', function() { $(this).find('.modal-dialog').removeClass('modal-lg'); });
+
     showConfirm({
         titulo: 'Completar Tarea',
-        mensaje: '¿Marcar esta tarea como completada?',
+        mensaje: '<p class="mb-2">¿Marcar esta tarea como completada?</p>' +
+                 '<div class="text-start">' +
+                 '<label class="form-label small fw-bold mb-1">Comentario final:</label>' +
+                 '<textarea id="comentario_tarea_final" class="form-control mb-2" rows="5" placeholder="Escriba aquí los detalles del trabajo finalizado..."></textarea>' +
+                 '<label class="form-label small fw-bold mb-1">Adjunto (opcional):</label>' +
+                 '<input type="file" id="adjunto_tarea_final" class="form-control">' +
+                 '</div>',
         icono: 'fa-check-circle text-success',
         claseBoton: 'btn-success',
         textoAceptar: 'Completar',
         onConfirm: function() {
+            let formData = new FormData();
+            formData.append('accion', 'completar');
+            formData.append('id', id);
+            formData.append('comentario', $('#comentario_tarea_final').val());
+            formData.append('_csrf', '<?php echo csrf_token(); ?>');
+            
+            let fileInput = document.getElementById('adjunto_tarea_final');
+            if (fileInput.files.length > 0) {
+                formData.append('adjunto', fileInput.files[0]);
+            }
+
             $.ajax({
                 url: '<?php echo app_base_url(); ?>/ajax/tareas_acciones.php',
                 type: 'POST',
-                data: { accion: 'completar', id: id, _csrf: '<?php echo csrf_token(); ?>' },
+                data: formData,
+                processData: false,
+                contentType: false,
                 dataType: 'json',
                 xhrFields: { withCredentials: true },
                 success: function(r) {
-                    if (r.success) { showToast(r.data.mensaje, 'success'); if (dtTareas) dtTareas.ajax.reload(); }
-                    else showToast(r.error || 'Error', 'error');
+                    if (r.success) { 
+                        showToast(r.data.mensaje, 'success'); 
+                        if (dtTareas) dtTareas.ajax.reload(); 
+                    } else { 
+                        showToast(r.error || 'Error', 'error'); 
+                    }
                 },
                 error: function() { showToast('Error de conexión', 'error'); }
             });

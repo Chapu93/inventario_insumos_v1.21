@@ -111,6 +111,10 @@ try {
         $botones = [];
         $botones[] = '<button class="btn btn-sm btn-info" onclick="verTarea(' . $r['id_tarea'] . ')" data-bs-toggle="tooltip" title="Ver detalle"><i class="fas fa-eye"></i></button>';
 
+        if ($r['estado'] !== 'Completada' && $permGestionar) {
+            $botones[] = '<button class="btn btn-sm btn-warning text-dark" onclick="editarTarea(' . $r['id_tarea'] . ')" data-bs-toggle="tooltip" title="Editar tarea"><i class="fas fa-edit"></i></button>';
+        }
+
         if ($r['estado'] !== 'Completada') {
             if ($permGestionar) {
                 if (!$r['asignado_a']) {

@@ -2,7 +2,7 @@
 require_once '../../includes/config.php';
 requerirAutenticacion();
 verificarPermiso('reportes', 'ver');
-use setasign\Fpdi\Fpdi;
+// use setasign\Fpdi\Fpdi; (Eliminado para permitir inclusión)
 
 // Aceptar remito | numero | numero_remito
 $numero_remito =
@@ -73,7 +73,7 @@ if (!$cab) {
 }
 
 // PDF
-$pdf = new Fpdi();
+$pdf = new \setasign\Fpdi\Fpdi();
 // Cache simple del template para no re-parsar en múltiples usos por request
 static $TPL_ID = null;
 static $TPL_SIZE = null;
@@ -202,11 +202,12 @@ $pdf->SetFont('Arial', '', 11);
 $pdf->SetXY($leftMargin + $colWidth + $colGap, $yRightStart + 7);
 $destinoTexto = 'Área: ' . ($cab['nombre_area'] ?: '-') . "\n" .
     'Sede: ' . ($cab['nombre_sede'] ?: '-') . "\n" .
-    'Localidad: ' . ($cab['nombre_localidad'] ?: '-') . ' - Zona: ' . ($cab['nombre_zona'] ?: '-');
+    'Localidad: ' . ($cab['nombre_localidad'] ?: '-') . "\n" .
+    'Zona: ' . ($cab['nombre_zona'] ?: '-');
 $pdf->MultiCell($colWidth, 6, $enc($destinoTexto), 0, 'L');
 
-// Calcular la posición Y más baja de ambas columnas
-$y = max($pdf->GetY(), $yRightStart + 7 + 3 * $lineHeight);
+// Calcular la posición Y más baja de ambas columnas (ajustado a 4 líneas)
+$y = max($pdf->GetY(), $yRightStart + 7 + 4 * $lineHeight);
 
 
 // Lista de insumos en 3 columnas (sin título)
@@ -410,5 +411,9 @@ if (!empty($cab['declaracion_jurada'])) {
     }
 }
 
-$pdf->Output('I', $cab['numero_remito'] . '.pdf');
-exit;
+if (!isset($no_exit_pdf)) {
+    $pdf->Output('I', $cab['numero_remito'] . '.pdf');
+    exit;
+} else {
+    echo $pdf->Output('S');
+}

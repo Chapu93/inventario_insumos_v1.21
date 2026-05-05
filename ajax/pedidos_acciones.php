@@ -17,6 +17,94 @@ try {
     $db = conectarDB();
     
     switch ($accion) {
+        case 'editar':
+            if (!tienePermiso('pedidos', 'gestionar')) json_error('Sin permiso para editar pedidos', 403);
+
+            $id = (int)($_POST['id'] ?? 0);
+            if ($id <= 0) json_error('ID de pedido inválido', 400);
+
+            // Obtener datos del POST
+            $sol_nombre    = trim($_POST['solicitante_nombre']   ?? '');
+            $sol_apellido  = trim($_POST['solicitante_apellido'] ?? '');
+            $sol_telefono  = trim($_POST['solicitante_telefono'] ?? '');
+            $id_sede       = (int)($_POST['id_sede']             ?? 0);
+            $id_area       = (int)($_POST['id_area']             ?? 0) ?: null;
+            $tipo          = trim($_POST['tipo']                ?? '');
+            $prioridad     = trim($_POST['prioridad']           ?? 'Media');
+            $descripcion   = trim($_POST['descripcion']         ?? '');
+            
+            // Lógica de insumos idéntica a 'crear'
+            $insumosIds = trim($_POST['id_insumo_relacionado'] ?? '');
+            $insumosTextos = trim($_POST['insumo_relacionado'] ?? '');
+            
+            $idInsumoRelacionado = null;
+            if (!empty($insumosIds)) {
+                $idsArray = explode(',', $insumosIds);
+                $idInsumoRelacionado = (int)$idsArray[0] ?: null;
+            }
+
+            // Validaciones básicas
+            if (empty($sol_nombre) || empty($sol_apellido)) json_error('Nombre y Apellido del solicitante son obligatorios', 400);
+            if ($id_sede <= 0)                             json_error('La sede es obligatoria', 400);
+            if (empty($tipo))                               json_error('El tipo de pedido es obligatorio', 400);
+            if (empty($descripcion))                        json_error('La descripción es obligatoria', 400);
+
+            $db->beginTransaction();
+
+            // Verificar si el pedido existe y su estado
+            $stmt = $db->prepare("SELECT estado, pdf_nota FROM pedidos WHERE id_pedido = ?");
+            $stmt->execute([$id]);
+            $pedidoActual = $stmt->fetch();
+
+            if (!$pedidoActual) json_error('Pedido no encontrado', 404);
+            if ($pedidoActual['estado'] === 'Completado' || $pedidoActual['estado'] === 'Rechazado') {
+                json_error('No se puede editar un pedido finalizado', 400);
+            }
+
+            // Procesar PDF si se envió uno nuevo
+            $pdfNota = $pedidoActual['pdf_nota'];
+            if (!empty($_FILES['nota_pedido']) && $_FILES['nota_pedido']['error'] === UPLOAD_ERR_OK) {
+                $val = validarArchivoPdf($_FILES['nota_pedido']);
+                if (!$val['valido']) json_error($val['error'], 400);
+
+                $nombreArchivoNota = 'nota_sol_' . time() . '_' . uniqid() . '.' . $val['extension'];
+                $uploadDir = UPLOAD_BASE_DIR . 'pedidos/';
+                if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+
+                if (move_uploaded_file($_FILES['nota_pedido']['tmp_name'], $uploadDir . $nombreArchivoNota)) {
+                    // Eliminar el anterior si existía
+                    if ($pdfNota && file_exists($uploadDir . $pdfNota)) {
+                        @unlink($uploadDir . $pdfNota);
+                    }
+                    $pdfNota = $nombreArchivoNota;
+                } else {
+                    json_error('Error al guardar el nuevo archivo PDF', 500);
+                }
+            }
+
+            // Actualizar pedido
+            $sql = "UPDATE pedidos SET 
+                    solicitante_nombre = ?, solicitante_apellido = ?, solicitante_telefono = ?,
+                    id_sede = ?, id_area = ?, tipo = ?, prioridad = ?, descripcion = ?, 
+                    insumo_relacionado = ?, id_insumo_relacionado = ?, pdf_nota = ?
+                    WHERE id_pedido = ?";
+            
+            $stmt = $db->prepare($sql);
+            $stmt->execute([
+                $sol_nombre, $sol_apellido, $sol_telefono,
+                $id_sede, $id_area, $tipo, $prioridad, $descripcion, 
+                $insumosTextos, $idInsumoRelacionado, $pdfNota,
+                $id
+            ]);
+
+            // Registrar en historial
+            $stmtH = $db->prepare("INSERT INTO pedidos_historial (id_pedido, id_usuario, accion, detalle) VALUES (?, ?, 'Edición', 'Se actualizaron los datos del pedido')");
+            $stmtH->execute([$id, $usuarioId]);
+
+            $db->commit();
+            json_success(['mensaje' => 'Pedido actualizado correctamente']);
+            break;
+
         case 'crear':
             if (!tienePermiso('pedidos', 'crear') && !defined('TESTING')) json_error('Sin permiso', 403);
             
@@ -149,7 +237,7 @@ try {
             $stmt = $db->prepare("SELECT p.*, 
                                     u_sol.username as sol_user, u_sol.nombre as sol_nom, u_sol.apellido as sol_ape,
                                     u_asig.username as asig_user, u_asig.nombre as asig_nom, u_asig.apellido as asig_ape,
-                                    s.nombre_sede,
+                                    s.nombre_sede, s.id_localidad,
                                     i.nombre_insumo, i.numero_serie,
                                     r.numero_remito
                                   FROM pedidos p
@@ -331,6 +419,8 @@ try {
              if ($id <= 0) json_error('ID inválido', 400);
              if (empty($diagnostico) || empty($trabajo)) json_error('Complete Diagnóstico y Trabajo Realizado', 400);
 
+             $darDeBaja = !empty($_POST['dar_de_baja']) && ($_POST['dar_de_baja'] == '1');
+
              $db->beginTransaction();
              
              // Verificar tipo y si ya tiene informe
@@ -344,31 +434,60 @@ try {
                  $db->rollBack();
                  json_error('Este pedido ya tiene un informe técnico', 400);
              }
-                         // Generar número de informe anual
+             // Generar número de informe anual
              $numeroInforme = generarNumeroInforme($db);
              
              // Insertar informe
              $stmtI = $db->prepare("INSERT INTO pedidos_informes (id_pedido, numero_informe, diagnostico, trabajo_realizado, resultado) VALUES (?, ?, ?, ?, ?)");
              $stmtI->execute([$id, $numeroInforme, $diagnostico, $trabajo, $resultado]);
              
-             // Datos de Entrega (opcionales al completar tecnico, pero recomendados)
+             // Datos de Entrega
              $metodoEntrega = $_POST['metodo_entrega'] ?? 'No aplica';
              $fechaEstimada = $_POST['fecha_estimada_entrega'] ?? null;
              $notasEntrega = trim($_POST['notas_entrega'] ?? '');
 
              // Actualizar pedido
+             $estadoEntrega = 'Preparado';
+             
+             // Si se marca baja por falla técnica, el equipo ya no se devuelve reparado
+             if ($darDeBaja && ($resultado === 'Sin Solución' || $resultado === 'Requiere Repuestos')) {
+                 $metodoEntrega = 'No aplica';
+                 $estadoEntrega = 'De Baja'; 
+                 
+                 // Obtener el insumo relacionado
+                 $stmtInsumo = $db->prepare("SELECT id_insumo_relacionado FROM pedidos WHERE id_pedido = ?");
+                 $stmtInsumo->execute([$id]);
+                 $idInsumo = $stmtInsumo->fetchColumn();
+
+                 if ($idInsumo) {
+                     // 1. Marcar insumo como baja
+                     $db->prepare("UPDATE insumos SET estado = 'De Baja', id_sede_actual = NULL, id_area_asignacion_actual = NULL WHERE id_insumo = ?")
+                        ->execute([$idInsumo]);
+
+                     // 2. Registrar en historial de bajas
+                     $obsBaja = "Baja técnica (Informe #$numeroInforme): $diagnostico";
+                     $db->prepare("INSERT INTO insumos_bajas (id_insumo, observacion) VALUES (?, ?)")
+                        ->execute([$idInsumo, substr($obsBaja, 0, 250)]);
+                        
+                     registrarAuditoria('baja_insumo', 'insumos', "Baja técnica desde Pedido #$id (Informe #$numeroInforme)", 'insumo', $idInsumo);
+                 }
+             }
+
              $stmt = $db->prepare("UPDATE pedidos SET 
                                      estado = 'Completado', 
-                                     estado_entrega = 'Preparado', 
+                                     estado_entrega = ?, 
                                      metodo_entrega = ?, 
                                      fecha_estimada_entrega = ?, 
-                                     notas_entrega = ? 
+                                     notas_entrega = ?,
+                                     fecha_preparacion = NOW(),
+                                     fecha_entrega = CASE WHEN ? = 'De Baja' THEN NOW() ELSE fecha_entrega END
                                    WHERE id_pedido = ?");
-             $stmt->execute([$metodoEntrega, $fechaEstimada, $notasEntrega, $id]);
+             $stmt->execute([$estadoEntrega, $metodoEntrega, $fechaEstimada, $notasEntrega, $estadoEntrega, $id]);
              
              // Historial
              $stmtH = $db->prepare("INSERT INTO pedidos_historial (id_pedido, id_usuario, accion, detalle) VALUES (?, ?, 'Informe generado', ?)");
-             $stmtH->execute([$id, $usuarioId, "Informe generado. Resultado: $resultado"]);
+             $descHist = "Informe generado. Resultado: $resultado" . ($darDeBaja ? " - Insumo dado de baja." : "");
+             $stmtH->execute([$id, $usuarioId, $descHist]);
              
              $db->commit();
              json_success(['mensaje' => 'Pedido completado e informe generado']);
@@ -617,7 +736,7 @@ try {
             if (!$p) json_error('Pedido no encontrado', 404);
             if ($p['tipo'] !== 'Pedido Insumo') json_error('Solo los pedidos de insumo pueden marcarse como preparados', 400);
             
-            $stmt = $db->prepare("UPDATE pedidos SET estado = 'Preparado', estado_entrega = 'Preparado' WHERE id_pedido = ?");
+            $stmt = $db->prepare("UPDATE pedidos SET estado = 'Preparado', estado_entrega = 'Preparado', fecha_preparacion = NOW() WHERE id_pedido = ?");
             $stmt->execute([$id]);
             
             $stmtH = $db->prepare("INSERT INTO pedidos_historial (id_pedido, id_usuario, accion, detalle) VALUES (?, ?, 'Preparado', 'Pedido de insumos preparado y listo para logística')");

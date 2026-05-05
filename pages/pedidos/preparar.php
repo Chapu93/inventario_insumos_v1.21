@@ -77,6 +77,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $fechaEstimada = $_POST['fecha_estimada_entrega'] ?: null;
         $notasLogistica = $_POST['notas_entrega'] ?? '';
 
+        // Verificar si hay alguna Notebook seleccionada para exigir DJ
+        $hayNotebook = false;
+        if (!empty($idsInsumos)) {
+            $placeholders = implode(',', array_fill(0, count($idsInsumos), '?'));
+            $stmtCheck = $db->prepare("SELECT COUNT(*) FROM insumos WHERE id_insumo IN ($placeholders) AND tipo_insumo = 'Notebook'");
+            $stmtCheck->execute($idsInsumos);
+            $hayNotebook = (int)$stmtCheck->fetchColumn() > 0;
+        }
+
+        $nombreArchivoDj = null;
+        if ($hayNotebook) {
+            if (empty($_FILES['declaracion_jurada']['name'])) {
+                throw new Exception('Debe adjuntar la Declaración Jurada para preparar una Notebook.');
+            }
+            
+            require_once '../../includes/validar_archivo.php';
+            $validacion = validarArchivoDocumento($_FILES['declaracion_jurada']);
+            if (!$validacion['valido']) {
+                throw new Exception('DJ Inválida: ' . $validacion['error']);
+            }
+            
+            $uploadDir = __DIR__ . '/../../uploads/documentos/';
+            if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+            
+            $nombreArchivoDj = 'dj_' . time() . '_' . uniqid() . '.' . $validacion['extension'];
+            if (!move_uploaded_file($_FILES['declaracion_jurada']['tmp_name'], $uploadDir . $nombreArchivoDj)) {
+                throw new Exception('Error al guardar la declaración jurada.');
+            }
+        }
+
         $db->beginTransaction();
 
         $numeroRemito = generarNumeroRemito($db);
@@ -90,8 +120,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             apellido_persona_asignada, 
             fecha_asignacion, 
             observaciones,
-            nota_solicitud
-        ) VALUES (?,?,?,?,?,NOW(),?,?)");
+            nota_solicitud,
+            declaracion_jurada
+        ) VALUES (?,?,?,?,?,NOW(),?,?,?)");
         
         $stmtR->execute([
             $numeroRemito, 
@@ -99,8 +130,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pedido['id_area'], 
             $pedido['solicitante_nombre'], 
             $pedido['solicitante_apellido'], 
-            "Preparado desde Pedido #$idPedido",
-            ($pedido['pdf_nota'] ? 'pedidos/'.$pedido['pdf_nota'] : null)
+            $notasLogistica ?: null,
+            ($pedido['pdf_nota'] ? 'pedidos/'.$pedido['pdf_nota'] : null),
+            $nombreArchivoDj
         ]);
         $idRemito = (int) $db->lastInsertId();
 
@@ -215,7 +247,7 @@ include '../../includes/header.php';
 <div id="preparar-pasos">
     <div class="card shadow-sm border-0">
         <div class="card-body p-0">
-            <form method="POST" id="formPreparar" class="needs-validation" novalidate>
+            <form method="POST" id="formPreparar" class="needs-validation" novalidate enctype="multipart/form-data">
                 <input type="hidden" name="_csrf" value="<?php echo htmlspecialchars(csrf_token()); ?>">
                 
                 <!-- Paso 1: Selección de Insumos -->
@@ -302,9 +334,24 @@ include '../../includes/header.php';
                                                 <?php foreach ($insumos as $ins): 
                                                     $tipo = (string)$ins['tipo_insumo'];
                                                     $name = (string)$ins['nombre_insumo'];
-                                                    if($tipo === 'PC Escritorio' && !empty($ins['pc_sist_op'])) $name = $ins['pc_sist_op'];
-                                                    elseif($tipo === 'Notebook') $name = ($ins['nb_marca'] ?? '').' '.($ins['nb_modelo'] ?? '');
-                                                    elseif($tipo === 'Impresora') $name = ($ins['imp_marca'] ?? '').' '.($ins['imp_modelo'] ?? '');
+                                                    
+                                                    // Determinar nombre descriptivo según tipo
+                                                    if ($tipo === 'Notebook') {
+                                                        $marcaModelo = trim(($ins['nb_marca'] ?? '') . ' ' . ($ins['nb_modelo'] ?? ''));
+                                                        if (!empty($marcaModelo)) $name = $marcaModelo;
+                                                    } elseif ($tipo === 'Impresora') {
+                                                        $marcaModelo = trim(($ins['imp_marca'] ?? '') . ' ' . ($ins['imp_modelo'] ?? ''));
+                                                        if (!empty($marcaModelo)) $name = $marcaModelo;
+                                                    } elseif ($tipo === 'Monitor') {
+                                                        $marcaModelo = trim(($ins['mon_marca'] ?? '') . ' ' . ($ins['mon_modelo'] ?? ''));
+                                                        if (!empty($marcaModelo)) $name = $marcaModelo;
+                                                    } elseif ($tipo === 'Escaner') {
+                                                        $marcaModelo = trim(($ins['esc_marca'] ?? '') . ' ' . ($ins['esc_modelo'] ?? ''));
+                                                        if (!empty($marcaModelo)) $name = $marcaModelo;
+                                                    } elseif ($tipo === 'PC Escritorio' || $tipo === 'PC Completa') {
+                                                        // Para PCs, preferimos el nombre de insumo, pero podemos añadir el SO si existe
+                                                        if (!empty($ins['pc_sist_op'])) $name .= ' (' . $ins['pc_sist_op'] . ')';
+                                                    }
                                                     
                                                     $filterText = mb_strtolower($name.' '.$tipo.' '.$ins['numero_serie'].' '.$ins['id_fisico']);
                                                 ?>
@@ -344,6 +391,19 @@ include '../../includes/header.php';
 
                             <!-- Paginación -->
                             <ul class="pagination pagination-sm justify-content-center mt-3" id="paginationInsumos"></ul>
+
+                            <!-- Declaración Jurada (Movido al Paso 1) -->
+                            <div id="div_declaracion_jurada" style="display: none;" class="mt-4">
+                                <div class="alert alert-warning border-0 shadow-sm d-flex align-items-center">
+                                    <i class="fas fa-file-contract fa-2x me-3 opacity-75"></i>
+                                    <div class="flex-grow-1">
+                                        <label class="form-label fw-bold mb-1">Declaración Jurada de Notebook *</label>
+                                        <p class="small mb-2">Se ha seleccionado una Notebook. Debe adjuntar la Declaración Jurada firmada.</p>
+                                        <input type="file" class="form-control" name="declaracion_jurada" id="declaracion_jurada" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                                        <div class="invalid-feedback">Debe adjuntar la Declaración Jurada.</div>
+                                    </div>
+                                </div>
+                            </div>
 
                             <div class="text-end border-top py-4 mt-2">
                                 <button type="button" class="btn btn-primary shadow-sm px-4" id="next-to-logistica">
@@ -450,6 +510,16 @@ $(function() {
             showToast('Debe seleccionar al menos un insumo', 'warning');
             return;
         }
+
+        // Validación de Declaración Jurada para Notebooks
+        if (verificarNotebookSeleccionada() && !$('#declaracion_jurada').val()) {
+            showToast('Debe adjuntar la Declaración Jurada para continuar con la Notebook', 'warning');
+            $('#declaracion_jurada').addClass('is-invalid').focus();
+            return;
+        } else {
+            $('#declaracion_jurada').removeClass('is-invalid');
+        }
+
         showSection('logistica');
     });
 
@@ -488,6 +558,15 @@ $(function() {
         html += '</tbody></table>';
         
         $('#m_resumen_insumos').html(html);
+        
+        // Mostrar aviso de DJ en el modal si corresponde
+        if (verificarNotebookSeleccionada()) {
+            if (!$('#declaracion_jurada').val()) {
+                showToast('Debe adjuntar la Declaración Jurada para la Notebook', 'error');
+                return;
+            }
+        }
+
         $('#modalConfirmacion').modal('show');
     };
 
@@ -533,10 +612,16 @@ $(function() {
     function reorderSelectedFirst() {
         const $tbody = $('#tablaInsumos').find('tbody');
         const $rows = $tbody.find('tr.fila-insumo');
-        const $selected = $rows.filter(function () { return !$(this).find('.hidden-insumo-input').prop('disabled'); });
+        
+        // Obtener seleccionados y no seleccionados
+        const $selected = $rows.filter(function () { 
+            return !$(this).find('.hidden-insumo-input').prop('disabled'); 
+        });
         const $others = $rows.not($selected);
-        $selected.each(function () { $tbody.prepend(this); });
-        $others.each(function () { $tbody.append(this); });
+        
+        // Re-insertar en orden: primero los seleccionados (manteniendo su orden) y luego el resto
+        $tbody.empty().append($selected).append($others);
+        
         renderPaginacion();
     }
 
@@ -590,15 +675,26 @@ $(function() {
             $input.prop('disabled', true);
             $btn.removeClass('btn-primary').addClass('btn-outline-primary').html('<i class="fas fa-plus me-1"></i> Seleccionar');
             $row.removeClass('selected');
-            if($cant.length) { $cant.css('visibility', 'hidden').removeClass('opacity-100 position-relative').addClass('opacity-50').find('input').prop('disabled', true); }
+            if($cant.length) { 
+                $cant.css('visibility', 'hidden').removeClass('opacity-100').addClass('opacity-50');
+                $cant.find('input').prop('disabled', true); 
+            }
         } else {
             $input.prop('disabled', false);
             $btn.removeClass('btn-outline-primary').addClass('btn-primary').html('<i class="fas fa-minus me-1"></i> Deseleccionar');
             $row.addClass('selected');
-            if($cant.length) { $cant.css('visibility', 'visible').removeClass('opacity-50').addClass('opacity-100 position-relative').find('input').prop('disabled', false); }
+            if($cant.length) { 
+                $cant.css('visibility', 'visible').removeClass('opacity-50').addClass('opacity-100');
+                $cant.find('input').prop('disabled', false); 
+            }
         }
+        
         actualizarContador();
-        reorderSelectedFirst();
+        
+        // Diferir el reordenamiento para evitar conflictos con el evento click (fix 2-clicks)
+        setTimeout(() => {
+            reorderSelectedFirst();
+        }, 50);
     };
 
     window.seleccionarFiltrados = function() {
@@ -618,6 +714,25 @@ $(function() {
     function actualizarContador() {
         const cant = $('.hidden-insumo-input:not(:disabled)').length;
         $('#contadorSeleccion').text(`${cant} seleccionados`);
+        actualizarDJVisibility();
+    }
+
+    function verificarNotebookSeleccionada() {
+        let hayNotebook = false;
+        $('.hidden-insumo-input:not(:disabled)').each(function() {
+            if ($(this).data('tipo') === 'Notebook') hayNotebook = true;
+        });
+        return hayNotebook;
+    }
+
+    function actualizarDJVisibility() {
+        if (verificarNotebookSeleccionada()) {
+            $('#div_declaracion_jurada').fadeIn();
+            $('#declaracion_jurada').prop('required', true);
+        } else {
+            $('#div_declaracion_jurada').fadeOut();
+            $('#declaracion_jurada').prop('required', false).val('');
+        }
     }
 });
 </script>
