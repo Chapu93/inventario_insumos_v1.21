@@ -266,9 +266,9 @@ include '../../includes/header.php';
 <div class="modal fade" id="modalServ" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Editar Servicio</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Editar Servicio</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form method="POST" id="formServ" class="needs-validation" novalidate action="telecom_vigilancia.php">
                 <div class="modal-body">
@@ -307,9 +307,9 @@ include '../../includes/header.php';
 <div class="modal fade" id="modalDisp" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalDispTitle">Agregar Dispositivo</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-hdd me-2"></i><span id="modalDispTitle">Agregar Dispositivo</span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form method="POST" id="formDisp" class="needs-validation" novalidate>
                 <div class="modal-body">

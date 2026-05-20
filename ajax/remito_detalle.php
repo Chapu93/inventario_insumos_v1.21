@@ -23,7 +23,7 @@ try {
                                  r.motivo_anulacion, r.fecha_anulacion,
                                  ar.nombre_area, s.nombre_sede, l.nombre_localidad, z.nombre_zona
                           FROM remitos r
-                          JOIN areas ar ON r.id_area = ar.id_area
+                          LEFT JOIN areas ar ON r.id_area = ar.id_area
                           JOIN sedes s ON r.id_sede = s.id_sede
                           JOIN localidades l ON s.id_localidad = l.id_localidad
                           JOIN zonas z ON l.id_zona = z.id_zona

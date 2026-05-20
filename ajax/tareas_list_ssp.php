@@ -19,6 +19,8 @@ try {
     $length = min(100, max(10, (int)($_GET['length'] ?? 25)));
     $search = isset($_GET['search']['value']) ? trim($_GET['search']['value']) : '';
     $modo   = $_GET['modo'] ?? 'activas'; // 'activas' | 'completadas'
+    $filtro_asignado = $_GET['asignado_a'] ?? '';
+    $filtro_estado = $_GET['estado'] ?? '';
 
     // Columnas ordenables
     $columns = [
@@ -49,18 +51,27 @@ try {
         $where[] = "t.asignado_a = ?";
         $params[] = $usuarioId;
         $where[] = "t.estado IN ('Pendiente', 'En Proceso')";
-    } elseif ($modo === 'historial' || $modo === 'completadas') {
-        // En el historial de tareas internas mostramos todo lo que ya fue tomado o completado
-        $where[] = "(t.estado = 'Completada' OR t.asignado_a > 0)";
-    } else {
-        // 'todos' o modo general
-        $where[] = "1=1";
+    } elseif ($modo === 'completadas') {
+        $where[] = "t.estado = 'Completada'";
+    } elseif ($modo === 'historial') {
+        // En el historial de tareas internas mostramos todo sin restricción base
+    }
+    
+    if ($filtro_asignado !== '') {
+        $where[] = 't.asignado_a = ?';
+        $params[] = (int)$filtro_asignado;
+    }
+
+    if ($filtro_estado !== '') {
+        $estado_busqueda = ($filtro_estado === 'Completado') ? 'Completada' : $filtro_estado;
+        $where[] = 't.estado = ?';
+        $params[] = $estado_busqueda;
     }
 
     if ($search !== '') {
-        $where[] = "(t.titulo LIKE ? OR t.descripcion LIKE ? OR uc.nombre LIKE ? OR uc.apellido LIKE ?)";
+        $where[] = "(t.titulo LIKE ? OR uc.nombre LIKE ? OR uc.apellido LIKE ? OR ua.nombre LIKE ? OR ua.apellido LIKE ? OR ua.username LIKE ?)";
         $like    = '%' . $search . '%';
-        array_push($params, $like, $like, $like, $like);
+        array_push($params, $like, $like, $like, $like, $like, $like);
     }
 
     $whereSql = ' WHERE ' . implode(' AND ', $where);

@@ -189,14 +189,14 @@ $localidades = $stmt->fetchAll();
 
 <!-- Modal para agregar/editar sede -->
 <div class="modal fade" id="modalSede" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalSedeTitle">Agregar Sede</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-building me-2"></i><span id="modalSedeTitle">Agregar Sede</span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form method="POST" id="formSede" class="needs-validation" novalidate>
-                <div class="modal-body" style="max-height:60vh; overflow-y:auto;">
+                <div class="modal-body">
                     <input type="hidden" name="_csrf" value="<?php echo htmlspecialchars(csrf_token()); ?>">
                     <input type="hidden" name="accion" id="accion" value="agregar">
                     <input type="hidden" name="id_sede" id="id_sede">
@@ -253,7 +253,7 @@ $localidades = $stmt->fetchAll();
                         <textarea class="form-control" id="observaciones" name="observaciones" rows="3"></textarea>
                     </div>
                 </div>
-                <div class="modal-footer" style="background: #fff;">
+                <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </div>
@@ -361,14 +361,4 @@ document.addEventListener('DOMContentLoaded', function(){
 });
 </script>
 
-<style>
-/* Fix para botones del modal-footer: separación y evitar corte */
-.modal-footer {
-    padding: 1rem 1.5rem;
-    gap: 0.5rem;
-}
-.modal-footer .btn {
-    min-width: 110px;
-}
-</style>
 <?php include '../../includes/footer.php'; ?>

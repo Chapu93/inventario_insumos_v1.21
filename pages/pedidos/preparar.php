@@ -232,7 +232,7 @@ include '../../includes/header.php';
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h4 class="mb-0 text-dark fw-bold"><i class="fas fa-box-open me-2"></i>Preparar Pedido de Insumos</h4>
-            <a href="listar.php" class="btn btn-secondary shadow-sm"><i class="fas fa-arrow-left me-2"></i>Volver</a>
+            <a href="listar.php" class="btn btn-sm btn-secondary shadow-sm"><i class="fas fa-arrow-left me-2"></i>Volver</a>
         </div>
     </div>
 </div>
@@ -376,7 +376,7 @@ include '../../includes/header.php';
                                                                     <input type="number" class="form-control form-control-sm text-center" name="cantidad_varios[<?php echo $ins['id_insumo']; ?>]" min="1" max="<?php echo (int)$ins['cantidad']; ?>" value="1" style="width:70px;" disabled>
                                                                 </div>
                                                             <?php endif; ?>
-                                                            <button type="button" class="btn btn-sm btn-outline-primary btn-seleccionar px-3" onclick="toggleSeleccionInsumo(<?php echo $ins['id_insumo']; ?>)" data-insumo-id="<?php echo $ins['id_insumo']; ?>">
+                                                            <button type="button" class="btn btn-sm btn-outline-primary btn-seleccionar px-3" onclick="toggleSeleccionInsumo(this, <?php echo $ins['id_insumo']; ?>)" data-insumo-id="<?php echo $ins['id_insumo']; ?>">
                                                                 <i class="fas fa-plus me-1"></i> Seleccionar
                                                             </button>
                                                         </div>
@@ -406,7 +406,7 @@ include '../../includes/header.php';
                             </div>
 
                             <div class="text-end border-top py-4 mt-2">
-                                <button type="button" class="btn btn-primary shadow-sm px-4" id="next-to-logistica">
+                                <button type="button" class="btn btn-sm btn-primary px-4 shadow-sm" id="next-to-logistica">
                                     Siguiente paso <i class="fas fa-arrow-right ms-2"></i>
                                 </button>
                             </div>
@@ -440,7 +440,7 @@ include '../../includes/header.php';
                             </div>
 
                             <div class="d-flex justify-content-end gap-2 border-top py-4">
-                                <button type="button" class="btn btn-secondary px-3" id="back-to-insumos">
+                                <button type="button" class="btn btn-sm btn-secondary px-3" id="back-to-insumos">
                                     <i class="fas fa-arrow-left me-2"></i> Volver
                                 </button>
                                 <button type="button" class="btn btn-primary px-4 shadow-sm" onclick="mostrarModalConfirmacion()">
@@ -664,10 +664,10 @@ $(function() {
 
     window.cambiarPagina = function(p) { currentPage = p; renderPaginacion(); };
 
-    window.toggleSeleccionInsumo = function(id) {
-        const $input = $(`.hidden-insumo-input[value="${id}"]`);
-        const $btn = $(`.btn-seleccionar[data-insumo-id="${id}"]`);
+    window.toggleSeleccionInsumo = function(btn, id) {
+        const $btn = $(btn);
         const $row = $btn.closest('tr');
+        const $input = $row.find('.hidden-insumo-input');
         const $cant = $row.find('.cantidad-input');
         const isSelected = !$input.prop('disabled');
         
@@ -699,15 +699,17 @@ $(function() {
 
     window.seleccionarFiltrados = function() {
         $('.fila-insumo:visible').each(function() {
-            const id = $(this).find('.btn-seleccionar').data('insumo-id');
-            if ($(this).find('.hidden-insumo-input').prop('disabled')) toggleSeleccionInsumo(id);
+            const btn = $(this).find('.btn-seleccionar')[0];
+            const id = $(btn).data('insumo-id');
+            if ($(this).find('.hidden-insumo-input').prop('disabled')) toggleSeleccionInsumo(btn, id);
         });
     }
 
     window.deseleccionarTodos = function() {
         $('.fila-insumo.selected').each(function() {
-            const id = $(this).find('.btn-seleccionar').data('insumo-id');
-            toggleSeleccionInsumo(id);
+            const btn = $(this).find('.btn-seleccionar')[0];
+            const id = $(btn).data('insumo-id');
+            toggleSeleccionInsumo(btn, id);
         });
     }
 

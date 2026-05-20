@@ -319,6 +319,9 @@ function cargarSedesPorLocalidad(localidadId, selectId) {
 
 // Función para validar formularios
 function validarFormulario(formId, e) {
+    if (formId === 'formFiltros') {
+        return true;
+    }
     const form = document.getElementById(formId);
     if (!form) { return true; }
     if (!form.checkValidity()) {

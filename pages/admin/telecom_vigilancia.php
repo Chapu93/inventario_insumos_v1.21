@@ -254,9 +254,9 @@ include '../../includes/header.php';
 <div class="modal fade" id="modalServ" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalServTitle">Agregar Servicio</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-video me-2"></i><span id="modalServTitle">Agregar Servicio</span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form method="POST" id="formServ" class="needs-validation" novalidate>
                 <div class="modal-body">

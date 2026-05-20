@@ -281,7 +281,7 @@ include '../../includes/header.php';
 </div></div></div>
 
 <div class="modal fade" id="modalTel" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
-  <div class="modal-header"><h5 class="modal-title" id="modalTelTitle">Agregar Línea</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+  <div class="modal-header bg-primary text-white"><h5 class="modal-title"><i class="fas fa-phone me-2"></i><span id="modalTelTitle">Agregar Línea</span></h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
   <form method="POST" id="formTel" class="needs-validation" novalidate>
     <div class="modal-body">
       <input type="hidden" name="_csrf" value="<?php echo htmlspecialchars(csrf_token()); ?>">

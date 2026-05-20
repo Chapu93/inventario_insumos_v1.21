@@ -224,11 +224,11 @@ $localidades = $stmt->fetchAll();
 <div class="modal fade" id="modalVerInsumo" tabindex="-1" aria-labelledby="modalVerInsumoLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="modalVerInsumoLabel">
                     <i class="fas fa-eye me-2"></i>Detalles del Insumo
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="modalVerInsumoBody">
                 <div class="text-center">
@@ -252,11 +252,11 @@ $localidades = $stmt->fetchAll();
 <div class="modal fade" id="modalBajaInsumo" tabindex="-1" aria-labelledby="modalBajaInsumoLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="modalBajaInsumoLabel">
                     <i class="fas fa-ban me-2"></i>Dar de baja Insumo
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-2">
@@ -626,9 +626,8 @@ $localidades = $stmt->fetchAll();
     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header text-white"
-                style="background: linear-gradient(135deg, var(--menu-start) 0%, var(--menu-end) 100%);">
-                <h5 class=" modal-title" id="modalTipoInsumoAsignadoLabel">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="modalTipoInsumoAsignadoLabel">
                     <i class="fas fa-plus-square me-2"></i>Agregar Insumo Asignado
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
@@ -667,7 +666,7 @@ $localidades = $stmt->fetchAll();
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">
                     <i class="fas fa-times me-1"></i>Cancelar
                 </button>
             </div>
@@ -942,9 +941,9 @@ $localidades = $stmt->fetchAll();
         modal.setAttribute('id', 'modalRelevamiento');
         modal.innerHTML = '<div class="modal-dialog modal-dialog-centered">' +
             '<div class="modal-content">' +
-            '<div class="modal-header">' +
+            '<div class="modal-header bg-primary text-white">' +
             '<h5 class="modal-title"><i class="fas fa-file-pdf me-2"></i>Planilla de Relevamiento</h5>' +
-            '<button type="button" class="btn-close" data-bs-dismiss="modal"></button>' +
+            '<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>' +
             '</div>' +
             '<div class="modal-body">' +
             '<p class="mb-3">Seleccione la cantidad de formularios por hoja:</p>' +

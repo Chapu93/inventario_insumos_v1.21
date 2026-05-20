@@ -178,7 +178,7 @@
         <!-- Page Content -->
         <div id="content">
             <!-- Top Navigation -->
-            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light" style="min-height: 70px; padding-top: 0; padding-bottom: 0;">
                 <div class="container-fluid">
                     <button class="btn btn-outline-primary d-lg-none" type="button" id="btnToggleSidebar" aria-label="Alternar menú">
                         <i class="fas fa-bars"></i>
@@ -186,17 +186,14 @@
                     
                     <!-- Búsqueda Global - @added v2.0 -->
                     <?php if (estaAutenticado()): ?>
-                    <div class="position-relative mx-3 d-none d-md-block" id="busquedaGlobalContainer">
-                        <div class="input-group" style="width: 280px;">
-                            <span class="input-group-text bg-white border-end-0">
-                                <i class="fas fa-search text-muted"></i>
-                            </span>
-                            <input type="text" 
-                                   class="form-control border-start-0 ps-0" 
-                                   id="busquedaGlobalInput" 
-                                   placeholder="Buscar... (Ctrl+K)"
-                                   autocomplete="off">
-                        </div>
+                    <div class="position-relative mx-3 d-none d-md-block" id="busquedaGlobalContainer" style="width: 280px;">
+                        <i class="fas fa-search text-muted position-absolute" style="left: 15px; top: 50%; transform: translateY(-50%); z-index: 10;"></i>
+                        <input type="text" 
+                               class="form-control ps-5" 
+                               id="busquedaGlobalInput" 
+                               placeholder="Buscar... (Ctrl+K)"
+                               autocomplete="off"
+                               style="border-radius: 20px;">
                         <div id="busquedaGlobalResultados" 
                              class="position-absolute bg-white shadow-lg rounded-3 mt-1 w-100 d-none" 
                              style="z-index: 1050; max-height: 400px; overflow-y: auto; min-width: 320px;">

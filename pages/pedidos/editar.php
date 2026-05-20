@@ -48,7 +48,7 @@ include '../../includes/header.php';
                     <input type="hidden" name="accion" value="editar">
                     <input type="hidden" name="id" value="<?php echo $id; ?>">
                     
-                    <h5 class="mb-3 text-secondary border-bottom pb-2">Datos del Solicitante (Agente Externo)</h5>
+                    <h5 class="mb-3 text-dark border-bottom pb-2">Datos del Solicitante (Agente Externo)</h5>
                     <div class="row mb-3">
                         <div class="col-md-4">
                             <label for="solicitante_nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
@@ -90,7 +90,7 @@ include '../../includes/header.php';
                         </div>
                     </div>
 
-                    <h5 class="mb-3 text-secondary border-bottom pb-2">Detalle de Solicitud</h5>
+                    <h5 class="mb-3 text-dark border-bottom pb-2">Detalle de Solicitud</h5>
                     
                     <div class="mb-3" id="rowModoInsumo">
                         <div class="btn-group" role="group">

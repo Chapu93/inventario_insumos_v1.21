@@ -190,9 +190,9 @@ verificarPermiso('usuarios', 'ver');
 <div class="modal fade" id="modalCambiarRol" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title"><i class="fas fa-user-tag me-2"></i>Cambiar Rol</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <p>Cambiar rol del usuario: <strong id="nombreUsuarioRol"></strong></p>

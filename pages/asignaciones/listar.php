@@ -27,7 +27,7 @@ $sql = "SELECT
         FROM remitos r 
         JOIN remitos_detalle d ON d.id_remito = r.id_remito
         JOIN insumos i ON d.id_insumo = i.id_insumo 
-        JOIN areas ar ON r.id_area = ar.id_area 
+        LEFT JOIN areas ar ON r.id_area = ar.id_area 
         JOIN sedes s ON r.id_sede = s.id_sede 
         JOIN localidades l ON s.id_localidad = l.id_localidad 
         WHERE r.estado != 'Anulado'";
@@ -123,7 +123,7 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
             </h1>
             <div class="d-flex gap-2">
                 <?php if (tienePermiso('asignaciones', 'crear') && tienePermiso('asignaciones', 'devolver')): ?>
-                <button type="button" class="btn btn-warning" id="btnAbrirTransferencia">
+                <button type="button" class="btn btn-soft-warning" id="btnAbrirTransferencia">
                     <i class="fas fa-exchange-alt me-2"></i>Transferir Insumos
                 </button>
                 <?php endif; ?>
@@ -311,11 +311,11 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
 <div class="modal fade" id="modalDevolucion" tabindex="-1" aria-labelledby="modalDevolucionLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="modalDevolucionLabel">
                     <i class="fas fa-undo me-2"></i>Devolver Insumos
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div id="devolucionAlert" style="display:none;"></div>
@@ -478,11 +478,11 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
     aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="modalVerAsignacionLabel">
                     <i class="fas fa-eye me-2"></i>Detalle de Asignación
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div id="verAlert" style="display:none;"></div>
@@ -675,11 +675,11 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
 <div class="modal fade" id="modalTransferencia" tabindex="-1" aria-labelledby="modalTransferenciaLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="modalTransferenciaLabel">
                     <i class="fas fa-exchange-alt me-2"></i>Transferencia de Insumos
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
 

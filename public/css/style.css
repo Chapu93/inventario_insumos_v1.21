@@ -1,227 +1,162 @@
-.modal #tablaDevolucion {
-    width: 100%;
+/* ============================================================================
+   SITIA - HOJA DE ESTILOS PRINCIPAL (REFACTORIZADA - VARIABLES NATIVAS)
+   ============================================================================ */
+
+/* === FASE 1: VARIABLES (TOKENS) Y MAPEO CON BOOTSTRAP === */
+:root {
+    /* Paleta Original SITIA (Modo Claro) */
+    --sitia-primary: #5a9367;
+    --sitia-primary-hover: #44633f;
+    --sitia-secondary: #ffffff;
+    --sitia-secondary-hover: #e9ecef;
+    --sitia-success: #5cab7d;
+    --sitia-warning: #e3a542;
+    --sitia-danger: #cc0000;
+    --sitia-info: #4aa79b;
+    --sitia-info-hover: #3b8b82;
+
+    /* Superficies y Textos (Modo Claro) */
+    --sitia-surface-1: #d1ded4;
+    /* Cabeceras modales, thead */
+    --sitia-surface-2: #dbe7e0;
+    /* Cabeceras tarjetas, fondo alterno tabla */
+    --sitia-surface-3: #e6efe9;
+    /* Fondo de la aplicación (body), tarjetas */
+
+    --sitia-text: #1f2430;
+    --sitia-text-muted: #6c757d;
+    --sitia-border: rgba(0, 0, 0, 0.125);
+
+    /* Degradados Sidebar/Footer */
+    --sitia-menu-start: #5cab7d;
+    --sitia-menu-end: #5a9367;
+
+    /* Extras */
+    --sitia-table-hover: rgba(90, 147, 103, 0.08);
+
+    /* --- MAPEO DIRECTO A BOOTSTRAP 5 --- */
+    --bs-primary: var(--sitia-primary);
+    --bs-primary-rgb: 90, 147, 103;
+    --bs-secondary: var(--sitia-secondary);
+    --bs-secondary-rgb: 155, 183, 162;
+    --bs-success: var(--sitia-success);
+    --bs-success-rgb: 92, 171, 125;
+    --bs-warning: var(--sitia-warning);
+    --bs-warning-rgb: 227, 165, 66;
+    --bs-danger: var(--sitia-danger);
+    --bs-danger-rgb: 204, 0, 0;
+    --bs-info: var(--sitia-info);
+    --bs-info-rgb: 74, 167, 155;
+
+    --bs-body-bg: var(--sitia-surface-3);
+    --bs-body-color: var(--sitia-text);
+    --sitia-input-bg: #ffffff;
+
+    --bs-border-color: var(--sitia-border);
+    --bs-link-color: var(--sitia-primary);
+    --bs-link-hover-color: var(--sitia-primary-hover);
+
+    /* Configuración de tablas Bootstrap */
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--sitia-text);
+    --bs-table-border-color: var(--sitia-border);
+    --bs-table-striped-bg: var(--sitia-surface-2);
+    --bs-table-hover-bg: var(--sitia-table-hover);
 }
 
-.modal #tablaDevolucion thead th {
-    white-space: nowrap;
+/* === FASE 3: MODO OSCURO (SUAVE Y PASTEL) === */
+[data-theme="dark"] {
+    /* Paleta Modo Oscuro (Tonos Pastel) */
+    --sitia-primary: #8ac29a;
+    --sitia-primary-hover: #9ed2ad;
+    --sitia-secondary: #859690;
+    --sitia-secondary-hover: #98a9a3;
+    --sitia-success: #8cd6a9;
+    --sitia-warning: #eed083;
+    --sitia-danger: #ea9696;
+    --sitia-info: #8bcbd3;
+
+    /* Superficies Suaves (Gris Verdoso Oscuro) */
+    --sitia-surface-1: #242a27;
+    /* Más oscuro - Cabeceras, Modales */
+    --sitia-surface-2: #2d3531;
+    /* Medio - Tarjetas, thead */
+    --sitia-surface-3: #353e39;
+    /* Fondo principal Body */
+
+    --sitia-text: #e6eae7;
+    /* Blanco roto suave */
+    --sitia-text-muted: #9faca4;
+    /* Texto secundario pastel */
+    --sitia-border: #4d5852;
+    /* Borde suave */
+
+    /* Degradados Sidebar/Footer Modo Oscuro */
+    --sitia-menu-start: #242a27;
+    --sitia-menu-end: #2d3531;
+
+    --sitia-table-hover: rgba(138, 194, 154, 0.15);
+
+    /* Actualizar Bootstrap para Modo Oscuro */
+    --bs-primary: var(--sitia-primary);
+    --bs-primary-rgb: 138, 194, 154;
+    --bs-secondary: var(--sitia-secondary);
+    --bs-secondary-rgb: 133, 150, 144;
+    --bs-success: var(--sitia-success);
+    --bs-success-rgb: 140, 214, 169;
+    --bs-warning: var(--sitia-warning);
+    --bs-warning-rgb: 238, 208, 131;
+    --bs-danger: var(--sitia-danger);
+    --bs-danger-rgb: 234, 150, 150;
+    --bs-info: var(--sitia-info);
+    --bs-info-rgb: 139, 203, 211;
+    --bs-body-bg: var(--sitia-surface-3);
+    --bs-body-color: var(--sitia-text);
+    --sitia-input-bg: #2d3531;
+    --bs-border-color: var(--sitia-border);
+
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--sitia-text);
+    --bs-table-striped-bg: var(--sitia-surface-1);
+    --bs-table-hover-bg: var(--sitia-table-hover);
 }
 
-.modal #tablaDevolucion input[type=number] {
-    max-width: 90px;
+/* Transición suave entre modos */
+body,
+.card,
+.modal-content,
+.sidebar,
+.app-footer,
+.table,
+.navbar,
+.form-control,
+.form-select {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
-.badge.bg-info {
-    background-color: var(--info-color) !important;
-    color: #fff !important;
+/* === FASE 2: LAYOUT GENERAL === */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
 }
 
-/* Footer Styles - Sticky footer con flexbox */
-.app-footer {
-    background: linear-gradient(135deg, var(--menu-start) 0%, var(--menu-end) 100%);
-    color: #fff;
-    padding: 12px 15px;
-    font-size: 0.85rem;
-    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.2);
-    margin-top: 30px;
-    /* Separación con el contenido */
-    width: 100%;
-}
-
-.app-footer p {
-    margin-bottom: 0.3rem;
-    line-height: 1.5;
-    font-weight: 600;
-}
-
-.app-footer strong {
-    font-weight: 600;
-}
-
-/* Flexbox para sticky footer (se pega al fondo si hay poco contenido) */
+/* Contenedor principal */
 #content {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    margin-left: 250px;
+    width: calc(100% - 250px);
+    transition: all 0.3s;
 }
 
 #content>.container-fluid {
     flex: 1 0 auto;
-    /* Crece para tomar espacio disponible */
+    padding: 1.5rem 2rem;
 }
 
-/* Responsive: Tablets y móviles grandes */
-@media (max-width: 991px) {
-    .app-footer {
-        font-size: 0.8rem;
-        padding: 10px 12px;
-        margin-top: 25px;
-    }
-}
-
-/* Responsive: Móviles medianos */
-@media (max-width: 768px) {
-    .app-footer {
-        font-size: 0.75rem;
-        padding: 8px 10px;
-        margin-top: 20px;
-    }
-
-    .app-footer p {
-        margin-bottom: 0.25rem;
-        line-height: 1.4;
-    }
-}
-
-/* Responsive: Móviles pequeños */
-@media (max-width: 576px) {
-    .app-footer {
-        font-size: 0.7rem;
-        padding: 7px 8px;
-        margin-top: 20px;
-    }
-
-    .app-footer p {
-        margin-bottom: 0.2rem;
-        line-height: 1.3;
-    }
-}
-
-/* ============================================================================
-   TOOLTIPS UNIFICADOS - Estilos consistentes en todo el proyecto
-   ============================================================================ */
-
-/* Tooltip personalizado */
-.tooltip {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    z-index: 1070 !important;
-    /* Por encima de modales */
-}
-
-.tooltip .tooltip-inner {
-    background-color: #2c3e50;
-    color: #ffffff;
-    padding: 8px 14px;
-    border-radius: 6px;
-    font-size: 0.875rem;
-    font-weight: 500;
-    max-width: 250px;
-    text-align: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-}
-
-/* Flechas del tooltip - MEJORADAS para que sean visibles y puntiagudas */
-.tooltip .tooltip-arrow {
-    width: 0.8rem;
-    height: 0.4rem;
-}
-
-/* Flecha superior (tooltip abajo del elemento) */
-.tooltip.bs-tooltip-top .tooltip-arrow::before,
-.tooltip.bs-tooltip-auto[data-popper-placement^="top"] .tooltip-arrow::before {
-    border-top-color: #2c3e50 !important;
-    border-width: 0.4rem 0.4rem 0 !important;
-}
-
-/* Flecha inferior (tooltip arriba del elemento) - LA MÁS IMPORTANTE */
-.tooltip.bs-tooltip-bottom .tooltip-arrow::before,
-.tooltip.bs-tooltip-auto[data-popper-placement^="bottom"] .tooltip-arrow::before {
-    border-bottom-color: #2c3e50 !important;
-    border-width: 0 0.4rem 0.4rem !important;
-}
-
-/* Flecha izquierda (tooltip a la derecha del elemento) */
-.tooltip.bs-tooltip-start .tooltip-arrow::before,
-.tooltip.bs-tooltip-auto[data-popper-placement^="left"] .tooltip-arrow::before {
-    border-left-color: #2c3e50 !important;
-    border-width: 0.4rem 0 0.4rem 0.4rem !important;
-}
-
-/* Flecha derecha (tooltip a la izquierda del elemento) */
-.tooltip.bs-tooltip-end .tooltip-arrow::before,
-.tooltip.bs-tooltip-auto[data-popper-placement^="right"] .tooltip-arrow::before {
-    border-right-color: #2c3e50 !important;
-    border-width: 0.4rem 0.4rem 0.4rem 0 !important;
-}
-
-/* Tooltip personalizado con clase custom-tooltip */
-.custom-tooltip .tooltip-inner {
-    background-color: #2c3e50;
-    color: #ffffff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-}
-
-.custom-tooltip.bs-tooltip-top .tooltip-arrow::before,
-.custom-tooltip.bs-tooltip-auto[data-popper-placement^="top"] .tooltip-arrow::before {
-    border-top-color: #2c3e50 !important;
-}
-
-.custom-tooltip.bs-tooltip-bottom .tooltip-arrow::before,
-.custom-tooltip.bs-tooltip-auto[data-popper-placement^="bottom"] .tooltip-arrow::before {
-    border-bottom-color: #2c3e50 !important;
-}
-
-.custom-tooltip.bs-tooltip-start .tooltip-arrow::before,
-.custom-tooltip.bs-tooltip-auto[data-popper-placement^="left"] .tooltip-arrow::before {
-    border-left-color: #2c3e50 !important;
-}
-
-.custom-tooltip.bs-tooltip-end .tooltip-arrow::before,
-.custom-tooltip.bs-tooltip-auto[data-popper-placement^="right"] .tooltip-arrow::before {
-    border-right-color: #2c3e50 !important;
-}
-
-/* Asegurar que tooltips no interfieran con modales */
-.modal-open .tooltip {
-    z-index: 1080 !important;
-}
-
-/* Animación suave para tooltips */
-.tooltip.show {
-    opacity: 0.98;
-    transition: opacity 0.15s ease-in-out;
-}
-
-.tooltip.fade {
-    transition: opacity 0.15s linear;
-}
-
-/* Estilos personalizados para el sistema de inventario */
-
-:root {
-    --primary-color: #5a9367;
-    /* verde medio (principal) */
-    --primary-color-hover: #44633f;
-    /* verde más oscuro (hover) */
-    --secondary-color: #ffffff;
-    --success-color: #5cab7d;
-    /* verde éxito */
-    --warning-color: #e3a542;
-    /* amarillo suave */
-    --danger-color: #cc0000;
-    --info-color: #4aa79b;
-    /* turquesa suavizado */
-    --info-color-hover: #3b8b82;
-    --light-color: #f8f9fa;
-    --dark-color: #212529;
-    /* Superficies derivadas de la paleta verde (ligeramente más oscuras) */
-    --surface-1: #d1ded4;
-    --surface-2: #dbe7e0;
-    --surface-3: #e6efe9;
-    --text-color: #1f2430;
-    /* Menú lateral más claro para mayor contraste */
-    --menu-start: #5cab7d;
-    --menu-end: #5a9367;
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--surface-3);
-    margin: 0;
-    padding: 0;
-    color: var(--text-color);
-}
-
-/* Sidebar Styles */
+/* Sidebar */
 .wrapper {
     display: flex;
     width: 100%;
@@ -231,23 +166,31 @@ body {
 .sidebar {
     min-width: 250px;
     max-width: 250px;
-    background: linear-gradient(135deg, var(--menu-start) 0%, var(--menu-end) 100%);
+    background: linear-gradient(135deg, var(--sitia-menu-start) 0%, var(--sitia-menu-end) 100%);
     color: #fff;
-    transition: all 0.3s;
     position: fixed;
     height: 100vh;
     z-index: 1000;
     overflow-y: auto;
     overflow-x: hidden;
+    transition: all 0.3s;
 }
 
 .sidebar.active {
     margin-left: -250px;
 }
 
+#content.active {
+    margin-left: 0;
+    width: 100%;
+}
+
 .sidebar-header {
-    padding: 20px;
-    background: rgba(0, 0, 0, 0.08);
+    height: 70px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.15);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -268,20 +211,17 @@ body {
 .sidebar .components li a {
     padding: 10px 20px;
     display: block;
-    color: #fff;
+    color: rgba(255, 255, 255, 0.9);
     text-decoration: none;
     transition: all 0.3s;
     position: relative;
 }
 
-.sidebar .components li a:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-left-color: #fff;
-}
-
+.sidebar .components li a:hover,
 .sidebar .components li>a.active,
 .sidebar .components li>a[aria-expanded="true"] {
     background: rgba(255, 255, 255, 0.1);
+    color: #fff;
 }
 
 .sidebar .components li>a.active::before,
@@ -292,7 +232,7 @@ body {
     top: 0;
     bottom: 0;
     width: 4px;
-    background: rgba(255, 255, 255, 0.9);
+    background: #fff;
     border-radius: 0 2px 2px 0;
 }
 
@@ -305,13 +245,9 @@ body {
     font-size: 0.9rem;
 }
 
-.sidebar .components li ul li a:hover {
-    background: rgba(255, 255, 255, 0.06);
-}
-
-/* Active state para subitems: solo barra izquierda más marcada */
 .sidebar .components li ul li a.active {
-    background: rgba(255, 255, 255, 0.06) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #fff;
 }
 
 .sidebar .components li ul li a.active::before {
@@ -325,308 +261,156 @@ body {
     border-radius: 0 2px 2px 0;
 }
 
-/* Quitar flechita de dropdowns en el menú */
 .dropdown-toggle::after {
     display: none !important;
 }
 
-/* Content Styles */
-#content {
-    width: 100%;
-    padding: 0;
-    min-height: 100vh;
-    transition: all 0.3s;
-    margin-left: 250px;
-    background-color: var(--surface-3);
-}
-
-/* Asegurar que las tablas responsivas ocupen el ancho total del contenedor */
-.table-responsive {
-    width: 100%;
-}
-
-.table {
-    width: 100%;
-}
-
-/* Mejoras responsive generales para secciones de administración/telecom */
-.card>.table-responsive {
-    overflow-x: auto;
-}
-
-.card .table.datatable {
-    min-width: 640px;
-}
-
-@media (max-width: 992px) {
-    .card .table.datatable {
-        min-width: 540px;
-    }
-}
-
-@media (max-width: 576px) {
-    .card .table.datatable {
-        min-width: 480px;
-    }
-
-    .d-flex.justify-content-between {
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
-    .modal-dialog {
-        margin: 0.5rem;
-    }
-}
-
-/* === MODALES SITIA (Confirm/Alert) === */
-#modalConfirmacionSITIA .modal-content {
-    border-radius: 16px;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-    border: none;
-    background-color: var(--surface-3);
-}
-
-#modalConfirmacionSITIA .modal-header {
-    background-color: var(--surface-1);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    border-radius: 16px 16px 0 0;
-}
-
-#modalConfirmacionSITIA .modal-footer {
-    background-color: var(--surface-1);
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
-    border-radius: 0 0 16px 16px;
-}
-
-/* Oscurecer un poco más el fondo para dar protagonismo al modal (Efecto Glassmorphism) */
-.modal-backdrop.show {
-    opacity: 0.6 !important;
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
-}
-
-/* Ajustes para modo oscuro en modales SITIA */
-[data-theme="dark"] #modalConfirmacionSITIA .modal-content {
-    background-color: var(--surface-2);
-}
-[data-theme="dark"] #modalConfirmacionSITIA .modal-header,
-[data-theme="dark"] #modalConfirmacionSITIA .modal-footer {
-    background-color: var(--surface-1);
-}
-/* ================================================= */
-
-/* DataTables: asegurar ancho completo */
-.dataTables_wrapper .dataTable {
-    width: 100% !important;
-}
-
-/* Alineación de columnas en tablas DataTables */
-.dataTables_wrapper table.dataTable thead th,
-.dataTables_wrapper table.dataTable tbody td {
-    text-align: center;
-    vertical-align: middle;
-}
-
-/* Primera columna siempre alineada a la izquierda */
-.dataTables_wrapper table.dataTable thead th:first-child,
-.dataTables_wrapper table.dataTable tbody td:first-child {
-    text-align: left;
-}
-
-/* Tablas normales (no DataTables) */
-table thead th,
-table tbody td {
-    text-align: center;
-    vertical-align: middle;
-}
-
-table thead th:first-child,
-table tbody td:first-child {
-    text-align: left;
-}
-
-/* Navbar más contrastada sobre el fondo */
+/* Top Navbar */
 .navbar.bg-light {
-    background-color: var(--surface-2) !important;
+    background-color: var(--sitia-surface-2) !important;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .navbar .navbar-text,
 .navbar .nav-link {
-    color: var(--text-color) !important;
-}
-
-.navbar .btn.btn-outline-primary {
-    border-color: var(--primary-color);
-    color: var(--primary-color);
-}
-
-.navbar .btn.btn-outline-primary:hover {
-    background: var(--primary-color);
-    color: #fff;
-}
-
-.nav-tabs .nav-link {
-    color: var(--text-color);
-}
-
-.nav-tabs .nav-link.active,
-.nav-tabs .nav-link:focus,
-.nav-tabs .nav-link:hover {
-    color: var(--primary-color);
-}
-
-#content.active {
-    margin-left: 0;
+    color: var(--sitia-text) !important;
 }
 
 .navbar-brand {
     font-weight: bold;
-    color: var(--primary-color) !important;
+    color: var(--sitia-primary) !important;
 }
 
+/* Sticky Footer */
+.app-footer {
+    background: linear-gradient(135deg, var(--sitia-menu-start) 0%, var(--sitia-menu-end) 100%);
+    color: rgba(255, 255, 255, 0.95);
+    padding: 12px 15px;
+    font-size: 0.85rem;
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.2);
+    margin-top: 30px;
+    width: 100%;
+}
+
+.app-footer p {
+    margin-bottom: 0.3rem;
+    line-height: 1.5;
+    font-weight: 600;
+}
+
+.app-footer strong {
+    font-weight: 600;
+}
+
+/* === COMPONENTES === */
+
+/* Tarjetas */
 .card {
     border: none;
     border-radius: 10px;
-    background: var(--surface-3);
+    background-color: var(--sitia-surface-3);
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
-}
-
-.card:hover {
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
 }
 
 .card-header {
-    background: var(--surface-2);
+    background-color: var(--sitia-surface-2);
     border-bottom: 1px solid rgba(0, 0, 0, 0.06);
     border-radius: 10px 10px 0 0 !important;
     padding: 1rem 1.25rem;
     font-weight: 600;
 }
 
-/* Dashboard: listas y tablas con fondo coherente */
 .card .list-group-item {
-    background: var(--surface-3);
+    background-color: transparent;
+    color: var(--sitia-text);
+    border-color: var(--sitia-border);
 }
 
-/* Tablas striped con surfaces suaves (dashboard) - solo dentro de .card-body para no afectar DataTables */
-.card-body .table.table-striped>tbody>tr:nth-of-type(odd)>* {
-    --bs-table-accent-bg: var(--surface-3);
+/* Filtros Container */
+.filtros-container {
+    background-color: var(--sitia-surface-3);
+    padding: 1.5rem;
+    border-radius: var(--bs-border-radius);
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--sitia-border);
+    margin-bottom: 1.5rem;
 }
 
-.card-body .table.table-striped>tbody>tr:nth-of-type(even)>* {
-    --bs-table-accent-bg: var(--surface-2);
+.filtros-container .form-select,
+.filtros-container .form-control {
+    min-width: 150px;
 }
 
-.card-body .table.table-striped>tbody>tr:hover>* {
-    background-color: rgba(90, 147, 103, 0.06) !important;
+/* Inputs Generales */
+.form-control,
+.form-select {
+    background-color: var(--sitia-input-bg);
+    color: var(--sitia-text);
+    border-color: var(--sitia-border);
 }
 
+.form-control:focus,
+.form-select:focus {
+    background-color: var(--sitia-input-bg);
+    color: var(--sitia-text);
+    border-color: var(--sitia-primary);
+    box-shadow: 0 0 0 0.25rem rgba(90, 147, 103, 0.25);
+}
+
+.form-control::placeholder {
+    color: var(--sitia-text-muted);
+}
+
+.form-control:disabled,
+.form-control[readonly] {
+    background-color: var(--sitia-surface-2);
+    opacity: 0.8;
+}
+
+/* Checkboxes y Switches */
+.form-check-input:checked {
+    background-color: var(--sitia-primary);
+    border-color: var(--sitia-primary);
+}
+
+.form-check-input:focus {
+    border-color: var(--sitia-primary);
+    box-shadow: 0 0 0 0.25rem rgba(90, 147, 103, 0.25);
+}
+
+/* Botones (Usando Variables de Bootstrap) */
 .btn {
-    border-radius: 8px;
-    font-weight: 500;
-    transition: all 0.3s ease;
+    --bs-btn-border-radius: 0.25rem;
 }
 
 .btn-primary {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
+    background-color: var(--sitia-primary);
+    border-color: var(--sitia-primary);
     color: #fff;
 }
 
-.btn-primary:hover,
-.btn-primary:focus {
-    background-color: var(--primary-color-hover);
-    border-color: var(--primary-color-hover);
+.btn-primary:hover {
+    background-color: var(--sitia-primary-hover);
+    border-color: var(--sitia-primary-hover);
     color: #fff;
 }
 
 .btn-outline-primary {
-    color: var(--primary-color);
-    border-color: var(--primary-color);
+    color: var(--sitia-primary);
+    border-color: var(--sitia-primary);
 }
 
 .btn-outline-primary:hover,
-.btn-outline-primary:focus {
-    background-color: var(--primary-color);
-    color: #fff;
-    border-color: var(--primary-color);
-}
-
-.text-primary {
-    color: var(--primary-color) !important;
-}
-
-.bg-primary {
-    background-color: var(--primary-color) !important;
-}
-
-.border-primary {
-    border-color: var(--primary-color) !important;
-}
-
-.btn-success {
-    background-color: var(--success-color);
-    border-color: var(--success-color);
-}
-
-.btn-success:hover,
-.btn-success:focus {
-    background-color: #007a26;
-    border-color: #007a26;
-}
-
-.btn-danger {
-    background-color: var(--danger-color);
-    border-color: var(--danger-color);
-    color: #fff;
-}
-
-.btn-danger:hover,
-.btn-danger:focus {
-    filter: brightness(0.95);
-}
-
-.btn-warning {
-    background-color: var(--warning-color);
-    border-color: var(--warning-color);
-    color: #212529;
-}
-
-.btn-warning:hover,
-.btn-warning:focus {
-    filter: brightness(0.95);
-}
-
-.btn-outline-warning {
-    color: var(--warning-color);
-    border-color: var(--warning-color);
-}
-
-.btn-outline-warning:hover,
-.btn-outline-warning:focus {
-    background-color: var(--warning-color);
-    color: #212529;
-    border-color: var(--warning-color);
-}
-
-.btn-info {
-    background-color: var(--info-color);
-    border-color: var(--info-color);
-    color: #fff;
-}
-
-.btn-info:hover,
-.btn-info:focus {
-    background-color: var(--info-color-hover);
-    border-color: var(--info-color-hover);
+.btn-outline-primary:focus,
+.btn-outline-primary:active,
+.btn-outline-primary.active {
+    background-color: var(--sitia-primary) !important;
+    color: #fff !important;
+    border-color: var(--sitia-primary) !important;
 }
 
 .btn-secondary {
     background-color: #9bb7a2;
-    /* más oscuro que surface-2, dentro de paleta */
     border-color: #8eab96;
     color: #0f1a12;
 }
@@ -638,124 +422,42 @@ table tbody td:first-child {
     color: #0f1a12;
 }
 
-.btn-sm {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
-    border-radius: 6px;
+.btn-group .btn {
+    margin: 0 1px;
 }
 
-.table {
-    margin-bottom: 0;
-}
-
-.table thead th {
-    background: var(--surface-2);
-    border-bottom: 2px solid rgba(0, 0, 0, 0.06);
-    font-weight: 600;
-    color: var(--text-color);
-}
-
-.table tbody tr:hover {
-    background-color: rgba(90, 147, 103, 0.08);
-}
-
-.badge {
-    font-size: 0.75em;
-    padding: 0.35em 0.65em;
-    border-radius: 6px;
-}
-
-.form-control:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(90, 147, 103, 0.25);
-}
-
-.form-select:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(90, 147, 103, 0.25);
-}
-
-.form-control,
-.form-select {
-    max-width: 100%;
-}
-
-/* Modal Sedes: ampliar ancho de inputs dentro del modal */
-#modalSede .form-control,
-#modalSede .form-select {
-    max-width: 75% !important;
-}
-
-/* Modal Sedes: ampliar ligeramente solo los 3 campos de Delegado y los 3 de Responsable */
-#modalSede #delegado_nombre,
-#modalSede #delegado_apellido,
-#modalSede #delegado_telefono,
-#modalSede #responsable_nombre,
-#modalSede #responsable_apellido,
-#modalSede #responsable_telefono {
-    max-width: 80% !important;
-}
-
-/* Campos con ancho completo */
-.form-control.w-100,
-.form-select.w-100 {
-    max-width: 100%;
-    width: 100%;
-}
-
-/* Formulario de agregar insumos - todos los campos con ancho completo */
-#formInsumo .form-control,
-#formInsumo .form-select {
-    max-width: 100%;
-    width: 100%;
-}
-
-/* Selects de filtros adaptables */
-.filtros-container .form-select {
-    max-width: 100%;
-    width: 100%;
-    min-width: 150px;
-}
-
-.filtros-container .form-control {
-    max-width: 100%;
-    width: 100%;
-    min-width: 150px;
-}
-
+/* Dashboard KPIs */
 .dashboard-card {
-    background: var(--surface-3);
-    /* mismo fondo que el resto */
-    color: var(--text-color);
+    background-color: var(--sitia-surface-3);
+    color: var(--sitia-text);
     padding: 1.5rem;
-    border-radius: 10px;
+    border-radius: var(--bs-border-radius);
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.12);
-    transition: all 0.3s ease;
+    border: 1px solid var(--sitia-border);
 }
 
-/* Variantes con acentos suaves para KPIs */
 .dashboard-card--primary {
-    background: var(--primary-color);
+    background: var(--sitia-primary);
     color: #fff;
 }
 
 .dashboard-card--success {
-    background: var(--success-color);
-    color: #0b1a12;
+    background: var(--sitia-success);
+    color: #fff;
 }
 
 .dashboard-card--warning {
-    background: var(--warning-color);
+    background: var(--sitia-warning);
     color: #212529;
 }
 
 .dashboard-card--info {
-    background: var(--info-color);
+    background: var(--sitia-info);
     color: #fff;
 }
 
 .dashboard-card--danger {
-    background: var(--danger-color);
+    background: var(--sitia-danger);
     color: #fff;
 }
 
@@ -765,98 +467,343 @@ table tbody td:first-child {
     margin-bottom: 0.5rem;
 }
 
-.dashboard-card p {
-    margin-bottom: 0;
-    opacity: 0.92;
-    font-size: 0.95rem;
+/* Modales */
+.modal-content {
+    border-radius: 10px;
+    border: none;
+    background-color: var(--sitia-surface-3);
 }
 
-/* Stepper (pasos) */
+.modal-header {
+    background-color: var(--sitia-surface-2);
+    border-radius: 10px 10px 0 0;
+    color: #000;
+}
+
+.modal-footer {
+    background-color: var(--sitia-surface-1);
+    border-top: 1px solid var(--sitia-border);
+    border-radius: 0 0 10px 10px;
+}
+
+.modal-backdrop.show {
+    opacity: 0.6 !important;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+}
+
+[data-theme="dark"] .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Tablas */
+.table thead th {
+    background-color: var(--sitia-surface-2);
+    color: var(--sitia-text);
+    border-bottom: 2px solid var(--sitia-border);
+    font-weight: 600;
+    text-align: center !important;
+    vertical-align: middle;
+}
+
+.table tbody td {
+    text-align: center !important;
+    vertical-align: middle;
+    border-bottom-color: var(--sitia-border);
+}
+
+.table thead th:first-child,
+.table tbody td:first-child {
+    text-align: left !important;
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    margin-bottom: 0;
+}
+
+.table-responsive-inner {
+    width: 100%;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 0;
+}
+
+.dataTables_scrollBody {
+    border-bottom: none !important;
+    overflow-x: hidden !important;
+}
+
+.dataTables_scrollBody:hover {
+    overflow-x: auto !important;
+}
+
+/* Tablas Striped en Card Body */
+.card-body .table.table-striped>tbody>tr:nth-of-type(odd)>* {
+    --bs-table-accent-bg: var(--sitia-surface-3);
+}
+
+.card-body .table.table-striped>tbody>tr:nth-of-type(even)>* {
+    --bs-table-accent-bg: var(--sitia-surface-2);
+}
+
+.card-body .table.table-striped>tbody>tr:hover>* {
+    background-color: rgba(90, 147, 103, 0.06) !important;
+}
+
+/* Tooltips */
+.tooltip {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    z-index: 1080 !important;
+}
+
+.tooltip .tooltip-inner {
+    background-color: #3b443e !important;
+    color: #ffffff !important;
+    padding: 8px 14px;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    border: none;
+}
+
+.tooltip.bs-tooltip-top .tooltip-arrow::before {
+    border-top-color: #3b443e !important;
+}
+
+.tooltip.bs-tooltip-bottom .tooltip-arrow::before {
+    border-bottom-color: #3b443e !important;
+}
+
+.tooltip.bs-tooltip-start .tooltip-arrow::before {
+    border-left-color: #3b443e !important;
+}
+
+.tooltip.bs-tooltip-end .tooltip-arrow::before {
+    border-right-color: #3b443e !important;
+}
+
+/* Stepper */
 .stepper {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 16px;
-    margin-bottom: 1rem;
+    gap: 15px;
+    font-weight: 500;
 }
 
 .stepper .step {
     display: flex;
     align-items: center;
     gap: 8px;
-    color: #6c757d;
-    font-weight: 600;
+    color: var(--sitia-text);
+    opacity: 0.6;
 }
 
-.stepper .step .circle {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    display: inline-flex;
+.stepper .step.active {
+    opacity: 1;
+    color: var(--sitia-primary);
+    font-weight: 700;
+}
+
+.stepper .step.done {
+    opacity: 1;
+    color: var(--sitia-success);
+}
+
+.stepper .circle {
+    display: flex;
     align-items: center;
     justify-content: center;
-    background: #e9ecef;
-    color: #6c757d;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: var(--sitia-surface-2);
+    border: 2px solid currentColor;
     font-size: 0.9rem;
 }
 
 .stepper .step.active .circle {
-    background: var(--primary-color);
+    background-color: var(--sitia-primary);
     color: #fff;
+    border-color: var(--sitia-primary);
 }
 
-.stepper .step.active {
-    color: var(--primary-color);
+.stepper .step.done .circle {
+    background-color: var(--sitia-success);
+    color: #fff;
+    border-color: var(--sitia-success);
 }
 
 .stepper .divider {
-    flex: 0 0 40px;
     height: 2px;
-    background: #e9ecef;
+    background-color: var(--sitia-border);
+    flex-grow: 1;
+    max-width: 100px;
 }
 
-/* Título de sección en Paso 1 */
-.section-title {
-    font-weight: 700;
-    font-size: 1.25rem;
-    border-bottom: 2px solid rgba(90, 147, 103, 0.2);
-    padding-bottom: 6px;
+/* === FASE 4: SELECT2 & DATATABLES === */
+.select2-container--bootstrap-5 .select2-selection {
+    background-color: var(--sitia-input-bg);
+    border-color: var(--sitia-border);
+    color: var(--sitia-text);
 }
 
-/* Centrar títulos de sección en Paso 1 */
-#paso1 .section-title {
-    text-align: center;
+.select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+    color: var(--sitia-text);
 }
 
-/* Inputs del Paso 1 con 30% más de ancho respecto al límite global */
-#paso1 .form-select,
-#paso1 .form-control {
-    max-width: 78%;
+.select2-container--bootstrap-5 .select2-dropdown {
+    background-color: var(--sitia-surface-2);
+    border-color: var(--sitia-border);
 }
 
+.select2-container--bootstrap-5 .select2-search--dropdown .select2-search__field {
+    background-color: var(--sitia-input-bg);
+    color: var(--sitia-text);
+    border-color: var(--sitia-border);
+}
+
+.select2-container--bootstrap-5 .select2-results__option {
+    color: var(--sitia-text);
+}
+
+.select2-container--bootstrap-5 .select2-results__option--highlighted {
+    background-color: var(--sitia-primary);
+    color: #fff;
+}
+
+.select2-container--bootstrap-5 .select2-selection:focus,
+.select2-container--bootstrap-5.select2-container--open .select2-selection {
+    border-color: var(--sitia-primary);
+    box-shadow: 0 0 0 0.25rem rgba(90, 147, 103, 0.25);
+}
+
+.select2-container--bootstrap-5.select2-container--open .select2-dropdown {
+    border-color: var(--sitia-primary);
+}
+
+.dataTables_wrapper .dataTables_length select,
+.dataTables_wrapper .dataTables_filter input {
+    background-color: var(--sitia-input-bg);
+    border-color: var(--sitia-border);
+    color: var(--sitia-text);
+    border-radius: 6px;
+    outline: none;
+}
+
+.dataTables_wrapper .dataTables_length select:focus,
+.dataTables_wrapper .dataTables_filter input:focus {
+    border-color: var(--sitia-primary);
+    box-shadow: 0 0 0 0.25rem rgba(90, 147, 103, 0.25);
+}
+
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_length label,
+.dataTables_wrapper .dataTables_filter label {
+    color: var(--sitia-text);
+}
+
+.pagination .page-link {
+    background-color: var(--sitia-surface-3);
+    border-color: var(--sitia-border);
+    color: var(--sitia-primary);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--sitia-primary);
+    border-color: var(--sitia-primary);
+    color: #fff;
+}
+
+/* Botón suave amarillo (Transferir) */
+.btn-soft-warning {
+    background-color: #ffeba1;
+    border-color: #ffe066;
+    color: #856404;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-soft-warning:hover {
+    background-color: #ffe066;
+    border-color: #ffd633;
+    color: #856404;
+}
+
+/* === UTILIDADES === */
+.circle-sm {
+    width: 28px !important;
+    height: 28px !important;
+}
+
+.fs-80 {
+    font-size: 0.8rem !important;
+}
+
+.fs-65 {
+    font-size: 0.65rem !important;
+}
+
+.ls-05 {
+    letter-spacing: 0.5px !important;
+}
+
+.input-width-qty {
+    width: 70px !important;
+}
+
+.dropdown-menu-scrollable {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.pre-scrollable-custom {
+    max-height: 300px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+}
+
+/* Nav Tabs (Pestañas) */
+.nav-tabs .nav-link {
+    color: var(--sitia-primary);
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--sitia-text);
+    font-weight: bold;
+    border-bottom-color: var(--sitia-primary) !important;
+}
+
+.badge-tipo {
+    background-color: var(--sitia-surface-2) !important;
+    color: var(--sitia-text) !important;
+    border: 1px solid var(--sitia-border);
+}
+
+/* Estados */
 .estado-disponible {
-    background-color: var(--success-color) !important;
+    background-color: var(--sitia-success) !important;
     color: white !important;
 }
 
 .estado-asignado {
-    background-color: var(--warning-color) !important;
+    background-color: var(--sitia-warning) !important;
     color: black !important;
 }
 
 .estado-baja {
-    background-color: var(--danger-color) !important;
+    background-color: var(--sitia-danger) !important;
     color: white !important;
 }
 
 .estado-activa {
-    background-color: var(--success-color) !important;
+    background-color: var(--sitia-success) !important;
     color: white !important;
 }
 
 .estado-devuelta {
-    background-color: var(--secondary-color) !important;
-    color: var(--dark-color) !important;
+    background-color: var(--bs-secondary) !important;
+    color: black !important;
 }
 
 .estado-anulado {
@@ -866,93 +813,20 @@ table tbody td:first-child {
     border: 2px solid #c82333 !important;
 }
 
-/* Estado para "De Baja" (nombre con espacio) */
-.estado-de-baja {
-    background-color: #343a40 !important;
-    /* gris muy oscuro para alto contraste */
-    color: #ffffff !important;
-    border: 1px solid #212529 !important;
+/* Título de sección en Formularios */
+.section-title {
+    font-weight: 700;
+    font-size: 1.25rem;
+    border-bottom: 2px solid rgba(90, 147, 103, 0.2);
+    padding-bottom: 6px;
+    color: var(--sitia-text) !important;
 }
 
-.filtros-container {
-    background: var(--surface-3);
-    padding: 1.5rem;
-    border-radius: 10px;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.08);
-    border: 1px solid var(--surface-2);
-    margin-bottom: 1.5rem;
+#paso1 .section-title {
+    text-align: center;
 }
 
-/* Espacio adicional para los botones de filtros */
-.filtros-container .col-md-2:last-child {
-    padding-left: 0.5rem;
-}
-
-.modal-content {
-    border-radius: 10px;
-    border: none;
-    background: var(--surface-3);
-}
-
-.modal-header {
-    background: var(--surface-2);
-    border-radius: 10px 10px 0 0;
-    color: #000;
-    /* texto negro para mayor legibilidad */
-}
-
-.modal .table {
-    width: 100% !important;
-}
-
-.modal .table thead th {
-    background: var(--surface-2);
-}
-
-.modal .table tbody tr:hover>* {
-    background-color: var(--surface-3) !important;
-}
-
-.modal-header .btn-close {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-}
-
-.dataTables_wrapper .dataTables_length select {
-    border-radius: 6px;
-    border: 1px solid #ced4da;
-    outline: none;
-}
-
-.dataTables_wrapper .dataTables_filter input {
-    border-radius: 6px;
-    border: 1px solid #ced4da;
-    outline: none;
-}
-
-.select2-container--bootstrap-5 .select2-selection {
-    border-radius: 6px;
-    border: 1px solid #ced4da;
-    outline: none;
-}
-
-/* Select2 palette adjustments */
-.select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
-    color: var(--text-color);
-}
-
-.select2-container--bootstrap-5 .select2-results__option--highlighted {
-    background-color: var(--primary-color);
-    color: #fff;
-}
-
-.select2-container--bootstrap-5 .select2-results__option[aria-selected=true] {
-    background-color: var(--primary-color-hover);
-    color: #fff;
-}
-
-/* Responsive */
+/* Responsive General */
 @media (max-width: 992px) {
     .sidebar {
         margin-left: -250px;
@@ -964,1236 +838,41 @@ table tbody td:first-child {
 
     #content {
         margin-left: 0;
+        width: 100%;
     }
 
     #content.active {
         margin-left: 250px;
+        width: calc(100% - 250px);
     }
 
-    .dashboard-card h3 {
-        font-size: 2rem;
+    .app-footer {
+        font-size: 0.8rem;
+        padding: 10px 12px;
     }
-
-    .table-responsive {
-        font-size: 0.875rem;
-    }
-
-    /* En móviles, los campos ocupan todo el ancho */
-    .form-control,
-    .form-select {
-        max-width: 100%;
-    }
-
-    #modalSede .form-control,
-    #modalSede .form-select {
-        max-width: 100%;
-    }
-
 }
 
 @media (max-width: 768px) {
+    .app-footer {
+        font-size: 0.75rem;
+        padding: 8px 10px;
+    }
 
-    /* Ajustes responsive adicionales */
     .filtros-container .row>[class^="col-"] {
         margin-bottom: 0.5rem;
     }
-
-    .btn-group {
-        flex-wrap: wrap;
-    }
-
-    .btn-group .btn {
-        margin-bottom: 4px;
-    }
-}
-
-/* Focus states coherentes para DataTables y Select2 */
-.dataTables_wrapper .dataTables_filter input:focus,
-.dataTables_wrapper .dataTables_length select:focus,
-.select2-container--bootstrap-5 .select2-selection:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(90, 147, 103, 0.25);
-}
-
-.fade-in {
-    animation: fadeIn 0.5s ease-in;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.loading {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 3px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top-color: #fff;
-    animation: spin 1s ease-in-out infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-@media print {
-    .no-print {
-        display: none !important;
-    }
-
-    .print-only {
-        display: block !important;
-    }
-}
-
-/* Estilos para botones de acción */
-.btn-group .btn {
-    margin: 0 1px;
-}
-
-.btn-group .btn:hover {
-    transform: none;
-    transition: none;
-}
-
-/* Asegurar que los botones de acción sean clickeables */
-.btn-group .btn[onclick] {
-    cursor: pointer;
-    pointer-events: auto;
-}
-
-/* Estilos para tooltips */
-.tooltip {
-    z-index: 9999;
-}
-
-/* Controles de formularios alineados a la paleta */
-.form-check-input:checked {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-}
-
-.form-check-input:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(90, 147, 103, 0.25);
-}
-
-input[type="checkbox"],
-input[type="radio"],
-input[type="range"],
-progress {
-    accent-color: var(--primary-color);
-}
-
-/* Paginación (DataTables/Bootstrap) */
-.pagination .page-link {
-    color: var(--primary-color);
-}
-
-.pagination .page-link:hover {
-    color: var(--primary-color-hover);
-    border-color: var(--primary-color);
-}
-
-.pagination .page-link:focus {
-    box-shadow: 0 0 0 0.2rem rgba(90, 147, 103, 0.25);
-}
-
-.page-item.active .page-link {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-    color: #fff;
-}
-
-/* Asegurar que los botones de acción en DataTables funcionen */
-.dataTables_wrapper .btn-group .btn {
-    pointer-events: auto !important;
-}
-
-/* Estilos para la tabla de insumos en nueva asignación */
-.tabla-asignacion {
-    font-size: 0.9rem;
-}
-
-/* Encabezados unificados para todas las tablas */
-.tabla-asignacion thead th {
-    background: var(--surface-2) !important;
-    color: var(--text-color) !important;
-    border-color: rgba(0, 0, 0, 0.06) !important;
-    font-weight: 600;
-    text-align: center;
-}
-
-/* Eliminar encabezado oscuro global */
-
-.tabla-asignacion tbody tr:hover {
-    background-color: var(--surface-3);
-    cursor: pointer;
-}
-
-/* Tabla plana y limpia para selección de insumos */
-.table-flat {
-    border-collapse: separate;
-    border-spacing: 0;
-}
-
-.table-flat thead th {
-    background: var(--surface-2);
-    border-bottom: 1px solid #e5e7eb;
-    color: #374151;
-    font-weight: 600;
-}
-
-.table-flat tbody td {
-    border-top: 1px solid #e5e7eb;
-}
-
-.table-flat tbody tr:hover {
-    background-color: var(--surface-3);
-}
-
-/* Botón seleccionar con ancho fijo para evitar saltos de layout */
-.btn-seleccionar {
-    width: 140px;
-    min-width: 140px;
-    max-width: 140px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    white-space: nowrap;
-}
-
-/* Contenedor de cantidad para tipo Varios (alineado e inline) */
-.cantidad-input {
-    display: inline-flex !important;
-    align-items: center;
-    gap: 8px;
-}
-
-.tabla-asignacion .btn-seleccionar {
-    width: 140px;
-    min-width: 140px;
-    max-width: 140px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    white-space: nowrap;
-    overflow: hidden;
-}
-
-.tabla-asignacion .badge {
-    font-size: 0.75rem;
-}
-
-/* Dar más espacio a la columna de seleccionar/acciones en nueva asignación */
-.tabla-asignacion th:last-child,
-.tabla-asignacion td:last-child {
-    width: 200px;
-    min-width: 180px;
-}
-
-.fila-insumo.highlight {
-    background-color: #e3f2fd !important;
-    border-left: 4px solid #2196f3;
-}
-
-.cantidad-item {
-    background-color: #f8f9fa;
-    padding: 10px;
-    border-radius: 5px;
-    border-left: 3px solid var(--success-color);
-}
-
-.cantidad-varios {
-    max-width: 80px;
-}
-
-/* Estilos para filtros */
-.filtros-container {
-    background: var(--surface-3);
-    padding: 1.5rem;
-    border-radius: 10px;
-    margin-bottom: 1.5rem;
-    border: 1px solid var(--surface-2);
-}
-
-/* Responsive para tabla de insumos (nueva asignación) */
-@media (max-width: 768px) {
-    .tabla-asignacion {
-        font-size: 0.8rem;
-    }
-
-    .tabla-asignacion th,
-    .tabla-asignacion td {
-        padding: 0.5rem 0.25rem;
-    }
-
-    .cantidad-item {
-        padding: 8px;
-    }
-}
-
-/* Estilos para el modal de confirmación */
-#modalConfirmacion .modal-header {
-    border-bottom: 2px solid var(--primary-color);
-}
-
-#modalConfirmacion .modal-body {
-    max-height: 70vh;
-    overflow-y: auto;
-}
-
-#modalConfirmacion .table th {
-    background-color: #f8f9fa;
-    border-bottom: 2px solid #dee2e6;
-    font-weight: 600;
-}
-
-#modalConfirmacion .badge {
-    font-size: 0.75em;
-}
-
-#modalConfirmacion .alert-light {
-    background-color: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 0.375rem;
-}
-
-#modalConfirmacion .text-primary {
-    color: var(--primary-color) !important;
-}
-
-#modalConfirmacion .modal-footer {
-    border-top: 2px solid #dee2e6;
-}
-
-/* ============================================
-   MODO OSCURO - @added v2.0 (Mejorado v2.0.2)
-   Rollback: Eliminar todo este bloque
-   ============================================ */
-
-/* Transición suave al cambiar de tema */
-html {
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-/* Variables de tema oscuro - colores consistentes con el proyecto (paleta verde) */
-[data-theme="dark"] {
-    --primary-color: #6fc77a;
-    --primary-color-hover: #5ab366;
-    --secondary-color: #1a1d21;
-    --success-color: #5cab7d;
-    --warning-color: #e3a542;
-    --danger-color: #dc3545;
-    --info-color: #5bc0de;
-    --surface-1: #1a1d21;
-    --surface-2: #22262b;
-    --surface-3: #2a2f35;
-    --text-color: #e4e6eb;
-    --text-muted: #9ca3af;
-    --menu-start: #2d4a37;
-    --menu-end: #1f3528;
-    --border-color: #3d4450;
-}
-
-/* === BASE === */
-[data-theme="dark"] body {
-    background-color: var(--surface-3);
-    color: var(--text-color);
-}
-
-[data-theme="dark"] h1,
-[data-theme="dark"] h2,
-[data-theme="dark"] h3,
-[data-theme="dark"] h4,
-[data-theme="dark"] h5,
-[data-theme="dark"] h6 {
-    color: var(--text-color);
-}
-
-[data-theme="dark"] p,
-[data-theme="dark"] span,
-[data-theme="dark"] div {
-    color: inherit;
-}
-
-[data-theme="dark"] label,
-[data-theme="dark"] .form-label,
-[data-theme="dark"] .col-form-label {
-    color: var(--text-color) !important;
-}
-
-[data-theme="dark"] .text-dark {
-    color: var(--text-color) !important;
-}
-
-[data-theme="dark"] .text-muted {
-    color: var(--text-muted) !important;
-}
-
-[data-theme="dark"] .text-body {
-    color: var(--text-color) !important;
-}
-
-[data-theme="dark"] a:not(.btn):not(.dropdown-item):not(.nav-link):not(.page-link) {
-    color: var(--primary-color);
-}
-
-[data-theme="dark"] a:not(.btn):not(.dropdown-item):not(.nav-link):not(.page-link):hover {
-    color: var(--primary-color-hover);
-}
-
-[data-theme="dark"] hr {
-    border-color: var(--border-color);
-    opacity: 0.5;
-}
-
-/* === CARDS === */
-[data-theme="dark"] .card {
-    background: var(--surface-2);
-    border: 1px solid var(--border-color);
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .card-header {
-    background: var(--surface-1);
-    border-bottom-color: var(--border-color);
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .card-body {
-    background: var(--surface-2);
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .card-footer {
-    background: var(--surface-1);
-    border-top-color: var(--border-color);
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .card-title,
-[data-theme="dark"] .card-subtitle {
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .card-text {
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .dashboard-card {
-    background: var(--surface-2);
-    color: var(--text-color);
-}
-
-/* === NAVBAR === */
-[data-theme="dark"] .navbar.bg-light,
-[data-theme="dark"] .navbar-light {
-    background-color: var(--surface-2) !important;
-    border-bottom: 1px solid var(--border-color);
-}
-
-[data-theme="dark"] .bg-light {
-    background-color: var(--surface-1) !important;
-}
-
-[data-theme="dark"] .bg-white {
-    background-color: var(--surface-2) !important;
-}
-
-/* === SIDEBAR === */
-[data-theme="dark"] .sidebar {
-    background: linear-gradient(135deg, var(--menu-start) 0%, var(--menu-end) 100%);
-}
-
-/* === TABLES === */
-[data-theme="dark"] .table {
-    color: var(--text-color);
-    --bs-table-bg: var(--surface-2);
-    --bs-table-striped-bg: var(--surface-1);
-    --bs-table-hover-bg: rgba(111, 199, 122, 0.1);
-}
-
-[data-theme="dark"] .table thead th {
-    background: var(--surface-1) !important;
-    color: var(--text-color);
-    border-bottom-color: var(--border-color);
-}
-
-[data-theme="dark"] .table tbody tr {
-    border-bottom-color: var(--border-color);
-    background-color: var(--surface-2);
-}
-
-[data-theme="dark"] .table tbody tr:nth-of-type(odd) {
-    background-color: var(--surface-1);
-}
-
-[data-theme="dark"] .table tbody tr:nth-of-type(even) {
-    background-color: var(--surface-2);
-}
-
-[data-theme="dark"] .table tbody tr:hover {
-    background-color: rgba(111, 199, 122, 0.1) !important;
-}
-
-[data-theme="dark"] .table td,
-[data-theme="dark"] .table th {
-    border-color: var(--border-color);
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .table-bordered {
-    border-color: var(--border-color);
-}
-
-[data-theme="dark"] .table-striped>tbody>tr:nth-of-type(odd)>* {
-    --bs-table-accent-bg: var(--surface-1);
-    color: var(--text-color);
-}
-
-/* === FORMS === */
-[data-theme="dark"] .form-control,
-[data-theme="dark"] .form-select {
-    background-color: var(--surface-1);
-    border-color: var(--border-color);
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .form-control:focus,
-[data-theme="dark"] .form-select:focus {
-    background-color: var(--surface-1);
-    border-color: var(--primary-color);
-    color: var(--text-color);
-    box-shadow: 0 0 0 0.2rem rgba(111, 199, 122, 0.25);
-}
-
-[data-theme="dark"] .form-control::placeholder {
-    color: var(--text-muted);
-}
-
-[data-theme="dark"] .form-control:disabled,
-[data-theme="dark"] .form-control[readonly] {
-    background-color: var(--surface-3);
-    opacity: 0.7;
-}
-
-[data-theme="dark"] .input-group-text {
-    background-color: var(--surface-1);
-    border-color: var(--border-color);
-    color: var(--text-muted);
-}
-
-[data-theme="dark"] .form-check-input {
-    background-color: var(--surface-1);
-    border-color: var(--border-color);
-}
-
-[data-theme="dark"] .form-check-input:checked {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-}
-
-[data-theme="dark"] .form-check-label {
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .form-floating>label {
-    color: var(--text-muted);
-}
-
-/* === DROPDOWNS === */
-[data-theme="dark"] .dropdown-menu {
-    background-color: var(--surface-2);
-    border-color: var(--border-color);
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3);
-}
-
-[data-theme="dark"] .dropdown-item {
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .dropdown-item:hover,
-[data-theme="dark"] .dropdown-item:focus {
-    background-color: var(--surface-1);
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .dropdown-item.active,
-[data-theme="dark"] .dropdown-item:active {
-    background-color: var(--primary-color);
-    color: #fff;
-}
-
-[data-theme="dark"] .dropdown-divider {
-    border-color: var(--border-color);
-}
-
-[data-theme="dark"] .dropdown-header {
-    color: var(--text-muted);
-}
-
-/* === MODALS === */
-[data-theme="dark"] .modal-content {
-    background-color: var(--surface-2);
-    border-color: var(--border-color);
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .modal-header {
-    background-color: var(--surface-1);
-    border-bottom-color: var(--border-color);
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .modal-header .modal-title {
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .modal-body {
-    background-color: var(--surface-2);
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .modal-body h1,
-[data-theme="dark"] .modal-body h2,
-[data-theme="dark"] .modal-body h3,
-[data-theme="dark"] .modal-body h4,
-[data-theme="dark"] .modal-body h5,
-[data-theme="dark"] .modal-body h6,
-[data-theme="dark"] .modal-body p,
-[data-theme="dark"] .modal-body span,
-[data-theme="dark"] .modal-body label,
-[data-theme="dark"] .modal-body div,
-[data-theme="dark"] .modal-body td,
-[data-theme="dark"] .modal-body th {
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .modal-footer {
-    background-color: var(--surface-1);
-    border-top-color: var(--border-color);
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .btn-close {
-    filter: invert(1) grayscale(100%) brightness(200%);
-}
-
-/* === LIST GROUPS === */
-[data-theme="dark"] .list-group-item {
-    background-color: var(--surface-2);
-    border-color: var(--border-color);
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .list-group-item:hover {
-    background-color: var(--surface-1);
-}
-
-[data-theme="dark"] .list-group-item.active {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-}
-
-/* === NAVS AND TABS === */
-[data-theme="dark"] .nav-tabs {
-    border-bottom-color: var(--border-color);
-}
-
-[data-theme="dark"] .nav-tabs .nav-link {
-    color: var(--text-muted);
-    border-color: transparent;
-}
-
-[data-theme="dark"] .nav-tabs .nav-link:hover,
-[data-theme="dark"] .nav-tabs .nav-link:focus {
-    border-color: var(--border-color);
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .nav-tabs .nav-link.active {
-    background-color: var(--surface-2);
-    border-color: var(--border-color) var(--border-color) var(--surface-2);
-    color: var(--primary-color);
-}
-
-[data-theme="dark"] .nav-pills .nav-link {
-    color: var(--text-muted);
-}
-
-[data-theme="dark"] .nav-pills .nav-link.active {
-    background-color: var(--primary-color);
-    color: #fff;
-}
-
-[data-theme="dark"] .tab-content {
-    background-color: var(--surface-2);
-    color: var(--text-color);
-}
-
-/* === ALERTS === */
-[data-theme="dark"] .alert {
-    border-color: var(--border-color);
-}
-
-[data-theme="dark"] .alert-info {
-    background-color: rgba(91, 192, 222, 0.15);
-    color: #7dd3fc;
-    border-color: rgba(91, 192, 222, 0.3);
-}
-
-[data-theme="dark"] .alert-success {
-    background-color: rgba(92, 171, 125, 0.15);
-    color: #86efac;
-    border-color: rgba(92, 171, 125, 0.3);
-}
-
-[data-theme="dark"] .alert-warning {
-    background-color: rgba(227, 165, 66, 0.15);
-    color: #fcd34d;
-    border-color: rgba(227, 165, 66, 0.3);
-}
-
-[data-theme="dark"] .alert-danger {
-    background-color: rgba(220, 53, 69, 0.15);
-    color: #fca5a5;
-    border-color: rgba(220, 53, 69, 0.3);
-}
-
-[data-theme="dark"] .alert-light {
-    background-color: var(--surface-1);
-    color: var(--text-color);
-    border-color: var(--border-color);
-}
-
-[data-theme="dark"] .alert-secondary {
-    background-color: var(--surface-1);
-    color: var(--text-color);
-    border-color: var(--border-color);
-}
-
-/* === BADGES === */
-[data-theme="dark"] .badge.bg-light {
-    background-color: var(--surface-1) !important;
-    color: var(--text-color) !important;
-}
-
-[data-theme="dark"] .badge.bg-secondary {
-    background-color: var(--surface-3) !important;
-}
-
-/* === PAGINATION === */
-[data-theme="dark"] .page-link {
-    background-color: var(--surface-2);
-    border-color: var(--border-color);
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .page-link:hover {
-    background-color: var(--surface-1);
-    border-color: var(--border-color);
-    color: var(--primary-color);
-}
-
-[data-theme="dark"] .page-item.active .page-link {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-    color: #fff;
-}
-
-[data-theme="dark"] .page-item.disabled .page-link {
-    background-color: var(--surface-1);
-    border-color: var(--border-color);
-    color: var(--text-muted);
-}
-
-/* === DATATABLES === */
-[data-theme="dark"] .dataTables_wrapper .dataTables_length select,
-[data-theme="dark"] .dataTables_wrapper .dataTables_filter input {
-    background-color: var(--surface-1);
-    border-color: var(--border-color);
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .dataTables_wrapper .dataTables_info,
-[data-theme="dark"] .dataTables_wrapper .dataTables_length label,
-[data-theme="dark"] .dataTables_wrapper .dataTables_filter label {
-    color: var(--text-color);
-}
-
-[data-theme="dark"] table.dataTable tbody tr {
-    background-color: var(--surface-2);
-}
-
-[data-theme="dark"] table.dataTable.stripe tbody tr.odd,
-[data-theme="dark"] table.dataTable.display tbody tr.odd {
-    background-color: var(--surface-1);
-}
-
-[data-theme="dark"] table.dataTable.stripe tbody tr.even,
-[data-theme="dark"] table.dataTable.display tbody tr.even {
-    background-color: var(--surface-2);
-}
-
-[data-theme="dark"] table.dataTable tbody tr:hover,
-[data-theme="dark"] table.dataTable.hover tbody tr:hover {
-    background-color: rgba(111, 199, 122, 0.1) !important;
-}
-
-/* === SELECT2 === */
-[data-theme="dark"] .select2-container--bootstrap-5 .select2-selection {
-    background-color: var(--surface-1);
-    border-color: var(--border-color);
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .select2-container--bootstrap-5 .select2-dropdown {
-    background-color: var(--surface-2);
-    border-color: var(--border-color);
-}
-
-[data-theme="dark"] .select2-container--bootstrap-5 .select2-search--dropdown .select2-search__field {
-    background-color: var(--surface-1);
-    border-color: var(--border-color);
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .select2-container--bootstrap-5 .select2-results__option {
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .select2-container--bootstrap-5 .select2-results__option--highlighted {
-    background-color: var(--primary-color);
-    color: #fff;
-}
-
-[data-theme="dark"] .select2-container--bootstrap-5 .select2-results__option--selected {
-    background-color: var(--surface-1);
-    color: var(--primary-color);
-}
-
-[data-theme="dark"] .select2-container--bootstrap-5 .select2-selection--multiple .select2-selection__choice {
-    background-color: var(--surface-3);
-    border-color: var(--border-color);
-    color: var(--text-color);
-}
-
-/* === BREADCRUMBS === */
-[data-theme="dark"] .breadcrumb {
-    background-color: var(--surface-1);
-}
-
-[data-theme="dark"] .breadcrumb-item+.breadcrumb-item::before {
-    color: var(--text-muted);
-}
-
-[data-theme="dark"] .breadcrumb-item.active {
-    color: var(--text-muted);
-}
-
-/* === TOOLTIPS === */
-[data-theme="dark"] .tooltip .tooltip-inner {
-    background-color: var(--surface-1);
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .tooltip.bs-tooltip-top .tooltip-arrow::before {
-    border-top-color: var(--surface-1);
-}
-
-[data-theme="dark"] .tooltip.bs-tooltip-bottom .tooltip-arrow::before {
-    border-bottom-color: var(--surface-1);
-}
-
-/* === POPOVERS === */
-[data-theme="dark"] .popover {
-    background-color: var(--surface-2);
-    border-color: var(--border-color);
-}
-
-[data-theme="dark"] .popover-header {
-    background-color: var(--surface-1);
-    border-bottom-color: var(--border-color);
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .popover-body {
-    color: var(--text-color);
-}
-
-/* === STEPPER (Componente personalizado) === */
-[data-theme="dark"] .stepper-wrapper {
-    background-color: var(--surface-2);
-}
-
-[data-theme="dark"] .stepper-item .step-counter {
-    background-color: var(--surface-3);
-    color: var(--text-muted);
-    border-color: var(--border-color);
-}
-
-[data-theme="dark"] .stepper-item.active .step-counter,
-[data-theme="dark"] .stepper-item.completed .step-counter {
-    background-color: var(--primary-color);
-    color: #fff;
-}
-
-[data-theme="dark"] .stepper-item .step-name {
-    color: var(--text-muted);
-}
-
-[data-theme="dark"] .stepper-item.active .step-name {
-    color: var(--primary-color);
-}
-
-[data-theme="dark"] .stepper-item::before,
-[data-theme="dark"] .stepper-item::after {
-    background-color: var(--border-color);
-}
-
-[data-theme="dark"] .stepper-item.completed::before,
-[data-theme="dark"] .stepper-item.completed::after {
-    background-color: var(--primary-color);
-}
-
-/* === FOOTER === */
-[data-theme="dark"] .app-footer {
-    background: linear-gradient(135deg, var(--menu-start) 0%, var(--menu-end) 100%);
-    color: rgba(255, 255, 255, 0.9);
-}
-
-/* === BÚSQUEDA GLOBAL === */
-[data-theme="dark"] #busquedaGlobalContainer .input-group-text {
-    background-color: var(--surface-1) !important;
-    border-color: var(--border-color);
-}
-
-[data-theme="dark"] #busquedaGlobalContainer .form-control {
-    background-color: var(--surface-1) !important;
-    border-color: var(--border-color);
-    color: var(--text-color);
-}
-
-[data-theme="dark"] #busquedaGlobalResultados {
-    background-color: var(--surface-2) !important;
-    border: 1px solid var(--border-color);
-}
-
-[data-theme="dark"] #busquedaGlobalResultados .bg-light {
-    background-color: var(--surface-1) !important;
-}
-
-[data-theme="dark"] .busqueda-item {
-    color: var(--text-color) !important;
-}
-
-[data-theme="dark"] .busqueda-item:hover {
-    background-color: var(--surface-1) !important;
-}
-
-/* === SCROLL BARS === */
-[data-theme="dark"] ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-[data-theme="dark"] ::-webkit-scrollbar-track {
-    background: var(--surface-1);
-}
-
-[data-theme="dark"] ::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 4px;
-}
-
-[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
-    background: var(--text-muted);
-}
-
-/* === UTILITIES === */
-[data-theme="dark"] .border {
-    border-color: var(--border-color) !important;
-}
-
-[data-theme="dark"] .border-bottom {
-    border-bottom-color: var(--border-color) !important;
-}
-
-[data-theme="dark"] .border-top {
-    border-top-color: var(--border-color) !important;
-}
-
-[data-theme="dark"] .shadow,
-[data-theme="dark"] .shadow-sm,
-[data-theme="dark"] .shadow-lg {
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.3) !important;
-}
-
-/* === BUTTONS === */
-/* Primary - Verde principal */
-[data-theme="dark"] .btn-primary {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-    color: #1a1d21;
-}
-
-[data-theme="dark"] .btn-primary:hover,
-[data-theme="dark"] .btn-primary:focus {
-    background-color: var(--primary-color-hover);
-    border-color: var(--primary-color-hover);
-    color: #1a1d21;
-}
-
-[data-theme="dark"] .btn-primary:active {
-    background-color: #4a9f56 !important;
-    border-color: #4a9f56 !important;
-}
-
-/* Secondary - Gris oscuro */
-[data-theme="dark"] .btn-secondary {
-    background-color: var(--surface-3);
-    border-color: var(--border-color);
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .btn-secondary:hover,
-[data-theme="dark"] .btn-secondary:focus {
-    background-color: var(--surface-1);
-    border-color: var(--text-muted);
-    color: var(--text-color);
-}
-
-/* Success - Verde más suave */
-[data-theme="dark"] .btn-success {
-    background-color: #5cab7d;
-    border-color: #5cab7d;
-    color: #1a1d21;
-}
-
-[data-theme="dark"] .btn-success:hover,
-[data-theme="dark"] .btn-success:focus {
-    background-color: #4a9367;
-    border-color: #4a9367;
-    color: #1a1d21;
-}
-
-/* Danger - Rojo más suave */
-[data-theme="dark"] .btn-danger {
-    background-color: #e05d6f;
-    border-color: #e05d6f;
-    color: #fff;
-}
-
-[data-theme="dark"] .btn-danger:hover,
-[data-theme="dark"] .btn-danger:focus {
-    background-color: #c9485a;
-    border-color: #c9485a;
-    color: #fff;
-}
-
-/* Warning - Amarillo/Naranja más suave */
-[data-theme="dark"] .btn-warning {
-    background-color: #e3a542;
-    border-color: #e3a542;
-    color: #1a1d21;
 }
 
-[data-theme="dark"] .btn-warning:hover,
-[data-theme="dark"] .btn-warning:focus {
-    background-color: #d49535;
-    border-color: #d49535;
-    color: #1a1d21;
+/* Asegurar que las tablas de DataTables ocupen siempre el 100% del contenedor y sean totalmente responsivas */
+table.dataTable {
+    width: 100% !important;
 }
 
-/* Info - Azul más suave */
-[data-theme="dark"] .btn-info {
-    background-color: #5bc0de;
-    border-color: #5bc0de;
-    color: #1a1d21;
+/* Hacer que los botones de acción en las tablas tengan tonos más suaves/claros */
+.table .btn-group .btn {
+    opacity: 0.80;
 }
 
-[data-theme="dark"] .btn-info:hover,
-[data-theme="dark"] .btn-info:focus {
-    background-color: #46b5d4;
-    border-color: #46b5d4;
-    color: #1a1d21;
+.table .btn-group .btn:hover {
+    opacity: 1;
 }
-
-/* Light - Oscurecido para modo oscuro */
-[data-theme="dark"] .btn-light {
-    background-color: var(--surface-3);
-    border-color: var(--border-color);
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .btn-light:hover,
-[data-theme="dark"] .btn-light:focus {
-    background-color: var(--surface-1);
-    border-color: var(--text-muted);
-    color: var(--text-color);
-}
-
-/* Dark - Aclarado para modo oscuro */
-[data-theme="dark"] .btn-dark {
-    background-color: var(--text-color);
-    border-color: var(--text-color);
-    color: var(--surface-1);
-}
-
-[data-theme="dark"] .btn-dark:hover,
-[data-theme="dark"] .btn-dark:focus {
-    background-color: #fff;
-    border-color: #fff;
-    color: var(--surface-1);
-}
-
-/* Link */
-[data-theme="dark"] .btn-link {
-    color: var(--primary-color);
-}
-
-[data-theme="dark"] .btn-link:hover,
-[data-theme="dark"] .btn-link:focus {
-    color: var(--primary-color-hover);
-}
-
-/* === OUTLINE BUTTONS === */
-[data-theme="dark"] .btn-outline-primary {
-    color: var(--primary-color);
-    border-color: var(--primary-color);
-    background-color: transparent;
-}
-
-[data-theme="dark"] .btn-outline-primary:hover,
-[data-theme="dark"] .btn-outline-primary:focus {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-    color: #1a1d21;
-}
-
-[data-theme="dark"] .btn-outline-secondary {
-    color: var(--text-muted);
-    border-color: var(--border-color);
-    background-color: transparent;
-}
-
-[data-theme="dark"] .btn-outline-secondary:hover,
-[data-theme="dark"] .btn-outline-secondary:focus {
-    background-color: var(--surface-3);
-    border-color: var(--text-muted);
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .btn-outline-success {
-    color: #5cab7d;
-    border-color: #5cab7d;
-    background-color: transparent;
-}
-
-[data-theme="dark"] .btn-outline-success:hover,
-[data-theme="dark"] .btn-outline-success:focus {
-    background-color: #5cab7d;
-    border-color: #5cab7d;
-    color: #1a1d21;
-}
-
-[data-theme="dark"] .btn-outline-danger {
-    color: #e05d6f;
-    border-color: #e05d6f;
-    background-color: transparent;
-}
-
-[data-theme="dark"] .btn-outline-danger:hover,
-[data-theme="dark"] .btn-outline-danger:focus {
-    background-color: #e05d6f;
-    border-color: #e05d6f;
-    color: #fff;
-}
-
-[data-theme="dark"] .btn-outline-warning {
-    color: #e3a542;
-    border-color: #e3a542;
-    background-color: transparent;
-}
-
-[data-theme="dark"] .btn-outline-warning:hover,
-[data-theme="dark"] .btn-outline-warning:focus {
-    background-color: #e3a542;
-    border-color: #e3a542;
-    color: #1a1d21;
-}
-
-[data-theme="dark"] .btn-outline-info {
-    color: #5bc0de;
-    border-color: #5bc0de;
-    background-color: transparent;
-}
-
-[data-theme="dark"] .btn-outline-info:hover,
-[data-theme="dark"] .btn-outline-info:focus {
-    background-color: #5bc0de;
-    border-color: #5bc0de;
-    color: #1a1d21;
-}
-
-[data-theme="dark"] .btn-outline-light {
-    color: var(--text-color);
-    border-color: var(--border-color);
-    background-color: transparent;
-}
-
-[data-theme="dark"] .btn-outline-light:hover,
-[data-theme="dark"] .btn-outline-light:focus {
-    background-color: var(--surface-3);
-    border-color: var(--text-muted);
-    color: var(--text-color);
-}
-
-[data-theme="dark"] .btn-outline-dark {
-    color: var(--text-color);
-    border-color: var(--text-color);
-    background-color: transparent;
-}
-
-[data-theme="dark"] .btn-outline-dark:hover,
-[data-theme="dark"] .btn-outline-dark:focus {
-    background-color: var(--text-color);
-    border-color: var(--text-color);
-    color: var(--surface-1);
-}
-
-/* Disabled buttons */
-[data-theme="dark"] .btn:disabled,
-[data-theme="dark"] .btn.disabled {
-    opacity: 0.5;
-}
-
-/* Button groups */
-[data-theme="dark"] .btn-group>.btn {
-    border-color: var(--border-color);
-}
-
-/* Close buttons in toasts/alerts */
-[data-theme="dark"] .btn-close-white {
-    filter: none;
-}
-
-/* ============================================ */

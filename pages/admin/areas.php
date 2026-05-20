@@ -160,9 +160,9 @@ $areas = $stmt->fetchAll();
 <div class="modal fade" id="modalArea" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalAreaTitle">Agregar Área</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-sitemap me-2"></i><span id="modalAreaTitle">Agregar Área</span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form method="POST" id="formArea">
                 <div class="modal-body">

@@ -40,9 +40,15 @@ $stmtMT->execute([$uId]);
 $total_mis_tareas = (int)$stmtMT->fetchColumn();
 
 $total_mis_cosas = $total_mis_pedidos + $total_mis_tareas;
-
-include '../../includes/header.php';
 ?>
+
+<?php include '../../includes/header.php'; ?>
+
+<style>
+.modo-historial .dataTables_filter {
+    display: none !important;
+}
+</style>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1><i class="fas fa-clipboard-list me-2"></i>Gestión de Pedidos</h1>
@@ -108,8 +114,8 @@ include '../../includes/header.php';
 <div id="seccionPedidos" class="d-none">
 
 <!-- Filtros -->
-<div class="filtros-container mb-4" id="filtrosContainer">
-    <form id="formFiltros" class="row g-3 align-items-end">
+<div class="filtros-container mt-4 mb-4" id="filtrosContainer">
+    <form id="formFiltros" class="row g-3 align-items-end" novalidate>
         <input type="hidden" id="filtroModo" name="modo" value="tareas_internas">
         
         <div class="col-md-3" id="wrapFiltroEstado">
@@ -124,16 +130,6 @@ include '../../includes/header.php';
             </select>
         </div>
         
-        <div class="col-md-3" id="wrapFiltroTipo">
-            <label class="form-label">Tipo</label>
-            <select class="form-select" id="filtroTipo">
-                <option value="">Todos</option>
-                <option value="Mantenimiento">Mantenimiento</option>
-                <option value="Reparación">Reparación</option>
-                <option value="Soporte">Soporte</option>
-                <option value="Pedido Insumo">Pedido Insumo</option>
-            </select>
-        </div>
         
         <div class="col-md-3" id="wrapFiltroPrioridad">
             <label class="form-label">Prioridad</label>
@@ -143,6 +139,18 @@ include '../../includes/header.php';
                 <option value="Media">Media</option>
                 <option value="Baja">Baja</option>
             </select>
+        </div>
+
+        <div class="col-md-3" id="wrapFiltroAsignado" style="display:none;">
+            <label class="form-label">Técnico Asignado</label>
+            <select class="form-select" id="filtroAsignado">
+                <option value="">Todos</option>
+            </select>
+        </div>
+
+        <div class="col-md-3" id="wrapFiltroBusqueda" style="display:none;">
+            <label class="form-label">Buscar</label>
+            <input type="text" class="form-control" id="filtroBusqueda" placeholder="Agente, técnico o título...">
         </div>
         
         <div class="col-md-3" id="wrapFiltroLogistica" style="display:none;">
@@ -162,8 +170,8 @@ include '../../includes/header.php';
             </select>
         </div>
         
-        <div class="col-md-3 d-flex align-items-end ms-auto">
-            <div class="d-grid gap-1 w-100">
+        <div class="col-md-3 d-flex align-items-end ms-auto" id="wrapFiltroAcciones">
+            <div class="d-grid gap-1 w-100" id="btnContainerFiltros">
                 <button type="submit" class="btn btn-primary btn-sm shadow-sm" id="btnFiltrar">
                     <i class="fas fa-search me-1"></i>Filtrar
                 </button>
@@ -176,27 +184,32 @@ include '../../includes/header.php';
 </div>
 
 <div class="card">
-    <div class="card-header">
-        <h5 class="mb-0"><i class="fas fa-list me-2"></i>Listado de Pedidos</h5>
+    <div class="card-header" id="headerPedidos">
+        <h5 class="mb-0">
+            <i class="fas fa-list me-2"></i><span id="tituloSeccionPedidos">Listado de Pedidos</span>
+            <i class="fas fa-chevron-down float-end mt-1" style="font-size: 0.9em; display: none;"></i>
+        </h5>
     </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-striped table-hover" id="tablaPedidos" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>Nro de Pedido</th>
-                        <th>Solicitante / Sede</th>
-                        <th>Tipo</th>
-                        <th>Prioridad</th>
-                        <th>Estado</th>
-                        <th>Fecha</th>
-                        <th>Asignado A</th>
-                        <th>Logística</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+    <div class="collapse show" id="collapsePedidos">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" id="tablaPedidos" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Nro de Pedido</th>
+                            <th>Solicitante / Sede</th>
+                            <th>Tipo</th>
+                            <th>Prioridad</th>
+                            <th>Estado</th>
+                            <th>Fecha</th>
+                            <th>Asignado A</th>
+                            <th>Logística</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -207,27 +220,32 @@ include '../../includes/header.php';
 <!-- SECCIÓN TAREAS INTERNAS                                    -->
 <!-- ══════════════════════════════════════════════════════════ -->
 <div id="seccionTareas" class="d-none">
-    <div class="card shadow-sm border-0">
-        <div class="card-header">
-            <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>Tareas Internas del Área</h5>
+    <div class="card shadow-sm border-0 mt-3">
+        <div class="card-header" id="headerTareas">
+            <h5 class="mb-0">
+                <i class="fas fa-tasks me-2"></i><span id="tituloSeccionTareas">Tareas Internas del Área</span>
+                <i class="fas fa-chevron-down float-end mt-1" style="font-size: 0.9em; display: none;"></i>
+            </h5>
         </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-striped table-hover align-middle" id="tablaTareas" style="width:100%">
-                    <thead>
-                        <tr>
-                            <th style="width:60px">#</th>
-                            <th>Título</th>
-                            <th style="width:120px">Estado</th>
-                            <th>Creado por</th>
-                            <th>Asignado a</th>
-                            <th>Creación</th>
-                            <th>Finalización</th>
-                            <th style="width:110px">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+        <div class="collapse show" id="collapseTareas">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover align-middle" id="tablaTareas" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th style="width:60px">#</th>
+                                <th>Título</th>
+                                <th style="width:120px">Estado</th>
+                                <th>Creado por</th>
+                                <th>Asignado a</th>
+                                <th>Creación</th>
+                                <th>Finalización</th>
+                                <th style="width:110px">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -417,9 +435,12 @@ $(function() {
             data: function(d) {
                 d.modo = $('#filtroModo').val();
                 d.estado = $('#filtroEstado').val();
-                d.tipo = $('#filtroTipo').val();
                 d.prioridad = $('#filtroPrioridad').val();
                 d.logistica = $('#filtroLogistica').val();
+                d.asignado_a = $('#filtroAsignado').val();
+                if ($('#filtroModo').val() === 'todos') {
+                    d.search = { value: $('#filtroBusqueda').val(), regex: false };
+                }
             },
             xhrFields: { withCredentials: true },
             error: function(xhr, error, code) {
@@ -447,25 +468,28 @@ $(function() {
         }
     });
 
-    // Eventos de Filtros
-    $('#filtroEstado, #filtroTipo, #filtroPrioridad, #filtroLogistica, #filtroVista').on('change', function() {
-        if ($('#filtroModo').val() === 'tareas_internas' || $('#tareas-tab').hasClass('active')) {
-            currentTareasModo = $('#filtroVista').val();
+    function recargarTablas() {
+        const modo = $('#filtroModo').val();
+        if (modo === 'tareas_internas' || $('#tareas-tab').hasClass('active')) {
+            currentTareasModo = $('#filtroVista').val() || 'activas';
+            if (dtTareas) dtTareas.ajax.reload();
+        } else if (modo === 'todos' || modo === 'mis_pedidos') {
+            if (dtPedidos) dtPedidos.ajax.reload();
             if (dtTareas) dtTareas.ajax.reload();
         } else {
-            dtPedidos.ajax.reload();
+            if (dtPedidos) dtPedidos.ajax.reload();
         }
+    }
+
+    // Eventos de Filtros
+    $('#filtroEstado, #filtroPrioridad, #filtroLogistica, #filtroVista, #filtroAsignado').on('change', function() {
+        recargarTablas();
     });
 
     $('#btnLimpiar').on('click', function() {
-        $('#filtroEstado, #filtroTipo, #filtroPrioridad, #filtroLogistica').val('');
+        $('#filtroEstado, #filtroPrioridad, #filtroLogistica, #filtroAsignado, #filtroBusqueda').val('');
         $('#filtroVista').val('activas');
-        if ($('#filtroModo').val() === 'tareas_internas') {
-            currentTareasModo = 'activas';
-            if (dtTareas) dtTareas.ajax.reload();
-        } else {
-            dtPedidos.ajax.reload();
-        }
+        recargarTablas();
     });
 
     // Eventos de Tabs
@@ -483,16 +507,32 @@ $(function() {
         $('#filtroModo').val(modo);
         adaptarFiltros(modo);
 
+        if (modo === 'todos') {
+            $('body').addClass('modo-historial');
+            // Habilitar comportamiento de acordeón
+            $('#headerPedidos').attr({'data-bs-toggle': 'collapse', 'data-bs-target': '#collapsePedidos'}).css('cursor', 'pointer');
+            $('#headerTareas').attr({'data-bs-toggle': 'collapse', 'data-bs-target': '#collapseTareas'}).css('cursor', 'pointer');
+            $('#headerPedidos .fa-chevron-down, #headerTareas .fa-chevron-down').show();
+        } else {
+            $('body').removeClass('modo-historial');
+            // Deshabilitar comportamiento de acordeón
+            $('#headerPedidos, #headerTareas').removeAttr('data-bs-toggle').removeAttr('data-bs-target').css('cursor', 'default');
+            $('#headerPedidos .fa-chevron-down, #headerTareas .fa-chevron-down').hide();
+            // Asegurar que estén abiertos
+            $('#collapsePedidos, #collapseTareas').addClass('show').css('display', '');
+        }
+
         if (section === 'tareas') {
             $('#btnNuevaTarea').removeClass('d-none');
             $('#seccionTareas').removeClass('d-none');
-            $('#filtrosContainer').removeClass('d-none'); // Asegurar que el contenedor de filtros sea visible para Tareas
+            $('#filtrosContainer').removeClass('d-none');
             iniciarTablaTareas('activas');
-            $('#seccionTareas .card-header h5').html('<i class="fas fa-tasks me-2"></i>Tareas Internas del Área');
+            $('#tituloSeccionTareas').text('Tareas Internas del Área');
         } else {
             $('#btnGrupoPedidos').removeClass('d-none');
             $('#seccionPedidos').removeClass('d-none');
-            $('#filtrosContainer').removeClass('d-none'); // Asegurar que el contenedor de filtros sea visible para Pedidos
+            $('#filtrosContainer').removeClass('d-none');
+            $('#tituloSeccionPedidos').text('Listado de Pedidos');
             
             if (dtPedidos) {
                 // Columnas Visibles según modo
@@ -532,11 +572,13 @@ $(function() {
             // Si el modo es mis_pedidos, mostrar también Tareas Internas pero filtrado a "mis_tareas"
             if (modo === 'mis_pedidos') {
                 $('#seccionTareas').removeClass('d-none');
-                $('#seccionTareas .card-header h5').html('<i class="fas fa-tasks me-2"></i>Mis Tareas Internas (Asignadas a mi)');
+                $('#tituloSeccionTareas').text('Mis Tareas Internas (Asignadas a mi)');
                 iniciarTablaTareas('mis_tareas');
             } else if (modo === 'todos') {
+                // Historial: Mostrar ambas tablas colapsables
                 $('#seccionTareas').removeClass('d-none');
-                $('#seccionTareas .card-header h5').html('<i class="fas fa-history me-2"></i>Historial de Tareas Internas');
+                $('#tituloSeccionPedidos').text('Historial de Pedidos Técnicos');
+                $('#tituloSeccionTareas').text('Historial de Tareas Internas');
                 iniciarTablaTareas('historial');
             }
         }
@@ -553,7 +595,31 @@ $(function() {
     // Manejar envío del formulario de filtros
     $('#formFiltros').on('submit', function(e) {
         e.preventDefault();
-        dtPedidos.ajax.reload();
+        recargarTablas();
+    });
+
+    // Búsqueda en tiempo real con debounce
+    var filtroBusquedaTimer;
+    $('#filtroBusqueda').on('input', function() {
+        clearTimeout(filtroBusquedaTimer);
+        filtroBusquedaTimer = setTimeout(function() {
+            recargarTablas();
+        }, 400);
+    });
+
+    // Cargar select de usuarios para el filtro de asignado
+    $.ajax({
+        url: '<?php echo app_base_url(); ?>/ajax/usuarios_listar_asignables.php',
+        type: 'GET', dataType: 'json', xhrFields: { withCredentials: true },
+        success: function(r) {
+            if (r.success) {
+                r.usuarios.forEach(function(u) {
+                    $('#filtroAsignado').append(
+                        '<option value="' + u.id_usuario + '">' + u.apellido + ', ' + u.nombre + '</option>'
+                    );
+                });
+            }
+        }
     });
 
     // Abrir PDF si viene imprimir=<remito> desde preparar.php (Igual que en asignaciones)
@@ -817,13 +883,13 @@ function abrirModalEntregarLista(id) {
 // Adapta los filtros visuales según la pestaña activa
 function adaptarFiltros(modo) {
     const $wrapEstado = $('#wrapFiltroEstado');
-    const $wrapTipo = $('#wrapFiltroTipo');
     const $wrapPrioridad = $('#wrapFiltroPrioridad');
+    const $wrapAsignado = $('#wrapFiltroAsignado');
+    const $wrapBusqueda = $('#wrapFiltroBusqueda');
     const $wrapLogistica = $('#wrapFiltroLogistica');
     const $wrapVista = $('#wrapFiltroVista');
     
     const $selEstado = $('#filtroEstado');
-    const $selTipo = $('#filtroTipo');
     const $selVista = $('#filtroVista');
     
     // Primero resetear opciones a full para pedidos
@@ -835,19 +901,12 @@ function adaptarFiltros(modo) {
         <option value="Completado">Completado</option>
         <option value="Rechazado">Rechazado</option>
     `);
-    
-    $selTipo.html(`
-        <option value="">Todos</option>
-        <option value="Mantenimiento">Mantenimiento</option>
-        <option value="Reparación">Reparación</option>
-        <option value="Soporte">Soporte</option>
-        <option value="Pedido Insumo">Pedido Insumo</option>
-    `);
 
     // Ocultar todo por defecto y mostrar solo lo necesario
     $wrapEstado.hide();
-    $wrapTipo.hide();
     $wrapPrioridad.hide();
+    $wrapAsignado.hide();
+    $wrapBusqueda.hide();
     $wrapLogistica.hide();
     $wrapVista.hide();
 
@@ -856,12 +915,15 @@ function adaptarFiltros(modo) {
     if (modo === 'tareas_internas') {
         $wrapVista.show();
         $wrapEstado.hide();
-        $wrapTipo.hide();
         $wrapPrioridad.hide();
         $wrapLogistica.hide();
+    } else if (modo === 'todos') {
+        // Historial
+        $wrapEstado.show();
+        $wrapAsignado.show(); // Mostrar asignado en lugar de prioridad
+        $wrapBusqueda.show(); // Mostrar buscador unificado
     } else {
         $wrapEstado.show();
-        $wrapTipo.show();
         $wrapPrioridad.show();
         $wrapVista.hide();
 
@@ -871,20 +933,11 @@ function adaptarFiltros(modo) {
                 <option value="Pendiente">Pendiente</option>
                 <option value="En Proceso">En Proceso</option>
             `);
-            $selTipo.html(`
-                <option value="">Todos</option>
-                <option value="Mantenimiento">Mantenimiento</option>
-                <option value="Reparación">Reparación</option>
-                <option value="Soporte">Soporte</option>
-            `);
         } else if (modo === 'pedidos_insumos') {
             $wrapEstado.hide();
-            $wrapTipo.hide();
             $selEstado.val('Pendiente');
-            $selTipo.val('Pedido Insumo');
         } else if (modo === 'logistica') {
             $wrapEstado.hide();
-            $wrapTipo.hide();
             $wrapPrioridad.hide();
             $wrapLogistica.show();
         }
@@ -910,7 +963,14 @@ function iniciarTablaTareas(overrideModo) {
             serverSide:  true,
             ajax: {
                 url: '<?php echo app_base_url(); ?>/ajax/tareas_list_ssp.php',
-                data: function(d) { d.modo = currentTareasModo; },
+                data: function(d) { 
+                    d.modo = currentTareasModo; 
+                    d.asignado_a = $('#filtroAsignado').val();
+                    d.estado = $('#filtroEstado').val();
+                    if ($('#filtroModo').val() === 'todos') {
+                        d.search = { value: $('#filtroBusqueda').val(), regex: false };
+                    }
+                },
                 xhrFields: { withCredentials: true },
                 error: function(xhr, err, code) {
                     showToast('Error al cargar tareas: ' + code, 'error');

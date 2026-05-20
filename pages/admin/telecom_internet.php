@@ -658,9 +658,9 @@ include '../../includes/header.php';
 <div class="modal fade" id="modalInternet" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalInternetTitle">Agregar Servicio</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title"><i class="fas fa-network-wired me-2"></i><span id="modalInternetTitle">Agregar Servicio</span></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <form method="POST" id="formInternet" class="needs-validation" enctype="multipart/form-data" novalidate>
         <div class="modal-body">
@@ -856,12 +856,11 @@ include '../../includes/header.php';
         <input type="hidden" name="id_servicio_anterior" id="traslado_id_servicio_anterior">
         <input type="hidden" name="id_sede_traslado" id="traslado_id_sede">
         
-        <div class="modal-header">
+        <div class="modal-header bg-primary text-white">
           <h5 class="modal-title">
-            <i class="fas fa-exchange-alt"></i>
-            Crear Nuevo Servicio por Traslado
+            <i class="fas fa-exchange-alt me-2"></i>Crear Nuevo Servicio por Traslado
           </h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         
         <div class="modal-body">
@@ -982,11 +981,11 @@ include '../../includes/header.php';
 <div class="modal fade" id="modalVerDetalles" tabindex="-1" aria-labelledby="modalVerDetallesLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
-      <div class="modal-header">
+      <div class="modal-header bg-primary text-white">
         <h5 class="modal-title" id="modalVerDetallesLabel">
           <i class="fas fa-info-circle me-2"></i>Detalles del Servicio de Internet
         </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body">
         <div class="row">

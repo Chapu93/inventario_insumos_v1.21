@@ -93,7 +93,7 @@ try {
         $fecha = date('d/m/Y H:i', strtotime($r['fecha_movimiento']));
         
         // Nombre del insumo con subcategoría si existe
-        $nombre = htmlspecialchars($r['nombre_insumo']);
+        $nombre = htmlspecialchars($r['nombre_insumo'] ?? '');
         if (!empty($r['subcategoria_varios'])) {
             $nombre .= '<div class="text-muted small">' . htmlspecialchars($r['subcategoria_varios']) . '</div>';
         }

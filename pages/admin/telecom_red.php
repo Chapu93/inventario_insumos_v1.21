@@ -282,7 +282,7 @@ include '../../includes/header.php';
 </div></div></div>
 
 <div class="modal fade" id="modalRed" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
-  <div class="modal-header"><h5 class="modal-title" id="modalRedTitle">Agregar Dispositivo</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+  <div class="modal-header bg-primary text-white"><h5 class="modal-title"><i class="fas fa-server me-2"></i><span id="modalRedTitle">Agregar Dispositivo</span></h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
   <form method="POST" id="formRed" class="needs-validation" novalidate>
     <div class="modal-body">
       <input type="hidden" name="_csrf" value="<?php echo htmlspecialchars(csrf_token()); ?>">

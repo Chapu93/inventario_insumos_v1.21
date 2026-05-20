@@ -211,9 +211,9 @@ include '../../includes/header.php';
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-success" onclick="$('#formInforme').submit()">
-                    <i class="fas fa-save me-2"></i>Guardar y Finalizar
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-sm btn-success" onclick="$('#formInforme').submit()">
+                    <i class="fas fa-save me-1"></i>Guardar Informe
                 </button>
             </div>
         </div>
@@ -241,8 +241,8 @@ include '../../includes/header.php';
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" id="btnConfirmarEntrega" class="btn btn-success">Confirmar Entrega</button>
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="btnConfirmarEntrega" class="btn btn-sm btn-success">Confirmar Entrega</button>
             </div>
         </div>
     </div>
@@ -369,7 +369,7 @@ function cargarPedido() {
 function renderPedido(p) {
     $('#tituloPedido').text('Pedido #' + p.id_pedido);
     $('#descripcionPedido').text(p.descripcion);
-    $('#tipoPedido').html(`<span class="badge bg-dark">${p.tipo}</span>`);
+    $('#tipoPedido').html(`<span class="badge badge-tipo">${p.tipo}</span>`);
     $('#prioridadPedido').html(`<span class="badge bg-${p.prioridad==='Alta'?'danger':(p.prioridad==='Baja'?'success':'warning text-dark')}">${p.prioridad}</span>`);
     
     // Insumo Relacionado: si hay items del remito se renderiza por renderRemitoItems
@@ -450,9 +450,10 @@ function renderPedido(p) {
             else if (p.estado === 'Preparado') estadoEntrega = 'Preparado';
             else estadoEntrega = 'Pendiente';
         }
+        let estadoEntregaLabel = (estadoEntrega === 'Enviado' && p.metodo_entrega === 'Retiro') ? 'Listo para retiro' : estadoEntrega;
         $('#badgeEstadoEntrega')
             .attr('class', 'badge fs-6 ' + (entregaCls[estadoEntrega] || 'bg-secondary'))
-            .text(estadoEntrega);
+            .text(estadoEntregaLabel);
 
         if (estadoEntrega === 'Entregado') {
             if (p.fecha_entrega) {
@@ -475,25 +476,34 @@ function renderPedido(p) {
                 if (estadoEntrega === 'Pendiente') {
                     $btns.append(`
                         <div class="col">
-                            <button type="button" class="btn btn-outline-primary w-100 btn-sm" onclick="actualizarEstadoEntrega('Preparado')">
+                            <button type="button" class="btn btn-sm btn-outline-primary w-100" onclick="actualizarEstadoEntrega('Preparado')">
                                 <i class="fas fa-box me-1"></i>Marcar Preparado
                             </button>
                         </div>`);
                 }
-                // "Enviado" solo si es Envío por Logística (para Retiro es redundante)
-                if ((estadoEntrega === 'Preparado' || estadoEntrega === 'Pendiente') && p.metodo_entrega === 'Envío') {
-                    $btns.append(`
-                        <div class="col">
-                            <button type="button" class="btn btn-warning text-dark w-100 btn-sm" onclick="actualizarEstadoEntrega('Enviado')">
-                                <i class="fas fa-truck me-1"></i>Marcar Enviado
-                            </button>
-                        </div>`);
+                // "Enviado" / "Listo para retiro"
+                if (estadoEntrega === 'Preparado' || estadoEntrega === 'Pendiente') {
+                    if (p.metodo_entrega === 'Envío') {
+                        $btns.append(`
+                            <div class="col">
+                                <button type="button" class="btn btn-sm btn-warning text-dark w-100" onclick="actualizarEstadoEntrega('Enviado')">
+                                    <i class="fas fa-truck me-1"></i>Marcar como Enviado
+                                </button>
+                            </div>`);
+                    } else if (p.metodo_entrega === 'Retiro') {
+                        $btns.append(`
+                            <div class="col">
+                                <button type="button" class="btn btn-sm btn-warning text-dark w-100" onclick="actualizarEstadoEntrega('Enviado')">
+                                    <i class="fas fa-hand-holding me-1"></i>Listo para retiro
+                                </button>
+                            </div>`);
+                    }
                 }
                 // "Confirmar Entrega" siempre disponible
                 $btns.append(`
                     <div class="col">
-                        <button type="button" class="btn btn-success w-100 btn-sm" onclick="abrirModalEntregar()">
-                            <i class="fas fa-check-double me-1"></i>Confirmar Entrega
+                                <button type="button" class="btn btn-sm btn-primary w-100" onclick="abrirModalEntregar()">
+                                    <i class="fas fa-check-double me-1"></i>Confirmar Entrega
                         </button>
                     </div>`);
             } else {
@@ -548,24 +558,24 @@ function renderBotones(p) {
     
     // Ver Nota Original (PDF)
     if (p.pdf_nota) {
-        $c.append(`<a href="<?php echo app_base_url(); ?>/uploads/pedidos/${p.pdf_nota}" target="_blank" class="btn btn-info text-white me-2"><i class="fas fa-file-pdf me-2"></i>Ver Nota</a>`);
+        $c.append(`<a href="<?php echo app_base_url(); ?>/uploads/pedidos/${p.pdf_nota}" target="_blank" class="btn btn-sm btn-info text-white me-2"><i class="fas fa-file-pdf me-2"></i>Ver Nota</a>`);
     }
     
     if (p.remito_firmado) {
-        $c.append(`<a href="<?php echo app_base_url(); ?>/uploads/pedidos/${p.remito_firmado}" target="_blank" class="btn btn-success me-2 text-white" data-bs-toggle="tooltip" title="Ver Constancia Firmada de Entrega"><i class="fas fa-file-signature me-2"></i>Ver Constancia Firmada</a>`);
+        $c.append(`<a href="<?php echo app_base_url(); ?>/uploads/pedidos/${p.remito_firmado}" target="_blank" class="btn btn-sm btn-success me-2 text-white" data-bs-toggle="tooltip" title="Ver Constancia Firmada de Entrega"><i class="fas fa-file-signature me-2"></i>Ver Constancia Firmada</a>`);
     }
 
     // Botón Descargar Todo (Merge PDF)
-    $c.append(`<a href="descargar_todo.php?id=${p.id_pedido}" target="_blank" class="btn btn-dark me-2" title="Descargar toda la documentación en un solo PDF"><i class="fas fa-file-archive me-2"></i>Descargar Todo</a>`);
+    $c.append(`<a href="descargar_todo.php?id=${p.id_pedido}" target="_blank" class="btn btn-sm btn-dark me-2" title="Descargar toda la documentación en un solo PDF"><i class="fas fa-file-archive me-2"></i>Descargar Todo</a>`);
 
     // Imprimir Remito (Solo Insumos con remito)
     if (p.tipo === 'Pedido Insumo' && p.numero_remito) {
-        $c.append(`<button class="btn btn-primary me-2" onclick="imprimirRemito('${p.numero_remito}')"><i class="fas fa-print me-2"></i>Imprimir Remito</button>`);
+        $c.append(`<button class="btn btn-sm btn-primary me-2" onclick="imprimirRemito('${p.numero_remito}')"><i class="fas fa-print me-2"></i>Imprimir Remito</button>`);
     }
 
     // Ver Constancia (Solo para Tareas Técnicas)
     if (p.tipo !== 'Pedido Insumo') {
-        $c.append(`<a href="constancia_pdf.php?id=${p.id_pedido}" target="_blank" class="btn btn-outline-dark me-2" data-bs-toggle="tooltip" title="Imprimir constancia de visita técnica"><i class="fas fa-print me-2"></i>Constancia</a>`);
+        $c.append(`<a href="constancia_pdf.php?id=${p.id_pedido}" target="_blank" class="btn btn-sm btn-outline-dark me-2" data-bs-toggle="tooltip" title="Imprimir constancia de visita técnica"><i class="fas fa-print me-2"></i>Constancia</a>`);
     }
     
 
@@ -577,39 +587,39 @@ function renderBotones(p) {
         } else if (p.tipo === 'Tarea Interna') {
             urlEditar = 'editar_tarea_interna.php';
         }
-        $c.append(`<a href="${urlEditar}?id=${p.id_pedido}" class="btn btn-warning me-2"><i class="fas fa-edit me-2"></i>Editar</a>`);
+        $c.append(`<a href="${urlEditar}?id=${p.id_pedido}" class="btn btn-sm btn-warning me-2"><i class="fas fa-edit me-2"></i>Editar</a>`);
         // Tomar si no tiene asignado O si tiene asignado 0/null
         if (!p.asignado_a || p.asignado_a == 0) {
             // Solo se permite "Tomar" si es un pedido técnico. 
             // Los pedidos de insumo los "Prepara" cualquier gestor desde el detalle.
             if (p.tipo !== 'Pedido Insumo') {
-                $c.append(`<button class="btn btn-primary me-2" onclick="accionTomar()"><i class="fas fa-hand-paper me-2"></i>Tomar Pedido</button>`);
+                $c.append(`<button class="btn btn-sm btn-primary me-2" onclick="accionTomar()"><i class="fas fa-hand-paper me-2"></i>Tomar Pedido</button>`);
             }
         } else if (p.asignado_a == USER_ID) {
             // Solo pedidos técnicos llevan informe
             if (p.tipo !== 'Pedido Insumo') {
-                $c.append(`<button class="btn btn-success me-2" onclick="$('#modalInforme').modal('show')"><i class="fas fa-check me-2"></i>Completar con Informe</button>`);
+                $c.append(`<button class="btn btn-sm btn-success me-2" onclick="$('#modalInforme').modal('show')"><i class="fas fa-check me-2"></i>Completar con Informe</button>`);
             }
         }
         
         // Boton Asignar (Solo Admin/SuperAdmin y si no tiene asignado) - NO para Pedidos de Insumo
         if (p.tipo !== 'Pedido Insumo' && (!p.asignado_a || p.asignado_a == 0) && (CURRENT_USER_ROL_ID == 1 || CURRENT_USER_ROL_ID == 2)) {
-             $c.append(`<button class="btn btn-outline-primary me-2" onclick="accionAsignar()"><i class="fas fa-user-plus me-2"></i>Asignar a...</button>`);
+             $c.append(`<button class="btn btn-sm btn-outline-primary me-2" onclick="accionAsignar()"><i class="fas fa-user-plus me-2"></i>Asignar a...</button>`);
         }
         // Boton Rechazar - Solo para el usuario asignado
         if (p.asignado_a == USER_ID) {
-             $c.append(`<button class="btn btn-danger me-2" onclick="accionRechazar()"><i class="fas fa-times me-2"></i>Rechazar</button>`);
+             $c.append(`<button class="btn btn-sm btn-danger me-2" onclick="accionRechazar()"><i class="fas fa-times me-2"></i>Rechazar</button>`);
         }
 
         // Nuevo Botón para Preparar (Solo Insumos en estado Pendiente) - Redirige a la página de preparación interactiva
         if (p.tipo === 'Pedido Insumo' && p.estado === 'Pendiente') {
             const urlPreparar = '<?php echo app_base_url(); ?>/pages/pedidos/preparar.php?id=' + p.id_pedido;
-            $c.append(`<a href="${urlPreparar}" class="btn btn-success me-2"><i class="fas fa-box-open me-2"></i>PREPARAR PEDIDO</a>`);
+            $c.append(`<a href="${urlPreparar}" class="btn btn-sm btn-success me-2"><i class="fas fa-box-open me-2"></i>PREPARAR PEDIDO</a>`);
         }
     }
     
     if (PERMISOS.eliminar) {
-        $c.append(`<button class="btn btn-outline-danger" onclick="accionEliminar()" title="Eliminar"><i class="fas fa-trash"></i></button>`);
+        $c.append(`<button class="btn btn-sm btn-outline-danger" onclick="accionEliminar()" title="Eliminar"><i class="fas fa-trash"></i></button>`);
     }
 }
  
@@ -1002,8 +1012,8 @@ $(function(){
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-danger" id="btnConfirmarRechazo">Confirmar Rechazo</button>
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-sm btn-danger" id="btnConfirmarRechazo">Confirmar Rechazo</button>
             </div>
         </div>
     </div>
@@ -1035,8 +1045,8 @@ $(function(){
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" id="btnConfirmarAsignar" class="btn btn-primary">Confirmar Asignación</button>
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="btnConfirmarAsignar" class="btn btn-sm btn-primary">Confirmar Asignación</button>
             </div>
         </div>
     </div>

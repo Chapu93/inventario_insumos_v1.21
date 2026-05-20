@@ -31,6 +31,7 @@ try {
         6 => 'u_asig.username',
         7 => 'p.estado_entrega'
     ];
+    $modo = $_GET['modo'] ?? 'mis_pedidos'; // 'mis_pedidos' o 'pendientes'
     $orderColIdx = isset($_GET['order'][0]['column']) ? (int)$_GET['order'][0]['column'] : 5; // Default fecha
     $orderDir = isset($_GET['order'][0]['dir']) && strtolower($_GET['order'][0]['dir']) === 'asc' ? 'ASC' : 'DESC';
     
@@ -47,7 +48,7 @@ try {
     $filtro_prioridad = $_GET['prioridad'] ?? '';
     $filtro_sede = $_GET['sede'] ?? '';
     $filtro_logistica = $_GET['logistica'] ?? '';
-    $modo = $_GET['modo'] ?? 'mis_pedidos'; // 'mis_pedidos' o 'pendientes'
+    $filtro_asignado = $_GET['asignado_a'] ?? '';
 
     // Base query
     $baseFrom = " FROM pedidos p
@@ -105,11 +106,12 @@ try {
     if ($filtro_prioridad !== '') { $where[] = 'p.prioridad = ?'; $params[] = $filtro_prioridad; }
     if ($filtro_sede !== '') { $where[] = 'p.id_sede = ?'; $params[] = $filtro_sede; }
     if ($filtro_logistica !== '') { $where[] = 'p.estado_entrega = ?'; $params[] = $filtro_logistica; }
+    if ($filtro_asignado !== '') { $where[] = 'p.asignado_a = ?'; $params[] = (int)$filtro_asignado; }
 
     if ($search !== '') {
-        $where[] = '(p.solicitante_nombre LIKE ? OR p.solicitante_apellido LIKE ? OR p.descripcion LIKE ? OR s.nombre_sede LIKE ? OR p.id_pedido LIKE ?)';
+        $where[] = '(p.solicitante_nombre LIKE ? OR p.solicitante_apellido LIKE ? OR s.nombre_sede LIKE ? OR p.id_pedido LIKE ? OR u_asig.nombre LIKE ? OR u_asig.apellido LIKE ? OR u_asig.username LIKE ? OR p.tipo LIKE ?)';
         $like = '%' . $search . '%';
-        array_push($params, $like, $like, $like, $like, $like);
+        array_push($params, $like, $like, $like, $like, $like, $like, $like, $like);
     }
 
     $whereSql = ' WHERE ' . implode(' AND ', $where);
@@ -219,16 +221,17 @@ try {
                  'De Baja' => 'warning text-dark',
                  default => 'secondary'
              };
-             $entregaHtml = '<span class="badge bg-' . $entregaCls . '">' . $r['estado_entrega'] . '</span>';
-             if ($r['metodo_entrega'] !== 'No aplica') {
-                 $entregaHtml .= '<br><small class="text-muted">' . $r['metodo_entrega'] . '</small>';
+             $textoEntrega = $r['estado_entrega'];
+             if ($r['estado_entrega'] === 'Enviado' && $r['metodo_entrega'] === 'Retiro') {
+                 $textoEntrega = 'Listo para retiro';
              }
+             $entregaHtml = '<span class="badge bg-' . $entregaCls . '">' . $textoEntrega . '</span>';
         }
 
         return [
             $r['id_pedido'],
             $solicitante,
-            '<span class="badge bg-dark">' . $r['tipo'] . '</span>',
+            '<span class="badge badge-tipo">' . $r['tipo'] . '</span>',
             $prioridad,
             $estado,
             date('d/m/Y H:i', strtotime(($modo === 'logistica' && !empty($r['fecha_preparacion'])) ? $r['fecha_preparacion'] : $r['fecha_creacion'])),

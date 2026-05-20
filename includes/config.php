@@ -94,7 +94,22 @@ function json_response($payload, int $status = 200): void {
     if (defined('TESTING') && TESTING) return;
     exit;
 }
+function formatDatesToIso8601(&$data) {
+    if (is_array($data)) {
+        foreach ($data as $key => &$value) {
+            if (is_array($value)) {
+                formatDatesToIso8601($value);
+            } else if (is_string($value) && !empty($value)) {
+                if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $value)) {
+                    $value = date('c', strtotime($value));
+                }
+            }
+        }
+    }
+}
+
 function json_success($data = [], int $status = 200): void {
+    formatDatesToIso8601($data);
     json_response([
         'success' => true, 
         'data' => $data,

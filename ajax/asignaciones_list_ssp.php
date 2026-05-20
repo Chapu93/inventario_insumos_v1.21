@@ -37,7 +37,7 @@ try {
     $baseFrom = " FROM remitos r 
                    LEFT JOIN remitos_detalle d ON d.id_remito = r.id_remito
                    LEFT JOIN insumos i ON d.id_insumo = i.id_insumo
-                   JOIN areas ar ON r.id_area = ar.id_area
+                   LEFT JOIN areas ar ON r.id_area = ar.id_area
                    JOIN sedes s ON r.id_sede = s.id_sede
                    JOIN localidades l ON s.id_localidad = l.id_localidad ";
 

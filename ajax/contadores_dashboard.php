@@ -37,7 +37,7 @@ try {
     // Remitos recientes (cabecera) - Excluye remitos anulados
     $asignaciones_recientes = $conexion->query("SELECT r.numero_remito, r.fecha_asignacion, r.nombre_persona_asignada, r.apellido_persona_asignada, ar.nombre_area, s.nombre_sede
                                                 FROM remitos r
-                                                JOIN areas ar ON r.id_area = ar.id_area
+                                                LEFT JOIN areas ar ON r.id_area = ar.id_area
                                                 JOIN sedes s ON r.id_sede = s.id_sede
                                                 WHERE r.estado != 'Anulado'
                                                 ORDER BY r.fecha_asignacion DESC 

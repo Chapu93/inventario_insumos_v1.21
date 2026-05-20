@@ -324,7 +324,7 @@ include '../../includes/header.php';
                                          JOIN sedes s ON r.id_sede = s.id_sede
                                          JOIN localidades l ON s.id_localidad = l.id_localidad
                                          JOIN zonas z ON l.id_zona = z.id_zona
-                                         JOIN areas ar ON r.id_area = ar.id_area
+                                         LEFT JOIN areas ar ON r.id_area = ar.id_area
                                          WHERE d.id_insumo = ? AND r.estado = 'Activa'
                                          ORDER BY r.fecha_asignacion DESC LIMIT 1");
                 $stmtAct->execute([$id]);

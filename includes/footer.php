@@ -68,6 +68,21 @@
             }
             // Sidebar toggle removido: menú siempre visible
             
+            // Control de scrollbar correcto en DataTables (evita scrollbar doble y mantiene responsividad)
+            $(document).on('init.dt', function(e, settings) {
+                var api = new $.fn.dataTable.Api(settings);
+                var $table = $(api.table().node());
+                var $wrapper = $(api.table().container());
+                
+                // Remover table-responsive del contenedor externo para evitar scrollbar doble abajo
+                $wrapper.closest('.table-responsive').removeClass('table-responsive');
+                
+                // Envolver la tabla en un contenedor responsive interno
+                if (!$table.parent().hasClass('table-responsive-inner')) {
+                    $table.wrap('<div class="table-responsive-inner"></div>');
+                }
+            });
+
             // Inicializar DataTables (por tabla para permitir orden inicial personalizado)
             $('.datatable').each(function() {
                 var $t = $(this);
@@ -376,5 +391,92 @@
         });
     })();
     </script>
+
+<?php if (function_exists('estaAutenticado') && estaAutenticado()): ?>
+    <!-- Modal Sesión Expirada -->
+    <div class="modal fade" id="modalSesionExpirada" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalSesionExpiradaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title fw-bold" id="modalSesionExpiradaLabel">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Sesión Expirada
+                    </h5>
+                </div>
+                <div class="modal-body py-4 text-center">
+                    <p class="fs-5 mb-0">Su sesión ha expirado por inactividad. Por favor, vuelva a iniciar sesión para continuar.</p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <a href="<?php echo app_base_url(); ?>/login.php" class="btn btn-danger px-4 shadow-sm">
+                        <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script de control de sesión -->
+    <script>
+    (function() {
+        // Expiración en 30 minutos (1800 segundos = 1800000 milisegundos)
+        const TIMEOUT_MS = 1800000;
+        const CHECK_INTERVAL_MS = 10000; // Cada 10 segundos
+        const STORAGE_KEY = 'sitia_last_activity';
+        let modalMostrado = false;
+
+        // Inicializar o registrar última actividad
+        function registrarActividad() {
+            if (modalMostrado) return;
+            localStorage.setItem(STORAGE_KEY, Date.now());
+        }
+
+        // Registrar actividad en eventos comunes de interacción
+        const eventos = ['mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
+        eventos.forEach(evt => {
+            document.addEventListener(evt, registrarActividad, { passive: true });
+        });
+
+        // Registrar actividad al completar peticiones AJAX
+        $(document).ajaxComplete(function() {
+            registrarActividad();
+        });
+
+        // Interceptar errores AJAX por sesión expirada (HTTP 401)
+        $(document).ajaxError(function(event, xhr, settings, thrownError) {
+            if (xhr.status === 401) {
+                mostrarModalExpirado();
+            }
+        });
+
+        function mostrarModalExpirado() {
+            if (modalMostrado) return;
+            modalMostrado = true;
+            
+            // Remover event listeners
+            eventos.forEach(evt => {
+                document.removeEventListener(evt, registrarActividad);
+            });
+
+            // Mostrar modal
+            const myModal = new bootstrap.Modal(document.getElementById('modalSesionExpirada'));
+            myModal.show();
+        }
+
+        // Registrar actividad inicial al cargar la página
+        registrarActividad();
+
+        // Verificar inactividad periódicamente
+        setInterval(function() {
+            if (modalMostrado) return;
+            
+            const lastActivity = parseInt(localStorage.getItem(STORAGE_KEY) || Date.now(), 10);
+            const idleTime = Date.now() - lastActivity;
+            
+            if (idleTime >= TIMEOUT_MS) {
+                mostrarModalExpirado();
+            }
+        }, CHECK_INTERVAL_MS);
+    })();
+    </script>
+<?php endif; ?>
 </body>
 </html> 
