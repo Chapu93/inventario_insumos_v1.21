@@ -112,7 +112,7 @@ include '../../includes/header.php';
     <!-- Columna Izquierda: Información del Servicio -->
     <div class="col-md-4">
         <div class="card h-100 shadow-sm">
-            <div class="card-header bg-light">
+            <div class="card-header">
                 <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Información del Servicio</h5>
             </div>
             <div class="card-body">
@@ -174,7 +174,7 @@ include '../../includes/header.php';
     <!-- Columna Derecha: Lista de Dispositivos -->
     <div class="col-md-8">
         <div class="card h-100 shadow-sm">
-            <div class="card-header bg-light">
+            <div class="card-header">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <h5 class="mb-0"><i class="fas fa-cctv me-2"></i>Dispositivos Instalados</h5>
                     <button class="btn btn-sm btn-outline-secondary" id="btnExport">

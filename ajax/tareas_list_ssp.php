@@ -110,9 +110,13 @@ try {
         $estadoHtml = '<span class="badge bg-' . $estadoClass . '">' . $r['estado'] . '</span>';
 
         // Asignado
-        $asignadoHtml = $r['asignado_a']
-            ? '<span class="badge bg-info text-dark">' . htmlspecialchars($r['asig_nombre'] . ' ' . $r['asig_apellido']) . '</span>'
-            : '<span class="badge bg-secondary">Sin Asignar</span>';
+        if ($r['es_colaborativa']) {
+            $asignadoHtml = '<span class="badge" style="background-color: #6f42c1; color: white;"><i class="fas fa-users me-1"></i>Colaborativa</span>';
+        } else {
+            $asignadoHtml = $r['asignado_a']
+                ? '<span class="badge bg-info text-dark">' . htmlspecialchars($r['asig_nombre'] . ' ' . $r['asig_apellido']) . '</span>'
+                : '<span class="badge bg-secondary">Sin Asignar</span>';
+        }
 
         // Descripción truncada
         $descCorta = htmlspecialchars(mb_substr($r['descripcion'], 0, 90));
@@ -128,17 +132,22 @@ try {
 
         if ($r['estado'] !== 'Completada') {
             if ($permGestionar) {
-                if (!$r['asignado_a']) {
-                    // Sin asignar: cualquier gestor puede tomar
-                    $botones[] = '<button class="btn btn-sm btn-primary" onclick="tomarTarea(' . $r['id_tarea'] . ')" data-bs-toggle="tooltip" title="Tomar tarea"><i class="fas fa-hand-paper"></i></button>';
-                    if ($esAdmin) {
-                        $botones[] = '<button class="btn btn-sm btn-outline-primary" onclick="abrirModalAsignarTarea(' . $r['id_tarea'] . ')" data-bs-toggle="tooltip" title="Asignar a..."><i class="fas fa-user-plus"></i></button>';
-                    }
-                } elseif ($r['asignado_a'] == $usuarioId || $esAdmin) {
-                    // Asignado al usuario actual (o admin): puede completar
+                if ($r['es_colaborativa']) {
+                    // Tarea colaborativa: cualquier gestor/técnico/operador puede completarla
                     $botones[] = '<button class="btn btn-sm btn-success" onclick="completarTarea(' . $r['id_tarea'] . ')" data-bs-toggle="tooltip" title="Marcar completada"><i class="fas fa-check"></i></button>';
-                    if ($esAdmin) {
-                        $botones[] = '<button class="btn btn-sm btn-warning text-dark" onclick="liberarTarea(' . $r['id_tarea'] . ')" data-bs-toggle="tooltip" title="Devolver a pendiente"><i class="fas fa-undo"></i></button>';
+                } else {
+                    if (!$r['asignado_a']) {
+                        // Sin asignar: cualquier gestor puede tomar
+                        $botones[] = '<button class="btn btn-sm btn-primary" onclick="tomarTarea(' . $r['id_tarea'] . ')" data-bs-toggle="tooltip" title="Tomar tarea"><i class="fas fa-hand-paper"></i></button>';
+                        if ($esAdmin) {
+                            $botones[] = '<button class="btn btn-sm btn-outline-primary" onclick="abrirModalAsignarTarea(' . $r['id_tarea'] . ')" data-bs-toggle="tooltip" title="Asignar a..."><i class="fas fa-user-plus"></i></button>';
+                        }
+                    } elseif ($r['asignado_a'] == $usuarioId || $esAdmin) {
+                        // Asignado al usuario actual (o admin): puede completar
+                        $botones[] = '<button class="btn btn-sm btn-success" onclick="completarTarea(' . $r['id_tarea'] . ')" data-bs-toggle="tooltip" title="Marcar completada"><i class="fas fa-check"></i></button>';
+                        if ($esAdmin) {
+                            $botones[] = '<button class="btn btn-sm btn-warning text-dark" onclick="liberarTarea(' . $r['id_tarea'] . ')" data-bs-toggle="tooltip" title="Devolver a pendiente"><i class="fas fa-undo"></i></button>';
+                        }
                     }
                 }
             }

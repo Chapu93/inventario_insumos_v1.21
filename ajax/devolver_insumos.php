@@ -79,6 +79,19 @@ try {
             
             $db->prepare("UPDATE insumos SET cantidad = ?, cantidad_oficina = ?, estado = 'Disponible', id_sede_actual = NULL, id_area_asignacion_actual = NULL WHERE id_insumo = ?")
                ->execute([$nuevoStockTotal, $nuevoStockOficina, $idInsumo]);
+
+            // Registrar el movimiento de ingreso a oficina por devolución
+            $db->prepare("INSERT INTO insumos_movimientos_stock 
+                          (id_insumo, tipo_movimiento, cantidad_movida, ubicacion_origen, ubicacion_destino,
+                           cantidad_oficina_antes, cantidad_deposito_antes, cantidad_oficina_despues, cantidad_deposito_despues, 
+                           observacion, fecha_movimiento) 
+                          VALUES (?, 'devolucion', ?, 'asignacion', 'oficina', ?, ?, ?, ?, ?, NOW())")
+               ->execute([
+                   $idInsumo, $aDevolver, 
+                   $stockOficina, $stockDeposito, 
+                   $nuevoStockOficina, $stockDeposito, 
+                   "Devolución de Remito #{$numero}"
+               ]);
         } else {
             // Para unitarios, devolver cambia estado a Disponible
             $db->prepare("UPDATE insumos SET estado = 'Disponible', id_sede_actual = NULL, id_area_asignacion_actual = NULL WHERE id_insumo = ?")

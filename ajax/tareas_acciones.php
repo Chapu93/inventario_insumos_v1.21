@@ -24,25 +24,30 @@ try {
             $id          = (int)($_POST['id'] ?? 0);
             $titulo      = trim($_POST['titulo']      ?? '');
             $descripcion = trim($_POST['descripcion'] ?? '');
-            $asignadoA   = (int)($_POST['asignado_a'] ?? 0) ?: null;
 
             if ($id <= 0)            json_error('ID de tarea inválido', 400);
             if (empty($titulo))      json_error('El título es obligatorio', 400);
             if (empty($descripcion)) json_error('La descripción es obligatoria', 400);
 
             // Verificar estado actual
-            $stmt = $db->prepare("SELECT estado FROM tareas_internas WHERE id_tarea = ?");
+            $stmt = $db->prepare("SELECT estado, es_colaborativa FROM tareas_internas WHERE id_tarea = ?");
             $stmt->execute([$id]);
             $tarea = $stmt->fetch();
             if (!$tarea) json_error('Tarea no encontrada', 404);
             if ($tarea['estado'] === 'Completada') json_error('No se puede editar una tarea completada', 400);
 
-            // Ajustar estado según asignación si no ha cambiado manualmente
-            $nuevoEstado = $tarea['estado'];
-            if ($asignadoA && $tarea['estado'] === 'Pendiente') {
+            if ($tarea['es_colaborativa']) {
+                $asignadoA = null;
                 $nuevoEstado = 'En Proceso';
-            } elseif (!$asignadoA && $tarea['estado'] === 'En Proceso') {
-                $nuevoEstado = 'Pendiente';
+            } else {
+                $asignadoA = (int)($_POST['asignado_a'] ?? 0) ?: null;
+                // Ajustar estado según asignación si no ha cambiado manualmente
+                $nuevoEstado = $tarea['estado'];
+                if ($asignadoA && $tarea['estado'] === 'Pendiente') {
+                    $nuevoEstado = 'En Proceso';
+                } elseif (!$asignadoA && $tarea['estado'] === 'En Proceso') {
+                    $nuevoEstado = 'Pendiente';
+                }
             }
 
             $stmt = $db->prepare(
@@ -59,20 +64,21 @@ try {
         case 'crear':
             if (!tienePermiso('pedidos', 'crear')) json_error('Sin permiso para crear tareas', 403);
 
-            $titulo      = trim($_POST['titulo']      ?? '');
-            $descripcion = trim($_POST['descripcion'] ?? '');
-            $asignadoA   = (int)($_POST['asignado_a'] ?? 0) ?: null;
+            $titulo         = trim($_POST['titulo']      ?? '');
+            $descripcion    = trim($_POST['descripcion'] ?? '');
+            $esColaborativa = isset($_POST['es_colaborativa']) && $_POST['es_colaborativa'] == '1' ? 1 : 0;
+            $asignadoA      = $esColaborativa ? null : ((int)($_POST['asignado_a'] ?? 0) ?: null);
 
             if (empty($titulo))      json_error('El título es obligatorio', 400);
             if (empty($descripcion)) json_error('La descripción es obligatoria', 400);
 
-            $estado = $asignadoA ? 'En Proceso' : 'Pendiente';
+            $estado = $esColaborativa ? 'En Proceso' : ($asignadoA ? 'En Proceso' : 'Pendiente');
 
             $stmt = $db->prepare(
-                "INSERT INTO tareas_internas (titulo, descripcion, estado, creado_por, asignado_a)
-                 VALUES (?, ?, ?, ?, ?)"
+                "INSERT INTO tareas_internas (titulo, descripcion, estado, creado_por, asignado_a, es_colaborativa)
+                 VALUES (?, ?, ?, ?, ?, ?)"
             );
-            $stmt->execute([$titulo, $descripcion, $estado, $usuarioId, $asignadoA]);
+            $stmt->execute([$titulo, $descripcion, $estado, $usuarioId, $asignadoA, $esColaborativa]);
 
             json_success(['mensaje' => 'Tarea creada correctamente', 'id' => $db->lastInsertId()]);
             break;
@@ -86,11 +92,12 @@ try {
 
             $db->beginTransaction();
 
-            $stmt = $db->prepare("SELECT estado, asignado_a FROM tareas_internas WHERE id_tarea = ?");
+            $stmt = $db->prepare("SELECT estado, asignado_a, es_colaborativa FROM tareas_internas WHERE id_tarea = ?");
             $stmt->execute([$id]);
             $tarea = $stmt->fetch();
 
             if (!$tarea) { $db->rollBack(); json_error('Tarea no encontrada', 404); }
+            if ($tarea['es_colaborativa']) { $db->rollBack(); json_error('Esta es una tarea colaborativa y no puede ser tomada individualmente', 400); }
             if ($tarea['estado'] === 'Completada') { $db->rollBack(); json_error('La tarea ya está completada', 400); }
             if ($tarea['asignado_a'] && $tarea['asignado_a'] != $usuarioId) {
                 $db->rollBack();
@@ -121,10 +128,11 @@ try {
             $userDestino = $stmtU->fetch();
             if (!$userDestino) { $db->rollBack(); json_error('Usuario no encontrado o inactivo', 400); }
 
-            $stmtT = $db->prepare("SELECT estado FROM tareas_internas WHERE id_tarea = ?");
+            $stmtT = $db->prepare("SELECT estado, es_colaborativa FROM tareas_internas WHERE id_tarea = ?");
             $stmtT->execute([$id]);
             $tarea = $stmtT->fetch();
             if (!$tarea) { $db->rollBack(); json_error('Tarea no encontrada', 404); }
+            if ($tarea['es_colaborativa']) { $db->rollBack(); json_error('No se puede asignar una tarea colaborativa', 400); }
             if ($tarea['estado'] === 'Completada') { $db->rollBack(); json_error('No se puede asignar una tarea completada', 400); }
 
             $stmt = $db->prepare("UPDATE tareas_internas SET asignado_a = ?, estado = 'En Proceso' WHERE id_tarea = ?");
@@ -143,7 +151,7 @@ try {
 
             $db->beginTransaction();
 
-            $stmt = $db->prepare("SELECT estado, asignado_a FROM tareas_internas WHERE id_tarea = ?");
+            $stmt = $db->prepare("SELECT estado, asignado_a, es_colaborativa FROM tareas_internas WHERE id_tarea = ?");
             $stmt->execute([$id]);
             $tarea = $stmt->fetch();
 
@@ -152,11 +160,13 @@ try {
 
             $comentario = trim($_POST['comentario'] ?? '');
 
-            // Solo el asignado o un admin pueden completar
+            // Solo el asignado o un admin pueden completar si NO es colaborativa
             $esAdmin = tieneRol([1, 2]);
-            if ($tarea['asignado_a'] != $usuarioId && !$esAdmin) {
-                $db->rollBack();
-                json_error('Solo el usuario asignado puede completar esta tarea', 403);
+            if (!$tarea['es_colaborativa']) {
+                if ($tarea['asignado_a'] != $usuarioId && !$esAdmin) {
+                    $db->rollBack();
+                    json_error('Solo el usuario asignado puede completar esta tarea', 403);
+                }
             }
 
             // Procesar adjunto si existe
@@ -208,6 +218,11 @@ try {
             $id = (int)($_POST['id'] ?? 0);
             if ($id <= 0) json_error('ID inválido', 400);
 
+            $stmtVerif = $db->prepare("SELECT es_colaborativa FROM tareas_internas WHERE id_tarea = ?");
+            $stmtVerif->execute([$id]);
+            $tareaColab = $stmtVerif->fetchColumn();
+            if ($tareaColab) json_error('No se puede liberar una tarea colaborativa', 400);
+
             $stmt = $db->prepare(
                 "UPDATE tareas_internas SET estado = 'Pendiente', asignado_a = NULL WHERE id_tarea = ? AND estado != 'Completada'"
             );
@@ -252,7 +267,44 @@ try {
 
             if (!$tarea) json_error('Tarea no encontrada', 404);
 
-            json_success(['tarea' => $tarea]);
+            // Obtener comentarios
+            $stmtC = $db->prepare(
+                "SELECT tc.*, u.nombre, u.apellido, u.username
+                 FROM tareas_comentarios tc
+                 JOIN usuarios u ON tc.id_usuario = u.id_usuario
+                 WHERE tc.id_tarea = ?
+                 ORDER BY tc.fecha ASC"
+            );
+            $stmtC->execute([$id]);
+            $comentarios = $stmtC->fetchAll(PDO::FETCH_ASSOC);
+
+            json_success(['tarea' => $tarea, 'comentarios' => $comentarios]);
+            break;
+
+        // ──────────────────────────────────────────────
+        case 'agregar_comentario':
+            if (!tienePermiso('pedidos', 'gestionar')) json_error('Sin permiso para comentar', 403);
+
+            $id_tarea   = (int)($_POST['id_tarea'] ?? 0);
+            $comentario = trim($_POST['comentario'] ?? '');
+
+            if ($id_tarea <= 0)       json_error('ID de tarea inválido', 400);
+            if (empty($comentario))   json_error('El comentario no puede estar vacío', 400);
+
+            // Verificar que la tarea existe y no esté completada
+            $stmtT = $db->prepare("SELECT estado FROM tareas_internas WHERE id_tarea = ?");
+            $stmtT->execute([$id_tarea]);
+            $tarea = $stmtT->fetch();
+            if (!$tarea) json_error('Tarea no encontrada', 404);
+            if ($tarea['estado'] === 'Completada') json_error('No se pueden añadir comentarios a una tarea completada', 400);
+
+            $stmt = $db->prepare(
+                "INSERT INTO tareas_comentarios (id_tarea, id_usuario, comentario)
+                 VALUES (?, ?, ?)"
+            );
+            $stmt->execute([$id_tarea, $usuarioId, $comentario]);
+
+            json_success(['mensaje' => 'Comentario agregado correctamente']);
             break;
 
         // ──────────────────────────────────────────────

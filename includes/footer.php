@@ -393,19 +393,20 @@
     </script>
 
 <?php if (function_exists('estaAutenticado') && estaAutenticado()): ?>
-    <!-- Modal Sesión Expirada -->
+    <!-- Modal Sesión Expirada / Advertencia -->
     <div class="modal fade" id="modalSesionExpirada" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalSesionExpiradaLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
+                <div class="modal-header bg-danger text-white" id="modalSesionHeader">
                     <h5 class="modal-title fw-bold" id="modalSesionExpiradaLabel">
-                        <i class="fas fa-exclamation-triangle me-2"></i>Sesión Expirada
+                        <i class="fas fa-exclamation-triangle me-2" id="modalSesionIcono"></i>
+                        <span id="modalSesionTitulo">Sesión Expirada</span>
                     </h5>
                 </div>
                 <div class="modal-body py-4 text-center">
-                    <p class="fs-5 mb-0">Su sesión ha expirado por inactividad. Por favor, vuelva a iniciar sesión para continuar.</p>
+                    <p class="fs-5 mb-0" id="modalSesionMensaje">Su sesión ha expirado por inactividad. Por favor, vuelva a iniciar sesión para continuar.</p>
                 </div>
-                <div class="modal-footer justify-content-center">
+                <div class="modal-footer justify-content-center" id="modalSesionFooter">
                     <a href="<?php echo app_base_url(); ?>/login.php" class="btn btn-danger px-4 shadow-sm">
                         <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
                     </a>
@@ -417,19 +418,45 @@
     <!-- Script de control de sesión -->
     <script>
     (function() {
-        // Expiración en 30 minutos (1800 segundos = 1800000 milisegundos)
-        const TIMEOUT_MS = 1800000;
-        const CHECK_INTERVAL_MS = 10000; // Cada 10 segundos
+        if (typeof window.APP_BASE_URL === 'undefined') {
+            window.APP_BASE_URL = '<?php echo app_base_url(); ?>';
+        }
+        
+        const TIMEOUT_MS = 1800000; // 30 minutos
+        const WARNING_MS = 120000;  // 2 minutos de advertencia
+        const PING_INTERVAL_MS = 300000; // 5 minutos entre pings
         const STORAGE_KEY = 'sitia_last_activity';
+        const PING_KEY = 'sitia_last_ping';
+        
         let modalMostrado = false;
-
-        // Inicializar o registrar última actividad
-        function registrarActividad() {
-            if (modalMostrado) return;
-            localStorage.setItem(STORAGE_KEY, Date.now());
+        let modoModal = ''; // 'advertencia' o 'expirada'
+        let lastActivityWrite = 0;
+        let bsModal = null;
+        
+        function getModal() {
+            if (!bsModal) {
+                const el = document.getElementById('modalSesionExpirada');
+                if (el) {
+                    bsModal = new bootstrap.Modal(el);
+                }
+            }
+            return bsModal;
         }
 
-        // Registrar actividad en eventos comunes de interacción
+        function registrarActividad() {
+            if (modalMostrado && modoModal === 'expirada') return;
+            const ahora = Date.now();
+            if (ahora - lastActivityWrite > 5000) { // Max una escritura en localStorage cada 5 segundos
+                localStorage.setItem(STORAGE_KEY, ahora);
+                lastActivityWrite = ahora;
+                
+                // Si el modal está en modo advertencia y el usuario interactúa, restauramos sesión automáticamente
+                if (modalMostrado && modoModal === 'advertencia') {
+                    mantenerSesion();
+                }
+            }
+        }
+
         const eventos = ['mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
         eventos.forEach(evt => {
             document.addEventListener(evt, registrarActividad, { passive: true });
@@ -447,34 +474,170 @@
             }
         });
 
-        function mostrarModalExpirado() {
-            if (modalMostrado) return;
-            modalMostrado = true;
+        function realizarPing() {
+            const ahora = Date.now();
+            localStorage.setItem(PING_KEY, ahora);
+            $.ajax({
+                url: window.APP_BASE_URL + '/ajax/session_ping.php',
+                method: 'GET',
+                dataType: 'json'
+            }).fail(function(xhr) {
+                if (xhr.status === 401) {
+                    mostrarModalExpirado();
+                }
+            });
+        }
+
+        function mantenerSesion() {
+            const ahora = Date.now();
+            localStorage.setItem(STORAGE_KEY, ahora);
+            realizarPing();
+            cerrarModal();
+        }
+
+        function cerrarModal() {
+            const m = getModal();
+            if (m) {
+                m.hide();
+            }
+            modalMostrado = false;
+            modoModal = '';
+        }
+
+        function mostrarAdvertenciaExpiracion(segundos) {
+            if (modoModal === 'expirada') return;
             
-            // Remover event listeners
+            modalMostrado = true;
+            modoModal = 'advertencia';
+            
+            // Personalizar modal para Advertencia
+            const header = document.getElementById('modalSesionHeader');
+            const titulo = document.getElementById('modalSesionTitulo');
+            const mensaje = document.getElementById('modalSesionMensaje');
+            const footer = document.getElementById('modalSesionFooter');
+            const icono = document.getElementById('modalSesionIcono');
+            
+            if (header) {
+                header.className = 'modal-header bg-warning text-dark';
+            }
+            if (icono) {
+                icono.className = 'fas fa-exclamation-triangle me-2';
+            }
+            if (titulo) {
+                titulo.textContent = 'Advertencia de Inactividad';
+            }
+            if (mensaje) {
+                mensaje.innerHTML = 'Su sesión está por expirar en <strong id="session-countdown">' + segundos + '</strong> segundos debido a inactividad. ¿Desea continuar conectado?';
+            }
+            
+            if (footer && !document.getElementById('btnMantenerSesion')) {
+                footer.innerHTML = `
+                    <button type="button" class="btn btn-warning px-4 shadow-sm" id="btnMantenerSesion">
+                        <i class="fas fa-sync-alt me-2"></i>Mantener Conectado
+                    </button>
+                    <a href="${window.APP_BASE_URL}/logout.php" class="btn btn-outline-secondary px-4">
+                        <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                    </a>
+                `;
+                
+                // Vincular evento al botón dinámico
+                document.getElementById('btnMantenerSesion').addEventListener('click', mantenerSesion);
+            } else if (document.getElementById('session-countdown')) {
+                document.getElementById('session-countdown').textContent = segundos;
+            }
+            
+            const m = getModal();
+            if (m) {
+                m.show();
+            }
+        }
+
+        function mostrarModalExpirado() {
+            if (modoModal === 'expirada') return;
+            
+            modalMostrado = true;
+            modoModal = 'expirada';
+            
+            // Remover listeners de actividad
             eventos.forEach(evt => {
                 document.removeEventListener(evt, registrarActividad);
             });
 
-            // Mostrar modal
-            const myModal = new bootstrap.Modal(document.getElementById('modalSesionExpirada'));
-            myModal.show();
+            // Personalizar modal para Expiración
+            const header = document.getElementById('modalSesionHeader');
+            const titulo = document.getElementById('modalSesionTitulo');
+            const mensaje = document.getElementById('modalSesionMensaje');
+            const footer = document.getElementById('modalSesionFooter');
+            const icono = document.getElementById('modalSesionIcono');
+            
+            if (header) {
+                header.className = 'modal-header bg-danger text-white';
+            }
+            if (icono) {
+                icono.className = 'fas fa-exclamation-circle me-2';
+            }
+            if (titulo) {
+                titulo.textContent = 'Sesión Expirada';
+            }
+            if (mensaje) {
+                mensaje.textContent = 'Su sesión ha expirado por inactividad. Por favor, vuelva a iniciar sesión para continuar.';
+            }
+            if (footer) {
+                footer.innerHTML = `
+                    <a href="${window.APP_BASE_URL}/login.php" class="btn btn-danger px-4 shadow-sm">
+                        <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
+                    </a>
+                `;
+            }
+            
+            const m = getModal();
+            if (m) {
+                m.show();
+            }
         }
 
-        // Registrar actividad inicial al cargar la página
-        registrarActividad();
+        // Inicializar tiempos en localStorage si no existen, si ya expiraron o son de una sesión previa
+        const ahoraInicial = Date.now();
+        const serverLastAccess = <?php echo ($_SESSION['ultimo_acceso'] ?? time()); ?> * 1000;
+        
+        const storedActivity = parseInt(localStorage.getItem(STORAGE_KEY) || 0, 10);
+        if (!storedActivity || (ahoraInicial - storedActivity >= TIMEOUT_MS) || (storedActivity < serverLastAccess)) {
+            localStorage.setItem(STORAGE_KEY, ahoraInicial);
+        }
+        
+        const storedPing = parseInt(localStorage.getItem(PING_KEY) || 0, 10);
+        if (!storedPing || (ahoraInicial - storedPing >= TIMEOUT_MS) || (storedPing < serverLastAccess)) {
+            localStorage.setItem(PING_KEY, ahoraInicial);
+        }
 
-        // Verificar inactividad periódicamente
+        // Verificar inactividad periódicamente (cada segundo para exactitud en la cuenta regresiva)
         setInterval(function() {
-            if (modalMostrado) return;
+            if (modalMostrado && modoModal === 'expirada') return;
             
-            const lastActivity = parseInt(localStorage.getItem(STORAGE_KEY) || Date.now(), 10);
-            const idleTime = Date.now() - lastActivity;
+            const ahora = Date.now();
+            const lastActivity = parseInt(localStorage.getItem(STORAGE_KEY) || ahora, 10);
+            const idleTime = ahora - lastActivity;
             
             if (idleTime >= TIMEOUT_MS) {
                 mostrarModalExpirado();
+            } else if (idleTime >= (TIMEOUT_MS - WARNING_MS)) {
+                const segundosRestantes = Math.ceil((TIMEOUT_MS - idleTime) / 1000);
+                mostrarAdvertenciaExpiracion(segundosRestantes);
+            } else {
+                // Si el usuario reactivó la sesión desde otra pestaña, cerramos la advertencia aquí
+                if (modalMostrado && modoModal === 'advertencia') {
+                    cerrarModal();
+                }
+                
+                // Realizar ping de keep-alive si hubo actividad real desde el último ping
+                const lastPing = parseInt(localStorage.getItem(PING_KEY) || 0, 10);
+                if (ahora - lastPing >= PING_INTERVAL_MS) {
+                    if (lastActivity > lastPing) {
+                        realizarPing();
+                    }
+                }
             }
-        }, CHECK_INTERVAL_MS);
+        }, 1000);
     })();
     </script>
 <?php endif; ?>

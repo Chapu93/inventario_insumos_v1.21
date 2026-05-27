@@ -101,6 +101,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $cantidadOficina = isset($_POST['cantidad_oficina']) ? (int)$_POST['cantidad_oficina'] : 0;
             $cantidadDeposito = isset($_POST['cantidad_deposito']) ? (int)$_POST['cantidad_deposito'] : 0;
             $cantidad = $cantidadOficina + $cantidadDeposito;
+
+            // Detectar cambios y registrar ajuste manual en historial
+            $oldOficina = (int)($insumo['cantidad_oficina'] ?? $insumo['cantidad']);
+            $oldDeposito = (int)($insumo['cantidad_deposito'] ?? 0);
+            
+            if ($cantidadOficina !== $oldOficina || $cantidadDeposito !== $oldDeposito) {
+                $difOficina = $cantidadOficina - $oldOficina;
+                $difDeposito = $cantidadDeposito - $oldDeposito;
+                $cantMovida = abs($difOficina) + abs($difDeposito);
+                
+                $db->prepare("INSERT INTO insumos_movimientos_stock 
+                              (id_insumo, tipo_movimiento, cantidad_movida, ubicacion_origen, ubicacion_destino,
+                               cantidad_oficina_antes, cantidad_deposito_antes, cantidad_oficina_despues, cantidad_deposito_despues, 
+                               observacion, fecha_movimiento) 
+                              VALUES (?, 'ajuste_manual', ?, 'edicion', 'edicion', ?, ?, ?, ?, 'Edición manual directa', NOW())")
+                   ->execute([
+                       $id, $cantMovida, 
+                       $oldOficina, $oldDeposito, 
+                       $cantidadOficina, $cantidadDeposito
+                   ]);
+            }
         } else {
             $cantidadOficina = null;
             $cantidadDeposito = null;

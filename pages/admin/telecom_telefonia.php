@@ -222,14 +222,14 @@ include '../../includes/header.php';
 
 <!-- Modal Ver Detalles -->
 <div class="modal fade" id="modalVerTel" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
-  <div class="modal-header bg-light">
+  <div class="modal-header bg-primary text-white">
     <h5 class="modal-title"><i class="fas fa-info-circle me-2"></i>Detalles de la Línea</h5>
-    <button class="btn-close" data-bs-dismiss="modal"></button>
+    <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
   </div>
-  <div class="modal-body bg-light">
+  <div class="modal-body">
     <!-- Ubicación -->
     <div class="mb-4">
-      <h6 class="text-success mb-3"><i class="fas fa-map-marker-alt me-2"></i>Ubicación</h6>
+      <h6 class="text-dark border-bottom pb-2 mb-3"><i class="fas fa-map-marker-alt me-2"></i>Ubicación</h6>
       <div class="row g-3">
         <div class="col-md-6">
           <label class="form-label text-muted small mb-1">Localidad:</label>
@@ -244,7 +244,7 @@ include '../../includes/header.php';
 
     <!-- Información de la Línea -->
     <div class="mb-4">
-      <h6 class="text-success mb-3"><i class="fas fa-phone me-2"></i>Información de la Línea</h6>
+      <h6 class="text-dark border-bottom pb-2 mb-3"><i class="fas fa-phone me-2"></i>Información de la Línea</h6>
       <div class="row g-3">
         <div class="col-md-4">
           <label class="form-label text-muted small mb-1">Tipo:</label>
@@ -271,11 +271,11 @@ include '../../includes/header.php';
 
     <!-- Observaciones -->
     <div id="view_tel_obs_container" style="display:none;">
-      <h6 class="text-success mb-3"><i class="fas fa-comment-dots me-2"></i>Observaciones</h6>
+      <h6 class="text-dark border-bottom pb-2 mb-3"><i class="fas fa-comment-dots me-2"></i>Observaciones</h6>
       <p class="mb-0" id="view_tel_observaciones"></p>
     </div>
   </div>
-  <div class="modal-footer bg-light">
+  <div class="modal-footer">
     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cerrar</button>
   </div>
 </div></div></div>

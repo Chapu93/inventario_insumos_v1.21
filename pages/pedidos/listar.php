@@ -350,7 +350,12 @@ $total_mis_cosas = $total_mis_pedidos + $total_mis_tareas;
                                   rows="4" placeholder="Detalle de la tarea a realizar..." required></textarea>
                     </div>
 
-                    <div class="mb-3">
+                    <div class="mb-3 form-check form-switch" id="wrapEsColaborativa">
+                        <input class="form-check-input" type="checkbox" name="es_colaborativa" id="tareasEsColaborativa" value="1">
+                        <label class="form-check-label fw-bold" for="tareasEsColaborativa">Hacer colaborativa (en proceso desde el inicio, sin asignación única)</label>
+                    </div>
+
+                    <div class="mb-3" id="wrapAsignadoA">
                         <label class="form-label fw-bold">Asignar a (opcional)</label>
                         <select class="form-select" name="asignado_a" id="tareasAsignadoA">
                             <option value="">Sin asignar — quedará disponible para tomar</option>
@@ -1010,6 +1015,9 @@ function abrirModalNuevaTarea() {
     $('#modalNuevaTarea .modal-title').html('<i class="fas fa-plus-circle me-2"></i>Nueva Tarea Interna');
     $('#btnGuardarTarea').html('<i class="fas fa-save me-1"></i>Guardar Tarea');
 
+    $('#tareasEsColaborativa').prop('checked', false).prop('disabled', false);
+    $('#wrapAsignadoA').show();
+
     // Cargar usuarios en el select de asignación
     var $sel = $('#tareasAsignadoA').empty()
         .append('<option value="">Sin asignar — quedará disponible para tomar</option>');
@@ -1050,6 +1058,13 @@ function editarTarea(id) {
                 $('#tareasTitulo').val(t.titulo);
                 $('#tareasDescripcion').val(t.descripcion);
                 
+                $('#tareasEsColaborativa').prop('checked', t.es_colaborativa == 1).prop('disabled', true);
+                if (t.es_colaborativa == 1) {
+                    $('#wrapAsignadoA').hide();
+                } else {
+                    $('#wrapAsignadoA').show();
+                }
+
                 // Cargar usuarios en el select de asignación
                 var $sel = $('#tareasAsignadoA').empty()
                     .append('<option value="">Sin asignar — quedará disponible para tomar</option>');
@@ -1074,6 +1089,14 @@ function editarTarea(id) {
         }
     });
 }
+
+$(document).on('change', '#tareasEsColaborativa', function() {
+    if (this.checked) {
+        $('#wrapAsignadoA').slideUp();
+    } else {
+        $('#wrapAsignadoA').slideDown();
+    }
+});
 
 $(document).on('click', '#btnGuardarTarea', function() {
     var titulo = $('#tareasTitulo').val().trim();
@@ -1120,11 +1143,14 @@ function verTarea(id) {
         success: function(r) {
             if (!r.success) { $('#verTareaContenido').html('<div class="alert alert-danger">Error al cargar la tarea</div>'); return; }
             var t = r.data.tarea;
+            var comentarios = r.data.comentarios || [];
             var estadoClass = { 'Pendiente': 'warning text-dark', 'En Proceso': 'primary', 'Completada': 'success' }[t.estado] || 'secondary';
-            var asignado = t.asig_nombre ? (t.asig_nombre + ' ' + t.asig_apellido + ' (' + t.asig_user + ')') : '<em class="text-muted">Sin asignar</em>';
+            var asignado = t.es_colaborativa == 1 
+                ? '<span class="badge" style="background-color: #6f42c1; color: white;"><i class="fas fa-users me-1"></i>Colaborativa</span>'
+                : (t.asig_nombre ? (t.asig_nombre + ' ' + t.asig_apellido + ' (' + t.asig_user + ')') : '<em class="text-muted">Sin asignar</em>');
             var fechaFin = t.fecha_finalizacion ? new Date(t.fecha_finalizacion).toLocaleString('es-AR') : '<em class="text-muted">—</em>';
-            $('#verTareaContenido').html(
-                '<div class="row g-3">'
+            
+            var html = '<div class="row g-3">'
                 + '<div class="col-12"><h5 class="fw-bold mb-1">' + $('<span>').text(t.titulo).html() + '</h5>' +
                   '<span class="badge bg-' + estadoClass + ' fs-6">' + t.estado + '</span></div>'
                 + '<div class="col-12"><label class="fw-bold text-muted small">DESCRIPCIÓN</label>' +
@@ -1138,9 +1164,113 @@ function verTarea(id) {
                 + '<div class="col-md-6"><label class="fw-bold text-muted small">FECHA FINALIZACIÓN</label>' +
                   '<p class="mb-0">' + fechaFin + '</p></div>'
                 + (t.comentario ? '<div class="col-12 mt-3"><label class="fw-bold text-muted small">COMENTARIO FINAL</label><div class="p-2 bg-light border rounded" style="white-space:pre-wrap">' + $('<span>').text(t.comentario).html() + '</div></div>' : '')
-                + (t.adjunto_path ? '<div class="col-12 mt-2"><label class="fw-bold text-muted small">ADJUNTO</label><br><a href="<?php echo app_base_url(); ?>/uploads/tareas/' + t.adjunto_path + '" target="_blank" class="btn btn-sm btn-outline-primary mt-1"><i class="fas fa-paperclip me-1"></i>Ver adjunto</a></div>' : '')
-                + '</div>'
-            );
+                + (t.adjunto_path ? '<div class="col-12 mt-2"><label class="fw-bold text-muted small">ADJUNTO</label><br><a href="<?php echo app_base_url(); ?>/uploads/tareas/' + t.adjunto_path + '" target="_blank" class="btn btn-sm btn-outline-primary mt-1"><i class="fas fa-paperclip me-1"></i>Ver adjunto</a></div>' : '');
+
+            // Sección de comentarios
+            html += '<div class="col-12 mt-4"><hr>'
+                + '<h6 class="fw-bold mb-3"><i class="fas fa-comments me-2"></i>Historial de Comentarios</h6>';
+
+            if (comentarios.length === 0) {
+                html += '<div class="p-3 bg-light border rounded"><p class="text-muted mb-0 py-2 text-center" id="comentariosVacios">No hay comentarios registrados en esta tarea.</p></div>';
+            } else if (comentarios.length === 1) {
+                html += '<div class="mb-3 p-3 bg-light border rounded" style="max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">';
+                var c = comentarios[0];
+                var fechaCom = new Date(c.fecha).toLocaleString('es-AR');
+                html += '<div class="p-2">'
+                    + '<div class="d-flex justify-content-between small text-muted mb-1">'
+                    + '<strong>' + $('<span>').text(c.nombre + ' ' + c.apellido + ' (' + c.username + ')').html() + '</strong>'
+                    + '<span>' + fechaCom + '</span>'
+                    + '</div>'
+                    + '<div style="white-space:pre-wrap">' + $('<span>').text(c.comentario).html() + '</div>'
+                    + '</div>';
+                html += '</div>';
+            } else {
+                var ultCom = comentarios[comentarios.length - 1];
+                var antComentarios = comentarios.slice(0, comentarios.length - 1);
+
+                html += '<button class="btn btn-xs btn-outline-secondary mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#comentariosAnteriores" aria-expanded="false" id="btnToggleComentarios">'
+                    + '<i class="fas fa-history me-1"></i> Mostrar comentarios anteriores (' + antComentarios.length + ')'
+                    + '</button>';
+
+                html += '<div class="collapse mb-2" id="comentariosAnteriores">'
+                    + '<div class="p-3 bg-light border rounded mb-2" style="max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">';
+                
+                antComentarios.forEach(function(c) {
+                    var fechaCom = new Date(c.fecha).toLocaleString('es-AR');
+                    html += '<div class="p-2 border-bottom">'
+                        + '<div class="d-flex justify-content-between small text-muted mb-1">'
+                        + '<strong>' + $('<span>').text(c.nombre + ' ' + c.apellido + ' (' + c.username + ')').html() + '</strong>'
+                        + '<span>' + fechaCom + '</span>'
+                        + '</div>'
+                        + '<div style="white-space:pre-wrap">' + $('<span>').text(c.comentario).html() + '</div>'
+                        + '</div>';
+                });
+                html += '</div></div>';
+
+                var fechaUlt = new Date(ultCom.fecha).toLocaleString('es-AR');
+                html += '<div class="p-3 bg-light border rounded mb-3">'
+                    + '<div class="small text-muted mb-1 d-flex justify-content-between">'
+                    + '<span>Última intervención por <strong>' + $('<span>').text(ultCom.nombre + ' ' + ultCom.apellido + ' (' + ultCom.username + ')').html() + '</strong></span>'
+                    + '<span>' + fechaUlt + '</span>'
+                    + '</div>'
+                    + '<div style="white-space:pre-wrap">' + $('<span>').text(ultCom.comentario).html() + '</div>'
+                    + '</div>';
+            }
+
+            // Formulario para agregar comentarios si la tarea NO está completada
+            if (t.estado !== 'Completada') {
+                html += '<form id="formAgregarComentarioTarea" class="mt-3">'
+                    + '<input type="hidden" name="accion" value="agregar_comentario">'
+                    + '<input type="hidden" name="_csrf" value="<?php echo csrf_token(); ?>">'
+                    + '<input type="hidden" name="id_tarea" value="' + t.id_tarea + '">'
+                    + '<div class="input-group">'
+                    + '<textarea class="form-control" name="comentario" id="comentarioTareaTxt" rows="2" placeholder="Escribe un comentario..." required></textarea>'
+                    + '<button class="btn btn-primary" type="submit" id="btnEnviarComentarioTarea"><i class="fas fa-paper-plane"></i></button>'
+                    + '</div>'
+                    + '</form>';
+            }
+
+            html += '</div>'; // fin col-12
+            html += '</div>'; // fin row
+
+            $('#verTareaContenido').html(html);
+
+            // Listeners para cambiar texto del botón
+            $(document).off('show.bs.collapse', '#comentariosAnteriores').on('show.bs.collapse', '#comentariosAnteriores', function() {
+                $('#btnToggleComentarios').html('<i class="fas fa-chevron-up me-1"></i> Ocultar comentarios anteriores');
+            });
+            $(document).off('hide.bs.collapse', '#comentariosAnteriores').on('hide.bs.collapse', '#comentariosAnteriores', function() {
+                var count = comentarios.length - 1;
+                $('#btnToggleComentarios').html('<i class="fas fa-history me-1"></i> Mostrar comentarios anteriores (' + count + ')');
+            });
+
+            // Handler para enviar comentario
+            $('#formAgregarComentarioTarea').on('submit', function(e) {
+                e.preventDefault();
+                var text = $('#comentarioTareaTxt').val().trim();
+                if (!text) return;
+                var $btn = $('#btnEnviarComentarioTarea').prop('disabled', true);
+                $.ajax({
+                    url: '<?php echo app_base_url(); ?>/ajax/tareas_acciones.php',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    dataType: 'json',
+                    xhrFields: { withCredentials: true },
+                    success: function(cr) {
+                        $btn.prop('disabled', false);
+                        if (cr.success) {
+                            showToast(cr.mensaje || 'Comentario agregado', 'success');
+                            verTarea(t.id_tarea);
+                        } else {
+                            showToast(cr.error || 'Error al agregar comentario', 'error');
+                        }
+                    },
+                    error: function() {
+                        $btn.prop('disabled', false);
+                        showToast('Error de conexión', 'error');
+                    }
+                });
+            });
         },
         error: function() { $('#verTareaContenido').html('<div class="alert alert-danger">Error de conexión</div>'); }
     });

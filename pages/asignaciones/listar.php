@@ -244,7 +244,7 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
 <div class="row mt-3">
     <div class="col-12">
         <div class="d-flex justify-content-end gap-2">
-            <button type="button" class="btn btn-success" onclick="exportarExcel('tablaAsignaciones', 'asignaciones')">
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalExportarExcel">
                 <i class="fas fa-file-excel me-2"></i>Exportar Excel
             </button>
             <button type="button" class="btn btn-secondary"
@@ -1012,6 +1012,33 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
     });
 })();
 </script>
+<!-- Modal Exportar Excel -->
+<div class="modal fade" id="modalExportarExcel" tabindex="-1" aria-labelledby="modalExportarExcelLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content shadow-lg border-0">
+            <div class="modal-header bg-success text-white py-3">
+                <h5 class="modal-title fw-bold" id="modalExportarExcelLabel">
+                    <i class="fas fa-file-excel me-2"></i>Exportar a Excel
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body py-4 text-center">
+                <p class="mb-3 fw-semibold">Seleccione el alcance de la exportación:</p>
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-outline-success" id="btnExportarFiltrado">
+                        <i class="fas fa-filter me-2"></i>Exportar Filtrado
+                    </button>
+                    <button type="button" class="btn btn-success" id="btnExportarCompleto">
+                        <i class="fas fa-list me-2"></i>Exportar Completo
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer bg-light py-2 justify-content-center">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <?php include '../../includes/footer.php'; ?>
 
@@ -1208,5 +1235,115 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
                 window.history.replaceState({}, document.title, url.toString());
             }
         } catch (e) { }
+
+        // Manejar exportación Excel
+        $('#btnExportarFiltrado').off('click').on('click', function() { iniciarExportacionExcel('filtrado'); });
+        $('#btnExportarCompleto').off('click').on('click', function() { iniciarExportacionExcel('completo'); });
+
+        function iniciarExportacionExcel(tipo) {
+            const $btnFiltrado = $('#btnExportarFiltrado');
+            const $btnCompleto = $('#btnExportarCompleto');
+            
+            $btnFiltrado.prop('disabled', true);
+            $btnCompleto.prop('disabled', true);
+            
+            let originalTextFiltrado = $btnFiltrado.html();
+            let originalTextCompleto = $btnCompleto.html();
+            
+            if (tipo === 'filtrado') {
+                $btnFiltrado.html('<i class="fas fa-spinner fa-spin me-2"></i>Exportando...');
+            } else {
+                $btnCompleto.html('<i class="fas fa-spinner fa-spin me-2"></i>Exportando...');
+            }
+            
+            let params = {
+                draw: 1,
+                start: 0,
+                length: 1000000
+            };
+            
+            if (tipo === 'filtrado') {
+                params.localidad = $('#localidad').val() || '';
+                params.insumo = $('#insumo').val() || '';
+                params.estado = $('#estado').val() || '';
+                params.area = $('#area').val() || '';
+                params.sede = $('#sede').val() || '';
+                
+                const dt = $('#tablaAsignaciones').DataTable();
+                if (dt && dt.search()) {
+                    params.search = { value: dt.search() };
+                }
+                
+                try {
+                    const url = new URL(window.location.href);
+                    const rem = url.searchParams.get('remito');
+                    if (rem) { params.remito = rem; }
+                } catch (e) { }
+            } else {
+                params.localidad = '';
+                params.insumo = '';
+                params.estado = '';
+                params.area = '';
+                params.sede = '';
+            }
+            
+            $.ajax({
+                url: getAppBase() + '/ajax/asignaciones_list_ssp.php',
+                type: 'GET',
+                data: params,
+                dataType: 'json',
+                success: function(response) {
+                    if (response && response.data) {
+                        generarArchivoExcel(response.data, tipo);
+                        $('#modalExportarExcel').modal('hide');
+                    } else {
+                        showToast('Error al obtener los datos para la exportación', 'error');
+                    }
+                },
+                error: function(xhr) {
+                    console.error(xhr);
+                    showToast('Error de red al exportar los datos', 'error');
+                },
+                complete: function() {
+                    $btnFiltrado.prop('disabled', false).html(originalTextFiltrado);
+                    $btnCompleto.prop('disabled', false).html(originalTextCompleto);
+                }
+            });
+        }
+
+        function generarArchivoExcel(dataRows, tipo) {
+            const table = document.createElement('table');
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>Persona Asignada</th>
+                        <th>Localidad</th>
+                        <th>Fecha Asignación</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            `;
+            const tbody = table.querySelector('tbody');
+            
+            dataRows.forEach(row => {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = row[3] || '';
+                const estadoTexto = tempDiv.textContent || tempDiv.innerText || '';
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row[0]}</td>
+                    <td>${row[1]}</td>
+                    <td>${row[2]}</td>
+                    <td>${estadoTexto}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            const nombreArchivo = `asignaciones_${tipo}_${new Date().toISOString().split('T')[0]}.xlsx`;
+            const wb = XLSX.utils.table_to_book(table, {sheet: "Asignaciones"});
+            XLSX.writeFile(wb, nombreArchivo);
+        }
     });
 </script>
