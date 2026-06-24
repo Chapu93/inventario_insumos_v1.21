@@ -33,7 +33,7 @@ try {
     $db = conectarDB();
 
     // Verificar estado y tipo
-    $stmt = $db->prepare("SELECT estado, tipo_insumo, cantidad FROM insumos WHERE id_insumo = ? FOR UPDATE");
+    $stmt = $db->prepare("SELECT estado, tipo_insumo, cantidad, cantidad_oficina, cantidad_deposito FROM insumos WHERE id_insumo = ? FOR UPDATE");
     $stmt->execute([$idInsumo]);
     $ins = $stmt->fetch();
     
@@ -41,20 +41,35 @@ try {
         json_error('Insumo no encontrado', 404);
     }
     
-    if ($ins['estado'] === 'Asignado') {
+    if ($ins['tipo_insumo'] !== 'Varios' && $ins['estado'] === 'Asignado') {
         json_error('No se puede dar de baja un insumo asignado', 400);
+    }
+    
+    if ($ins['tipo_insumo'] === 'Varios' && (int)$ins['cantidad'] <= 0) {
+        json_error('No hay stock disponible para dar de baja', 400);
     }
 
     $db->beginTransaction();
 
     // Para tipo Varios permitir baja parcial por cantidad
     if (trim($ins['tipo_insumo']) === 'Varios') {
-        $stockActual = (int)$ins['cantidad'];
-        $aBajar = min(max(1, (int)$cantidadSolicitada), $stockActual);
-        $nuevoStock = max(0, $stockActual - $aBajar);
+        $stockTotal = (int)$ins['cantidad'];
+        $stockOficina = isset($ins['cantidad_oficina']) ? (int)$ins['cantidad_oficina'] : $stockTotal;
+        $stockDeposito = isset($ins['cantidad_deposito']) ? (int)$ins['cantidad_deposito'] : 0;
+
+        $aBajar = min(max(1, (int)$cantidadSolicitada), $stockTotal);
+        
+        $descontarOficina = min($aBajar, $stockOficina);
+        $descontarDeposito = $aBajar - $descontarOficina;
+
+        $nuevoOficina = max(0, $stockOficina - $descontarOficina);
+        $nuevoDeposito = max(0, $stockDeposito - $descontarDeposito);
+        $nuevoStock = $nuevoOficina + $nuevoDeposito;
+
         $nuevoEstado = $nuevoStock > 0 ? 'Disponible' : 'De Baja';
-        $db->prepare("UPDATE insumos SET cantidad = ?, estado = ?, id_sede_actual = NULL, id_area_asignacion_actual = NULL WHERE id_insumo = ?")
-           ->execute([$nuevoStock, $nuevoEstado, $idInsumo]);
+        
+        $db->prepare("UPDATE insumos SET cantidad = ?, cantidad_oficina = ?, cantidad_deposito = ?, estado = ?, id_sede_actual = NULL, id_area_asignacion_actual = NULL WHERE id_insumo = ?")
+           ->execute([$nuevoStock, $nuevoOficina, $nuevoDeposito, $nuevoEstado, $idInsumo]);
     } else {
         // Unitarios: baja total
         $db->prepare("UPDATE insumos SET estado = 'De Baja', id_sede_actual = NULL, id_area_asignacion_actual = NULL WHERE id_insumo = ?")

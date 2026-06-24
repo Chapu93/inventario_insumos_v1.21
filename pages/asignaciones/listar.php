@@ -121,9 +121,9 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
             <h1>
                 <i class="fas fa-handshake me-2"></i>Gestión de Asignaciones
             </h1>
-            <div class="d-flex gap-2">
+            <div class="btn-group">
                 <?php if (tienePermiso('asignaciones', 'crear') && tienePermiso('asignaciones', 'devolver')): ?>
-                <button type="button" class="btn btn-soft-warning" id="btnAbrirTransferencia">
+                <button type="button" class="btn btn-warning" id="btnAbrirTransferencia">
                     <i class="fas fa-exchange-alt me-2"></i>Transferir Insumos
                 </button>
                 <?php endif; ?>
@@ -200,7 +200,7 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
                 <button type="submit" class="btn btn-primary btn-sm">
                     <i class="fas fa-search me-1"></i>Filtrar
                 </button>
-                <a href="listar.php" class="btn btn-secondary btn-sm">
+                <a href="listar.php" id="btnLimpiarFiltros" class="btn btn-secondary btn-sm">
                     <i class="fas fa-times me-1"></i>Limpiar
                 </a>
             </div>
@@ -364,7 +364,7 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
         if (esPc) {
             const sistOp = safeTrim(item && (item.pc_sist_op ?? item.sist_op));
             if (sistOp) {
-                return { display: sistOp, original };
+                return { display: 'CPU/' + sistOp, original };
             }
             return { display: original, original };
         }
@@ -545,7 +545,7 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
             <p class="mb-1"><strong>Sede:</strong> ${c.nombre_sede || ''} - ${c.nombre_localidad || ''} (${c.nombre_zona || ''})</p>
           </div>
         </div>
-        ${c.observaciones ? `<div class="alert alert-light mt-2">${c.observaciones}</div>` : ''}
+        ${c.observaciones ? `<div class="bg-light p-2 rounded border mt-2 text-dark" style="white-space: pre-wrap;">${c.observaciones}</div>` : ''}
       `;
                 const rows = [];
                 if (Array.isArray(items)) {

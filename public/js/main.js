@@ -630,6 +630,7 @@ function actualizarContadores() {
         url: `${getAppBase()}/ajax/contadores_dashboard.php`,
         type: 'GET',
         dataType: 'json',
+        skipActivity: true,
         xhrFields: { withCredentials: true },
         success: function(response) {
             if (response && response.success && response.contadores) {
@@ -796,7 +797,7 @@ $(document).ready(function() {
     
     // Auto-hide alerts
     setTimeout(function() {
-        $('.alert').fadeOut('slow');
+        $('.alert:not(.alert-permanent)').fadeOut('slow');
     }, 5000);
   
   // Toggle sidebar on small screens
@@ -886,4 +887,219 @@ $(document).ready(function() {
       }
     } catch(e) {}
   });
-}); 
+
+  // =====================================================================
+  // PERSISTENCIA DE PESTAÑAS Y FILTROS
+  // Estrategia: guardar el estado completo del formulario al ABANDONAR
+  // la página (pagehide/visibilitychange), no al cambiar cada control.
+  //
+  // IMPORTANTE: cuando el usuario navega entre módulos (sidebar), se borra
+  // el localStorage y se activa la bandera debeGuardar=false para que
+  // pagehide NO vuelva a guardar pisando el borrado.
+  // =====================================================================
+
+  // Bandera: false cuando el usuario navegó a otro módulo (no se debe guardar)
+  let debeGuardar = true;
+
+  // Función para recolectar el estado actual del formulario de filtros
+  function recolectarEstadoFiltros() {
+      try {
+          const $form = $('.filtros-container form');
+          if (!$form.length) return null;
+          const path = window.location.pathname;
+          const formData = {};
+
+          // Recolectar todos los controles del formulario
+          $form.find('input, select, textarea').each(function () {
+              const name = $(this).attr('name') || $(this).attr('id');
+              if (name) formData[name] = $(this).val();
+          });
+
+          // Pestaña de filtrado por data-estado (leer el hidden #estado)
+          const estadoTab = document.getElementById('estado');
+          if (estadoTab) formData['_tab_estado'] = estadoTab.value;
+
+          // Pestaña nativa Bootstrap activa (fuera de modales)
+          const tabActiva = document.querySelector('.nav-tabs .nav-link.active, .nav-pills .nav-link.active');
+          if (tabActiva && !tabActiva.closest('.modal')) {
+              if (tabActiva.id) {
+                  formData['_tab_id'] = '#' + tabActiva.id;
+              } else {
+                  const targetId = tabActiva.getAttribute('data-bs-target') || tabActiva.getAttribute('href');
+                  if (targetId && targetId !== '#') formData['_tab_nativa'] = targetId;
+              }
+          }
+
+          // Buscador global de DataTables (está fuera del filtros-container)
+          // Se lee directo del input visible para capturar el texto exacto que ve el usuario
+          const dtInput = document.querySelector('.dataTables_filter input[type="search"], .dataTables_filter input');
+          if (dtInput && dtInput.value.trim() !== '') {
+              formData['_dt_search'] = dtInput.value;
+          }
+
+          return { path, formData };
+      } catch(e) {
+          return null;
+      }
+  }
+
+  // Guardar estado al ABANDONAR la página
+  // Solo guarda si debeGuardar=true (no guarda cuando se navegó a otro módulo)
+  window.addEventListener('pagehide', function () {
+      if (!debeGuardar) return;
+      const estado = recolectarEstadoFiltros();
+      if (estado) {
+          try {
+              localStorage.setItem('filtros_' + estado.path, JSON.stringify(estado.formData));
+          } catch(e) {}
+      }
+  });
+
+  // Fallback: guardar cuando el documento pierde visibilidad (ej: cambio de pestaña del navegador)
+  document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'hidden' && debeGuardar) {
+          const estado = recolectarEstadoFiltros();
+          if (estado) {
+              try {
+                  localStorage.setItem('filtros_' + estado.path, JSON.stringify(estado.formData));
+              } catch(e) {}
+          }
+      }
+  });
+
+  // Navegación a otro módulo desde el sidebar o navbar:
+  // 1. Se borra el estado guardado de filtros y pestañas
+  // 2. Se desactiva debeGuardar para que pagehide NO lo vuelva a guardar
+  $(document).on('click', '#sidebar a, .navbar a, .sidebar a, .components a', function () {
+      try {
+          debeGuardar = false; // ← clave: evita que pagehide pise el borrado
+          const keysToRemove = [];
+          for (let i = 0; i < localStorage.length; i++) {
+              const key = localStorage.key(i);
+              if (key && (key.startsWith('filtros_') || key.startsWith('tab_activa_') || key.startsWith('tab_custom_estado_'))) {
+                  keysToRemove.push(key);
+              }
+          }
+          keysToRemove.forEach(function(k) { localStorage.removeItem(k); });
+      } catch(e) {}
+  });
+
+  // Botón de limpiar filtros: borrar solo la página actual y desactivar guardado
+  $(document).on('click', '#btnLimpiarFiltros, [id*="Limpiar"], .btn-limpiar', function () {
+      try {
+          debeGuardar = false; // ← clave: evita que pagehide pise el borrado
+          const path = window.location.pathname;
+          localStorage.removeItem('filtros_' + path);
+          localStorage.removeItem('tab_activa_' + path);
+          localStorage.removeItem('tab_custom_estado_' + path);
+      } catch(e) {}
+  });
+
+  // Restaurar el estado guardado al cargar la página
+  // Se diferencia 200ms para no competir con los scripts de inicialización de cada página
+  setTimeout(function () {
+      try {
+          const path = window.location.pathname;
+          const guardado = localStorage.getItem('filtros_' + path);
+          if (!guardado) return;
+
+          const formData = JSON.parse(guardado);
+          const $form = $('.filtros-container form');
+          if (!$form.length) return;
+
+          // 1. Restaurar pestaña de filtrado por data-estado (ej: Disponible / Asignado)
+          //    Hacemos click para que el handler de la página actualice #estado y el DT
+          if (formData['_tab_estado'] !== undefined) {
+              const customTrigger = document.querySelector(`.nav-tabs .nav-link[data-estado="${formData['_tab_estado']}"]`);
+              if (customTrigger) customTrigger.click();
+          }
+
+           // 2. Restaurar pestaña nativa Bootstrap (por ID o por target)
+           if (formData['_tab_id']) {
+               const triggerElement = document.querySelector(formData['_tab_id']);
+               if (triggerElement) {
+                   triggerElement.click();
+               }
+           } else if (formData['_tab_nativa']) {
+               const triggerElement = document.querySelector(`[data-bs-target="${formData['_tab_nativa']}"], [href="${formData['_tab_nativa']}"]`);
+               if (triggerElement) bootstrap.Tab.getOrCreateInstance(triggerElement).show();
+           }
+
+          // 3. Restaurar controles del formulario + buscador DT
+          //    Se difiere para que el click de la pestaña termine de actualizar el DOM
+          setTimeout(function () {
+              // Controles del formulario (inputs, selects, textareas)
+              Object.keys(formData).forEach(function (key) {
+                  if (key.startsWith('_')) return; // claves internas, se procesan aparte
+
+                  const val = formData[key];
+                  if (val === null || val === undefined) return;
+
+                  const $input = $form.find(`[name="${key}"], #${key}`);
+                  if (!$input.length) return;
+
+                  if ($input.is('select')) {
+                      if ($input.find(`option[value="${val}"]`).length > 0) {
+                          $input.val(val);
+                      } else if (val) {
+                          // Selector dinámico aún sin opciones: marcar para carga diferida
+                          $input.attr('data-pending-val', val);
+                      }
+                  } else {
+                      $input.val(val);
+                  }
+              });
+
+              // 4. Restaurar buscador de DataTables y disparar recarga
+              setTimeout(function () {
+                  try {
+                      const tables = $.fn.dataTable.tables({ api: true });
+                      if (!tables || !tables.length) return;
+
+                      tables.each(function () {
+                          const api = this;
+                          // Aplicar búsqueda guardada ANTES del reload para que SSP la tome
+                          if (formData['_dt_search']) {
+                              api.search(formData['_dt_search']);
+                              // Reflejar en el input visual
+                              const dtInput = document.querySelector('.dataTables_filter input[type="search"], .dataTables_filter input');
+                              if (dtInput) dtInput.value = formData['_dt_search'];
+                          }
+
+                          // Recargar con todos los filtros aplicados
+                          try {
+                              api.ajax.reload(null, false);
+                          } catch (err) {
+                              api.draw();
+                          }
+                      });
+                  } catch(e) {}
+              }, 100);
+
+          }, 150);
+
+      } catch(err) {
+          console.warn('[SITIA] Error al restaurar filtros:', err);
+      }
+   }, 200);
+
+  // Observador para selects dinámicos (ej: Localidad → Sede)
+  // Espera a que el selector tenga las opciones disponibles para asignar el valor guardado
+  setInterval(function () {
+      $('select[data-pending-val]').each(function () {
+          const $select = $(this);
+          const val = $select.attr('data-pending-val');
+          if ($select.find(`option[value="${val}"]`).length > 0) {
+              $select.val(val);
+              $select.removeAttr('data-pending-val');
+              try {
+                  $.fn.dataTable.tables({ api: true }).each(function() {
+                      try { this.ajax.reload(null, false); } catch(err) { this.draw(); }
+                  });
+              } catch(e) {}
+          }
+      });
+  }, 100);
+
+});
+

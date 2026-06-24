@@ -132,7 +132,7 @@ include '../../includes/header.php';
                 <button type="submit" class="btn btn-primary btn-sm">
                     <i class="fas fa-search me-1"></i>Filtrar
                 </button>
-                <a href="telecom_red.php" class="btn btn-secondary btn-sm">
+                <a href="telecom_red.php" id="btnLimpiarFiltros" class="btn btn-secondary btn-sm">
                     <i class="fas fa-times me-1"></i>Limpiar
                 </a>
             </div>

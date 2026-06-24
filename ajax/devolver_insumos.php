@@ -77,8 +77,8 @@ try {
             $nuevoStockOficina = $stockOficina + $aDevolver;
             $nuevoStockTotal = $nuevoStockOficina + $stockDeposito;
             
-            $db->prepare("UPDATE insumos SET cantidad = ?, cantidad_oficina = ?, estado = 'Disponible', id_sede_actual = NULL, id_area_asignacion_actual = NULL WHERE id_insumo = ?")
-               ->execute([$nuevoStockTotal, $nuevoStockOficina, $idInsumo]);
+            $db->prepare("UPDATE insumos SET cantidad = ?, cantidad_oficina = ?, cantidad_deposito = ?, estado = 'Disponible', id_sede_actual = NULL, id_area_asignacion_actual = NULL WHERE id_insumo = ?")
+               ->execute([$nuevoStockTotal, $nuevoStockOficina, $stockDeposito, $idInsumo]);
 
             // Registrar el movimiento de ingreso a oficina por devolución
             $db->prepare("INSERT INTO insumos_movimientos_stock 

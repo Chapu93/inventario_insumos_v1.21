@@ -80,7 +80,7 @@ try {
     if ($search !== '') {
         $where[] = '(
             i.nombre_insumo LIKE ? OR i.numero_serie LIKE ? OR i.id_fisico LIKE ? OR i.id_patrimonio LIKE ? OR
-            pc.procesador LIKE ? OR pc.mother LIKE ? OR 
+            pc.procesador LIKE ? OR pc.mother LIKE ? OR pc.sist_op LIKE ? OR
             nb.procesador LIKE ? OR nb.marca LIKE ? OR nb.modelo LIKE ? OR 
             imp.marca LIKE ? OR imp.modelo LIKE ? OR 
             mon.marca LIKE ? OR mon.modelo LIKE ? OR 
@@ -90,6 +90,7 @@ try {
         $like = '%' . $search . '%';
         array_push(
             $params,
+            $like,
             $like,
             $like,
             $like,
@@ -185,7 +186,7 @@ try {
         if ($esPc) {
             $sistOp = trim((string) ($r['pc_sist_op'] ?? ''));
             if ($sistOp !== '') {
-                $displayName = $sistOp;
+                $displayName = 'CPU/' . $sistOp;
             }
         }
 
@@ -299,7 +300,7 @@ try {
         // Atajos Rápidos
         if ($numeroRemito && $filtroEstado === 'Asignado') {
             // Ir al remito devuelto
-            $botones[] = '<a href="' . app_base_url() . '/pages/asignaciones/listar.php?remito=' . urlencode($numeroRemito) . '" class="btn btn-sm btn-outline-success" data-bs-toggle="tooltip" title="Ir al Remito"><i class="fas fa-file-invoice" aria-hidden="true"></i></a>';
+            $botones[] = '<a href="' . app_base_url() . '/pages/asignaciones/listar.php?remito=' . urlencode($numeroRemito) . '" class="btn btn-sm btn-success text-white" data-bs-toggle="tooltip" title="Ir al Remito"><i class="fas fa-file-invoice" aria-hidden="true"></i></a>';
         } else if (($filtroEstado === 'Disponible' || $filtroEstado === 'Todos') && !empty($cantBadge) && strpos($cantBadge, 'bg-danger') === false && (!isset($cantTotal) || $cantTotal > 0)) {
             // Asignación rápida (solo si parece tener stock)
             if ($puedeEditar && !$isDeBaja) {
@@ -323,7 +324,7 @@ try {
         if ($puedeBaja) {
             $estadoClass = $isDeBaja ? 'disabled ' : '';
             $eventoOnclick = $isDeBaja ? '' : 'onclick=\'abrirModalBajaInsumo(' . (int) $r['id_insumo'] . ', ' . $nombreJs . ')\'';
-            $botones[] = '<button type="button" class="btn btn-sm btn-outline-warning" aria-label="Dar de baja insumo" ' . $estadoClass . $eventoOnclick . ' data-bs-toggle="tooltip" title="Dar de baja"><i class="fas fa-arrow-down" aria-hidden="true"></i></button>';
+            $botones[] = '<button type="button" class="btn btn-sm btn-soft-warning" aria-label="Dar de baja insumo" ' . $estadoClass . $eventoOnclick . ' data-bs-toggle="tooltip" title="Dar de baja"><i class="fas fa-arrow-down" aria-hidden="true"></i></button>';
         }
 
         if ($puedeEliminar) {

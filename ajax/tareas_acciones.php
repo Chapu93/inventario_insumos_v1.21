@@ -249,6 +249,40 @@ try {
             break;
 
         // ──────────────────────────────────────────────
+        case 'cambiar_tipo':
+            // Solo administradores y superadministradores pueden cambiar el tipo de tarea
+            if (!tieneRol([1, 2])) json_error('Sin permiso para convertir el tipo de tarea', 403);
+
+            $id = (int)($_POST['id'] ?? 0);
+            if ($id <= 0) json_error('ID inválido', 400);
+
+            // Obtener estado actual
+            $stmt = $db->prepare("SELECT estado, es_colaborativa FROM tareas_internas WHERE id_tarea = ?");
+            $stmt->execute([$id]);
+            $tarea = $stmt->fetch();
+            if (!$tarea) json_error('Tarea no encontrada', 404);
+            if ($tarea['estado'] === 'Completada') json_error('No se puede convertir una tarea ya completada', 400);
+
+            // Invertir tipo y ajustar estado/asignación
+            $nuevoTipo   = $tarea['es_colaborativa'] ? 0 : 1;
+            // Colaborativa → siempre En Proceso (sin asignación)
+            // Asignable    → vuelve a Pendiente y sin asignar, lista para tomar
+            $nuevoEstado = $nuevoTipo ? 'En Proceso' : 'Pendiente';
+
+            $stmt = $db->prepare(
+                "UPDATE tareas_internas
+                 SET es_colaborativa = ?, asignado_a = NULL, estado = ?
+                 WHERE id_tarea = ?"
+            );
+            $stmt->execute([$nuevoTipo, $nuevoEstado, $id]);
+
+            $msg = $nuevoTipo
+                ? 'Tarea convertida a Colaborativa (cualquier técnico puede completarla)'
+                : 'Tarea convertida a Asignable (volvió al pool de Pendientes)';
+            json_success(['mensaje' => $msg]);
+            break;
+
+        // ──────────────────────────────────────────────
         case 'obtener':
             $id = (int)($_GET['id'] ?? 0);
             if ($id <= 0) json_error('ID inválido', 400);
@@ -267,18 +301,65 @@ try {
 
             if (!$tarea) json_error('Tarea no encontrada', 404);
 
+            $esSuperAdmin = tieneRol([1]);
+
             // Obtener comentarios
-            $stmtC = $db->prepare(
-                "SELECT tc.*, u.nombre, u.apellido, u.username
-                 FROM tareas_comentarios tc
-                 JOIN usuarios u ON tc.id_usuario = u.id_usuario
-                 WHERE tc.id_tarea = ?
-                 ORDER BY tc.fecha ASC"
-            );
+            if ($esSuperAdmin) {
+                $stmtC = $db->prepare(
+                    "SELECT tc.*, u.nombre, u.apellido, u.username
+                     FROM tareas_comentarios tc
+                     JOIN usuarios u ON tc.id_usuario = u.id_usuario
+                     WHERE tc.id_tarea = ?
+                     ORDER BY tc.fecha ASC"
+                );
+            } else {
+                $stmtC = $db->prepare(
+                    "SELECT tc.*, u.nombre, u.apellido, u.username
+                     FROM tareas_comentarios tc
+                     JOIN usuarios u ON tc.id_usuario = u.id_usuario
+                     WHERE tc.id_tarea = ? AND tc.visible = 1
+                     ORDER BY tc.fecha ASC"
+                );
+            }
             $stmtC->execute([$id]);
             $comentarios = $stmtC->fetchAll(PDO::FETCH_ASSOC);
 
-            json_success(['tarea' => $tarea, 'comentarios' => $comentarios]);
+            json_success([
+                'tarea' => $tarea, 
+                'comentarios' => $comentarios,
+                'es_superadmin' => $esSuperAdmin
+            ]);
+            break;
+
+        // ──────────────────────────────────────────────
+        case 'toggle_visibilidad_comentario':
+            if (!tieneRol([1])) json_error('Sin permiso para esta acción', 403);
+
+            $id_comentario = (int)($_POST['id_comentario'] ?? 0);
+            if ($id_comentario <= 0) json_error('ID de comentario inválido', 400);
+
+            $db->beginTransaction();
+
+            $stmtVerif = $db->prepare("SELECT visible FROM tareas_comentarios WHERE id_comentario = ?");
+            $stmtVerif->execute([$id_comentario]);
+            $comentario = $stmtVerif->fetch();
+
+            if (!$comentario) {
+                $db->rollBack();
+                json_error('Comentario no encontrado', 404);
+            }
+
+            $nuevoEstado = $comentario['visible'] ? 0 : 1;
+
+            $stmtUpdate = $db->prepare("UPDATE tareas_comentarios SET visible = ? WHERE id_comentario = ?");
+            $stmtUpdate->execute([$nuevoEstado, $id_comentario]);
+
+            $db->commit();
+
+            json_success([
+                'mensaje' => $nuevoEstado ? 'Comentario ahora es visible para todos' : 'Comentario ocultado correctamente',
+                'visible' => $nuevoEstado
+            ]);
             break;
 
         // ──────────────────────────────────────────────

@@ -128,8 +128,8 @@ $pendientes_count = $pedidos_count + $tareas_count;
 <!-- Tarjetas de estadísticas -->
 <div class="row mb-4">
     <div class="col-md">
-        <a href="<?php echo app_base_url(); ?>/pages/pedidos/listar.php?modo=pendientes" style="text-decoration: none; color: inherit;">
-            <div class="dashboard-card dashboard-card--primary" style="background: linear-gradient(45deg, #FF512F, #DD2476); border-left-color: #DD2476; cursor: pointer;">
+        <a href="<?php echo app_base_url(); ?>/pages/pedidos/listar.php?modo=pendientes" class="h-100 d-block" style="text-decoration: none; color: inherit;">
+            <div class="dashboard-card dashboard-card--primary h-100" style="background: linear-gradient(45deg, #FF512F, #DD2476); border-left-color: #DD2476; cursor: pointer;">
                 <div class="d-flex justify-content-between">
                     <div>
                         <?php 
@@ -153,7 +153,7 @@ $pendientes_count = $pedidos_count + $tareas_count;
     </div>
 
     <div class="col-md">
-        <div class="dashboard-card dashboard-card--primary">
+        <div class="dashboard-card dashboard-card--primary h-100">
             <div class="d-flex justify-content-between">
                 <div>
                     <h3 id="total-insumos"><?php echo $total_insumos; ?></h3>
@@ -167,7 +167,7 @@ $pendientes_count = $pedidos_count + $tareas_count;
     </div>
     
     <div class="col-md">
-        <div class="dashboard-card dashboard-card--success">
+        <div class="dashboard-card dashboard-card--success h-100">
             <div class="d-flex justify-content-between">
                 <div>
                     <h3 id="insumos-disponibles"><?php echo $insumos_disponibles; ?></h3>
@@ -181,7 +181,7 @@ $pendientes_count = $pedidos_count + $tareas_count;
     </div>
     
     <div class="col-md">
-        <div class="dashboard-card dashboard-card--info">
+        <div class="dashboard-card dashboard-card--info h-100">
             <div class="d-flex justify-content-between">
                 <div>
                     <h3 id="insumos-asignados"><?php echo $insumos_asignados; ?></h3>
@@ -195,7 +195,7 @@ $pendientes_count = $pedidos_count + $tareas_count;
     </div>
     
     <div class="col-md">
-        <div class="dashboard-card dashboard-card--warning">
+        <div class="dashboard-card dashboard-card--warning h-100">
             <div class="d-flex justify-content-between">
                 <div>
                     <h3 id="total-asignaciones"><?php echo $total_asignaciones; ?></h3>

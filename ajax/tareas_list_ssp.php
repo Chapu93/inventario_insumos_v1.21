@@ -111,7 +111,7 @@ try {
 
         // Asignado
         if ($r['es_colaborativa']) {
-            $asignadoHtml = '<span class="badge" style="background-color: #6f42c1; color: white;"><i class="fas fa-users me-1"></i>Colaborativa</span>';
+            $asignadoHtml = '<span class="badge badge-colaborativa"><i class="fas fa-users me-1"></i>Colaborativa</span>';
         } else {
             $asignadoHtml = $r['asignado_a']
                 ? '<span class="badge bg-info text-dark">' . htmlspecialchars($r['asig_nombre'] . ' ' . $r['asig_apellido']) . '</span>'
@@ -140,7 +140,7 @@ try {
                         // Sin asignar: cualquier gestor puede tomar
                         $botones[] = '<button class="btn btn-sm btn-primary" onclick="tomarTarea(' . $r['id_tarea'] . ')" data-bs-toggle="tooltip" title="Tomar tarea"><i class="fas fa-hand-paper"></i></button>';
                         if ($esAdmin) {
-                            $botones[] = '<button class="btn btn-sm btn-outline-primary" onclick="abrirModalAsignarTarea(' . $r['id_tarea'] . ')" data-bs-toggle="tooltip" title="Asignar a..."><i class="fas fa-user-plus"></i></button>';
+                            $botones[] = '<button class="btn btn-sm btn-pastel-brown" onclick="abrirModalAsignarTarea(' . $r['id_tarea'] . ')" data-bs-toggle="tooltip" title="Asignar a..."><i class="fas fa-user-plus"></i></button>';
                         }
                     } elseif ($r['asignado_a'] == $usuarioId || $esAdmin) {
                         // Asignado al usuario actual (o admin): puede completar
@@ -156,6 +156,16 @@ try {
         if ($permEliminar) {
             $botones[] = '<button class="btn btn-sm btn-danger" onclick="eliminarTarea(' . $r['id_tarea'] . ')" data-bs-toggle="tooltip" title="Eliminar tarea"><i class="fas fa-trash"></i></button>';
         }
+
+        // Botón de conversión de tipo: solo admin, solo tareas no completadas
+        if ($esAdmin && $r['estado'] !== 'Completada') {
+            if ($r['es_colaborativa']) {
+                $botones[] = '<button class="btn btn-sm btn-secondary text-white" onclick="cambiarTipoTarea(' . $r['id_tarea'] . ', 1)" data-bs-toggle="tooltip" title="Convertir a Asignable (individual)"><i class="fas fa-user-slash"></i></button>';
+            } else {
+                $botones[] = '<button class="btn btn-sm btn-colaborativa" onclick="cambiarTipoTarea(' . $r['id_tarea'] . ', 0)" data-bs-toggle="tooltip" title="Convertir a Colaborativa (grupal)"><i class="fas fa-users"></i></button>';
+            }
+        }
+
 
         $fechaFin = $r['fecha_finalizacion']
             ? date('d/m/Y H:i', strtotime($r['fecha_finalizacion']))

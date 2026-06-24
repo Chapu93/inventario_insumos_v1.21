@@ -54,19 +54,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
     
     <style>
+        html {
+            height: 100%;
+        }
         body {
-            background: linear-gradient(135deg, #5cab7d 0%, #5a9367 100%);
-            min-height: 100vh;
+            background: linear-gradient(135deg, #5cab7d 0%, #5a9367 100%) no-repeat fixed;
+            min-height: 100%;
+            margin: 0;
+            padding: 0;
             display: flex;
-            align-items: center;
-            justify-content: center;
+            flex-direction: column;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         .login-container {
             max-width: 420px;
             width: 100%;
-            padding: 20px;
+            padding: 40px 20px;
+            margin: auto;
+            box-sizing: border-box;
         }
         
         .login-card {

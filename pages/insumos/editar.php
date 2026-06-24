@@ -151,14 +151,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             case 'PC Completa':
             case 'PC Escritorio':
                 $db->prepare("DELETE FROM pcs_completas WHERE id_insumo = ?")->execute([$id]);
-                $db->prepare("INSERT INTO pcs_completas (id_insumo, procesador, ram_gb, almacenamiento_gb, mother, sist_op) VALUES (?,?,?,?,?,?)")
+                $db->prepare("INSERT INTO pcs_completas (id_insumo, procesador, ram_gb, almacenamiento_gb, mother, sist_op, ssd_o_superior) VALUES (?,?,?,?,?,?,?)")
                    ->execute([
                        $id,
                        ($_POST['procesador'] ?? null),
                        ($_POST['ram_gb'] ?? null),
                        ($_POST['almacenamiento_gb'] ?? null),
                        ($_POST['mother'] ?? null),
-                       ($_POST['sist_op'] ?? null)
+                       ($_POST['sist_op'] ?? null),
+                       (isset($_POST['ssd_o_superior']) ? 1 : 0)
                    ]);
                 break;
             case 'Notebook':
@@ -493,17 +494,23 @@ include '../../includes/header.php';
                                     <input type="number" class="form-control form-control-sm" name="ram_gb" value="<?php echo htmlspecialchars($esp['ram_gb'] ?? ''); ?>">
                                 </div>
                                 <div class="mb-2">
-                                    <label class="form-label">Almacenamiento (GB)</label>
-                                    <input type="number" class="form-control form-control-sm" name="almacenamiento_gb" value="<?php echo htmlspecialchars($esp['almacenamiento_gb'] ?? ''); ?>">
-                                </div>
-                                <div class="mb-2">
-                                    <label class="form-label">Mother</label>
-                                    <input type="text" class="form-control form-control-sm" name="mother" value="<?php echo htmlspecialchars($esp['mother'] ?? ''); ?>">
-                                </div>
-                                <div class="mb-2">
-                                    <label class="form-label">Sistema Operativo</label>
-                                    <input type="text" class="form-control form-control-sm" id="sist_op" name="sist_op" value="<?php echo htmlspecialchars($esp['sist_op'] ?? ''); ?>">
-                                </div>
+                                     <label class="form-label">Mother</label>
+                                     <input type="text" class="form-control form-control-sm" name="mother" value="<?php echo htmlspecialchars($esp['mother'] ?? ''); ?>">
+                                 </div>
+                                 <div class="mb-2">
+                                     <label class="form-label">Sistema Operativo</label>
+                                     <input type="text" class="form-control form-control-sm" id="sist_op" name="sist_op" value="<?php echo htmlspecialchars($esp['sist_op'] ?? ''); ?>">
+                                 </div>
+                                 <div class="mb-2">
+                                     <label class="form-label">Almacenamiento (GB)</label>
+                                     <input type="number" class="form-control form-control-sm" name="almacenamiento_gb" value="<?php echo htmlspecialchars($esp['almacenamiento_gb'] ?? ''); ?>">
+                                 </div>
+                                 <div class="mb-2 d-flex justify-content-end align-items-center" style="min-height: 31px;">
+                                     <div class="form-check form-switch mb-0">
+                                         <input class="form-check-input" type="checkbox" id="ssd_o_superior" name="ssd_o_superior" value="1" <?php echo !empty($esp['ssd_o_superior']) ? 'checked' : ''; ?>>
+                                         <label class="form-check-label mb-0" for="ssd_o_superior">SSD o superior</label>
+                                     </div>
+                                 </div>
                             <?php elseif ($tipo_insumo === 'Notebook'): ?>
                                 <div class="mb-2"><label class="form-label">Marca</label><input type="text" class="form-control form-control-sm" name="marca_notebook" value="<?php echo htmlspecialchars($esp['marca'] ?? ''); ?>"></div>
                                 <div class="mb-2"><label class="form-label">Modelo</label><input type="text" class="form-control form-control-sm" name="modelo_notebook" value="<?php echo htmlspecialchars($esp['modelo'] ?? ''); ?>"></div>

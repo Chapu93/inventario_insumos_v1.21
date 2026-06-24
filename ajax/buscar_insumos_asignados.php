@@ -34,6 +34,7 @@ try {
                     i.id_fisico,
                     i.id_patrimonio,
                     i.estado,
+                    r.id_remito,
                     r.numero_remito,
                     r.nombre_persona_asignada,
                     r.apellido_persona_asignada,
@@ -44,10 +45,14 @@ try {
                 INNER JOIN remitos r ON rd.id_remito = r.id_remito AND r.estado = 'Activa'
                 LEFT JOIN sedes s ON r.id_sede = s.id_sede
                 LEFT JOIN areas a ON r.id_area = a.id_area
-                WHERE i.estado = 'Asignado'
+                WHERE (
+                    (i.tipo_insumo != 'Varios' AND i.estado = 'Asignado')
+                    OR (i.tipo_insumo = 'Varios' AND rd.cantidad > COALESCE(rd.cantidad_devuelta, 0))
+                  )
                   AND NOT EXISTS (
                     SELECT 1 FROM pedidos p 
                     WHERE p.id_insumo_relacionado = i.id_insumo 
+                    AND COALESCE(p.id_remito_relacionado, 0) = COALESCE(r.id_remito, 0)
                     AND p.estado IN ('Pendiente', 'En Proceso')
                   )
                   AND (
@@ -73,6 +78,7 @@ try {
                     i.id_fisico,
                     i.id_patrimonio,
                     i.estado,
+                    r.id_remito,
                     r.numero_remito,
                     r.nombre_persona_asignada,
                     r.apellido_persona_asignada,
@@ -84,7 +90,6 @@ try {
                 LEFT JOIN sedes s ON r.id_sede = s.id_sede OR i.id_sede_actual = s.id_sede
                 LEFT JOIN areas a ON r.id_area = a.id_area
                 WHERE i.estado != 'De Baja'
-                  AND i.tipo_insumo != 'Varios'
                   AND (
                     i.tipo_insumo LIKE ?
                     OR i.nombre_insumo LIKE ? 
@@ -102,7 +107,7 @@ try {
     
     $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // Formatear para Select2
+    // Formatear para Select2 / Autocompletar
     $items = array_map(function($row) {
         $texto = $row['tipo_insumo'];
         if (!empty($row['nombre_insumo'])) {
@@ -122,8 +127,19 @@ try {
             }
         }
         
+        // Si hay remito y es tipo Varios, añadirlo en el texto para diferenciarlo
+        if (!empty($row['numero_remito']) && $row['tipo_insumo'] === 'Varios') {
+            $texto .= ' [Remito #' . $row['numero_remito'] . ']';
+        }
+        
+        // Codificar ID si posee remito activo
+        $idValor = $row['id_insumo'];
+        if (!empty($row['id_remito'])) {
+            $idValor .= '-' . $row['id_remito'];
+        }
+        
         return [
-            'id' => $row['id_insumo'],
+            'id' => $idValor,
             'text' => $texto,
             'tipo' => $row['tipo_insumo'],
             'nombre' => $row['nombre_insumo'],

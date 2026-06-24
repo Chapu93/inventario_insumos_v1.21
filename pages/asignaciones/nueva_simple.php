@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         foreach ($idsInsumo as $idIns) {
             // Lock row
-            $stmt = $db->prepare("SELECT tipo_insumo, cantidad FROM insumos WHERE id_insumo = ? FOR UPDATE");
+            $stmt = $db->prepare("SELECT tipo_insumo, cantidad, cantidad_oficina, cantidad_deposito FROM insumos WHERE id_insumo = ? FOR UPDATE");
             $stmt->execute([$idIns]);
             $ins = $stmt->fetch();
             if (!$ins) { throw new Exception('Insumo no encontrado: ' . $idIns); }
@@ -39,22 +39,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $reps = 1;
             if ($ins['tipo_insumo'] === 'Varios') {
                 $sol = isset($cantVarios[$idIns]) ? max(1, (int)$cantVarios[$idIns]) : 1;
-                if ($sol > (int)$ins['cantidad']) { throw new Exception('Stock insuficiente en insumo ' . $idIns); }
+                $stockOficina = (int) ($ins['cantidad_oficina'] ?? $ins['cantidad']);
+                $stockDeposito = (int) ($ins['cantidad_deposito'] ?? 0);
+                $stockTotal = $stockOficina + $stockDeposito;
+                if ($sol > $stockTotal) { throw new Exception('Stock insuficiente en insumo ' . $idIns); }
                 $reps = $sol;
             }
 
             $stmtDet->execute([$idRemito, $idIns, $reps]);
 
             if ($ins['tipo_insumo'] === 'Varios') {
-                $nuevo = (int)$ins['cantidad'] - $reps;
-                $estado = $nuevo > 0 ? 'Disponible' : 'Asignado';
-                if ($nuevo > 0) {
-                    $upd = $db->prepare("UPDATE insumos SET cantidad=?, estado=?, id_sede_actual=?, id_area_asignacion_actual=? WHERE id_insumo=?");
-                    $upd->execute([$nuevo, $estado, $idSede, $idArea, $idIns]);
+                $stockOficina = (int) ($ins['cantidad_oficina'] ?? $ins['cantidad']);
+                $stockDeposito = (int) ($ins['cantidad_deposito'] ?? 0);
+
+                $descontarOficina = min($reps, $stockOficina);
+                $descontarDeposito = $reps - $descontarOficina;
+
+                $nuevoOficina = $stockOficina - $descontarOficina;
+                $nuevoDeposito = $stockDeposito - $descontarDeposito;
+                $cantidadTotal = $nuevoOficina + $nuevoDeposito;
+
+                $estado = ($nuevoOficina > 0) ? 'Disponible' : (($nuevoDeposito > 0) ? 'Disponible' : 'Asignado');
+                if ($cantidadTotal > 0) {
+                    $upd = $db->prepare("UPDATE insumos SET cantidad=?, cantidad_oficina=?, cantidad_deposito=?, estado=?, id_sede_actual=NULL, id_area_asignacion_actual=NULL WHERE id_insumo=?");
+                    $upd->execute([$cantidadTotal, $nuevoOficina, $nuevoDeposito, $estado, $idIns]);
                 } else {
                     // Sin stock remanente: limpiar punto de stock
-                    $upd = $db->prepare("UPDATE insumos SET cantidad=?, estado=?, id_sede_actual=?, id_area_asignacion_actual=?, id_punto_stock_actual = NULL WHERE id_insumo=?");
-                    $upd->execute([$nuevo, $estado, $idSede, $idArea, $idIns]);
+                    $upd = $db->prepare("UPDATE insumos SET cantidad=?, cantidad_oficina=?, cantidad_deposito=?, estado=?, id_sede_actual=?, id_area_asignacion_actual=?, id_punto_stock_actual = NULL WHERE id_insumo=?");
+                    $upd->execute([$cantidadTotal, $nuevoOficina, $nuevoDeposito, $estado, $idSede, $idArea, $idIns]);
                 }
             } else {
                 // Unitarios: al asignar, limpiar punto de stock

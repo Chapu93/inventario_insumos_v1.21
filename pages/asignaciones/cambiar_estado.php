@@ -41,7 +41,7 @@ try {
 
     $idRemito = (int)$cab['id_remito'];
 
-    $sql = "SELECT d.id_insumo, d.cantidad, COALESCE(d.cantidad_devuelta,0) AS cantidad_devuelta, i.tipo_insumo, i.cantidad AS stock_actual
+    $sql = "SELECT d.id_insumo, d.cantidad, COALESCE(d.cantidad_devuelta,0) AS cantidad_devuelta, i.tipo_insumo, i.cantidad AS stock_actual, i.cantidad_oficina, i.cantidad_deposito
             FROM remitos_detalle d
             JOIN insumos i ON i.id_insumo = d.id_insumo
             WHERE d.id_remito = ?";
@@ -65,9 +65,15 @@ try {
         if ($pend <= 0) { continue; }
 
         if ($row['tipo_insumo'] === 'Varios') {
-            $nuevoStock = ((int)$row['stock_actual']) + $pend;
-            $db->prepare("UPDATE insumos SET cantidad = ?, estado = 'Disponible', id_sede_actual = NULL, id_area_asignacion_actual = NULL WHERE id_insumo = ?")
-               ->execute([$nuevoStock, $idInsumo]);
+            $stockOficina = isset($row['cantidad_oficina']) ? (int)$row['cantidad_oficina'] : (int)$row['stock_actual'];
+            $stockDeposito = isset($row['cantidad_deposito']) ? (int)$row['cantidad_deposito'] : 0;
+            
+            $nuevoStockTotal = $stockOficina + $stockDeposito + $pend;
+            $nuevoStockOficina = $stockOficina + $pend;
+            $nuevoStockDeposito = $stockDeposito;
+            
+            $db->prepare("UPDATE insumos SET cantidad = ?, cantidad_oficina = ?, cantidad_deposito = ?, estado = 'Disponible', id_sede_actual = NULL, id_area_asignacion_actual = NULL WHERE id_insumo = ?")
+               ->execute([$nuevoStockTotal, $nuevoStockOficina, $nuevoStockDeposito, $idInsumo]);
         } else {
             $db->prepare("UPDATE insumos SET estado = 'Disponible', id_sede_actual = NULL, id_area_asignacion_actual = NULL WHERE id_insumo = ?")
                ->execute([$idInsumo]);

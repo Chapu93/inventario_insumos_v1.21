@@ -68,7 +68,8 @@ switch ($insumo['tipo_insumo']) {
 
 // Historial de asignaciones desde remitos/remitos_detalle
 $sqlHist = "
-    SELECT r.numero_remito, r.fecha_asignacion, r.fecha_devolucion, r.estado, s.nombre_sede, a.nombre_area
+    SELECT r.numero_remito, r.fecha_asignacion, r.fecha_devolucion, r.estado, s.nombre_sede, a.nombre_area,
+           d.cantidad, d.cantidad_devuelta
     FROM remitos_detalle d
     JOIN remitos r ON r.id_remito = d.id_remito
     LEFT JOIN sedes s ON r.id_sede = s.id_sede
@@ -203,7 +204,7 @@ include '../../includes/header.php';
                     <?php if ($insumo['tipo_insumo'] === 'PC Escritorio' || $insumo['tipo_insumo'] === 'PC Completa'): ?>
                         <p><strong>Procesador:</strong> <?php echo htmlspecialchars($esp['procesador'] ?? ''); ?></p>
                         <p><strong>RAM:</strong> <?php echo htmlspecialchars($esp['ram_gb'] ?? ''); ?> GB</p>
-                        <p><strong>Almacenamiento:</strong> <?php echo htmlspecialchars($esp['almacenamiento_gb'] ?? ''); ?> GB</p>
+                        <p><strong>Almacenamiento:</strong> <?php echo htmlspecialchars($esp['almacenamiento_gb'] ?? ''); ?> GB <?php if (!empty($esp['ssd_o_superior'])): ?><span class="badge bg-success ms-1"><i class="fas fa-microchip me-1"></i>SSD o superior</span><?php endif; ?></p>
                         <p><strong>Mother:</strong> <?php echo htmlspecialchars($esp['mother'] ?? ''); ?></p>
                         <p><strong>Sistema Operativo:</strong> <?php echo htmlspecialchars($esp['sist_op'] ?? ''); ?></p>
                     <?php elseif ($insumo['tipo_insumo'] === 'Notebook'): ?>
@@ -294,7 +295,7 @@ include '../../includes/header.php';
                     </table>
                 </div>
                 <div class="mt-2">
-                    <a href="../pedidos/listar.php?insumo=<?php echo $id; ?>" class="btn btn-sm btn-outline-primary">
+                    <a href="../pedidos/listar.php?insumo=<?php echo $id; ?>" class="btn btn-sm btn-primary">
                         <i class="fas fa-external-link-alt me-1"></i>Ver todos los pedidos
                     </a>
                 </div>
@@ -316,35 +317,49 @@ include '../../includes/header.php';
                     <p class="text-muted">Sin ubicación asignada</p>
                 <?php endif; ?>
                 <?php
-                // Buscar asignación/remito activo para este insumo (incluye ubicación)
+                // Buscar asignaciones activas para este insumo (incluye ubicación y cantidad)
                 $stmtAct = $db->prepare("SELECT r.id_remito, r.numero_remito, r.fecha_asignacion, r.estado,
-                                                s.nombre_sede, l.nombre_localidad, z.nombre_zona, ar.nombre_area
+                                                s.nombre_sede, l.nombre_localidad, z.nombre_zona, ar.nombre_area,
+                                                d.cantidad, d.cantidad_devuelta
                                          FROM remitos_detalle d
                                          JOIN remitos r ON r.id_remito = d.id_remito
                                          JOIN sedes s ON r.id_sede = s.id_sede
                                          JOIN localidades l ON s.id_localidad = l.id_localidad
                                          JOIN zonas z ON l.id_zona = z.id_zona
                                          LEFT JOIN areas ar ON r.id_area = ar.id_area
-                                         WHERE d.id_insumo = ? AND r.estado = 'Activa'
-                                         ORDER BY r.fecha_asignacion DESC LIMIT 1");
+                                         WHERE d.id_insumo = ? AND r.estado = 'Activa' AND d.cantidad_devuelta < d.cantidad
+                                         ORDER BY r.fecha_asignacion DESC");
                 $stmtAct->execute([$id]);
-                $remAct = $stmtAct->fetch();
-                if ($remAct): ?>
+                $remActivas = $stmtAct->fetchAll();
+                if (!empty($remActivas)): ?>
                     <hr>
-                    <p class="mb-1"><strong>Asignación activa:</strong></p>
-                    <p class="mb-1">
-                        <span class="badge bg-warning">Activa</span>
-                        <strong>ID:</strong> <?php echo (int)$remAct['id_remito']; ?>
-                    </p>
-                    <p class="mb-1"><strong>Remito:</strong> <?php echo htmlspecialchars($remAct['numero_remito']); ?></p>
-                    <a class="btn btn-sm btn-outline-primary" href="<?php echo app_base_url(); ?>/pages/reportes/remito.php?remito=<?php echo urlencode($remAct['numero_remito']); ?>">
-                        Ver remito
-                    </a>
+                    <p class="mb-2"><strong>Asignaciones activas:</strong></p>
+                    <?php foreach ($remActivas as $remActItem): ?>
+                        <div class="mb-2 p-2 bg-light rounded border text-dark">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="badge bg-warning">Activa</span>
+                                <small class="text-muted"><?php echo date('d/m/Y', strtotime($remActItem['fecha_asignacion'])); ?></small>
+                            </div>
+                            <p class="mb-1 small"><strong>Remito:</strong> <?php echo htmlspecialchars($remActItem['numero_remito']); ?></p>
+                            <p class="mb-1 small"><strong>Sede:</strong> <?php echo htmlspecialchars($remActItem['nombre_sede']); ?></p>
+                            <?php if ($remActItem['nombre_area']): ?>
+                                <p class="mb-1 small"><strong>Área:</strong> <?php echo htmlspecialchars($remActItem['nombre_area']); ?></p>
+                            <?php endif; ?>
+                            <?php if ($insumo['tipo_insumo'] === 'Varios'): ?>
+                                <p class="mb-1 small"><strong>Cantidad asignada:</strong> <span class="badge bg-primary"><?php echo (int)($remActItem['cantidad'] - $remActItem['cantidad_devuelta']); ?></span></p>
+                            <?php endif; ?>
+                            <a class="btn btn-xs btn-outline-primary mt-1 py-0 px-2" href="<?php echo app_base_url(); ?>/pages/reportes/remito.php?remito=<?php echo urlencode($remActItem['numero_remito']); ?>">
+                                <i class="fas fa-file-alt me-1"></i>Ver remito
+                            </a>
+                        </div>
+                    <?php endforeach; ?>
                 <?php endif; ?>
             </div>
         </div>
 
-        <?php if (!empty($remAct) && $insumo['tipo_insumo'] !== 'Varios'): ?>
+        <?php 
+        $remAct = !empty($remActivas) ? $remActivas[0] : null;
+        if (!empty($remAct) && $insumo['tipo_insumo'] !== 'Varios'): ?>
         <div class="card mb-4">
             <div class="card-header"><h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Ubicación Actual (Seguimiento)</h5></div>
             <div class="card-body">
@@ -377,7 +392,12 @@ include '../../includes/header.php';
                                     <strong><?php echo htmlspecialchars($h['nombre_sede'] ?? ''); ?></strong>
                                     <?php if (!empty($h['nombre_area'])): ?> - <?php echo htmlspecialchars($h['nombre_area']); ?><?php endif; ?>
                                 </p>
-                                <small class="text-muted">Remito: <?php echo htmlspecialchars($h['numero_remito']); ?></small>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">Remito: <?php echo htmlspecialchars($h['numero_remito']); ?></small>
+                                    <?php if ($insumo['tipo_insumo'] === 'Varios'): ?>
+                                        <small class="text-muted">Cantidad: <strong><?php echo (int)$h['cantidad']; ?></strong></small>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                         <?php endforeach; ?>
                     </div>

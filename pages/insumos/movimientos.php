@@ -23,15 +23,12 @@ verificarPermiso('insumos', 'ver'); // Ajustar permiso si es necesario
 
 <div class="tab-content" id="movimientosTabsContent">
   <div class="tab-pane fade show active" id="movimientos" role="tabpanel" aria-labelledby="movimientos-tab">
-    <div class="card">
-      <div class="card-header d-flex align-items-center justify-content-between">
-        <h5 class="mb-0"><i class="fas fa-list me-2"></i>Historial de Movimientos</h5>
-      </div>
-      <div class="card-body">
-        <!-- Filtro por tipo de movimiento -->
-        <div class="mb-3">
-          <label for="filtroTipoMovimiento" class="form-label fw-bold"><i class="fas fa-filter me-1"></i>Filtrar por Tipo:</label>
-          <select class="form-select" id="filtroTipoMovimiento" style="max-width: 300px;">
+    <!-- Filtros -->
+    <div class="filtros-container">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-4 col-lg-3">
+          <label for="filtroTipoMovimiento" class="form-label fw-bold"><i class="fas fa-filter me-1"></i>Tipo de Movimiento</label>
+          <select class="form-select" id="filtroTipoMovimiento">
             <option value="">Todos los movimientos</option>
             <option value="reposicion_oficina">Reposición Oficina</option>
             <option value="devolucion_a_deposito">Devolución a Depósito</option>
@@ -39,6 +36,14 @@ verificarPermiso('insumos', 'ver'); // Ajustar permiso si es necesario
             <option value="ingreso_nuevo">Ingreso Nuevo</option>
           </select>
         </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <h5 class="mb-0"><i class="fas fa-list me-2"></i>Historial de Movimientos</h5>
+      </div>
+      <div class="card-body">
         
         <div class="table-responsive">
           <table class="table table-striped datatable" id="tablaMovimientos" data-ssp="1">
@@ -81,6 +86,7 @@ verificarPermiso('insumos', 'ver'); // Ajustar permiso si es necesario
                 <th>Tipo</th>
                 <th>Cantidad</th>
                 <th>Observación</th>
+                <th>Acciones</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -94,6 +100,26 @@ verificarPermiso('insumos', 'ver'); // Ajustar permiso si es necesario
             <i class="fas fa-print me-2"></i>Imprimir
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal para ver detalles de la baja -->
+<div class="modal fade" id="modalVerBaja" tabindex="-1" aria-labelledby="modalVerBajaLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header" style="background-color: #fdf2f2; color: #9b1c1c; border-bottom: 1px solid #f8d7da;">
+        <h5 class="modal-title fw-bold" id="modalVerBajaLabel">
+          <i class="fas fa-eye me-2"></i>Detalle de la Baja
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="modalVerBajaBody">
+        <!-- Se cargará dinámicamente -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
       </div>
     </div>
   </div>
@@ -143,9 +169,38 @@ $(function(){
         { data: 1 },
         { data: 2 },
         { data: 3 },
-        { data: 4 }
+        { data: 4 },
+        { data: 5, orderable: false, searchable: false }
       ],
       drawCallback: function(){ inicializarTooltips(); }
+    });
+
+    // Ver detalle de la baja
+    $(document).on('click', '.btn-ver-baja', function() {
+      var idBaja = $(this).data('id');
+      var modal = new bootstrap.Modal(document.getElementById('modalVerBaja'));
+      var modalBody = $('#modalVerBajaBody');
+      
+      modalBody.html('<div class="text-center py-4"><div class="spinner-border text-danger" role="status"><span class="visually-hidden">Cargando...</span></div></div>');
+      modal.show();
+      
+      $.ajax({
+        url: getAppBase() + '/ajax/obtener_baja_detalle.php',
+        method: 'GET',
+        data: { id: idBaja },
+        dataType: 'json',
+        success: function(resp) {
+          if (resp.success) {
+            var html = resp.html || (resp.data && resp.data.html);
+            modalBody.html(html);
+          } else {
+            modalBody.html('<div class="alert alert-danger"><i class="fas fa-exclamation-circle me-2"></i>' + (resp.error || 'Error al cargar los detalles') + '</div>');
+          }
+        },
+        error: function(xhr) {
+          modalBody.html('<div class="alert alert-danger"><i class="fas fa-exclamation-circle me-2"></i>Error de comunicación con el servidor.</div>');
+        }
+      });
     });
 
     // Ajustar columnas al cambiar de pestaña

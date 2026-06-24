@@ -438,7 +438,7 @@ $internet = $stmt->fetchAll();
 
 // Datos para filtros
 $localidades = $db->query("SELECT id_localidad, nombre_localidad FROM localidades ORDER BY nombre_localidad")->fetchAll();
-$sedes = $db->query("SELECT s.id_sede, s.nombre_sede, l.nombre_localidad FROM sedes s JOIN localidades l ON l.id_localidad = s.id_localidad ORDER BY l.nombre_localidad, s.nombre_sede")->fetchAll();
+$sedes = $db->query("SELECT s.id_sede, s.nombre_sede, s.id_localidad, l.nombre_localidad FROM sedes s JOIN localidades l ON l.id_localidad = s.id_localidad ORDER BY l.nombre_localidad, s.nombre_sede")->fetchAll();
 $estados_servicio = ['Activo', 'Inactivo', 'Baja por Traslado', 'De Baja'];
 
 include '../../includes/header.php';
@@ -502,7 +502,7 @@ include '../../includes/header.php';
                 <button type="submit" class="btn btn-primary btn-sm">
                     <i class="fas fa-search me-1"></i>Filtrar
                 </button>
-                <a href="telecom_internet.php" class="btn btn-secondary btn-sm">
+                <a href="telecom_internet.php" id="btnLimpiarFiltros" class="btn btn-secondary btn-sm">
                     <i class="fas fa-times me-1"></i>Limpiar
                 </a>
             </div>

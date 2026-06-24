@@ -142,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $resumenInsumos = [];
 
         foreach ($idsInsumos as $idIns) {
-            $row = $db->prepare("SELECT tipo_insumo, nombre_insumo, numero_serie, cantidad FROM insumos WHERE id_insumo=? FOR UPDATE");
+            $row = $db->prepare("SELECT tipo_insumo, nombre_insumo, numero_serie, cantidad, cantidad_oficina, cantidad_deposito FROM insumos WHERE id_insumo=? FOR UPDATE");
             $row->execute([$idIns]);
             $ins = $row->fetch();
             if (!$ins) throw new Exception('Insumo no encontrado');
@@ -170,12 +170,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $estado = ($cantidadTotal > 0) ? 'Disponible' : 'Asignado';
 
                 if ($cantidadTotal > 0) {
-                    $db->prepare("UPDATE insumos SET cantidad=?, cantidad_oficina=?, cantidad_deposito=?, estado=?, id_sede_actual=?, id_area_asignacion_actual=?, id_punto_stock_actual=id_punto_stock_actual WHERE id_insumo=?")
-                       ->execute([$cantidadTotal, $nuevoOficina, $nuevoDeposito, $estado, $pedido['id_sede'], $pedido['id_area'], $idIns]);
+                    $db->prepare("UPDATE insumos SET cantidad=?, cantidad_oficina=?, cantidad_deposito=?, estado=?, id_sede_actual=NULL, id_area_asignacion_actual=NULL, id_punto_stock_actual=id_punto_stock_actual WHERE id_insumo=?")
+                       ->execute([$cantidadTotal, $nuevoOficina, $nuevoDeposito, $estado, $idIns]);
                 } else {
-                    // Si se agotó todo, limpiar punto de stock
-                    $db->prepare("UPDATE insumos SET cantidad=?, cantidad_oficina=?, cantidad_deposito=?, estado=?, id_sede_actual=?, id_area_asignacion_actual=?, id_punto_stock_actual=NULL WHERE id_insumo=?")
-                       ->execute([$cantidadTotal, $nuevoOficina, $nuevoDeposito, $estado, $pedido['id_sede'], $pedido['id_area'], $idIns]);
+                    // Si se agotó todo, limpiar punto de stock y dejar ubicación en NULL para tipo Varios (no falsear ubicación de lote)
+                    $db->prepare("UPDATE insumos SET cantidad=?, cantidad_oficina=?, cantidad_deposito=?, estado=?, id_sede_actual=NULL, id_area_asignacion_actual=NULL, id_punto_stock_actual=NULL WHERE id_insumo=?")
+                       ->execute([$cantidadTotal, $nuevoOficina, $nuevoDeposito, $estado, $idIns]);
                 }
             } else {
                 $db->prepare("UPDATE insumos SET estado='Asignado', id_sede_actual=?, id_area_asignacion_actual=?, id_punto_stock_actual=NULL WHERE id_insumo=?")
@@ -350,7 +350,7 @@ include '../../includes/header.php';
                                                         if (!empty($marcaModelo)) $name = $marcaModelo;
                                                     } elseif ($tipo === 'PC Escritorio' || $tipo === 'PC Completa') {
                                                         // Para PCs, preferimos el nombre de insumo, pero podemos añadir el SO si existe
-                                                        if (!empty($ins['pc_sist_op'])) $name .= ' (' . $ins['pc_sist_op'] . ')';
+                                                        if (!empty($ins['pc_sist_op'])) $name = 'CPU/' . $ins['pc_sist_op'];
                                                     }
                                                     
                                                     $filterText = mb_strtolower($name.' '.$tipo.' '.$ins['numero_serie'].' '.$ins['id_fisico']);

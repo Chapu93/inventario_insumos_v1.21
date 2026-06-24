@@ -443,6 +443,7 @@ include '../../includes/header.php';
                                             </tbody>
                                         </table>
                                     </div>
+                                    <ul class="pagination pagination-sm justify-content-center mt-3" id="paginationInsumos"></ul>
                                     <div class="d-flex justify-content-end gap-2 mt-3">
                                         <button type="button" class="btn btn-secondary" id="btnVolver">
                                             <i class="fas fa-arrow-left me-1"></i>Volver
@@ -476,7 +477,7 @@ include '../../includes/header.php';
                                         </div>
                                         <div class="col-md-6">
                                             <h6 class="text-primary mb-2"><i class="fas fa-comment me-2"></i><?php echo htmlspecialchars($uiConfig['desc_title']); ?></h6>
-                                            <div class="alert alert-light mb-0" id="m_descripcion" style="white-space: pre-wrap; max-height: 100px; overflow-y: auto;"></div>
+                                            <div class="bg-light p-2 rounded border mb-0 text-dark" id="m_descripcion" style="white-space: pre-wrap; max-height: 100px; overflow-y: auto;"></div>
                                         </div>
                                     </div>
                                     <hr>
@@ -513,6 +514,8 @@ const ES_ADMIN = <?php echo tieneRol([1, 2]) ? 'true' : 'false'; ?>; // Solo Adm
 const TOAST_MSG_REFERENCIA = <?php echo json_encode($uiConfig['toast_msg'], JSON_UNESCAPED_UNICODE); ?>;
 
 let pasoActual = 1;
+let currentPage = 1;
+const rowsPerPage = 15;
 
 // Guardar datos del paso 1 y seleccionados
 function guardarEstado() {
@@ -701,6 +704,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Actualizar contador inicial
         actualizarContador();
         ordenarFilas();
+        renderPaginacion();
     }
 });
 
@@ -730,6 +734,7 @@ function irAPaso(paso) {
     if (paso === 2) {
         ordenarFilas();
         filtrarInsumos();
+        renderPaginacion();
     } else if (paso === 3) {
         actualizarResumenPaso3();
     }
@@ -821,7 +826,7 @@ $('#btnVolver3').on('click', function() {
 });
 
 // Toggle selección de insumo
-function toggleSeleccionInsumo(id, cantidadInicial) {
+function toggleSeleccionInsumo(id, cantidadInicial, evitarOrdenar) {
     const fila = $(`.fila-insumo[data-id="${id}"]`);
     const btn = fila.find('.btn-seleccionar');
     const input = fila.find('.hidden-insumo-input');
@@ -865,9 +870,11 @@ function toggleSeleccionInsumo(id, cantidadInicial) {
         }
     }
     
-    actualizarContador();
-    guardarEstado();
-    ordenarFilas();
+    if (!evitarOrdenar) {
+        actualizarContador();
+        guardarEstado();
+        ordenarFilas();
+    }
 }
 
 // Actualizar contador
@@ -899,6 +906,9 @@ function ordenarFilas() {
     $.each(filas, function(idx, fila) {
         tbody.append(fila);
     });
+    
+    // Llamar a paginación
+    renderPaginacion();
 }
 
 // Filtrar insumos - MANTENER ORDEN (seleccionados arriba)
@@ -921,11 +931,75 @@ function filtrarInsumos() {
             mostrar = false;
         }
         
-        $fila.toggle(mostrar);
+        if (mostrar) {
+            $fila.removeClass('d-none-filter');
+        } else {
+            $fila.addClass('d-none-filter');
+        }
     });
+    
+    currentPage = 1; // Resetear página al filtrar
     
     // Re-ordenar después de filtrar para asegurar que seleccionados estén arriba
     ordenarFilas();
+}
+
+function renderPaginacion() {
+    const $allValidRows = $('.fila-insumo:not(.d-none-filter)');
+    const $tbody = $('#tablaInsumos tbody');
+    $tbody.find('tr.no-results').remove();
+    
+    if ($allValidRows.length === 0) {
+        $tbody.append('<tr class="no-results"><td colspan="5" class="text-center text-muted">Sin resultados</td></tr>');
+        $('#paginationInsumos').empty();
+        $('.fila-insumo').hide(); // ocultar todo
+        return;
+    }
+
+    // Separar filas seleccionadas de las no seleccionadas
+    const $selectedRows = $allValidRows.filter(function() {
+        return !$(this).find('.hidden-insumo-input').prop('disabled');
+    });
+    const $unselectedRows = $allValidRows.not($selectedRows);
+
+    // Los seleccionados SIEMPRE se muestran (anclados arriba)
+    $selectedRows.show();
+
+    const totalPages = Math.ceil($unselectedRows.length / rowsPerPage);
+    if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    // Las filas NO seleccionadas se paginan
+    $unselectedRows.each(function(index) {
+        if (index >= (currentPage - 1) * rowsPerPage && index < currentPage * rowsPerPage) {
+            $(this).show();
+        } else {
+            $(this).hide();
+        }
+    });
+
+    $('.fila-insumo.d-none-filter').hide();
+
+    let pageHtml = '';
+    if (totalPages > 1) {
+        pageHtml += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}"><a class="page-link" href="#" onclick="cambiarPagina(${currentPage - 1}); return false;">&laquo;</a></li>`;
+        
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(totalPages, startPage + 4);
+        if (endPage - startPage < 4) startPage = Math.max(1, endPage - 4);
+        
+        for (let i = startPage; i <= endPage; i++) {
+            pageHtml += `<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="#" onclick="cambiarPagina(${i}); return false;">${i}</a></li>`;
+        }
+        
+        pageHtml += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}"><a class="page-link" href="#" onclick="cambiarPagina(${currentPage + 1}); return false;">&raquo;</a></li>`;
+    }
+    $('#paginationInsumos').html(pageHtml);
+}
+
+function cambiarPagina(page) {
+    currentPage = page;
+    renderPaginacion();
 }
 
 $('#filtro_busqueda').on('input', filtrarInsumos);
@@ -939,15 +1013,19 @@ $('#btnLimpiarFiltros').on('click', function() {
 
 // Seleccionar todos los filtrados
 function seleccionarFiltrados() {
-    $('tr.fila-insumo:visible').each(function() {
-        const $fila = $(this);
+    const $filasVisibles = $('tr.fila-insumo:visible').toArray();
+    $filasVisibles.forEach(function(el) {
+        const $fila = $(el);
         const input = $fila.find('.hidden-insumo-input');
         if (input.prop('disabled')) {
             const id = $fila.data('id');
-            // Pasar undefined para que use el máximo
-            toggleSeleccionInsumo(id, undefined);
+            // Pasar true en evitarOrdenar
+            toggleSeleccionInsumo(id, undefined, true);
         }
     });
+    actualizarContador();
+    guardarEstado();
+    ordenarFilas();
 }
 
 // Deseleccionar todos
@@ -957,9 +1035,13 @@ function deseleccionarTodos() {
         const input = $fila.find('.hidden-insumo-input');
         if (!input.prop('disabled')) {
             const id = $fila.data('id');
-            toggleSeleccionInsumo(id, undefined);
+            // Pasar true en evitarOrdenar
+            toggleSeleccionInsumo(id, undefined, true);
         }
     });
+    actualizarContador();
+    guardarEstado();
+    ordenarFilas();
 }
 
 // Limpiar localStorage al enviar formulario

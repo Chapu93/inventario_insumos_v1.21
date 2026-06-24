@@ -83,44 +83,68 @@ include '../../includes/header.php';
 ?>
 
 <div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1><i class="fas fa-tools me-2"></i>Insumos Intervenidos</h1>
-        <a href="../pedidos/listar.php" class="btn btn-outline-secondary">
-            <i class="fas fa-list me-1"></i>Ver Todos los Pedidos
-        </a>
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="fas fa-tools me-2"></i>Insumos Intervenidos</h1>
+                <a href="../pedidos/listar.php" class="btn btn-outline-secondary">
+                    <i class="fas fa-list me-1"></i>Ver Todos los Pedidos
+                </a>
+            </div>
+        </div>
     </div>
 
-    <!-- Estadísticas -->
+    <!-- Estadísticas (Alineadas con el estilo Premium de Dashboard) -->
     <div class="row mb-4">
         <div class="col-md-3">
-            <div class="card text-white" style="background-color: #3d7b5f;">
-                <div class="card-body text-center">
-                    <h3 class="mb-0"><?php echo $stats['total_insumos'] ?? 0; ?></h3>
-                    <small>Insumos Intervenidos</small>
+            <div class="dashboard-card dashboard-card--primary h-100">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h3 class="mb-0"><?php echo $stats['total_insumos'] ?? 0; ?></h3>
+                        <p class="mb-0">Insumos Intervenidos</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-boxes fa-2x opacity-75"></i>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card text-white" style="background-color: #d4a03c;">
-                <div class="card-body text-center">
-                    <h3 class="mb-0"><?php echo $stats['mantenimientos'] ?? 0; ?></h3>
-                    <small>Mantenimientos</small>
+            <div class="dashboard-card dashboard-card--warning h-100">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h3 class="mb-0"><?php echo $stats['mantenimientos'] ?? 0; ?></h3>
+                        <p class="mb-0">Mantenimientos</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-wrench fa-2x opacity-75"></i>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card text-white" style="background-color: #c9544a;">
-                <div class="card-body text-center">
-                    <h3 class="mb-0"><?php echo $stats['reparaciones'] ?? 0; ?></h3>
-                    <small>Reparaciones</small>
+            <div class="dashboard-card dashboard-card--danger h-100">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h3 class="mb-0"><?php echo $stats['reparaciones'] ?? 0; ?></h3>
+                        <p class="mb-0">Reparaciones</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-tools fa-2x opacity-75"></i>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card text-white" style="background-color: #4a9b8c;">
-                <div class="card-body text-center">
-                    <h3 class="mb-0"><?php echo $stats['soportes'] ?? 0; ?></h3>
-                    <small>Soportes</small>
+            <div class="dashboard-card dashboard-card--info h-100">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h3 class="mb-0"><?php echo $stats['soportes'] ?? 0; ?></h3>
+                        <p class="mb-0">Soportes</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-headset fa-2x opacity-75"></i>
+                    </div>
                 </div>
             </div>
         </div>
@@ -129,7 +153,7 @@ include '../../includes/header.php';
     <!-- Filtros -->
     <div class="filtros-container mb-4">
         <form method="GET" class="row g-3 align-items-end">
-            <div class="col-md-2">
+            <div class="col-md-3">
                 <label class="form-label">Buscar Insumo</label>
                 <input type="text" class="form-control" name="q" placeholder="Serie, IP..." value="<?php echo htmlspecialchars($busqueda); ?>">
             </div>
@@ -162,13 +186,13 @@ include '../../includes/header.php';
                 <input type="date" class="form-control" name="fecha_hasta" value="<?php echo htmlspecialchars($fechaHasta); ?>">
             </div>
             
-            <div class="col-md-2 d-flex align-items-end">
+            <div class="col-md-4 d-flex align-items-end ms-auto">
                 <div class="d-flex gap-2 w-100">
-                    <a href="intervenidos.php" class="btn btn-secondary btn-sm flex-fill">
-                        <i class="fas fa-times me-1"></i>Limpiar
-                    </a>
                     <button type="submit" class="btn btn-primary btn-sm flex-fill">
                         <i class="fas fa-search me-1"></i>Filtrar
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm flex-fill" id="btnLimpiarFiltros">
+                        <i class="fas fa-times me-1"></i>Limpiar
                     </button>
                 </div>
             </div>
@@ -189,12 +213,11 @@ include '../../includes/header.php';
                 </div>
             <?php else: ?>
                 <div class="table-responsive">
-                    <table class="table table-hover" id="tablaIntervenidos">
-                        <thead class="table-dark">
+                    <table class="table table-striped datatable align-middle" id="tablaIntervenidos" data-ssp="1">
+                        <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Tipo</th>
-                                <th>Nombre</th>
                                 <th>N° Serie</th>
                                 <th>Estado Insumo</th>
                                 <th>Intervenciones</th>
@@ -208,7 +231,6 @@ include '../../includes/header.php';
                             <tr>
                                 <td><?php echo $ins['id_insumo']; ?></td>
                                 <td><strong><?php echo htmlspecialchars($ins['tipo_insumo']); ?></strong></td>
-                                <td><?php echo htmlspecialchars($ins['nombre_insumo'] ?: '-'); ?></td>
                                 <td><?php echo htmlspecialchars($ins['numero_serie'] ?: $ins['id_fisico'] ?: '-'); ?></td>
                                 <td>
                                     <span class="badge bg-<?php 
@@ -242,18 +264,20 @@ include '../../includes/header.php';
                                     <?php endforeach; ?>
                                 </td>
                                 <td>
-                                    <a href="ver.php?id=<?php echo $ins['id_insumo']; ?>" 
-                                       class="btn btn-sm btn-info" 
-                                       title="Ver detalles e historial">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <button type="button" 
-                                            class="btn btn-sm btn-secondary btn-ver-historial" 
-                                            data-id="<?php echo $ins['id_insumo']; ?>"
-                                            data-nombre="<?php echo htmlspecialchars($ins['tipo_insumo'] . ' - ' . ($ins['nombre_insumo'] ?: 'Sin nombre')); ?>"
-                                            title="Ver historial rápido">
-                                        <i class="fas fa-history"></i>
-                                    </button>
+                                    <div class="btn-group" role="group">
+                                        <a href="ver.php?id=<?php echo $ins['id_insumo']; ?>" 
+                                           class="btn btn-sm btn-info" 
+                                           title="Ver detalles e historial">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <button type="button" 
+                                                 class="btn btn-sm btn-secondary btn-ver-historial" 
+                                                 data-id="<?php echo $ins['id_insumo']; ?>"
+                                                 data-nombre="<?php echo htmlspecialchars($ins['tipo_insumo'] . ' - ' . ($ins['nombre_insumo'] ?: 'Sin nombre')); ?>"
+                                                 title="Ver historial rápido">
+                                            <i class="fas fa-history"></i>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                             <?php endforeach; ?>
@@ -263,15 +287,29 @@ include '../../includes/header.php';
             <?php endif; ?>
         </div>
     </div>
+
+    <!-- Botones de exportación -->
+    <div class="row mt-3">
+        <div class="col-12">
+            <div class="d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-success" onclick="exportarExcel('tablaIntervenidos', 'insumos_intervenidos')">
+                    <i class="fas fa-file-excel me-2"></i>Exportar Excel
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="imprimirTabla('tablaIntervenidos', 'insumos_intervenidos')">
+                    <i class="fas fa-print me-2"></i>Imprimir
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Modal para historial rápido -->
 <div class="modal fade" id="modalHistorial" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title"><i class="fas fa-history me-2"></i>Historial de Intervenciones</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <h6 id="nombreInsumoModal" class="mb-3"></h6>
@@ -292,72 +330,30 @@ include '../../includes/header.php';
 
 <?php include '../../includes/footer.php'; ?>
 
-<!-- DataTables Buttons (Exportar) -->
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
-<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
-
 <script>
 $(document).ready(function() {
     // DataTable
     if ($.fn.DataTable) {
         $('#tablaIntervenidos').DataTable({
-            language: {
-                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/es-ES.json'
-            },
-            order: [[6, 'desc']], // Ordenar por última intervención
+            order: [[5, 'desc']], // Ordenar por última intervención
             pageLength: 25,
-            dom: '<"row mb-3"<"col-sm-12 col-md-6"B><"col-sm-12 col-md-6 text-end"f>>' +
-                 '<"row"<"col-sm-12"tr>>' +
-                 '<"row mt-3"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
-            buttons: [
+            columnDefs: [
                 {
-                    extend: 'excelHtml5',
-                    text: '<i class="fas fa-file-excel me-1"></i> Excel',
-                    className: 'btn btn-success btn-sm ms-2 text-white',
-                    title: 'Reporte de Insumos Intervenidos',
-                    exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6, 7] },
-                    init: function(api, node, config) {
-                       $(node).removeClass('dt-button');
-                    }
-                },
-                {
-                    extend: 'pdfHtml5',
-                    text: '<i class="fas fa-file-pdf me-1"></i> PDF',
-                    className: 'btn btn-danger btn-sm ms-2 text-white',
-                    title: 'Reporte de Insumos Intervenidos',
-                    orientation: 'landscape',
-                    pageSize: 'A4',
-                    exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6, 7] },
-                    customize: function (doc) {
-                        doc.defaultStyle.fontSize = 9;
-                        doc.styles.tableHeader.fontSize = 10;
-                        doc.styles.tableHeader.fillColor = '#198754';
-                    },
-                    init: function(api, node, config) {
-                       $(node).removeClass('dt-button');
-                    }
-                },
-                {
-                    extend: 'print',
-                    text: '<i class="fas fa-print me-1"></i> Imprimir',
-                    className: 'btn btn-primary btn-sm ms-2 text-white',
-                    title: 'Reporte de Insumos Intervenidos',
-                    exportOptions: { columns: [0, 1, 2, 3, 4, 5, 6, 7] },
-                    init: function(api, node, config) {
-                       $(node).removeClass('dt-button');
-                    }
+                    targets: -1, // Última columna (acciones)
+                    orderable: false,
+                    searchable: false
                 }
             ]
         });
     }
     
-    // Ver historial rápido
-    $('.btn-ver-historial').click(function() {
+    // Botón Limpiar
+    $('#btnLimpiarFiltros').on('click', function () {
+        window.location.href = 'intervenidos.php';
+    });
+    
+    // Ver historial rápido (delegado para soportar paginación)
+    $(document).on('click', '.btn-ver-historial', function() {
         var id = $(this).data('id');
         var nombre = $(this).data('nombre');
         

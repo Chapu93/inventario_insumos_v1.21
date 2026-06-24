@@ -90,11 +90,12 @@ try {
             $estado = ($cantidadTotal > 0) ? 'Disponible' : 'Asignado';
             
             if ($cantidadTotal > 0) {
-                $db->prepare("UPDATE insumos SET cantidad=?, cantidad_oficina=?, cantidad_deposito=?, estado=?, id_sede_actual=?, id_area_asignacion_actual=?, es_nuevo = IF(es_nuevo = 1, 0, es_nuevo) WHERE id_insumo=?")
-                   ->execute([$cantidadTotal, $nuevoOficina, $nuevoDeposito, $estado, $idSede, $idArea, $idInsumo]);
+                $db->prepare("UPDATE insumos SET cantidad=?, cantidad_oficina=?, cantidad_deposito=?, estado=?, id_sede_actual=NULL, id_area_asignacion_actual=NULL, es_nuevo = IF(es_nuevo = 1, 0, es_nuevo) WHERE id_insumo=?")
+                   ->execute([$cantidadTotal, $nuevoOficina, $nuevoDeposito, $estado, $idInsumo]);
             } else {
-                $db->prepare("UPDATE insumos SET cantidad=?, cantidad_oficina=?, cantidad_deposito=?, estado=?, id_sede_actual=?, id_area_asignacion_actual=?, id_punto_stock_actual=NULL, es_nuevo = IF(es_nuevo = 1, 0, es_nuevo) WHERE id_insumo=?")
-                   ->execute([$cantidadTotal, $nuevoOficina, $nuevoDeposito, $estado, $idSede, $idArea, $idInsumo]);
+                // Si se agotó todo, limpiar punto de stock y dejar ubicación en NULL para tipo Varios (no falsear ubicación de lote)
+                $db->prepare("UPDATE insumos SET cantidad=?, cantidad_oficina=?, cantidad_deposito=?, estado=?, id_sede_actual=NULL, id_area_asignacion_actual=NULL, id_punto_stock_actual=NULL, es_nuevo = IF(es_nuevo = 1, 0, es_nuevo) WHERE id_insumo=?")
+                   ->execute([$cantidadTotal, $nuevoOficina, $nuevoDeposito, $estado, $idInsumo]);
             }
         } else {
             // Para unitarios, lógica estándar

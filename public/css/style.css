@@ -64,61 +64,387 @@
     --bs-table-hover-bg: var(--sitia-table-hover);
 }
 
+/* Clases de cabecera de tarjeta adaptables */
+.card-header--success {
+    background-color: #d1e7dd !important;
+    color: #0f5132 !important;
+}
+.card-header--info {
+    background-color: #cfe2ff !important;
+    color: #084298 !important;
+}
+
 /* === FASE 3: MODO OSCURO (SUAVE Y PASTEL) === */
 [data-theme="dark"] {
-    /* Paleta Modo Oscuro (Tonos Pastel) */
-    --sitia-primary: #8ac29a;
-    --sitia-primary-hover: #9ed2ad;
-    --sitia-secondary: #859690;
-    --sitia-secondary-hover: #98a9a3;
-    --sitia-success: #8cd6a9;
-    --sitia-warning: #eed083;
-    --sitia-danger: #ea9696;
-    --sitia-info: #8bcbd3;
+    /* Paleta Modo Oscuro (Tonos Pastel Suaves) */
+    --sitia-primary: #a1d4b1; /* Verde salvia más claro */
+    --sitia-primary-hover: #b4e0c2;
+    --sitia-secondary: #7e8f89;
+    --sitia-secondary-hover: #8fa09a;
+    --sitia-success: #9de2b9;
+    --sitia-warning: #f4dd9e;
+    --sitia-danger: #f7aaaa;
+    --sitia-info: #a2dfe6;
 
-    /* Superficies Suaves (Gris Verdoso Oscuro) */
-    --sitia-surface-1: #242a27;
-    /* Más oscuro - Cabeceras, Modales */
-    --sitia-surface-2: #2d3531;
-    /* Medio - Tarjetas, thead */
-    --sitia-surface-3: #353e39;
-    /* Fondo principal Body */
+    /* Superficies Claras dentro del Modo Oscuro (Dim/Sage Extra Claro) */
+    --sitia-surface-1: #6b8077; /* Cabeceras principales, modales y dropdowns */
+    --sitia-surface-2: #60736b; /* Tarjetas, inputs y thead */
+    --sitia-surface-3: #556860; /* Fondo general del Body */
 
-    --sitia-text: #e6eae7;
-    /* Blanco roto suave */
-    --sitia-text-muted: #9faca4;
-    /* Texto secundario pastel */
-    --sitia-border: #4d5852;
-    /* Borde suave */
+    --sitia-text: #f4f7f5; /* Texto muy claro con buen contraste */
+    --sitia-text-muted: #dbe5e0; /* Texto secundario suave */
+    --sitia-border: #7a9187; /* Borde más visible pero suave */
 
-    /* Degradados Sidebar/Footer Modo Oscuro */
-    --sitia-menu-start: #242a27;
-    --sitia-menu-end: #2d3531;
+    /* Degradados Sidebar/Footer Modo Oscuro (Más Claros) */
+    --sitia-menu-start: #495c53;
+    --sitia-menu-end: #52665c;
 
-    --sitia-table-hover: rgba(138, 194, 154, 0.15);
+    --sitia-table-hover: rgba(161, 212, 177, 0.12);
 
-    /* Actualizar Bootstrap para Modo Oscuro */
+    /* Mapeo Bootstrap */
     --bs-primary: var(--sitia-primary);
-    --bs-primary-rgb: 138, 194, 154;
-    --bs-secondary: var(--sitia-secondary);
-    --bs-secondary-rgb: 133, 150, 144;
-    --bs-success: var(--sitia-success);
-    --bs-success-rgb: 140, 214, 169;
-    --bs-warning: var(--sitia-warning);
-    --bs-warning-rgb: 238, 208, 131;
-    --bs-danger: var(--sitia-danger);
-    --bs-danger-rgb: 234, 150, 150;
-    --bs-info: var(--sitia-info);
-    --bs-info-rgb: 139, 203, 211;
     --bs-body-bg: var(--sitia-surface-3);
     --bs-body-color: var(--sitia-text);
-    --sitia-input-bg: #2d3531;
+    --sitia-input-bg: var(--sitia-surface-2);
     --bs-border-color: var(--sitia-border);
+    --bs-secondary-bg: var(--sitia-surface-3);
 
-    --bs-table-bg: transparent;
-    --bs-table-color: var(--sitia-text);
-    --bs-table-striped-bg: var(--sitia-surface-1);
-    --bs-table-hover-bg: var(--sitia-table-hover);
+    /* Redefinición de botones en Modo Oscuro (Evita deslumbramientos y unifica la estética) */
+    .btn {
+        opacity: 0.85;
+    }
+    .btn:hover, .btn:focus, .btn:active {
+        opacity: 1 !important;
+    }
+
+    .btn-primary {
+        background-color: var(--sitia-primary) !important;
+        border-color: var(--sitia-primary) !important;
+        color: #1e2522 !important; /* Texto oscuro para legibilidad óptima */
+        font-weight: 600;
+    }
+    .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+        background-color: var(--sitia-primary-hover) !important;
+        border-color: var(--sitia-primary-hover) !important;
+        color: #1e2522 !important;
+    }
+
+    .btn-secondary {
+        background-color: var(--sitia-secondary) !important;
+        border-color: var(--sitia-secondary) !important;
+        color: var(--sitia-text) !important;
+    }
+    .btn-secondary:hover, .btn-secondary:focus {
+        background-color: var(--sitia-secondary-hover) !important;
+        border-color: var(--sitia-secondary-hover) !important;
+        color: var(--sitia-text) !important;
+    }
+
+    .btn-success {
+        background-color: var(--sitia-success) !important;
+        border-color: var(--sitia-success) !important;
+        color: #1e2522 !important;
+        font-weight: 600;
+    }
+    .btn-success:hover, .btn-success:focus {
+        background-color: #b1ebd0 !important;
+        border-color: #b1ebd0 !important;
+        color: #1e2522 !important;
+    }
+
+    .btn-warning {
+        background-color: #e5ac6b !important;
+        border-color: #e5ac6b !important;
+        color: #3b2408 !important;
+        font-weight: 600;
+    }
+    .btn-warning.text-white {
+        color: #ffffff !important;
+    }
+    .btn-warning:hover, .btn-warning:focus {
+        background-color: #f2bd83 !important;
+        border-color: #f2bd83 !important;
+        color: #3b2408 !important;
+    }
+    .btn-warning.text-white:hover {
+        color: #ffffff !important;
+    }
+
+    .btn-danger {
+        background-color: var(--sitia-danger) !important;
+        border-color: var(--sitia-danger) !important;
+        color: #1e2522 !important;
+        font-weight: 600;
+    }
+    .btn-danger:hover, .btn-danger:focus {
+        background-color: #f9c2c2 !important;
+        border-color: #f9c2c2 !important;
+        color: #1e2522 !important;
+    }
+
+    .btn-light {
+        background-color: var(--sitia-surface-1) !important;
+        border-color: var(--sitia-border) !important;
+        color: var(--sitia-text) !important;
+    }
+    .btn-light:hover, .btn-light:focus, .btn-light:active {
+        background-color: var(--sitia-surface-2) !important;
+        border-color: var(--sitia-border) !important;
+        color: var(--sitia-text) !important;
+    }
+
+    /* Estilos outline atenuados en Modo Oscuro */
+    .btn-outline-primary {
+        color: var(--sitia-primary) !important;
+        border-color: var(--sitia-primary) !important;
+    }
+    .btn-outline-primary:hover, .btn-outline-primary:focus, .btn-outline-primary:active {
+        background-color: rgba(161, 212, 177, 0.15) !important;
+        color: var(--sitia-primary) !important;
+        border-color: var(--sitia-primary) !important;
+    }
+
+    .btn-outline-secondary {
+        color: var(--sitia-text-muted) !important;
+        border-color: var(--sitia-border) !important;
+    }
+    .btn-outline-secondary:hover, .btn-outline-secondary:focus {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        color: var(--sitia-text) !important;
+    }
+
+    .btn-outline-success {
+        color: var(--sitia-success) !important;
+        border-color: var(--sitia-success) !important;
+    }
+    .btn-outline-success:hover, .btn-outline-success:focus {
+        background-color: rgba(157, 226, 185, 0.15) !important;
+        color: var(--sitia-success) !important;
+    }
+
+    .btn-outline-danger {
+        color: var(--sitia-danger) !important;
+        border-color: var(--sitia-danger) !important;
+    }
+    .btn-outline-danger:hover, .btn-outline-danger:focus {
+        background-color: rgba(247, 170, 170, 0.15) !important;
+        color: var(--sitia-danger) !important;
+    }
+
+    .btn-outline-warning {
+        color: var(--sitia-warning) !important;
+        border-color: var(--sitia-warning) !important;
+    }
+    .btn-outline-warning:hover, .btn-outline-warning:focus {
+        background-color: rgba(244, 221, 158, 0.15) !important;
+        color: var(--sitia-warning) !important;
+    }
+
+    /* Redefinición de Badges y Estados (Estilo translúcido premium) */
+    .estado-disponible, .estado-activa, .badge.bg-success {
+        background-color: rgba(157, 226, 185, 0.15) !important;
+        color: #9de2b9 !important;
+        border: 1px solid rgba(157, 226, 185, 0.35) !important;
+    }
+    .estado-asignado, .badge.bg-warning {
+        background-color: rgba(244, 221, 158, 0.15) !important;
+        color: #f4dd9e !important;
+        border: 1px solid rgba(244, 221, 158, 0.35) !important;
+    }
+    .estado-baja, .estado-anulado, .badge.bg-danger {
+        background-color: rgba(247, 170, 170, 0.15) !important;
+        color: #f7aaaa !important;
+        border: 1px solid rgba(247, 170, 170, 0.35) !important;
+    }
+    .estado-devuelta, .badge.bg-secondary {
+        background-color: rgba(194, 207, 199, 0.15) !important;
+        color: #c2cfc7 !important;
+        border: 1px solid rgba(194, 207, 199, 0.35) !important;
+    }
+    .badge.bg-primary {
+        background-color: rgba(161, 212, 177, 0.15) !important;
+        color: #a1d4b1 !important;
+        border: 1px solid rgba(161, 212, 177, 0.35) !important;
+    }
+    .badge.bg-info {
+        background-color: rgba(162, 223, 230, 0.15) !important;
+        color: #a2dfe6 !important;
+        border: 1px solid rgba(162, 223, 230, 0.35) !important;
+    }
+    .badge.bg-dark {
+        background-color: var(--sitia-surface-1) !important;
+        color: var(--sitia-text) !important;
+        border: 1px solid var(--sitia-border) !important;
+    }
+
+    /* Badge Colaborativa en Modo Oscuro */
+    .badge-colaborativa {
+        background-color: #835dc2 !important;
+        border-color: #835dc2 !important;
+        color: #fff !important;
+    }
+
+    /* Clases utilitarias de Bootstrap y personalizadas */
+    .bg-light {
+        background-color: var(--sitia-surface-2) !important;
+        color: var(--sitia-text) !important;
+    }
+
+    .table-light,
+    .table-light th,
+    .table-light td {
+        background-color: var(--sitia-surface-2) !important;
+        color: var(--sitia-text) !important;
+        border-color: var(--sitia-border) !important;
+    }
+
+    /* Menús desplegables */
+    .dropdown-menu {
+        background-color: var(--sitia-surface-1);
+        border-color: var(--sitia-border);
+    }
+    .dropdown-item {
+        color: var(--sitia-text);
+    }
+    .dropdown-item:hover, .dropdown-item:focus {
+        background-color: var(--sitia-table-hover);
+        color: var(--sitia-text);
+    }
+    .dropdown-divider {
+        border-color: var(--sitia-border);
+    }
+
+    /* Alertas atenuadas */
+    .alert-success {
+        background-color: rgba(140, 214, 169, 0.15) !important;
+        border-color: rgba(140, 214, 169, 0.3) !important;
+        color: #8cd6a9 !important;
+    }
+    .alert-warning {
+        background-color: rgba(238, 208, 131, 0.15) !important;
+        border-color: rgba(238, 208, 131, 0.3) !important;
+        color: #eed083 !important;
+    }
+    .alert-danger {
+        background-color: rgba(234, 150, 150, 0.15) !important;
+        border-color: rgba(234, 150, 150, 0.3) !important;
+        color: #ea9696 !important;
+    }
+    .alert-info {
+        background-color: rgba(139, 203, 211, 0.15) !important;
+        border-color: rgba(139, 203, 211, 0.3) !important;
+        color: #8bcbd3 !important;
+    }
+    .alert-light {
+        background-color: var(--sitia-surface-2) !important;
+        border-color: var(--sitia-border) !important;
+        color: var(--sitia-text) !important;
+    }
+    /* Garantizar fondo de modales en Modo Oscuro (Sin costuras) */
+    .modal-content, .modal-body, .modal-header, .modal-footer {
+        background-color: var(--sitia-surface-3) !important;
+        color: var(--sitia-text) !important;
+    }
+    .modal-header {
+        border-bottom: 1px solid var(--sitia-border) !important;
+    }
+    .modal-footer {
+        border-top: 1px solid var(--sitia-border) !important;
+    }
+
+    /* Estilos de inputs y selects deshabilitados en Modo Oscuro */
+    .form-control:disabled,
+    .form-select:disabled {
+        color: var(--sitia-text-muted) !important;
+        background-color: var(--sitia-surface-3) !important;
+    }
+
+    /* Redefinición de dashboard-card en Modo Oscuro (Estilo Borde Izquierdo Integrado) */
+    .dashboard-card {
+        background-color: var(--sitia-surface-2) !important;
+        color: var(--sitia-text) !important;
+        border: 1px solid var(--sitia-border) !important;
+    }
+    .dashboard-card--primary {
+        border-left: 4px solid var(--sitia-primary) !important;
+    }
+    .dashboard-card--success {
+        border-left: 4px solid var(--sitia-success) !important;
+    }
+    .dashboard-card--info {
+        border-left: 4px solid var(--sitia-info) !important;
+    }
+    .dashboard-card--warning {
+        border-left: 4px solid var(--sitia-warning) !important;
+    }
+    .dashboard-card--danger {
+        border-left: 4px solid var(--sitia-danger) !important;
+    }
+
+    /* Anulación del degradado brillante en la tarjeta de Pendientes del Dashboard */
+    .dashboard-card[style*="#FF512F"],
+    .dashboard-card[style*="#DD2476"] {
+        background: linear-gradient(45deg, rgba(255, 81, 47, 0.15), rgba(221, 36, 118, 0.15)) !important;
+        border-color: rgba(221, 36, 118, 0.35) !important;
+        border-left: 4px solid #DD2476 !important;
+        color: var(--sitia-text) !important;
+    }
+
+    /* Ajuste para tarjetas estadísticas de Insumos Intervenidos en Modo Oscuro (Translúcido) */
+    .card[style*="#3d7b5f"] {
+        background-color: rgba(61, 123, 95, 0.15) !important;
+        color: #9de2b9 !important;
+        border: 1px solid rgba(61, 123, 95, 0.35) !important;
+    }
+    .card[style*="#d4a03c"] {
+        background-color: rgba(212, 160, 60, 0.15) !important;
+        color: #f4dd9e !important;
+        border: 1px solid rgba(212, 160, 60, 0.35) !important;
+    }
+    .card[style*="#c9544a"] {
+        background-color: rgba(201, 84, 74, 0.15) !important;
+        color: #f7aaaa !important;
+        border: 1px solid rgba(201, 84, 74, 0.35) !important;
+    }
+    .card[style*="#4a9b8c"] {
+        background-color: rgba(74, 155, 140, 0.15) !important;
+        color: #a2dfe6 !important;
+        border: 1px solid rgba(74, 155, 140, 0.35) !important;
+    }
+
+    /* Input group text y selector de archivos (Browse button) en Modo Oscuro */
+    .input-group-text {
+        background-color: var(--sitia-surface-1) !important;
+        border-color: var(--sitia-border) !important;
+        color: var(--sitia-text) !important;
+    }
+    .form-control::file-selector-button {
+        background-color: var(--sitia-surface-1) !important;
+        color: var(--sitia-text) !important;
+        border-color: var(--sitia-border) !important;
+    }
+    .form-control:hover::file-selector-button {
+        background-color: var(--sitia-surface-2) !important;
+    }
+
+    /* Clases de adaptabilidad del texto de comentarios para modo oscuro */
+    .dark-text-light {
+        color: var(--sitia-text) !important;
+    }
+    .dark-text-muted {
+        color: var(--sitia-text-muted) !important;
+    }
+    
+    .card-header--success {
+        background-color: rgba(92, 171, 125, 0.15) !important;
+        color: #9de2b9 !important;
+        border-bottom: 1px solid rgba(92, 171, 125, 0.3) !important;
+    }
+    .card-header--info {
+        background-color: rgba(74, 167, 155, 0.15) !important;
+        color: #a2dfe6 !important;
+        border-bottom: 1px solid rgba(74, 167, 155, 0.3) !important;
+    }
 }
 
 /* Transición suave entre modos */
@@ -133,6 +459,23 @@ body,
 .form-select {
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
+
+/* Alineación horizontal de cantidad en asignaciones */
+.cantidad-input {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+.cantidad-input label {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    white-space: nowrap;
+}
+.cantidad-input input {
+    margin: 0 !important;
+}
+
 
 /* === FASE 2: LAYOUT GENERAL === */
 body {
@@ -271,6 +614,12 @@ body {
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
+#busquedaGlobalResultados {
+    background-color: var(--sitia-input-bg);
+    color: var(--sitia-text);
+    border: 1px solid var(--sitia-border);
+}
+
 .navbar .navbar-text,
 .navbar .nav-link {
     color: var(--sitia-text) !important;
@@ -318,6 +667,10 @@ body {
     border-radius: 10px 10px 0 0 !important;
     padding: 1rem 1.25rem;
     font-weight: 600;
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 1.5rem !important;
 }
 
 .card .list-group-item {
@@ -362,8 +715,9 @@ body {
 }
 
 .form-control:disabled,
-.form-control[readonly] {
-    background-color: var(--sitia-surface-2);
+.form-control[readonly],
+.form-select:disabled {
+    background-color: var(--sitia-surface-2) !important;
     opacity: 0.8;
 }
 
@@ -430,7 +784,7 @@ body {
 .dashboard-card {
     background-color: var(--sitia-surface-3);
     color: var(--sitia-text);
-    padding: 1.5rem;
+    padding: 1rem 1.25rem;
     border-radius: var(--bs-border-radius);
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.12);
     border: 1px solid var(--sitia-border);
@@ -462,9 +816,9 @@ body {
 }
 
 .dashboard-card h3 {
-    font-size: 2.25rem;
+    font-size: 2rem;
     font-weight: 700;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
 }
 
 /* Modales */
@@ -477,7 +831,7 @@ body {
 .modal-header {
     background-color: var(--sitia-surface-2);
     border-radius: 10px 10px 0 0;
-    color: #000;
+    color: var(--sitia-text);
 }
 
 .modal-footer {
@@ -528,6 +882,115 @@ body {
     overflow-x: auto !important;
     -webkit-overflow-scrolling: touch;
     margin-bottom: 0;
+}
+
+/* Unificación de ancho de tablas al 100% y corrección de contenedores scroll de DataTables */
+.dataTables_wrapper,
+.dataTables_scroll,
+.dataTables_scrollHead,
+.dataTables_scrollHeadInner,
+.dataTables_scrollHeadInner table,
+.dataTables_scrollBody,
+.dataTables_scrollBody table,
+table.dataTable,
+.table {
+    width: 100% !important;
+}
+
+/* Alineación de controles de DataTables (Buscar y Mostrar) en el card-header a la derecha, título a la izquierda */
+
+/* Si existen controles de DataTables, empujar el primer control a la derecha */
+.card-header .dataTables_length {
+    margin-left: auto !important;
+}
+.card-header:not(:has(.dataTables_length)) .dataTables_filter {
+    margin-left: auto !important;
+}
+
+.card-header h1,
+.card-header h2,
+.card-header h3,
+.card-header h4,
+.card-header h5,
+.card-header h6 {
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.dataTables_filter label,
+.dataTables_length label {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    margin-bottom: 0 !important;
+    font-size: 0.9rem !important;
+    font-weight: normal !important;
+}
+
+/* Estilo para los controles dentro del card-header */
+.card-header .dataTables_length select,
+.card-header .dataTables_filter input {
+    height: 30px !important;
+    padding: 0 0.5rem !important;
+    font-size: 0.85rem !important;
+    border-radius: 0.25rem !important;
+    border: 1px solid var(--sitia-border) !important;
+    background-color: var(--sitia-input-bg) !important;
+    color: var(--sitia-text) !important;
+}
+
+.card-header .dataTables_length select {
+    width: auto !important;
+    padding-right: 1.75rem !important;
+}
+
+/* Quitar padding lateral y superior al card-body cuando contiene tablas principales de datos para hacerlas de borde a borde y pegadas al card-header */
+.card:has(table.datatable) .card-body,
+.card:has(.dataTables_wrapper) .card-body {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 0 !important;
+}
+
+/* Eliminar márgenes y rellenos superiores en las tablas principales y su wrapper de DataTables */
+.card-body table.datatable,
+.card-body table.dataTable,
+.card-body .dataTables_wrapper {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+/* Mantener un padding correcto en las celdas laterales para que el contenido no pegue al borde */
+.card-body .table th:first-child,
+.card-body .table td:first-child {
+    padding-left: 1.25rem !important;
+}
+.card-body .table th:last-child,
+.card-body .table td:last-child {
+    padding-right: 1.25rem !important;
+}
+
+/* Dar separación lateral a la información y paginación en el pie de la tabla */
+.card-body .dataTables_info {
+    padding-left: 1.25rem !important;
+}
+.card-body .dataTables_paginate {
+    padding-right: 1.25rem !important;
+}
+
+/* Devolver espaciado lateral y superior a filas y alertas en tarjetas con diseño de borde a borde */
+.card:has(table.datatable) .card-body > .row:not(.dataTables_wrapper),
+.card:has(.dataTables_wrapper) .card-body > .row:not(.dataTables_wrapper) {
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+    padding-top: 1.25rem !important;
+}
+
+.card:has(table.datatable) .card-body > .alert,
+.card:has(.dataTables_wrapper) .card-body > .alert {
+    margin-left: 1.25rem !important;
+    margin-right: 1.25rem !important;
 }
 
 .dataTables_scrollBody {
@@ -716,21 +1179,150 @@ body {
     color: #fff;
 }
 
-/* Botón suave amarillo (Transferir) */
+/* Botón suave amarillo (Baja) - Sólido con icono blanco */
 .btn-soft-warning {
-    background-color: #ffeba1;
-    border-color: #ffe066;
-    color: #856404;
+    background-color: #e6ad12 !important;
+    border-color: #e6ad12 !important;
+    color: #fff !important;
     transition: all 0.2s ease-in-out;
 }
 
 .btn-soft-warning:hover {
-    background-color: #ffe066;
-    border-color: #ffd633;
-    color: #856404;
+    background-color: #c9930c !important;
+    border-color: #c9930c !important;
+    color: #fff !important;
+}
+
+/* Redefinición global de btn-info al color de "Ver Insumos" (#4a9d95) */
+.btn-info {
+    background-color: #4a9d95 !important;
+    border-color: #4a9d95 !important;
+    color: #fff !important;
+}
+
+.btn-info:hover, .btn-info:focus, .btn-info:active {
+    background-color: #3b827b !important;
+    border-color: #3b827b !important;
+    color: #fff !important;
+}
+
+/* Modo Oscuro para btn-info (Tono pastel intermedio y suave) */
+[data-theme="dark"] .btn-info {
+    background-color: #63b3ab !important;
+    border-color: #63b3ab !important;
+    color: #1a3a37 !important;
+}
+
+[data-theme="dark"] .btn-info:hover {
+    background-color: #79c5bd !important;
+    border-color: #79c5bd !important;
+    color: #1a3a37 !important;
+}
+
+/* Redefinición global de btn-warning al color de "Ver Asignaciones" (#d9943f) */
+.btn-warning {
+    background-color: #d9943f !important;
+    border-color: #d9943f !important;
+    color: #fff !important;
+}
+
+.btn-warning:hover, .btn-warning:focus, .btn-warning:active {
+    background-color: #be7b28 !important;
+    border-color: #be7b28 !important;
+    color: #fff !important;
+}
+
+/* Modo Oscuro para btn-soft-warning */
+[data-theme="dark"] .btn-soft-warning {
+    background-color: #d1970b !important;
+    border-color: #d1970b !important;
+    color: #fff !important;
+}
+
+/* Botones suaves para remitos firmados - Sólidos con icono blanco */
+.btn-soft-success {
+    background-color: #28a745 !important;
+    border-color: #28a745 !important;
+    color: #fff !important;
+}
+.btn-soft-success:hover {
+    background-color: #218838 !important;
+    border-color: #218838 !important;
+    color: #fff !important;
+}
+
+.btn-soft-primary {
+    background-color: #66a86a !important;
+    border-color: #66a86a !important;
+    color: #fff !important;
+}
+.btn-soft-primary:hover {
+    background-color: #4e8351 !important;
+    border-color: #4e8351 !important;
+    color: #fff !important;
+}
+
+.btn-soft-secondary {
+    background-color: #85929e !important;
+    border-color: #85929e !important;
+    color: #fff !important;
+}
+.btn-soft-secondary:hover {
+    background-color: #6c7781 !important;
+    border-color: #6c7781 !important;
+    color: #fff !important;
+}
+
+/* Modo Oscuro para los botones suaves */
+[data-theme="dark"] .btn-soft-success {
+    background-color: #218838 !important;
+    border-color: #218838 !important;
+    color: #fff !important;
+}
+
+[data-theme="dark"] .btn-soft-primary {
+    background-color: #4e8351 !important;
+    border-color: #4e8351 !important;
+    color: #fff !important;
+}
+
+[data-theme="dark"] .btn-soft-secondary {
+    background-color: #6c7781 !important;
+    border-color: #6c7781 !important;
+    color: #fff !important;
+}
+
+/* Botón marrón claro pastel con fondo sólido e icono blanco */
+.btn-pastel-brown {
+    background-color: #a38974 !important;
+    border-color: #a38974 !important;
+    color: #ffffff !important;
+}
+.btn-pastel-brown:hover, .btn-pastel-brown:focus {
+    background-color: #8c735f !important;
+    border-color: #8c735f !important;
+    color: #ffffff !important;
+}
+
+.btn-colaborativa {
+    background-color: #9b78db !important;
+    border-color: #9b78db !important;
+    color: #ffffff !important;
+}
+.btn-colaborativa:hover, .btn-colaborativa:focus {
+    background-color: #7d5bbf !important;
+    border-color: #7d5bbf !important;
+    color: #ffffff !important;
 }
 
 /* === UTILIDADES === */
+.btn-xs {
+    padding: 0.15rem 0.35rem;
+    font-size: 0.75rem;
+    line-height: 1.2;
+    border-radius: 0.2rem;
+}
+
 .circle-sm {
     width: 28px !important;
     height: 28px !important;
@@ -778,6 +1370,13 @@ body {
     background-color: var(--sitia-surface-2) !important;
     color: var(--sitia-text) !important;
     border: 1px solid var(--sitia-border);
+}
+
+/* Badge de Tarea Colaborativa (Púrpura Pastel) */
+.badge-colaborativa {
+    background-color: #9b78db !important; /* Púrpura/Lila pastel suave */
+    color: #fff !important;               /* Mantiene el texto e icono en blanco */
+    border: 1px solid #9b78db !important;
 }
 
 /* Estados */
@@ -852,6 +1451,12 @@ body {
     }
 }
 
+@media (max-width: 1366px) {
+    #content>.container-fluid {
+        padding: 1rem 1.25rem;
+    }
+}
+
 @media (max-width: 768px) {
     .app-footer {
         font-size: 0.75rem;
@@ -863,10 +1468,6 @@ body {
     }
 }
 
-/* Asegurar que las tablas de DataTables ocupen siempre el 100% del contenedor y sean totalmente responsivas */
-table.dataTable {
-    width: 100% !important;
-}
 
 /* Hacer que los botones de acción en las tablas tengan tonos más suaves/claros */
 .table .btn-group .btn {
@@ -875,4 +1476,23 @@ table.dataTable {
 
 .table .btn-group .btn:hover {
     opacity: 1;
+}
+
+/* Optimización de Títulos y Botones para pantallas de Laptops (1366px) sin alterar aspecto original */
+@media (min-width: 992px) {
+    /* Selector estricto para el título de la página principal */
+    #content > .container-fluid > .row > .col-12 > .d-flex.justify-content-between > h1,
+    #content > .container-fluid > .row > .col-12 > .d-flex.justify-content-between > .h1 {
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+        font-size: calc(1.4rem + 0.5vw) !important; /* Ajuste fluido del tamaño del título */
+    }
+    
+    /* Selector estricto para el grupo de botones y sus botones asociados en la cabecera */
+    #content > .container-fluid > .row > .col-12 > .d-flex.justify-content-between > .btn-group,
+    #content > .container-fluid > .row > .col-12 > .d-flex.justify-content-between > .btn,
+    #content > .container-fluid > .row > .col-12 > .d-flex.justify-content-between > .btn-group > .btn {
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+    }
 }

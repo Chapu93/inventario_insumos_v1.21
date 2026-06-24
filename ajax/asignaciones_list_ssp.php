@@ -149,10 +149,10 @@ try {
             $numRemitoEscapado = htmlspecialchars($r['numero_remito'], ENT_QUOTES);
             if ($archivoFirmado) {
                 $urlArchivo = app_base_url() . '/uploads/remitos_firmados/' . $archivoFirmado;
-                $botones[] = '<a href="' . $urlArchivo . '" target="_blank" class="btn btn-sm btn-success text-white" data-bs-toggle="tooltip" title="Ver Remito Firmado"><i class="fas fa-file-signature"></i></a>';
-                $botones[] = '<button type="button" class="btn btn-sm btn-outline-secondary btn-subir-remito" data-id="' . $idRemito . '" data-numero="' . $numRemitoEscapado . '" data-has-file="1" data-bs-toggle="tooltip" title="Reemplazar remito firmado"><i class="fas fa-upload"></i></button>';
+                $botones[] = '<a href="' . $urlArchivo . '" target="_blank" class="btn btn-sm btn-soft-success" data-bs-toggle="tooltip" title="Ver Remito Firmado"><i class="fas fa-file-signature"></i></a>';
+                $botones[] = '<button type="button" class="btn btn-sm btn-soft-secondary btn-subir-remito" data-id="' . $idRemito . '" data-numero="' . $numRemitoEscapado . '" data-has-file="1" data-bs-toggle="tooltip" title="Reemplazar remito firmado"><i class="fas fa-upload"></i></button>';
             } else {
-                $botones[] = '<button type="button" class="btn btn-sm btn-outline-primary btn-subir-remito" data-id="' . $idRemito . '" data-numero="' . $numRemitoEscapado . '" data-has-file="0" data-bs-toggle="tooltip" title="Adjuntar remito firmado"><i class="fas fa-upload"></i></button>';
+                $botones[] = '<button type="button" class="btn btn-sm btn-soft-primary btn-subir-remito" data-id="' . $idRemito . '" data-numero="' . $numRemitoEscapado . '" data-has-file="0" data-bs-toggle="tooltip" title="Adjuntar remito firmado"><i class="fas fa-upload"></i></button>';
             }
         }
         

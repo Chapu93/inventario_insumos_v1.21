@@ -23,6 +23,39 @@
     <!-- DataTables -->
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        // Idioma español global para cualquier DataTable (se ejecuta inmediatamente)
+        if (typeof jQuery !== 'undefined' && jQuery.fn && jQuery.fn.dataTable) {
+            jQuery.extend(true, jQuery.fn.dataTable.defaults, {
+                autoWidth: false,
+                width: '100%',
+                language: {
+                    decimal: ',',
+                    thousands: '.',
+                    processing: 'Procesando...',
+                    search: 'Buscar:',
+                    lengthMenu: 'Mostrar _MENU_',
+                    info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
+                    infoEmpty: 'Mostrando 0 a 0 de 0 registros',
+                    infoFiltered: '(filtrado de _MAX_ registros totales)',
+                    infoPostFix: '',
+                    loadingRecords: 'Cargando...',
+                    zeroRecords: '<div class="text-center py-3"><i class="fas fa-search fa-2x text-muted mb-2"></i><p class="text-muted mb-0">No se encontraron resultados</p></div>',
+                    emptyTable: '<div class="text-center py-3"><i class="fas fa-inbox fa-2x text-muted mb-2"></i><p class="text-muted mb-0">No hay datos disponibles</p></div>',
+                    paginate: {
+                        first: 'Primero',
+                        previous: 'Anterior',
+                        next: 'Siguiente',
+                        last: 'Último'
+                    },
+                    aria: {
+                        sortAscending: ': activar para ordenar ascendente',
+                        sortDescending: ': activar para ordenar descendente'
+                    }
+                }
+            });
+        }
+    </script>
     <!-- Select2 (moved to header) -->
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -36,39 +69,9 @@
     <script>
         // Toggle sidebar
         $(document).ready(function() {
-            // No manipular directamente el DOM de DataTables (evita romper eventos)
-            // Idioma español global para cualquier DataTable
-            if ($.fn && $.fn.dataTable) {
-                $.extend(true, $.fn.dataTable.defaults, {
-                    language: {
-                        decimal: ',',
-                        thousands: '.',
-                        processing: 'Procesando...',
-                        search: 'Buscar:',
-                        lengthMenu: 'Mostrar _MENU_ registros',
-                        info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
-                        infoEmpty: 'Mostrando 0 a 0 de 0 registros',
-                        infoFiltered: '(filtrado de _MAX_ registros totales)',
-                        infoPostFix: '',
-                        loadingRecords: 'Cargando...',
-                        zeroRecords: '<div class="text-center py-3"><i class="fas fa-search fa-2x text-muted mb-2"></i><p class="text-muted mb-0">No se encontraron resultados</p></div>',
-                        emptyTable: '<div class="text-center py-3"><i class="fas fa-inbox fa-2x text-muted mb-2"></i><p class="text-muted mb-0">No hay datos disponibles</p></div>',
-                        paginate: {
-                            first: 'Primero',
-                            previous: 'Anterior',
-                            next: 'Siguiente',
-                            last: 'Último'
-                        },
-                        aria: {
-                            sortAscending: ': activar para ordenar ascendente',
-                            sortDescending: ': activar para ordenar descendente'
-                        }
-                    }
-                });
-            }
             // Sidebar toggle removido: menú siempre visible
             
-            // Control de scrollbar correcto en DataTables (evita scrollbar doble y mantiene responsividad)
+            // Control de scrollbar correcto en DataTables y reubicación de controles al card-header
             $(document).on('init.dt', function(e, settings) {
                 var api = new $.fn.dataTable.Api(settings);
                 var $table = $(api.table().node());
@@ -80,6 +83,34 @@
                 // Envolver la tabla en un contenedor responsive interno
                 if (!$table.parent().hasClass('table-responsive-inner')) {
                     $table.wrap('<div class="table-responsive-inner"></div>');
+                }
+
+                // Mover controles al card-header (si existe)
+                var $card = $wrapper.closest('.card');
+                var $cardHeader = $card.find('.card-header');
+                if ($cardHeader.length) {
+                    var $length = $wrapper.find('.dataTables_length');
+                    var $filter = $wrapper.find('.dataTables_filter');
+
+                    // Añadirlos ordenadamente al inicio del card-header
+                    // Añadirlos ordenadamente al final del card-header
+                    if ($length.length && !$cardHeader.find('.dataTables_length').length) {
+                        $cardHeader.append($length);
+                    }
+                    if ($filter.length && !$cardHeader.find('.dataTables_filter').length) {
+                        $cardHeader.append($filter);
+                    }
+
+                    // Ocultar la primera fila por defecto de DataTables para evitar espacios vacíos en el body (solo si no contiene botones de exportación)
+                    var $firstRow = $wrapper.find('.row:first-child');
+                    if ($firstRow.length) {
+                        if ($firstRow.find('.dt-buttons').length || $firstRow.find('.btn-group').length || $firstRow.find('button').length) {
+                            // Si contiene botones, solo ocultamos el filtro o longitud internos para no duplicarlos
+                            $firstRow.find('.dataTables_filter, .dataTables_length').addClass('d-none');
+                        } else {
+                            $firstRow.addClass('d-none');
+                        }
+                    }
                 }
             });
 
@@ -97,7 +128,7 @@
                         thousands: '.',
                         processing: 'Procesando...',
                         search: 'Buscar:',
-                        lengthMenu: 'Mostrar _MENU_ registros',
+                        lengthMenu: 'Mostrar _MENU_',
                         info: 'Mostrando _START_ a _END_ de _TOTAL_ registros',
                         infoEmpty: 'Mostrando 0 a 0 de 0 registros',
                         infoFiltered: '(filtrado de _MAX_ registros totales)',
@@ -240,7 +271,7 @@
                                 resultados[grupo].forEach(function(item) {
                                     var tipo = item.tipo;
                                     var url = BASE + urls[tipo] + item.id;
-                                    html += '<a href="' + url + '" class="d-block px-3 py-2 text-decoration-none text-dark busqueda-item" style="transition: background 0.2s;">';
+                                    html += '<a href="' + url + '" class="d-block px-3 py-2 text-decoration-none busqueda-item" style="transition: background 0.2s;">';
                                     html += '<i class="fas ' + iconos[tipo] + ' text-' + colores[tipo] + ' me-2"></i>';
                                     html += '<span class="fw-medium">' + escapeHtml(item.titulo) + '</span>';
                                     if (item.subtitulo) {
@@ -301,7 +332,7 @@
     </script>
     
     <!-- Toast container (Bootstrap 5) -->
-    <div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1080;" aria-live="polite" aria-atomic="true"></div>
+    <div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;" aria-live="polite" aria-atomic="true"></div>
 
     <!-- Modal de Confirmación Global SITIA -->
     <div class="modal fade" id="modalConfirmacionSITIA" tabindex="-1" aria-labelledby="modalConfirmacionSITIALabel" aria-hidden="true">
@@ -462,8 +493,14 @@
             document.addEventListener(evt, registrarActividad, { passive: true });
         });
 
-        // Registrar actividad al completar peticiones AJAX
-        $(document).ajaxComplete(function() {
+        // Registrar actividad al completar peticiones AJAX (excluyendo consultas en segundo plano)
+        $(document).ajaxComplete(function(event, xhr, settings) {
+            if (settings && (
+                (settings.url && (settings.url.indexOf('session_ping.php') !== -1 || settings.url.indexOf('contadores_dashboard.php') !== -1)) ||
+                settings.skipActivity === true
+            )) {
+                return;
+            }
             registrarActividad();
         });
 
@@ -480,7 +517,8 @@
             $.ajax({
                 url: window.APP_BASE_URL + '/ajax/session_ping.php',
                 method: 'GET',
-                dataType: 'json'
+                dataType: 'json',
+                skipActivity: true
             }).fail(function(xhr) {
                 if (xhr.status === 401) {
                     mostrarModalExpirado();
@@ -518,10 +556,10 @@
             const icono = document.getElementById('modalSesionIcono');
             
             if (header) {
-                header.className = 'modal-header bg-warning text-dark';
+                header.className = 'modal-header bg-warning-subtle text-warning-emphasis border-bottom border-warning-subtle';
             }
             if (icono) {
-                icono.className = 'fas fa-exclamation-triangle me-2';
+                icono.className = 'fas fa-exclamation-triangle text-warning me-2';
             }
             if (titulo) {
                 titulo.textContent = 'Advertencia de Inactividad';

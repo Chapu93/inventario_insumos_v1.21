@@ -48,6 +48,44 @@ $total_mis_cosas = $total_mis_pedidos + $total_mis_tareas;
 .modo-historial .dataTables_filter {
     display: none !important;
 }
+
+/* Botón y animación para el colapso de las tablas */
+.fa-chevron-down[data-bs-toggle="collapse"] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #495057;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    font-size: 0.8em;
+}
+.fa-chevron-down[data-bs-toggle="collapse"]:hover {
+    background-color: var(--sitia-success, #5cab7d);
+    color: #ffffff;
+    border-color: var(--sitia-success, #5cab7d) !important;
+}
+
+/* --- VERSION MODO OSCURO --- */
+[data-theme="dark"] .fa-chevron-down[data-bs-toggle="collapse"] {
+    background-color: var(--sitia-surface-2, #60736b);
+    border-color: var(--sitia-border, #7a9187);
+    color: var(--sitia-text, #f4f7f5);
+}
+[data-theme="dark"] .fa-chevron-down[data-bs-toggle="collapse"]:hover {
+    background-color: var(--sitia-success, #9de2b9);
+    color: #1e2522; /* Texto oscuro para legibilidad sobre fondo pastel */
+    border-color: var(--sitia-success, #9de2b9) !important;
+}
+
+/* Rotar flecha cuando el acordeón está desplegado (NO colapsado) */
+.fa-chevron-down[data-bs-toggle="collapse"]:not(.collapsed) {
+    transform: rotate(180deg);
+}
 </style>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -185,9 +223,9 @@ $total_mis_cosas = $total_mis_pedidos + $total_mis_tareas;
 
 <div class="card">
     <div class="card-header" id="headerPedidos">
-        <h5 class="mb-0">
-            <i class="fas fa-list me-2"></i><span id="tituloSeccionPedidos">Listado de Pedidos</span>
-            <i class="fas fa-chevron-down float-end mt-1" style="font-size: 0.9em; display: none;"></i>
+        <h5 class="mb-0 d-flex align-items-center justify-content-between">
+            <span class="pe-3"><i class="fas fa-list me-2"></i><span id="tituloSeccionPedidos">Listado de Pedidos</span></span>
+            <i class="fas fa-chevron-down" style="display: none;"></i>
         </h5>
     </div>
     <div class="collapse show" id="collapsePedidos">
@@ -222,9 +260,9 @@ $total_mis_cosas = $total_mis_pedidos + $total_mis_tareas;
 <div id="seccionTareas" class="d-none">
     <div class="card shadow-sm border-0 mt-3">
         <div class="card-header" id="headerTareas">
-            <h5 class="mb-0">
-                <i class="fas fa-tasks me-2"></i><span id="tituloSeccionTareas">Tareas Internas del Área</span>
-                <i class="fas fa-chevron-down float-end mt-1" style="font-size: 0.9em; display: none;"></i>
+            <h5 class="mb-0 d-flex align-items-center justify-content-between">
+                <span class="pe-3"><i class="fas fa-tasks me-2"></i><span id="tituloSeccionTareas">Tareas Internas del Área</span></span>
+                <i class="fas fa-chevron-down" style="display: none;"></i>
             </h5>
         </div>
         <div class="collapse show" id="collapseTareas">
@@ -430,6 +468,19 @@ $total_mis_cosas = $total_mis_pedidos + $total_mis_tareas;
 <script>
 var dtPedidos;
 
+// Helper: cierra todos los tooltips abiertos antes de recargar la tabla
+// Necesario para evitar que los tooltips queden flotando cuando se destruye el botón
+function cerrarTooltips() {
+    try {
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function(el) {
+            var t = bootstrap.Tooltip.getInstance(el);
+            if (t) { t.hide(); }
+        });
+        // Eliminar cualquier tooltip huérfano del DOM directamente
+        document.querySelectorAll('.tooltip').forEach(function(el) { el.remove(); });
+    } catch(e) {}
+}
+
 $(function() {
     // Inicializar DataTable
     dtPedidos = $('#tablaPedidos').DataTable({
@@ -477,10 +528,10 @@ $(function() {
         const modo = $('#filtroModo').val();
         if (modo === 'tareas_internas' || $('#tareas-tab').hasClass('active')) {
             currentTareasModo = $('#filtroVista').val() || 'activas';
-            if (dtTareas) dtTareas.ajax.reload();
+            cerrarTooltips(); dtTareas.ajax.reload();
         } else if (modo === 'todos' || modo === 'mis_pedidos') {
             if (dtPedidos) dtPedidos.ajax.reload();
-            if (dtTareas) dtTareas.ajax.reload();
+            cerrarTooltips(); dtTareas.ajax.reload();
         } else {
             if (dtPedidos) dtPedidos.ajax.reload();
         }
@@ -512,16 +563,20 @@ $(function() {
         $('#filtroModo').val(modo);
         adaptarFiltros(modo);
 
-        if (modo === 'todos') {
-            $('body').addClass('modo-historial');
-            // Habilitar comportamiento de acordeón
-            $('#headerPedidos').attr({'data-bs-toggle': 'collapse', 'data-bs-target': '#collapsePedidos'}).css('cursor', 'pointer');
-            $('#headerTareas').attr({'data-bs-toggle': 'collapse', 'data-bs-target': '#collapseTareas'}).css('cursor', 'pointer');
+        if (modo === 'todos' || modo === 'mis_pedidos') {
+            if (modo === 'todos') {
+                $('body').addClass('modo-historial');
+            } else {
+                $('body').removeClass('modo-historial');
+            }
+            // Habilitar comportamiento de acordeón sólo en los botones de flecha
+            $('#headerPedidos .fa-chevron-down').attr({'data-bs-toggle': 'collapse', 'data-bs-target': '#collapsePedidos'});
+            $('#headerTareas .fa-chevron-down').attr({'data-bs-toggle': 'collapse', 'data-bs-target': '#collapseTareas'});
             $('#headerPedidos .fa-chevron-down, #headerTareas .fa-chevron-down').show();
         } else {
             $('body').removeClass('modo-historial');
             // Deshabilitar comportamiento de acordeón
-            $('#headerPedidos, #headerTareas').removeAttr('data-bs-toggle').removeAttr('data-bs-target').css('cursor', 'default');
+            $('#headerPedidos .fa-chevron-down, #headerTareas .fa-chevron-down').removeAttr('data-bs-toggle').removeAttr('data-bs-target');
             $('#headerPedidos .fa-chevron-down, #headerTareas .fa-chevron-down').hide();
             // Asegurar que estén abiertos
             $('#collapsePedidos, #collapseTareas').addClass('show').css('display', '');
@@ -997,6 +1052,7 @@ function iniciarTablaTareas(overrideModo) {
             }
         });
     } else {
+        cerrarTooltips();
         dtTareas.ajax.reload();
     }
 
@@ -1119,7 +1175,7 @@ $(document).on('click', '#btnGuardarTarea', function() {
             if (r.success) {
                 $('#modalNuevaTarea').modal('hide');
                 showToast(r.mensaje || r.data.mensaje || 'Tarea guardada', 'success');
-                if (dtTareas) dtTareas.ajax.reload();
+                cerrarTooltips(); dtTareas.ajax.reload();
             } else {
                 showToast(r.error || 'Error al guardar tarea', 'error');
             }
@@ -1146,7 +1202,7 @@ function verTarea(id) {
             var comentarios = r.data.comentarios || [];
             var estadoClass = { 'Pendiente': 'warning text-dark', 'En Proceso': 'primary', 'Completada': 'success' }[t.estado] || 'secondary';
             var asignado = t.es_colaborativa == 1 
-                ? '<span class="badge" style="background-color: #6f42c1; color: white;"><i class="fas fa-users me-1"></i>Colaborativa</span>'
+                ? '<span class="badge badge-colaborativa"><i class="fas fa-users me-1"></i>Colaborativa</span>'
                 : (t.asig_nombre ? (t.asig_nombre + ' ' + t.asig_apellido + ' (' + t.asig_user + ')') : '<em class="text-muted">Sin asignar</em>');
             var fechaFin = t.fecha_finalizacion ? new Date(t.fecha_finalizacion).toLocaleString('es-AR') : '<em class="text-muted">—</em>';
             
@@ -1167,53 +1223,77 @@ function verTarea(id) {
                 + (t.adjunto_path ? '<div class="col-12 mt-2"><label class="fw-bold text-muted small">ADJUNTO</label><br><a href="<?php echo app_base_url(); ?>/uploads/tareas/' + t.adjunto_path + '" target="_blank" class="btn btn-sm btn-outline-primary mt-1"><i class="fas fa-paperclip me-1"></i>Ver adjunto</a></div>' : '');
 
             // Sección de comentarios
-            html += '<div class="col-12 mt-4"><hr>'
-                + '<h6 class="fw-bold mb-3"><i class="fas fa-comments me-2"></i>Historial de Comentarios</h6>';
+            html += '<div class="col-12 mt-4"><hr class="border-2 opacity-25">'
+                + '<h6 class="fw-bold mb-3 d-flex align-items-center"><i class="fas fa-comments me-2 text-primary"></i>Historial de Comentarios</h6>';
+
+            function renderComentarioHtml(c, esSuperAdmin) {
+                var fechaCom = new Date(c.fecha).toLocaleString('es-AR');
+                var isHidden = c.visible == 0;
+                
+                // Cajas consistentes sin borde izquierdo de color, usando borde simple y fondo según visibilidad
+                var boxStyle = isHidden 
+                    ? 'border bg-warning bg-opacity-10' 
+                    : 'border bg-light shadow-sm';
+                
+                var hideBadge = isHidden ? '<span class="badge bg-warning text-dark me-2 d-inline-flex align-items-center"><i class="fas fa-eye-slash me-1"></i>Oculto para usuarios</span>' : '';
+                
+                var toggleButton = '';
+                if (esSuperAdmin) {
+                    var title = isHidden ? 'Hacer visible para todos' : 'Ocultar para otros usuarios';
+                    var icon = isHidden ? 'fa-eye' : 'fa-eye-slash';
+                    var btnClass = isHidden ? 'btn-soft-success text-success border-success bg-success bg-opacity-10' : 'btn-soft-warning text-warning border-warning bg-warning bg-opacity-10';
+                    toggleButton = '<button class="btn btn-xs ' + btnClass + ' ms-2 px-2 py-1 toggle-vis-comentario" data-id="' + c.id_comentario + '" title="' + title + '" style="border: 1px solid; transition: all 0.2s;">'
+                        + '<i class="fas ' + icon + ' me-1"></i>' + (isHidden ? 'Mostrar' : 'Ocultar')
+                        + '</button>';
+                }
+
+                return '<div class="p-3 rounded mb-3 ' + boxStyle + '" style="transition: all 0.3s;">'
+                    + '<div class="d-flex justify-content-between align-items-center mb-2">'
+                    + '<div>'
+                    + '<span class="fw-bold text-dark dark-text-light"><i class="fas fa-user-circle me-1 text-muted"></i>' + $('<span>').text(c.nombre + ' ' + c.apellido).html() + '</span>'
+                    + '<span class="text-muted small ms-2">(' + $('<span>').text(c.username).html() + ')</span>'
+                    + '</div>'
+                    + '<div class="d-flex align-items-center">'
+                    + hideBadge
+                    + '<span class="text-muted small"><i class="far fa-clock me-1"></i>' + fechaCom + '</span>'
+                    + toggleButton
+                    + '</div>'
+                    + '</div>'
+                    + '<div style="white-space:pre-wrap; line-height: 1.5;" class="text-dark dark-text-light ' + (isHidden ? 'fst-italic' : '') + '">' + $('<span>').text(c.comentario).html() + '</div>'
+                    + '</div>';
+            }
+
+            // Obtener el flag de si es Super Administrador directamente del rol en la sesión PHP
+            var esSuperAdmin = <?php echo (obtenerUsuario()['id_rol'] == 1) ? 'true' : 'false'; ?>;
 
             if (comentarios.length === 0) {
-                html += '<div class="p-3 bg-light border rounded"><p class="text-muted mb-0 py-2 text-center" id="comentariosVacios">No hay comentarios registrados en esta tarea.</p></div>';
-            } else if (comentarios.length === 1) {
-                html += '<div class="mb-3 p-3 bg-light border rounded" style="max-height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">';
-                var c = comentarios[0];
-                var fechaCom = new Date(c.fecha).toLocaleString('es-AR');
-                html += '<div class="p-2">'
-                    + '<div class="d-flex justify-content-between small text-muted mb-1">'
-                    + '<strong>' + $('<span>').text(c.nombre + ' ' + c.apellido + ' (' + c.username + ')').html() + '</strong>'
-                    + '<span>' + fechaCom + '</span>'
-                    + '</div>'
-                    + '<div style="white-space:pre-wrap">' + $('<span>').text(c.comentario).html() + '</div>'
+                html += '<div class="p-4 bg-light border border-dashed rounded-3 text-center">'
+                    + '<i class="fas fa-comments fa-2x text-muted mb-2"></i>'
+                    + '<p class="text-muted mb-0">No hay comentarios registrados en esta tarea.</p>'
                     + '</div>';
+            } else if (comentarios.length === 1) {
+                html += '<div class="mb-3" style="max-height: 350px; overflow-y: auto;">';
+                html += renderComentarioHtml(comentarios[0], esSuperAdmin);
                 html += '</div>';
             } else {
                 var ultCom = comentarios[comentarios.length - 1];
                 var antComentarios = comentarios.slice(0, comentarios.length - 1);
 
-                html += '<button class="btn btn-xs btn-outline-secondary mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#comentariosAnteriores" aria-expanded="false" id="btnToggleComentarios">'
-                    + '<i class="fas fa-history me-1"></i> Mostrar comentarios anteriores (' + antComentarios.length + ')'
-                    + '</button>';
+                html += '<div class="d-grid mb-3">'
+                    + '<button class="btn btn-xs btn-outline-secondary d-flex align-items-center justify-content-center py-2" type="button" data-bs-toggle="collapse" data-bs-target="#comentariosAnteriores" aria-expanded="false" id="btnToggleComentarios">'
+                    + '<i class="fas fa-history me-2"></i> Mostrar comentarios anteriores (' + antComentarios.length + ')'
+                    + '</button>'
+                    + '</div>';
 
-                html += '<div class="collapse mb-2" id="comentariosAnteriores">'
-                    + '<div class="p-3 bg-light border rounded mb-2" style="max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">';
-                
+                html += '<div class="collapse mb-3" id="comentariosAnteriores" style="max-height: 300px; overflow-y: auto;">';
                 antComentarios.forEach(function(c) {
-                    var fechaCom = new Date(c.fecha).toLocaleString('es-AR');
-                    html += '<div class="p-2 border-bottom">'
-                        + '<div class="d-flex justify-content-between small text-muted mb-1">'
-                        + '<strong>' + $('<span>').text(c.nombre + ' ' + c.apellido + ' (' + c.username + ')').html() + '</strong>'
-                        + '<span>' + fechaCom + '</span>'
-                        + '</div>'
-                        + '<div style="white-space:pre-wrap">' + $('<span>').text(c.comentario).html() + '</div>'
-                        + '</div>';
+                    html += renderComentarioHtml(c, esSuperAdmin);
                 });
-                html += '</div></div>';
+                html += '</div>';
 
-                var fechaUlt = new Date(ultCom.fecha).toLocaleString('es-AR');
-                html += '<div class="p-3 bg-light border rounded mb-3">'
-                    + '<div class="small text-muted mb-1 d-flex justify-content-between">'
-                    + '<span>Última intervención por <strong>' + $('<span>').text(ultCom.nombre + ' ' + ultCom.apellido + ' (' + ultCom.username + ')').html() + '</strong></span>'
-                    + '<span>' + fechaUlt + '</span>'
-                    + '</div>'
-                    + '<div style="white-space:pre-wrap">' + $('<span>').text(ultCom.comentario).html() + '</div>'
+                html += '<div class="mb-3">'
+                    + '<div class="fw-bold small text-muted mb-2"><i class="fas fa-comment-dots me-1 text-primary"></i>Último comentario:</div>'
+                    + renderComentarioHtml(ultCom, esSuperAdmin)
                     + '</div>';
             }
 
@@ -1223,9 +1303,13 @@ function verTarea(id) {
                     + '<input type="hidden" name="accion" value="agregar_comentario">'
                     + '<input type="hidden" name="_csrf" value="<?php echo csrf_token(); ?>">'
                     + '<input type="hidden" name="id_tarea" value="' + t.id_tarea + '">'
-                    + '<div class="input-group">'
+                    + '<div class="row g-2">'
+                    + '<div class="col">'
                     + '<textarea class="form-control" name="comentario" id="comentarioTareaTxt" rows="2" placeholder="Escribe un comentario..." required></textarea>'
-                    + '<button class="btn btn-primary" type="submit" id="btnEnviarComentarioTarea"><i class="fas fa-paper-plane"></i></button>'
+                    + '</div>'
+                    + '<div class="col-auto d-flex align-items-stretch">'
+                    + '<button class="btn btn-primary px-3 d-flex align-items-center" type="submit" id="btnEnviarComentarioTarea"><i class="fas fa-paper-plane"></i></button>'
+                    + '</div>'
                     + '</div>'
                     + '</form>';
             }
@@ -1242,6 +1326,43 @@ function verTarea(id) {
             $(document).off('hide.bs.collapse', '#comentariosAnteriores').on('hide.bs.collapse', '#comentariosAnteriores', function() {
                 var count = comentarios.length - 1;
                 $('#btnToggleComentarios').html('<i class="fas fa-history me-1"></i> Mostrar comentarios anteriores (' + count + ')');
+            });
+
+            // Handler para toggle de visibilidad del comentario
+            $('.toggle-vis-comentario').off('click').on('click', function(e) {
+                e.preventDefault();
+                var $btn = $(this);
+                var idComentario = $btn.data('id');
+                $btn.prop('disabled', true);
+                $.ajax({
+                    url: '<?php echo app_base_url(); ?>/ajax/tareas_acciones.php',
+                    type: 'POST',
+                    data: {
+                        accion: 'toggle_visibilidad_comentario',
+                        id_comentario: idComentario,
+                        _csrf: '<?php echo csrf_token(); ?>'
+                    },
+                    dataType: 'json',
+                    xhrFields: { withCredentials: true },
+                    success: function(res) {
+                        if (res.success) {
+                            var msg = res.data && res.data.mensaje ? res.data.mensaje : (res.mensaje || 'Visibilidad cambiada');
+                            showToast(msg, 'success');
+                            verTarea(t.id_tarea);
+                        } else {
+                            $btn.prop('disabled', false);
+                            showToast(res.error || 'Error al cambiar visibilidad', 'error');
+                        }
+                    },
+                    error: function(xhr) {
+                        $btn.prop('disabled', false);
+                        var errMsg = 'Error de conexión';
+                        if (xhr.responseJSON && xhr.responseJSON.error) {
+                            errMsg = xhr.responseJSON.error;
+                        }
+                        showToast(errMsg, 'error');
+                    }
+                });
             });
 
             // Handler para enviar comentario
@@ -1284,7 +1405,7 @@ function tomarTarea(id) {
         dataType: 'json',
         xhrFields: { withCredentials: true },
         success: function(r) {
-            if (r.success) { showToast(r.data.mensaje, 'success'); if (dtTareas) dtTareas.ajax.reload(); }
+            if (r.success) { showToast(r.data.mensaje, 'success'); cerrarTooltips(); dtTareas.ajax.reload(); }
             else showToast(r.error || 'Error al tomar tarea', 'error');
         },
         error: function() { showToast('Error de conexión', 'error'); }
@@ -1332,7 +1453,7 @@ function completarTarea(id) {
                 success: function(r) {
                     if (r.success) { 
                         showToast(r.data.mensaje, 'success'); 
-                        if (dtTareas) dtTareas.ajax.reload(); 
+                        cerrarTooltips(); dtTareas.ajax.reload(); 
                     } else { 
                         showToast(r.error || 'Error', 'error'); 
                     }
@@ -1358,7 +1479,7 @@ function liberarTarea(id) {
                 dataType: 'json',
                 xhrFields: { withCredentials: true },
                 success: function(r) {
-                    if (r.success) { showToast(r.data.mensaje, 'success'); if (dtTareas) dtTareas.ajax.reload(); }
+                    if (r.success) { showToast(r.data.mensaje, 'success'); cerrarTooltips(); dtTareas.ajax.reload(); }
                     else showToast(r.error || 'Error', 'error');
                 },
                 error: function() { showToast('Error de conexión', 'error'); }
@@ -1382,8 +1503,52 @@ function eliminarTarea(id) {
                 dataType: 'json',
                 xhrFields: { withCredentials: true },
                 success: function(r) {
-                    if (r.success) { showToast(r.data.mensaje, 'success'); if (dtTareas) dtTareas.ajax.reload(); }
+                    if (r.success) { showToast(r.data.mensaje, 'success'); cerrarTooltips(); dtTareas.ajax.reload(); }
                     else showToast(r.error || 'Error', 'error');
+                },
+                error: function() { showToast('Error de conexión', 'error'); }
+            });
+        }
+    });
+}
+
+function cambiarTipoTarea(id, esColaborativaActual) {
+    var esColab = parseInt(esColaborativaActual) === 1;
+    var titulo, mensaje, icono;
+
+    if (esColab) {
+        // Colaborativa → Asignable
+        titulo   = 'Convertir a Tarea Asignable';
+        mensaje  = '¿Convertir esta tarea a <strong>Asignable</strong>? Se liberará del modo colaborativo, quedará en estado <em>Pendiente</em> y podrá ser tomada o asignada a un técnico.';
+        icono    = 'fa-user-slash text-secondary';
+    } else {
+        // Asignable → Colaborativa
+        titulo   = 'Convertir a Tarea Colaborativa';
+        mensaje  = '¿Convertir esta tarea a <strong>Colaborativa</strong>? Se eliminará la asignación individual y cualquier técnico podrá completarla.';
+        icono    = 'fa-users text-secondary';
+    }
+
+    showConfirm({
+        titulo: titulo,
+        mensaje: mensaje,
+        icono: icono,
+        claseBoton: 'btn-secondary',
+        textoAceptar: 'Confirmar',
+        onConfirm: function() {
+            $.ajax({
+                url: '<?php echo app_base_url(); ?>/ajax/tareas_acciones.php',
+                type: 'POST',
+                data: { accion: 'cambiar_tipo', id: id, _csrf: '<?php echo csrf_token(); ?>' },
+                dataType: 'json',
+                xhrFields: { withCredentials: true },
+                success: function(r) {
+                    if (r.success) {
+                        showToast(r.data.mensaje, 'success');
+                        cerrarTooltips();
+                        dtTareas.ajax.reload();
+                    } else {
+                        showToast(r.error || 'Error al convertir tarea', 'error');
+                    }
                 },
                 error: function() { showToast('Error de conexión', 'error'); }
             });
@@ -1426,7 +1591,7 @@ $(document).on('click', '#btnConfirmarAsignarTarea', function() {
             if (r.success) {
                 $('#modalAsignarTarea').modal('hide');
                 showToast(r.data.mensaje, 'success');
-                if (dtTareas) dtTareas.ajax.reload();
+                cerrarTooltips(); dtTareas.ajax.reload();
             } else {
                 showToast(r.error || 'Error al asignar', 'error');
             }

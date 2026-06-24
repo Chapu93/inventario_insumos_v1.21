@@ -165,12 +165,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $estado = ($nuevoOficina > 0) ? 'Disponible' : (($nuevoDeposito > 0) ? 'Disponible' : 'Asignado');
 
                 if ($cantidadTotal > 0) {
-                    $db->prepare("UPDATE insumos SET cantidad=?, cantidad_oficina=?, cantidad_deposito=?, estado=?, id_sede_actual=?, id_area_asignacion_actual=?, es_nuevo = IF(es_nuevo = 1, 0, es_nuevo) WHERE id_insumo=?")
-                        ->execute([$cantidadTotal, $nuevoOficina, $nuevoDeposito, $estado, $idSede, $idArea, $idIns]);
+                    $db->prepare("UPDATE insumos SET cantidad=?, cantidad_oficina=?, cantidad_deposito=?, estado=?, id_sede_actual=NULL, id_area_asignacion_actual=NULL, es_nuevo = IF(es_nuevo = 1, 0, es_nuevo) WHERE id_insumo=?")
+                        ->execute([$cantidadTotal, $nuevoOficina, $nuevoDeposito, $estado, $idIns]);
                 } else {
-                    // Si se agotó todo, limpiar punto de stock
-                    $db->prepare("UPDATE insumos SET cantidad=?, cantidad_oficina=?, cantidad_deposito=?, estado=?, id_sede_actual=?, id_area_asignacion_actual=?, id_punto_stock_actual=NULL, es_nuevo = IF(es_nuevo = 1, 0, es_nuevo) WHERE id_insumo=?")
-                        ->execute([$cantidadTotal, $nuevoOficina, $nuevoDeposito, $estado, $idSede, $idArea, $idIns]);
+                    // Si se agotó todo, limpiar punto de stock y dejar ubicación en NULL para tipo Varios (no falsear ubicación de lote)
+                    $db->prepare("UPDATE insumos SET cantidad=?, cantidad_oficina=?, cantidad_deposito=?, estado=?, id_sede_actual=NULL, id_area_asignacion_actual=NULL, id_punto_stock_actual=NULL, es_nuevo = IF(es_nuevo = 1, 0, es_nuevo) WHERE id_insumo=?")
+                        ->execute([$cantidadTotal, $nuevoOficina, $nuevoDeposito, $estado, $idIns]);
                 }
             } else {
                 $db->prepare("UPDATE insumos SET estado='Asignado', id_sede_actual=?, id_area_asignacion_actual=?, id_punto_stock_actual=NULL, es_nuevo = IF(es_nuevo = 1, 0, es_nuevo) WHERE id_insumo=?")
@@ -391,7 +391,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                         $marcaModelo = trim(($marca ?? '') . ' ' . ($modelo ?? ''));
                                                         if (!empty($marcaModelo)) $displayName = $marcaModelo;
                                                     } elseif ($esPc && !empty($ins['pc_sist_op'])) {
-                                                        $displayName .= ' (' . $ins['pc_sist_op'] . ')';
+                                                        $displayName = 'CPU/' . $ins['pc_sist_op'];
                                                     }
                                                     $originalName = (string) $ins['nombre_insumo'];
                                                     $filterSource = $displayName;
@@ -539,7 +539,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div id="m_insumos" class="table-responsive"></div>
                     <div id="m_obs_container" class="mt-3">
                         <h6 class="text-primary mb-2"><i class="fas fa-comment me-2"></i>Observaciones</h6>
-                        <div class="alert alert-light mb-0" id="m_obs" style="white-space: pre-wrap;"></div>
+                        <div class="bg-light p-2 rounded border mb-0 text-dark" id="m_obs" style="white-space: pre-wrap;"></div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -682,13 +682,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (selected) {
                 $h.prop('disabled', true);
                 $btn.removeClass('btn-primary').addClass('btn-outline-primary').html('<i class="fas fa-plus"></i> Seleccionar');
-                $fila.find('.cantidad-input').hide().find('input').prop('disabled', true);
+                $fila.find('.cantidad-input').css('display', 'none').find('input').prop('disabled', true);
             } else {
                 $h.prop('disabled', false);
                 $btn.removeClass('btn-outline-primary').addClass('btn-primary').html('<i class="fas fa-minus"></i> Deseleccionar');
                 const tipo = $h.data('tipo');
                 const max = parseInt($h.data('max') || 1, 10);
-                if (tipo === 'Varios' && max > 1) { $fila.find('.cantidad-input').show().find('input').prop('disabled', false); }
+                if (tipo === 'Varios' && max > 1) { $fila.find('.cantidad-input').css('display', 'flex').find('input').prop('disabled', false); }
             }
             actualizarContadorSeleccionados();
             reorderSelectedFirst();
@@ -704,7 +704,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $btn.removeClass('btn-outline-primary').addClass('btn-primary').html('<i class="fas fa-minus"></i> Deseleccionar');
                     const tipo = $h.data('tipo');
                     const max = parseInt($h.data('max') || 1, 10);
-                    if (tipo === 'Varios' && max > 1) { $f.find('.cantidad-input').show().find('input').prop('disabled', false); }
+                    if (tipo === 'Varios' && max > 1) { $f.find('.cantidad-input').css('display', 'flex').find('input').prop('disabled', false); }
                 }
             });
             actualizarContadorSeleccionados();
@@ -714,7 +714,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         function deseleccionarTodos() {
             $('.hidden-insumo-input').prop('disabled', true);
             $('.btn-seleccionar').removeClass('btn-primary').addClass('btn-outline-primary').html('<i class="fas fa-plus"></i> Seleccionar');
-            $('.cantidad-input').hide().find('input').prop('disabled', true);
+            $('.cantidad-input').css('display', 'none').find('input').prop('disabled', true);
             actualizarContadorSeleccionados();
             reorderSelectedFirst();
         }

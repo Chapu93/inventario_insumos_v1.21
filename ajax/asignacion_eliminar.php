@@ -42,7 +42,7 @@ try {
     }
 
     // Revertir estado de insumos solo si el remito está Activa; si ya está Devuelta, no tocar stock/estado
-    $items = $db->prepare('SELECT d.id_insumo, d.cantidad, i.tipo_insumo, i.cantidad AS stock_actual, i.cantidad_oficina, COALESCE(d.cantidad_devuelta,0) AS cantidad_devuelta FROM remitos_detalle d JOIN insumos i ON i.id_insumo = d.id_insumo WHERE d.id_remito = ?');
+    $items = $db->prepare('SELECT d.id_insumo, d.cantidad, i.tipo_insumo, i.cantidad AS stock_actual, i.cantidad_oficina, i.cantidad_deposito, COALESCE(d.cantidad_devuelta,0) AS cantidad_devuelta FROM remitos_detalle d JOIN insumos i ON i.id_insumo = d.id_insumo WHERE d.id_remito = ?');
     $items->execute([$idRemito]);
     $itemsArray = $items->fetchAll();
 
@@ -53,11 +53,15 @@ try {
 
             if ($it['tipo_insumo'] === 'Varios') {
                 if ($pendiente > 0) {
-                    $nuevoTotal = (int)$it['stock_actual'] + $pendiente;
-                    $nuevaOficina = (int)($it['cantidad_oficina'] ?? $it['stock_actual']) + $pendiente;
+                    $stockOficina = isset($it['cantidad_oficina']) ? (int)$it['cantidad_oficina'] : (int)$it['stock_actual'];
+                    $stockDeposito = isset($it['cantidad_deposito']) ? (int)$it['cantidad_deposito'] : 0;
                     
-                    $db->prepare("UPDATE insumos SET cantidad = ?, cantidad_oficina = ?, estado = 'Disponible' WHERE id_insumo = ?")
-                       ->execute([$nuevoTotal, $nuevaOficina, $idIns]);
+                    $nuevoTotal = $stockOficina + $stockDeposito + $pendiente;
+                    $nuevaOficina = $stockOficina + $pendiente;
+                    $nuevoDeposito = $stockDeposito;
+                    
+                    $db->prepare("UPDATE insumos SET cantidad = ?, cantidad_oficina = ?, cantidad_deposito = ?, estado = 'Disponible', id_sede_actual = NULL, id_area_asignacion_actual = NULL WHERE id_insumo = ?")
+                       ->execute([$nuevoTotal, $nuevaOficina, $nuevoDeposito, $idIns]);
                 }
             } else {
                 $db->prepare("UPDATE insumos SET estado = 'Disponible', id_sede_actual = NULL, id_area_asignacion_actual = NULL, id_punto_stock_actual = id_punto_stock_actual WHERE id_insumo = ?")

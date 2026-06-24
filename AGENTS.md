@@ -44,16 +44,17 @@ inventario_app/
 │   ├── header.php          # Header HTML común
 │   ├── footer.php          # Footer HTML común + scripts JS
 │   ├── Logger.php          # Sistema de logging
-│   └── validar_archivo.php # Validación centralizada de uploads
+│   ├── validar_archivo.php # Validación centralizada de uploads
+│   └── password_policy.php # Validación de política de contraseñas
 ├── pages/                   # Páginas del sistema organizadas por módulo
 │   ├── admin/              # Administración (usuarios, telecom, auditoría)
 │   ├── asignaciones/       # Gestión de asignaciones y remitos
 │   ├── insumos/            # Gestión de inventario
 │   ├── pedidos/            # Gestión de pedidos y pendientes
-│   └── reportes/           # Generación de reportes PDF
+│   ├── reportes/           # Generación de reportes PDF
+│   └── dashboard.php       # Panel de control principal / Estadísticas
 ├── public/                  # Assets públicos (CSS, JS, imágenes)
-├── uploads/                 # Archivos subidos (documentos, PDFs)
-└── setup/                   # Scripts de migración SQL
+└── uploads/                 # Archivos subidos (documentos, PDFs)
 ```
 
 ---
@@ -99,6 +100,9 @@ inventario_app/
 ---
 
 ## ✅ Patrones de Código a Seguir
+
+### Consistencia Visual y Estética
+- **Consistencia Visual del Proyecto**: Siempre que se cree un nuevo componente, página, modal, tabla o cualquier elemento de interfaz, se debe hacer respetando rigurosamente los estilos del proyecto (`public/css/style.css`, Bootstrap 5) para mantener la consistencia estética y visual del mismo. Y tambien la creacion de nuevos componentes se debe tener en coicideracion crear las modificaciones necesarias para que funcione con el modo oscuro.
 
 ### Antes de crear algo nuevo, verificar si ya existe:
 ```php
@@ -244,23 +248,6 @@ $stmt->execute([$id]);
 
 ---
 
-## 📚 Archivos de Migración SQL
-
-Ubicación: `setup/`
-
-- `inventario_insumos_v1.sql` - Esquema completo de la base de datos
-- `migracion_pedidos.sql` - Módulo de pedidos
-- `migracion_tareas_internas.sql` - Tabla para tareas internas
-- `migracion_tipo_tarea_interna.sql` - Tipos categorizados de tareas
-- `migracion_remito_firmado.sql` - Adjuntar remitos escaneados
-- `migracion_uploads.sql` - Adaptación de base para paths de uploads
-- `migracion_informes_numeracion.sql` - Secuencia anual para informes
-- `migracion_nota_solicitud.sql` - Nota PDF adjunta a remitos
-
-Para nuevas migraciones, crear archivo con formato: `migracion_[modulo].sql`
-
----
-
 ## 🆘 Funciones Útiles Existentes
 
 ### En `config.php`
@@ -270,6 +257,7 @@ Para nuevas migraciones, crear archivo con formato: `migracion_[modulo].sql`
 - `procesarArchivoAdjunto()` - Guardar archivos de ingresos
 - `generarNumeroRemito()` / `generarNumeroInforme()` - Secuencias por año
 - `getFromCache()`, `setToCache()`, `invalidarCache()` - Caché simple (ej. Dashboard)
+- `validarInsumoUnico($numero_serie, $id_fisico, $id_patrimonio, $id_insumo_excluir, $pdo)` - Valida unicidad de número de serie, ID físico o patrimonio
 
 ### En `auth.php`
 - `estaAutenticado()` - Verificar si hay sesión activa
@@ -286,6 +274,9 @@ Para nuevas migraciones, crear archivo con formato: `migracion_[modulo].sql`
 - `validarArchivoPdf($archivo)` - Solo PDFs
 - `validarArchivoPlano($archivo)` - Para planos (sin SVG)
 - `validarArchivoImagen($archivo)` - Solo imágenes
+
+### En `password_policy.php`
+- `validarPoliticaPassword($password)` - Valida que la contraseña cumpla con las políticas de seguridad (letras, números y mínimo 6 caracteres)
 
 ---
 
@@ -663,3 +654,10 @@ $.ajax({
     }
 });
 ```
+### Skill: Secure-PHP-PDO
+- El agente debe interceptar cualquier consulta SQL y estructurarla usando PDO Prepared Statements.
+- Habilidad para sanitizar inputs provenientes de formularios antes de procesar lógica en el backend.
+
+### Skill: DataTables-AJAX-Flow
+- Capacidad para estructurar respuestas JSON en PHP que cumplan con el protocolo estricto de DataTables (draw, recordsTotal, recordsFiltered).
+- Configuración avanzada de elementos Select2 sincronizados mediante eventos de jQuery.

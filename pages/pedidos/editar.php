@@ -193,7 +193,15 @@ $(document).ready(function() {
     
     // 1. Carga inicial desde Base de Datos
     var currentTextos = "<?php echo addslashes($pedido['insumo_relacionado']); ?>";
-    var currentIds = "<?php echo $pedido['id_insumo_relacionado']; ?>";
+    var currentIds = "<?php 
+        if ($pedido['id_insumo_relacionado']) {
+            $val = $pedido['id_insumo_relacionado'];
+            if ($pedido['id_remito_relacionado']) {
+                $val .= '-' . $pedido['id_remito_relacionado'];
+            }
+            echo $val;
+        }
+    ?>";
     if (currentTextos) {
         var textosArray = currentTextos.split('|');
         var idsArray = currentIds ? currentIds.split(',') : [];

@@ -36,7 +36,7 @@ try {
     $filtered = (int)$stmt->fetchColumn();
 
 
-    $sql = "SELECT b.fecha_baja, i.nombre_insumo, i.tipo_insumo, b.cantidad, b.observacion
+    $sql = "SELECT b.id_baja, b.fecha_baja, i.nombre_insumo, i.tipo_insumo, b.cantidad, b.observacion
             FROM insumos_bajas b
             JOIN insumos i ON i.id_insumo = b.id_insumo
             $whereSql
@@ -52,7 +52,8 @@ try {
             htmlspecialchars($r['nombre_insumo'] ?? ''),
             htmlspecialchars($r['tipo_insumo'] ?? ''),
             (isset($r['cantidad']) ? (int)$r['cantidad'] : 1),
-            htmlspecialchars($r['observacion'] ?? '')
+            htmlspecialchars($r['observacion'] ?? ''),
+            '<button type="button" class="btn btn-sm btn-info btn-ver-baja" data-id="' . (int)$r['id_baja'] . '" title="Ver Detalle"><i class="fas fa-eye"></i></button>'
         ];
     }, $rows);
 

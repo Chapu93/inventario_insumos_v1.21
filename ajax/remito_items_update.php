@@ -27,11 +27,13 @@ try {
   $db->beginTransaction();
 
   // Encontrar id_remito
-  $stmt = $db->prepare('SELECT id_remito FROM remitos WHERE numero_remito = ? LIMIT 1');
+  $stmt = $db->prepare('SELECT id_remito, id_sede, id_area FROM remitos WHERE numero_remito = ? LIMIT 1');
   $stmt->execute([$input['remito']]);
   $row = $stmt->fetch();
   if (!$row) { throw new Exception('Remito no encontrado'); }
   $idRemito = (int)$row['id_remito'];
+  $idSedeRemito = $row['id_sede'];
+  $idAreaRemito = $row['id_area'];
 
   foreach ($input['items'] as $it) {
     $idInsumo = (int)($it['id_insumo'] ?? 0);
@@ -39,7 +41,7 @@ try {
     if ($idInsumo <= 0 || $newQty === null) { continue; }
 
     // Obtener tipo/stock actual del insumo
-    $s = $db->prepare('SELECT tipo_insumo, cantidad FROM insumos WHERE id_insumo = ? FOR UPDATE');
+    $s = $db->prepare('SELECT tipo_insumo, cantidad, cantidad_oficina, cantidad_deposito FROM insumos WHERE id_insumo = ? FOR UPDATE');
     $s->execute([$idInsumo]);
     $ins = $s->fetch();
     if (!$ins) { throw new Exception('Insumo no encontrado'); }
@@ -55,12 +57,33 @@ try {
 
     if ($ins['tipo_insumo'] === 'Varios') {
       // Reponer la cantidad anterior al stock y descontar la nueva
-      $stock = (int)$ins['cantidad'];
-      $stock += $oldQty;      // devolvemos lo anterior
-      if ($stock < $newQty) { throw new Exception('Stock insuficiente para actualizar'); }
-      $stock -= $newQty;      // aplicamos lo nuevo
-      $estado = $stock > 0 ? 'Disponible' : 'Asignado';
-      $db->prepare('UPDATE insumos SET cantidad = ?, estado = ? WHERE id_insumo = ?')->execute([$stock, $estado, $idInsumo]);
+      $stockTotal = (int)$ins['cantidad'];
+      $stockOficina = isset($ins['cantidad_oficina']) ? (int)$ins['cantidad_oficina'] : $stockTotal;
+      $stockDeposito = isset($ins['cantidad_deposito']) ? (int)$ins['cantidad_deposito'] : 0;
+
+      // Devolvemos lo anterior a oficina
+      $stockOficina += $oldQty;
+      $stockTotal += $oldQty;
+
+      if ($stockTotal < $newQty) { throw new Exception('Stock insuficiente para actualizar'); }
+
+      // Para el descuento: primero descontamos de oficina, el remanente de depósito
+      $descontarOficina = min($newQty, $stockOficina);
+      $descontarDeposito = $newQty - $descontarOficina;
+
+      $nuevoOficina = $stockOficina - $descontarOficina;
+      $nuevoDeposito = $stockDeposito - $descontarDeposito;
+      $nuevoTotal = $nuevoOficina + $nuevoDeposito;
+
+      $estado = $nuevoTotal > 0 ? 'Disponible' : 'Asignado';
+
+      if ($nuevoTotal > 0) {
+        $db->prepare('UPDATE insumos SET cantidad = ?, cantidad_oficina = ?, cantidad_deposito = ?, estado = ?, id_sede_actual = NULL, id_area_asignacion_actual = NULL WHERE id_insumo = ?')
+           ->execute([$nuevoTotal, $nuevoOficina, $nuevoDeposito, $estado, $idInsumo]);
+      } else {
+        $db->prepare('UPDATE insumos SET cantidad = ?, cantidad_oficina = ?, cantidad_deposito = ?, estado = ?, id_sede_actual = ?, id_area_asignacion_actual = ?, id_punto_stock_actual = NULL WHERE id_insumo = ?')
+           ->execute([$nuevoTotal, $nuevoOficina, $nuevoDeposito, $estado, $idSedeRemito, $idAreaRemito, $idInsumo]);
+      }
     } else {
       // No-"Varios": cantidad es 1 siempre
       if ($newQty !== 1) { throw new Exception('Cantidad inválida para tipo no "Varios"'); }

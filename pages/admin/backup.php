@@ -22,8 +22,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['backup'])) {
         
         $filename = 'backup_' . $db_name . '_' . date('Y-m-d_H-i-s') . '.sql';
         
-        // Ruta completa a mysqldump
-        $mysqldump = '/opt/lampp/bin/mysqldump';
+        // Autodetectar la ruta de mysqldump (XAMPP vs comando global del sistema)
+        $mysqldump = 'mysqldump';
+        if (file_exists('/opt/lampp/bin/mysqldump')) {
+            $mysqldump = '/opt/lampp/bin/mysqldump';
+        }
         
         // Comando
         // Nota: --password va pegado si hay password, o vacío si no.

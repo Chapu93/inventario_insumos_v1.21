@@ -42,7 +42,7 @@ include '../../includes/header.php';
         <!-- Columna Izquierda: Detalles -->
         <div class="col-md-8">
             <div class="card mb-4 shadow-sm">
-                <div class="card-header" style="background-color: #d1e7dd;">
+                <div class="card-header card-header--success">
                     <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Detalles de la Solicitud</h5>
                 </div>
                 <div class="card-body">
@@ -51,21 +51,37 @@ include '../../includes/header.php';
                     <div class="row text-muted">
                         <div class="col-md-6 mb-2"><strong>Tipo:</strong> <span id="tipoPedido"></span></div>
                         <div class="col-md-6 mb-2"><strong>Prioridad:</strong> <span id="prioridadPedido"></span></div>
-                        <div class="col-md-12 mb-2" id="insumoRelacionadoContainer" style="display:none;">
-                            <strong>Insumo Relacionado:</strong> <span id="insumoRelacionado" class="fw-bold"></span>
-                        </div>
                         <div class="col-md-6 mb-2"><strong>Sede:</strong> <span id="sedePedido"></span></div>
                         <div class="col-md-6 mb-2"><strong>Área:</strong> <span id="areaPedido">-</span></div>
                         <div class="col-md-6 mb-2"><strong>Solicitado por:</strong> <span id="solicitantePedido"></span></div>
                         <div class="col-md-6 mb-2"><strong>Fecha:</strong> <span id="fechaPedido"></span></div>
                         <div class="col-md-12 mt-2"><strong>Asignado a:</strong> <span id="asignadoPedido" class="badge bg-secondary">Sin Asignar</span></div>
+
+                        <!-- Insumos: al final, colapsable -->
+                        <div class="col-md-12 mt-3 pt-3 border-top" id="insumoRelacionadoContainer" style="display:none;">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold" id="labelInsumoRel">
+                                    <i class="fas fa-box me-1 text-primary"></i>Insumo Relacionado
+                                </span>
+                                <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2" 
+                                        id="btnVerInsumos" style="display:none;"
+                                        data-bs-toggle="collapse" data-bs-target="#collapseInsumosList"
+                                        aria-expanded="false" aria-controls="collapseInsumosList">
+                                    <i class="fas fa-chevron-down me-1" id="iconBtnInsumos"></i><small>Ver insumos</small>
+                                </button>
+                            </div>
+                            <div id="insumoRelacionadoTexto" class="mt-1"></div>
+                            <div class="collapse mt-2" id="collapseInsumosList">
+                                <div id="insumoRelacionado"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Informe Técnico (Si existe) -->
             <div id="informeContainer" class="card mb-4 shadow-sm" style="display:none;">
-                <div class="card-header" style="background-color: #d1e7dd;">
+                <div class="card-header card-header--success">
                     <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>Informe Técnico</h5>
                 </div>
                 <div class="card-body">
@@ -86,7 +102,7 @@ include '../../includes/header.php';
 
             <!-- Información de Entrega (Para Pedidos de Insumos) -->
             <div id="entregaContainer" class="card mb-4 shadow-sm" style="display:none;">
-                <div class="card-header" style="background-color: #cfe2ff; color: #084298;">
+                <div class="card-header card-header--info">
                     <h5 class="mb-0"><i class="fas fa-shipping-fast me-2"></i>Información de Entrega</h5>
                 </div>
                 <div class="card-body">
@@ -127,7 +143,7 @@ include '../../includes/header.php';
 
             <!-- Historial -->
             <div class="card shadow-sm">
-                <div class="card-header" style="background-color: #d1e7dd;">
+                <div class="card-header card-header--success">
                     <h5 class="mb-0"><i class="fas fa-history me-2"></i>Historial</h5>
                 </div>
                 <div class="card-body p-0">
@@ -232,10 +248,22 @@ include '../../includes/header.php';
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label">Recibido por: (Nombre y Apellido) <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="receptorNombre" placeholder="Ej: Juan Pérez">
-                </div>
+                <form id="formEntregar" enctype="multipart/form-data">
+                    <input type="hidden" name="accion" value="actualizar_entrega">
+                    <input type="hidden" name="id" value="<?php echo $id; ?>">
+                    <input type="hidden" name="estado_entrega" value="Entregado">
+                    <input type="hidden" name="_csrf" value="<?php echo csrf_token(); ?>">
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Recibido por: (Nombre y Apellido) <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="receptor_nombre" id="receptorNombre" placeholder="Ej: Juan Pérez" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Constancia / Remito Firmado <span class="text-danger">*</span></label>
+                        <input type="file" class="form-control" name="remito_firmado" id="remitoFirmadoFile" required>
+                        <div class="form-text">PDF o imagen (JPG, PNG). Máx 10MB.</div>
+                    </div>
+                </form>
                 <div class="alert alert-info py-2">
                     <small><i class="fas fa-info-circle me-1"></i> Al marcar como entregado, el estado de la entrega pasará a ser definitivo.</small>
                 </div>
@@ -254,6 +282,7 @@ include '../../includes/header.php';
     const USER_ID = <?php echo $usuarioId; ?>;
     const CURRENT_USER_ROL_ID = <?php echo obtenerUsuario()['id_rol']; ?>;
     const CSRF_TOKEN = '<?php echo csrf_token(); ?>';
+    const BASE = '<?php echo app_base_url(); ?>';
     const PERMISOS = {
         gestionar: <?php echo tienePermiso('pedidos', 'gestionar') ? 'true' : 'false'; ?>,
         asignar: <?php echo tienePermiso('pedidos', 'asignar') ? 'true' : 'false'; ?>,
@@ -292,7 +321,7 @@ function cargarPedido() {
         const pedido = resp.pedido || resp.data.pedido;
         const historial = resp.historial || resp.data.historial;
         const informe = resp.informe || resp.data.informe;
-        const remitoItems = resp.remito_items || [];
+        const remitoItems = resp.remito_items || (resp.data && resp.data.remito_items) || [];
 
         if (!pedido) { 
             console.error('No pedido data in response:', resp);
@@ -376,7 +405,14 @@ function renderPedido(p) {
     // Si está pendiente (sin remito), mostrar el texto descriptivo si existe
     if (p.tipo !== 'Pedido Insumo' && p.insumo_relacionado) {
         $('#insumoRelacionadoContainer').show();
-        $('#insumoRelacionado').text(p.insumo_relacionado);
+        $('#labelInsumoRel').html('<i class="fas fa-box me-1 text-primary"></i>Insumo Relacionado');
+        let textoInsumo = p.insumo_relacionado;
+        if (p.numero_remito_relacionado) {
+            textoInsumo += ` [Asignado en Remito #${p.numero_remito_relacionado}]`;
+        }
+        $('#insumoRelacionadoTexto').html(`<span class="badge bg-secondary">${textoInsumo}</span>`);
+        $('#btnVerInsumos').hide();
+        $('#collapseInsumosList').empty();
     } else if (p.tipo !== 'Pedido Insumo') {
         $('#insumoRelacionadoContainer').hide();
     }
@@ -411,8 +447,8 @@ function renderPedido(p) {
         $('#asignadoPedido').addClass('bg-secondary').removeClass('bg-info text-dark').text('Sin Asignar');
     }
 
-    // Información de Entrega (Si es Pedido Insumo)
-    if (p.tipo === 'Pedido Insumo') {
+    // Información de Entrega (Si es Pedido Insumo o un Pedido Técnico con entrega definida)
+    if (p.tipo === 'Pedido Insumo' || (p.metodo_entrega && p.metodo_entrega !== 'No aplica')) {
         $('#entregaContainer').show();
 
         // Método de entrega
@@ -468,7 +504,8 @@ function renderPedido(p) {
         } else {
             $('#fechaEntregaRow').hide();
             $('#receptorEntregaRow').hide();
-            if (PERMISOS.gestionar && p.insumo_relacionado && p.insumo_relacionado !== '') {
+            // Se muestran controles si tiene permiso de gestionar y hay insumos cargados (remito en Pedido Insumo o insumo relacionado en Pedido Técnico)
+            if (PERMISOS.gestionar && (p.tipo === 'Pedido Insumo' ? p.id_remito : (p.insumo_relacionado && p.insumo_relacionado !== ''))) {
                 $('#controlesEntrega').show();
                 // Construir botones según estado_entrega actual
                 const $btns = $('#botonesEstadoEntrega').empty();
@@ -632,8 +669,8 @@ function mostrarRechazo(p, h) {
     const motivo = rechazo ? rechazo.detalle : 'No especificado';
     
     $('#contenidoPedido').prepend(`
-        <div id="alertRechazo" class="alert alert-danger shadow-sm mb-4">
-            <h4 class="alert-heading"><i class="fas fa-times-circle me-2"></i>Pedido Rechazado</h4>
+        <div id="alertRechazo" class="bg-danger-subtle border border-danger-subtle text-danger-emphasis p-3 rounded mb-4 shadow-sm">
+            <h4 class="fw-bold mb-1"><i class="fas fa-times-circle me-2"></i>Pedido Rechazado</h4>
             <p class="mb-0">${motivo}</p>
         </div>
     `);
@@ -701,10 +738,15 @@ function renderRemitoItems(items, pedido) {
     if (pedido.tipo !== 'Pedido Insumo') return;
 
     const $container = $('#insumoRelacionadoContainer');
-    const $content   = $('#insumoRelacionado');
+    const $list      = $('#collapseInsumosList');
+    const $texto     = $('#insumoRelacionadoTexto');
 
     if (items && items.length > 0) {
         $container.show();
+        $('#labelInsumoRel').html(`<i class="fas fa-boxes me-1 text-primary"></i>Insumos del Pedido <span class="badge bg-primary rounded-pill ms-1">${items.length}</span>`);
+        $('#btnVerInsumos').show();
+        $texto.empty();
+
         let html = `<table class="table table-sm table-bordered mb-0">
             <thead class="table-light">
                 <tr>
@@ -723,11 +765,29 @@ function renderRemitoItems(items, pedido) {
             html += `<tr><td>${link}</td><td class="text-center">${item.cantidad}</td><td>${ref}</td></tr>`;
         });
         html += '</tbody></table>';
-        $content.html(html);
+        $('#insumoRelacionado').html(html);
+
+        // Animación del chevron al abrir/cerrar
+        const collapseEl = document.getElementById('collapseInsumosList');
+        if (collapseEl && !collapseEl.dataset.listenerAttached) {
+            collapseEl.dataset.listenerAttached = 'true';
+            collapseEl.addEventListener('show.bs.collapse', function() {
+                $('#iconBtnInsumos').removeClass('fa-chevron-down').addClass('fa-chevron-up');
+                $('#btnVerInsumos small').text('Ocultar insumos');
+            });
+            collapseEl.addEventListener('hide.bs.collapse', function() {
+                $('#iconBtnInsumos').removeClass('fa-chevron-up').addClass('fa-chevron-down');
+                $('#btnVerInsumos small').text('Ver insumos');
+            });
+        }
+
     } else if (pedido.tipo === 'Pedido Insumo' && !pedido.id_remito) {
         // Pedido aún no preparado
         $container.show();
-        $content.html('<span class="text-muted fst-italic"><i class="fas fa-clock me-1"></i>Pendiente de preparación — los insumos aún no fueron seleccionados.</span>');
+        $('#labelInsumoRel').html('<i class="fas fa-clock me-1 text-warning"></i>Insumos del Pedido');
+        $texto.html('<span class="text-muted fst-italic"><i class="fas fa-clock me-1"></i>Pendiente de preparación — los insumos aún no fueron seleccionados.</span>');
+        $('#btnVerInsumos').hide();
+        $list.empty();
     } else {
         $container.hide();
     }
@@ -906,18 +966,34 @@ $(function(){
         $('#modalEntregar').modal('show');
     };
 
-    function ejecutarActualizarEntrega(estado, receptor = '') {
-        $.ajax({
-            url: '<?php echo app_base_url(); ?>/ajax/pedidos_acciones.php',
-            type: 'POST',
-            data: { 
+    function ejecutarActualizarEntrega(estado, dataParam = null) {
+        let ajaxData;
+        let processData = true;
+        let contentType = 'application/x-www-form-urlencoded; charset=UTF-8';
+
+        if (estado === 'Entregado') {
+            const formEl = document.getElementById('formEntregar');
+            ajaxData = new FormData(formEl);
+            processData = false;
+            contentType = false;
+        } else {
+            ajaxData = { 
                 accion: 'actualizar_entrega', 
                 id: PEDIDO_ID, 
                 estado_entrega: estado,
-                receptor_nombre: receptor,
                 _csrf: CSRF_TOKEN 
-            },
-            dataType: 'json',
+            };
+            if (dataParam && typeof dataParam === 'object') {
+                Object.assign(ajaxData, dataParam);
+            }
+        }
+
+        $.ajax({
+            url: '<?php echo app_base_url(); ?>/ajax/pedidos_acciones.php',
+            type: 'POST',
+            data: ajaxData,
+            processData: processData,
+            contentType: contentType,
             xhrFields: { withCredentials: true },
             success: function(r) {
                 if (r.success) {
@@ -928,7 +1004,13 @@ $(function(){
                     showToast(r.error || 'Error al actualizar entrega', 'error');
                 }
             },
-            error: function() { showToast('Error de conexión', 'error'); }
+            error: function(xhr) { 
+                let errorMsg = 'Error de conexión';
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    errorMsg = xhr.responseJSON.error;
+                }
+                showToast(errorMsg, 'error'); 
+            }
         });
     }
 
@@ -938,7 +1020,12 @@ $(function(){
             showToast('Debe ingresar el nombre de quien recibe', 'warning');
             return;
         }
-        ejecutarActualizarEntrega('Entregado', receptor);
+        const fileInput = document.getElementById('remitoFirmadoFile');
+        if (!fileInput || fileInput.files.length === 0) {
+            showToast('Debe adjuntar el remito firmado o constancia de entrega', 'warning');
+            return;
+        }
+        ejecutarActualizarEntrega('Entregado');
     });
 
 

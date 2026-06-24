@@ -37,6 +37,7 @@ if ($numero_remito !== '') {
                                        i.numero_serie,
                                        i.id_fisico,
                                        d.cantidad,
+                                       pc.sist_op AS pc_sist_op,
                                        nb.marca AS nb_marca,
                                        nb.modelo AS nb_modelo,
                                        imp.marca AS imp_marca,
@@ -105,8 +106,8 @@ $asignaciones_recientes = $tieneRemitos ? [true] : [];
         </div>
 
         <?php if (!empty($cab['observaciones'])): ?>
-        <div class="alert alert-light mt-3" role="alert">
-            <i class="fas fa-comment me-2"></i><strong>Observaciones:</strong> <?php echo nl2br(htmlspecialchars($cab['observaciones'])); ?>
+        <div class="bg-light p-3 rounded border mt-3 text-dark">
+            <i class="fas fa-comment me-2 text-muted"></i><strong>Observaciones:</strong> <?php echo nl2br(htmlspecialchars($cab['observaciones'])); ?>
         </div>
         <?php endif; ?>
 
@@ -129,7 +130,7 @@ $asignaciones_recientes = $tieneRemitos ? [true] : [];
                         $displayNombre = $originalNombre;
                         $esPc = ($tipo === 'PC Escritorio' || $tipo === 'PC Completa');
                         if ($esPc && !empty($it['pc_sist_op'])) {
-                            $displayNombre = $it['pc_sist_op'];
+                            $displayNombre = 'CPU/' . $it['pc_sist_op'];
                         } elseif ($tipo !== 'Varios' && !$esPc) {
                             $marca = '';
                             $modelo = '';

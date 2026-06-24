@@ -176,7 +176,7 @@ try {
             if (!$r['asignado_a'] && $r['tipo'] !== 'Pedido Insumo') {
                 $botones[] = '<button class="btn btn-sm btn-primary" onclick="tomarPedido(' . $r['id_pedido'] . ')" data-bs-toggle="tooltip" title="Tomar Pedido"><i class="fas fa-hand-paper"></i></button>';
                 if ($esAdmin) {
-                    $botones[] = '<button class="btn btn-sm btn-outline-primary" onclick="abrirModalAsignar(' . $r['id_pedido'] . ')" data-bs-toggle="tooltip" title="Asignar a Tecnico..."><i class="fas fa-user-plus"></i></button>';
+                    $botones[] = '<button class="btn btn-sm btn-pastel-brown" onclick="abrirModalAsignar(' . $r['id_pedido'] . ')" data-bs-toggle="tooltip" title="Asignar a Tecnico..."><i class="fas fa-user-plus"></i></button>';
                 }
             } elseif ($r['asignado_a'] == $usuarioId && $r['tipo'] !== 'Pedido Insumo') {
                 $botones[] = '<button class="btn btn-sm btn-success" onclick="completarPedido(' . $r['id_pedido'] . ')" data-bs-toggle="tooltip" title="Finalizar e Informar"><i class="fas fa-check"></i></button>';

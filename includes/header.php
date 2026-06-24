@@ -25,7 +25,7 @@
     <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet">
     
     <!-- Custom CSS -->
-    <link href="<?php echo app_base_url(); ?>/public/css/style.css" rel="stylesheet">
+    <link href="<?php echo app_base_url(); ?>/public/css/style.css?v=<?php echo filemtime(__DIR__ . '/../public/css/style.css'); ?>" rel="stylesheet">
 
     <!-- jQuery early to allow page scripts to run -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
@@ -195,7 +195,7 @@
                                autocomplete="off"
                                style="border-radius: 20px;">
                         <div id="busquedaGlobalResultados" 
-                             class="position-absolute bg-white shadow-lg rounded-3 mt-1 w-100 d-none" 
+                             class="position-absolute shadow-lg rounded-3 mt-1 w-100 d-none" 
                              style="z-index: 1050; max-height: 400px; overflow-y: auto; min-width: 320px;">
                         </div>
                     </div>

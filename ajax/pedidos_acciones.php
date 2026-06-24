@@ -38,9 +38,17 @@ try {
             $insumosTextos = trim($_POST['insumo_relacionado'] ?? '');
             
             $idInsumoRelacionado = null;
+            $idRemitoRelacionado = null;
             if (!empty($insumosIds)) {
                 $idsArray = explode(',', $insumosIds);
-                $idInsumoRelacionado = (int)$idsArray[0] ?: null;
+                $primerId = $idsArray[0];
+                if (strpos($primerId, '-') !== false) {
+                    $parts = explode('-', $primerId);
+                    $idInsumoRelacionado = (int)$parts[0] ?: null;
+                    $idRemitoRelacionado = (int)$parts[1] ?: null;
+                } else {
+                    $idInsumoRelacionado = (int)$primerId ?: null;
+                }
             }
 
             // Validaciones básicas
@@ -86,14 +94,14 @@ try {
             $sql = "UPDATE pedidos SET 
                     solicitante_nombre = ?, solicitante_apellido = ?, solicitante_telefono = ?,
                     id_sede = ?, id_area = ?, tipo = ?, prioridad = ?, descripcion = ?, 
-                    insumo_relacionado = ?, id_insumo_relacionado = ?, pdf_nota = ?
+                    insumo_relacionado = ?, id_insumo_relacionado = ?, id_remito_relacionado = ?, pdf_nota = ?
                     WHERE id_pedido = ?";
             
             $stmt = $db->prepare($sql);
             $stmt->execute([
                 $sol_nombre, $sol_apellido, $sol_telefono,
                 $id_sede, $id_area, $tipo, $prioridad, $descripcion, 
-                $insumosTextos, $idInsumoRelacionado, $pdfNota,
+                $insumosTextos, $idInsumoRelacionado, $idRemitoRelacionado, $pdfNota,
                 $id
             ]);
 
@@ -129,11 +137,26 @@ try {
             
             // Obtener el primer ID de insumo si hay varios
             $idInsumoRelacionado = null;
+            $idRemitoRelacionado = null;
             if (!empty($insumosIds)) {
                 $idsArray = explode(',', $insumosIds);
-                $idInsumoRelacionado = (int)$idsArray[0] ?: null;
+                $primerId = $idsArray[0];
+                if (strpos($primerId, '-') !== false) {
+                    $parts = explode('-', $primerId);
+                    $idInsumoRelacionado = (int)$parts[0] ?: null;
+                    $idRemitoRelacionado = (int)$parts[1] ?: null;
+                } else {
+                    $idInsumoRelacionado = (int)$primerId ?: null;
+                }
             } else {
-                $idInsumoRelacionado = (int)($_POST['id_insumo_relacionado'] ?? 0) ?: null;
+                $valRaw = trim($_POST['id_insumo_relacionado'] ?? '');
+                if (strpos($valRaw, '-') !== false) {
+                    $parts = explode('-', $valRaw);
+                    $idInsumoRelacionado = (int)$parts[0] ?: null;
+                    $idRemitoRelacionado = (int)$parts[1] ?: null;
+                } else {
+                    $idInsumoRelacionado = (int)$valRaw ?: null;
+                }
             }
             
             $sedeId = (int)($_POST['sede'] ?? 0);
@@ -192,8 +215,8 @@ try {
             try {
                 // Insertar pedido (incluyendo id_insumo_relacionado y solicitante_apellido)
                 $stmt = $db->prepare("INSERT INTO pedidos 
-                    (id_usuario_solicitante, id_sede, id_area, tipo, prioridad, descripcion, insumo_relacionado, id_insumo_relacionado, asignado_a, estado, fecha_creacion, pdf_nota, solicitante_nombre, solicitante_apellido, solicitante_telefono, metodo_entrega)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pendiente', NOW(), ?, ?, ?, ?, ?)");
+                    (id_usuario_solicitante, id_sede, id_area, tipo, prioridad, descripcion, insumo_relacionado, id_insumo_relacionado, id_remito_relacionado, asignado_a, estado, fecha_creacion, pdf_nota, solicitante_nombre, solicitante_apellido, solicitante_telefono, metodo_entrega)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Pendiente', NOW(), ?, ?, ?, ?, ?)");
                 
                 $stmt->execute([
                     $usuarioId,
@@ -204,6 +227,7 @@ try {
                     $descripcion,
                     $insumoManual,
                     $idInsumoRelacionado,
+                    $idRemitoRelacionado,
                     $asignadoA,
                     $fileName,
                     $solNombre,
@@ -239,13 +263,15 @@ try {
                                     u_asig.username as asig_user, u_asig.nombre as asig_nom, u_asig.apellido as asig_ape,
                                     s.nombre_sede, s.id_localidad,
                                     i.nombre_insumo, i.numero_serie,
-                                    r.numero_remito
+                                    r.numero_remito,
+                                    r_rel.numero_remito as numero_remito_relacionado
                                   FROM pedidos p
                                   JOIN usuarios u_sol ON p.id_usuario_solicitante = u_sol.id_usuario
                                   JOIN sedes s ON p.id_sede = s.id_sede
                                   LEFT JOIN usuarios u_asig ON p.asignado_a = u_asig.id_usuario
                                   LEFT JOIN insumos i ON p.id_insumo_relacionado = i.id_insumo
                                   LEFT JOIN remitos r ON p.id_remito = r.id_remito
+                                  LEFT JOIN remitos r_rel ON p.id_remito_relacionado = r_rel.id_remito
                                   WHERE p.id_pedido = ?");
             $stmt->execute([$id]);
             $pedido = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -460,16 +486,60 @@ try {
                  $idInsumo = $stmtInsumo->fetchColumn();
 
                  if ($idInsumo) {
-                     // 1. Marcar insumo como baja
-                     $db->prepare("UPDATE insumos SET estado = 'De Baja', id_sede_actual = NULL, id_area_asignacion_actual = NULL WHERE id_insumo = ?")
-                        ->execute([$idInsumo]);
+                      // Obtener info del insumo relacionado
+                      $stmtInsInfo = $db->prepare("SELECT tipo_insumo, cantidad, cantidad_oficina, cantidad_deposito FROM insumos WHERE id_insumo = ? FOR UPDATE");
+                      $stmtInsInfo->execute([$idInsumo]);
+                      $insInfo = $stmtInsInfo->fetch();
 
-                     // 2. Registrar en historial de bajas
-                     $obsBaja = "Baja técnica (Informe #$numeroInforme): $diagnostico";
-                     $db->prepare("INSERT INTO insumos_bajas (id_insumo, observacion) VALUES (?, ?)")
-                        ->execute([$idInsumo, substr($obsBaja, 0, 250)]);
-                        
-                     registrarAuditoria('baja_insumo', 'insumos', "Baja técnica desde Pedido #$id (Informe #$numeroInforme)", 'insumo', $idInsumo);
+                      if ($insInfo) {
+                          if ($insInfo['tipo_insumo'] === 'Varios') {
+                              $stockOficina = (int)($insInfo['cantidad_oficina'] ?? 0);
+                              $stockDeposito = (int)($insInfo['cantidad_deposito'] ?? 0);
+                              
+                              if ($stockOficina > 0) {
+                                  $stockOficina = max(0, $stockOficina - 1);
+                              } else if ($stockDeposito > 0) {
+                                  $stockDeposito = max(0, $stockDeposito - 1);
+                              }
+                              
+                              $nuevoTotal = $stockOficina + $stockDeposito;
+                              $nuevoEstado = ($nuevoTotal > 0) ? 'Disponible' : 'Asignado';
+                              
+                              // Descontar una unidad del stock del lote
+                              $db->prepare("UPDATE insumos SET 
+                                              cantidad = ?, 
+                                              cantidad_oficina = ?, 
+                                              cantidad_deposito = ?, 
+                                              estado = ?, 
+                                              id_sede_actual = NULL, 
+                                              id_area_asignacion_actual = NULL
+                                            WHERE id_insumo = ?")
+                                 ->execute([$nuevoTotal, $stockOficina, $stockDeposito, $nuevoEstado, $idInsumo]);
+                          } else {
+                              // Unitario: Marcar insumo como baja
+                              $db->prepare("UPDATE insumos SET 
+                                              estado = 'De Baja', 
+                                              id_sede_actual = NULL, 
+                                              id_area_asignacion_actual = NULL,
+                                              cantidad = 0,
+                                              cantidad_oficina = 0,
+                                              cantidad_deposito = 0
+                                            WHERE id_insumo = ?")
+                                 ->execute([$idInsumo]);
+                          }
+
+                          // 2. Registrar en historial de bajas
+                          $obsBaja = "Baja técnica (Informe #$numeroInforme): $diagnostico";
+                          try {
+                              $db->prepare("INSERT INTO insumos_bajas (id_insumo, observacion, cantidad) VALUES (?, ?, 1)")
+                                 ->execute([$idInsumo, substr($obsBaja, 0, 250)]);
+                          } catch (Exception $e) {
+                              $db->prepare("INSERT INTO insumos_bajas (id_insumo, observacion) VALUES (?, ?)")
+                                 ->execute([$idInsumo, substr($obsBaja, 0, 250)]);
+                          }
+                             
+                          registrarAuditoria('baja_insumo', 'insumos', "Baja técnica desde Pedido #$id (Informe #$numeroInforme)", 'insumo', $idInsumo);
+                      }
                  }
              }
 

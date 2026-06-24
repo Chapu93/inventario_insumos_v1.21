@@ -38,7 +38,7 @@ try {
     $db = conectarDB();
 
     // Traer info
-    $stmt = $db->prepare("SELECT id_insumo, nombre_insumo, tipo_insumo, cantidad, estado FROM insumos WHERE id_insumo = ?");
+    $stmt = $db->prepare("SELECT id_insumo, nombre_insumo, tipo_insumo, cantidad, cantidad_oficina, cantidad_deposito, estado FROM insumos WHERE id_insumo = ?");
     $stmt->execute([$id]);
     $insumo = $stmt->fetch();
 
@@ -67,11 +67,20 @@ try {
             header('Location: listar.php');
             exit;
         }
-        $nuevo = max(0, ((int)$insumo['cantidad']) - $cantidadReducir);
+        $stockOficina = isset($insumo['cantidad_oficina']) ? (int)$insumo['cantidad_oficina'] : (int)$insumo['cantidad'];
+        $stockDeposito = isset($insumo['cantidad_deposito']) ? (int)$insumo['cantidad_deposito'] : 0;
+
+        $descontarOficina = min($cantidadReducir, $stockOficina);
+        $descontarDeposito = $cantidadReducir - $descontarOficina;
+
+        $nuevoOficina = max(0, $stockOficina - $descontarOficina);
+        $nuevoDeposito = max(0, $stockDeposito - $descontarDeposito);
+        $nuevoTotal = $nuevoOficina + $nuevoDeposito;
+
         $db->beginTransaction();
-        $db->prepare("UPDATE insumos SET cantidad = ?, estado = CASE WHEN ? > 0 THEN 'Disponible' ELSE 'De Baja' END WHERE id_insumo = ?")
-           ->execute([$nuevo, $nuevo, $id]);
-        if ($nuevo === 0) {
+        $db->prepare("UPDATE insumos SET cantidad = ?, cantidad_oficina = ?, cantidad_deposito = ?, estado = CASE WHEN ? > 0 THEN 'Disponible' ELSE 'De Baja' END WHERE id_insumo = ?")
+           ->execute([$nuevoTotal, $nuevoOficina, $nuevoDeposito, $nuevoTotal, $id]);
+        if ($nuevoTotal === 0) {
             // Asegurar tabla historial
             try { $db->query("SELECT 1 FROM insumos_bajas LIMIT 1"); }
             catch (Exception $e) {
@@ -81,8 +90,8 @@ try {
                ->execute([$id, 'Baja automática por reducción total de stock']);
         }
         $db->commit();
-        $_SESSION['mensaje'] = ($nuevo > 0)
-            ? "Cantidad reducida en '{$insumo['nombre_insumo']}'. Nuevo stock: {$nuevo}."
+        $_SESSION['mensaje'] = ($nuevoTotal > 0)
+            ? "Cantidad reducida en '{$insumo['nombre_insumo']}'. Nuevo stock: {$nuevoTotal}."
             : "Insumo '{$insumo['nombre_insumo']}' dado de baja (stock agotado).";
         $_SESSION['tipo_mensaje'] = 'success';
         header('Location: listar.php');
@@ -93,7 +102,7 @@ try {
     $db->beginTransaction();
     
     // Marcar insumo de baja, limpiar ubicaciones
-    $db->prepare("UPDATE insumos SET estado = 'De Baja', cantidad = 0, id_sede_actual = NULL, id_area_asignacion_actual = NULL WHERE id_insumo = ?")
+    $db->prepare("UPDATE insumos SET estado = 'De Baja', cantidad = 0, cantidad_oficina = 0, cantidad_deposito = 0, id_sede_actual = NULL, id_area_asignacion_actual = NULL WHERE id_insumo = ?")
        ->execute([$id]);
     
     // Registrar en historial

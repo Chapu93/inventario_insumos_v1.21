@@ -159,16 +159,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             switch ($tipo_insumo) {
                 case 'PC Completa':
                 case 'PC Escritorio':
-                    if (!empty($_POST['procesador']) || !empty($_POST['ram_gb']) || !empty($_POST['almacenamiento_gb']) || !empty($_POST['mother']) || !empty($_POST['sist_op'])) {
-                        $sql = "INSERT INTO pcs_completas (id_insumo, procesador, ram_gb, almacenamiento_gb, mother, sist_op) VALUES (?, ?, ?, ?, ?, ?)";
+                    if (!empty($_POST['procesador']) || !empty($_POST['ram_gb']) || !empty($_POST['almacenamiento_gb']) || !empty($_POST['mother']) || !empty($_POST['sist_op']) || isset($_POST['ssd_o_superior'])) {
+                        $sql = "INSERT INTO pcs_completas (id_insumo, procesador, ram_gb, almacenamiento_gb, mother, sist_op, ssd_o_superior) VALUES (?, ?, ?, ?, ?, ?, ?)";
                         $stmt = $conexion->prepare($sql);
+                        $ssdoSuperior = isset($_POST['ssd_o_superior']) ? 1 : 0;
                         $stmt->execute([
                             $id_insumo,
                             $_POST['procesador'] ?: null,
                             $_POST['ram_gb'] ?: null,
                             $_POST['almacenamiento_gb'] ?: null,
                             $_POST['mother'] ?: null,
-                            $_POST['sist_op'] ?: null
+                            $_POST['sist_op'] ?: null,
+                            $ssdoSuperior
                         ]);
                     }
                     break;
@@ -602,11 +604,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     <div class="invalid-feedback">La RAM es obligatoria</div>
                                 </div>
                                 <div class="mb-2">
-                                    <label for="almacenamiento_gb" class="form-label">Almacenamiento (GB) *</label>
-                                    <input type="number" class="form-control form-control-sm w-100" id="almacenamiento_gb" name="almacenamiento_gb" min="1" required>
-                                    <div class="invalid-feedback">El almacenamiento es obligatorio</div>
-                                </div>
-                                <div class="mb-2">
                                     <label for="mother" class="form-label">Motherboard *</label>
                                     <input type="text" class="form-control form-control-sm w-100" id="mother" name="mother" required>
                                     <div class="invalid-feedback">La motherboard es obligatoria</div>
@@ -615,6 +612,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     <label for="sist_op" class="form-label">Sistema Operativo</label>
                                     <input type="text" class="form-control form-control-sm w-100" id="sist_op" name="sist_op" placeholder="Ej: Windows 11 Pro">
                                 </div>
+                                <div class="mb-2">
+                                    <label for="almacenamiento_gb" class="form-label">Almacenamiento (GB) *</label>
+                                    <input type="number" class="form-control form-control-sm w-100" id="almacenamiento_gb" name="almacenamiento_gb" min="1" required>
+                                    <div class="invalid-feedback">El almacenamiento es obligatorio</div>
+                                </div>
+                                <div class="mb-2 d-flex justify-content-end align-items-center" style="min-height: 31px;">
+                                     <div class="form-check form-switch mb-0">
+                                         <input class="form-check-input" type="checkbox" id="ssd_o_superior" name="ssd_o_superior" value="1">
+                                         <label class="form-check-label mb-0" for="ssd_o_superior">SSD o superior</label>
+                                     </div>
+                                 </div>
                             </div>
                             
                             <!-- Campos para Notebook -->
