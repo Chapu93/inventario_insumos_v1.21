@@ -68,9 +68,9 @@ try {
     }
     
     if ($search !== '') {
-        $where[] = '(u.username LIKE ? OR a.accion LIKE ? OR a.descripcion LIKE ? OR a.ip_address LIKE ?)';
+        $where[] = '(u.username LIKE ? OR a.accion LIKE ? OR a.descripcion LIKE ? OR a.ip_address LIKE ? OR u.nombre LIKE ? OR u.apellido LIKE ? OR a.modulo LIKE ? OR a.mensaje_error LIKE ?)';
         $like = '%' . $search . '%';
-        array_push($params, $like, $like, $like, $like);
+        array_push($params, $like, $like, $like, $like, $like, $like, $like, $like);
     }
     
     $whereSql = count($where) ? ('WHERE ' . implode(' AND ', $where)) : '';

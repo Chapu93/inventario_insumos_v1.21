@@ -69,9 +69,9 @@ try {
     }
 
     if ($search !== '') {
-        $where[] = "(t.titulo LIKE ? OR uc.nombre LIKE ? OR uc.apellido LIKE ? OR ua.nombre LIKE ? OR ua.apellido LIKE ? OR ua.username LIKE ?)";
+        $where[] = "(t.titulo LIKE ? OR uc.nombre LIKE ? OR uc.apellido LIKE ? OR ua.nombre LIKE ? OR ua.apellido LIKE ? OR ua.username LIKE ? OR t.descripcion LIKE ? OR CAST(t.id_tarea AS CHAR) LIKE ?)";
         $like    = '%' . $search . '%';
-        array_push($params, $like, $like, $like, $like, $like, $like);
+        array_push($params, $like, $like, $like, $like, $like, $like, $like, $like);
     }
 
     $whereSql = ' WHERE ' . implode(' AND ', $where);

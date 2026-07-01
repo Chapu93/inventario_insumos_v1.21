@@ -61,13 +61,17 @@ try {
                     OR i.numero_serie LIKE ? 
                     OR i.id_fisico LIKE ?
                     OR i.id_patrimonio LIKE ?
+                    OR s.nombre_sede LIKE ?
+                    OR a.nombre_area LIKE ?
+                    OR r.numero_remito LIKE ?
+                    OR i.subcategoria_varios LIKE ?
                     OR CONCAT(r.nombre_persona_asignada, ' ', r.apellido_persona_asignada) LIKE ?
                   )
                 ORDER BY i.nombre_insumo, i.tipo_insumo
                 LIMIT " . (int)$limit;
         
         $stmt = $db->prepare($sql);
-        $stmt->execute([$like, $like, $like, $like, $like, $like]);
+        $stmt->execute([$like, $like, $like, $like, $like, $like, $like, $like, $like, $like]);
     } else {
         // Buscar todos los insumos (asignados o disponibles)
         $sql = "SELECT 
@@ -96,13 +100,17 @@ try {
                     OR i.numero_serie LIKE ? 
                     OR i.id_fisico LIKE ?
                     OR i.id_patrimonio LIKE ?
+                    OR s.nombre_sede LIKE ?
+                    OR a.nombre_area LIKE ?
+                    OR r.numero_remito LIKE ?
+                    OR i.subcategoria_varios LIKE ?
                     OR CONCAT(COALESCE(r.nombre_persona_asignada,''), ' ', COALESCE(r.apellido_persona_asignada,'')) LIKE ?
                   )
                 ORDER BY i.estado DESC, i.nombre_insumo
                 LIMIT " . (int)$limit;
         
         $stmt = $db->prepare($sql);
-        $stmt->execute([$like, $like, $like, $like, $like, $like]);
+        $stmt->execute([$like, $like, $like, $like, $like, $like, $like, $like, $like, $like]);
     }
     
     $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);

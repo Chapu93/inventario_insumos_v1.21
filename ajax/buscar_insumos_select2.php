@@ -11,10 +11,10 @@ $db = conectarDB();
 // Busca insumos por nombre o serie
 $stmt = $db->prepare("SELECT id_insumo, nombre_insumo, numero_serie, tipo_insumo 
                       FROM insumos 
-                      WHERE (nombre_insumo LIKE ? OR numero_serie LIKE ?)
+                      WHERE (nombre_insumo LIKE ? OR numero_serie LIKE ? OR id_fisico LIKE ? OR id_patrimonio LIKE ? OR tipo_insumo LIKE ? OR subcategoria_varios LIKE ?)
                       LIMIT 20");
 $term = "%$q%";
-$stmt->execute([$term, $term]);
+$stmt->execute([$term, $term, $term, $term, $term, $term]);
 $rows = $stmt->fetchAll();
 
 $items = array_map(function($r){

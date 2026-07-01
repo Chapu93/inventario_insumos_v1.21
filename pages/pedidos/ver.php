@@ -419,6 +419,7 @@ function renderPedido(p) {
     // Para Pedido Insumo: renderRemitoItems se encarga de mostrar los items
 
     $('#sedePedido').text(p.nombre_sede);
+    $('#areaPedido').text(p.nombre_area || '-');
     
     // Solicitante Externo
     let solText = p.solicitante_nombre + (p.solicitante_apellido ? ' ' + p.solicitante_apellido : '');
@@ -599,7 +600,8 @@ function renderBotones(p) {
     }
     
     if (p.remito_firmado) {
-        $c.append(`<a href="<?php echo app_base_url(); ?>/uploads/pedidos/${p.remito_firmado}" target="_blank" class="btn btn-sm btn-success me-2 text-white" data-bs-toggle="tooltip" title="Ver Constancia Firmada de Entrega"><i class="fas fa-file-signature me-2"></i>Ver Constancia Firmada</a>`);
+        const folder = (p.id_remito && p.id_remito > 0) ? 'remitos_firmados' : 'pedidos';
+        $c.append(`<a href="<?php echo app_base_url(); ?>/uploads/${folder}/${p.remito_firmado}" target="_blank" class="btn btn-sm btn-success me-2 text-white" data-bs-toggle="tooltip" title="Ver Constancia Firmada de Entrega"><i class="fas fa-file-signature me-2"></i>Ver Constancia Firmada</a>`);
     }
 
     // Botón Descargar Todo (Merge PDF)

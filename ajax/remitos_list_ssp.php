@@ -32,9 +32,9 @@ try {
     $where = [];
     $params = [];
     if ($search !== '') {
-        $where[] = '(r.numero_remito LIKE ? OR r.nombre_persona_asignada LIKE ? OR r.apellido_persona_asignada LIKE ? OR s.nombre_sede LIKE ? OR l.nombre_localidad LIKE ?)';
+        $where[] = '(r.numero_remito LIKE ? OR r.nombre_persona_asignada LIKE ? OR r.apellido_persona_asignada LIKE ? OR s.nombre_sede LIKE ? OR l.nombre_localidad LIKE ? OR a.nombre_area LIKE ?)';
         $like = '%' . $search . '%';
-        array_push($params, $like, $like, $like, $like, $like);
+        array_push($params, $like, $like, $like, $like, $like, $like);
     }
     $whereSql = count($where) ? (' WHERE ' . implode(' AND ', $where)) : '';
 
@@ -42,6 +42,7 @@ try {
                  FROM remitos r
                  JOIN sedes s ON r.id_sede = s.id_sede
                  JOIN localidades l ON s.id_localidad = l.id_localidad
+                 LEFT JOIN areas a ON r.id_area = a.id_area
                  $whereSql";
     $stmt = $db->prepare($countSql);
     $stmt->execute($params);
@@ -51,6 +52,7 @@ try {
                 FROM remitos r
                 JOIN sedes s ON r.id_sede = s.id_sede
                 JOIN localidades l ON s.id_localidad = l.id_localidad
+                LEFT JOIN areas a ON r.id_area = a.id_area
                 $whereSql
                 ORDER BY $orderBy $orderDir, r.id_remito DESC
                 LIMIT $start, $length";

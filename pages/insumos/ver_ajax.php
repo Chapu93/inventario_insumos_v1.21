@@ -112,10 +112,10 @@ try {
     
     $remito_activo = !empty($remitos_activos) ? $remitos_activos[0] : null;
 
-    // Si pasaron un remito específico y es un insumo 'Varios', sobreescribimos la "cantidad" general que muestra
-    // el modal para reflejar sólo lo que corresponde a ESA asignación.
+    // No sobreescribir la cantidad del insumo con la del remito para mantener la visualización del stock real disponible (oficina + depósito)
+    $cantidad_remito_relacionado = 0;
     if ($filtroRemito !== '' && $remito_activo && $insumo['tipo_insumo'] === 'Varios') {
-        $insumo['cantidad'] = max(0, $remito_activo['cantidad_asignada'] - $remito_activo['cantidad_devuelta']);
+        $cantidad_remito_relacionado = max(0, $remito_activo['cantidad_asignada'] - $remito_activo['cantidad_devuelta']);
     }
 
     // Última baja (si existe la tabla)
@@ -167,10 +167,18 @@ try {
                             </p>
                         </div>
                         <div class="col-md-6">
+                            <?php 
+                            $cantidadStock = ($insumo['tipo_insumo'] === 'Varios') 
+                                ? ((int)$insumo['cantidad_oficina'] + (int)$insumo['cantidad_deposito']) 
+                                : (int)$insumo['cantidad'];
+                            ?>
                             <p><strong>Cantidad:</strong>
-                                <span class="badge <?php echo $insumo['cantidad'] > 0 ? 'bg-success' : 'bg-danger'; ?>">
-                                    <?php echo $insumo['cantidad']; ?>
+                                <span class="badge <?php echo $cantidadStock > 0 ? 'bg-success' : 'bg-danger'; ?>">
+                                    <?php echo $cantidadStock; ?>
                                 </span>
+                                <?php if ($insumo['tipo_insumo'] === 'Varios'): ?>
+                                    <br><small class="text-muted">(Oficina: <?php echo (int)$insumo['cantidad_oficina']; ?> | Depósito: <?php echo (int)$insumo['cantidad_deposito']; ?>)</small>
+                                <?php endif; ?>
                             </p>
                             <p><strong>Fecha de Adquisición:</strong>
                                 <?php echo $insumo['fecha_adquisicion'] ? date('d/m/Y', strtotime($insumo['fecha_adquisicion'])) : '-'; ?>
@@ -376,25 +384,16 @@ try {
                 $rem = $remito_activo;
             ?>
                 <div class="card mb-3">
-                    <div class="card-header bg-warning-subtle text-warning-emphasis py-2">
-                        <h6 class="mb-0 small"><i class="fas fa-link me-2"></i>Asignación activa</h6>
+                    <div class="card-header bg-warning-subtle text-warning-emphasis py-3 px-3">
+                        <h6 class="mb-0 small fw-bold">Asignación activa</h6>
                     </div>
-                    <div class="card-body py-2">
-                        <p class="mb-1"><span class="badge bg-warning">Activa</span></p>
-                        <p class="mb-1 small"><strong>Remito:</strong> <?php echo htmlspecialchars($rem['numero_remito']); ?></p>
-                        <p class="mb-1 small"><strong>Persona:</strong> <?php echo htmlspecialchars(($rem['nombre_persona_asignada'] ?? '') . ' ' . ($rem['apellido_persona_asignada'] ?? '')); ?></p>
-                        <a class="btn btn-xs btn-outline-primary py-0 px-2 mt-1" href="<?php echo app_base_url(); ?>/pages/reportes/remito.php?remito=<?php echo urlencode($rem['numero_remito']); ?>">Ver remito</a>
-                    </div>
-                </div>
-                <div class="card mb-3">
-                    <div class="card-header bg-light py-2">
-                        <h6 class="mb-0 small"><i class="fas fa-map-marker-alt me-2"></i>Ubicación Actual</h6>
-                    </div>
-                    <div class="card-body py-2">
-                        <p class="mb-1 small"><strong>Sede:</strong> <?php echo htmlspecialchars($rem['nombre_sede']); ?></p>
-                        <p class="mb-1 small"><strong>Localidad:</strong> <?php echo htmlspecialchars($rem['nombre_localidad']); ?></p>
-                        <p class="mb-1 small"><strong>Zona:</strong> <?php echo htmlspecialchars($rem['nombre_zona']); ?></p>
-                        <?php if (!empty($rem['nombre_area'])): ?><p class="mb-1 small"><strong>Área:</strong> <?php echo htmlspecialchars($rem['nombre_area']); ?></p><?php endif; ?>
+                    <div class="card-body py-3">
+                        <p class="mb-2"><span class="badge bg-warning">Activa</span></p>
+                        <p class="mb-2 small"><strong>Remito:</strong> <?php echo htmlspecialchars($rem['numero_remito']); ?></p>
+                        <p class="mb-2 small"><strong>Persona:</strong> <?php echo htmlspecialchars(($rem['nombre_persona_asignada'] ?? '') . ' ' . ($rem['apellido_persona_asignada'] ?? '')); ?></p>
+                        <p class="mb-2 small"><strong>Localidad:</strong> <?php echo htmlspecialchars($rem['nombre_localidad']); ?></p>
+                        <p class="mb-2 small"><strong>Sede:</strong> <?php echo htmlspecialchars($rem['nombre_sede']); ?></p>
+                        <a class="btn btn-sm btn-outline-primary py-1 px-3 mt-2" href="<?php echo app_base_url(); ?>/pages/reportes/remito.php?remito=<?php echo urlencode($rem['numero_remito']); ?>">Ver remito</a>
                     </div>
                 </div>
             <?php elseif (!empty($remitos_activos) && $insumo['tipo_insumo'] === 'Varios'): 
@@ -404,30 +403,28 @@ try {
                 $remitosRender = $mostrarBotonDesglose ? array_slice($remitos_activos, 0, $limiteMostrar) : $remitos_activos;
             ?>
                 <div class="card mb-3">
-                    <div class="card-header bg-warning-subtle text-warning-emphasis py-1 d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0 small"><i class="fas fa-link me-2"></i>Asignaciones activas (<?php echo $totalAsig; ?>)</h6>
+                    <div class="card-header bg-warning-subtle text-warning-emphasis py-3 px-3 d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 small fw-bold">Asignaciones activas (<?php echo $totalAsig; ?>)</h6>
                         <?php if ($mostrarBotonDesglose): ?>
-                            <button type="button" class="btn btn-xs btn-primary py-0 px-2 fw-bold" style="font-size: 0.75rem;" data-bs-toggle="collapse" data-bs-target="#desgloseAsignacionesCollapse" aria-expanded="false" aria-controls="desgloseAsignacionesCollapse">
-                                <i class="fas fa-expand me-1"></i>Ver desglose
+                            <button type="button" class="btn btn-xs btn-primary py-1 px-3 fw-bold" style="font-size: 0.75rem;" data-bs-toggle="collapse" data-bs-target="#desgloseAsignacionesCollapse" aria-expanded="false" aria-controls="desgloseAsignacionesCollapse">
+                                <i class="fas fa-expand me-1"></i>Ver todas
                             </button>
                         <?php endif; ?>
                     </div>
-                    <div class="card-body py-2" style="max-height: 250px; overflow-y: auto;">
+                    <div class="card-body py-2" style="max-height: 280px; overflow-y: auto;">
                         <?php foreach ($remitosRender as $rem): ?>
-                            <div class="p-2 mb-2 bg-light rounded border small text-dark">
-                                <div class="d-flex justify-content-between mb-1">
+                            <div class="p-3 mb-2 bg-light rounded border small text-dark">
+                                <div class="d-flex justify-content-between mb-2">
                                     <span class="badge bg-warning">Activa</span>
                                     <span class="badge bg-primary">Cant: <?php echo (int)($rem['cantidad_asignada'] - $rem['cantidad_devuelta']); ?></span>
                                 </div>
                                 <p class="mb-1"><strong>Remito:</strong> <?php echo htmlspecialchars($rem['numero_remito']); ?></p>
+                                <p class="mb-1"><strong>Persona:</strong> <?php echo htmlspecialchars(($rem['nombre_persona_asignada'] ?? '') . ' ' . ($rem['apellido_persona_asignada'] ?? '')); ?></p>
+                                <p class="mb-1"><strong>Localidad:</strong> <?php echo htmlspecialchars($rem['nombre_localidad']); ?></p>
                                 <p class="mb-1"><strong>Sede:</strong> <?php echo htmlspecialchars($rem['nombre_sede']); ?></p>
-                                <?php if ($rem['nombre_area']): ?>
-                                    <p class="mb-1"><strong>Área:</strong> <?php echo htmlspecialchars($rem['nombre_area']); ?></p>
-                                <?php endif; ?>
-                                <a class="btn btn-xs btn-outline-primary py-0 px-2 mt-1" href="<?php echo app_base_url(); ?>/pages/reportes/remito.php?remito=<?php echo urlencode($rem['numero_remito']); ?>">Ver remito</a>
+                                <a class="btn btn-xs btn-outline-primary py-1 px-3 mt-2" href="<?php echo app_base_url(); ?>/pages/reportes/remito.php?remito=<?php echo urlencode($rem['numero_remito']); ?>">Ver remito</a>
                             </div>
                         <?php endforeach; ?>
-                        
                     </div>
                 </div>
             <?php endif; ?>
@@ -505,6 +502,7 @@ try {
                                     <tr>
                                         <th class="ps-3 py-2">Remito</th>
                                         <th class="py-2">Sede</th>
+                                        <th class="py-2">Localidad</th>
                                         <th class="py-2">Área</th>
                                         <th class="py-2">Persona Asignada</th>
                                         <th class="py-2 text-center">Cant. Activa</th>
@@ -516,6 +514,7 @@ try {
                                         <tr>
                                             <td class="ps-3 py-2 fw-bold text-primary"><?php echo htmlspecialchars($rem['numero_remito']); ?></td>
                                             <td class="py-2"><?php echo htmlspecialchars($rem['nombre_sede']); ?></td>
+                                            <td class="py-2"><?php echo htmlspecialchars($rem['nombre_localidad']); ?></td>
                                             <td class="py-2"><?php echo htmlspecialchars($rem['nombre_area'] ?: '-'); ?></td>
                                             <td class="py-2"><?php echo htmlspecialchars(trim(($rem['nombre_persona_asignada'] ?? '') . ' ' . ($rem['apellido_persona_asignada'] ?? '')) ?: '-'); ?></td>
                                             <td class="py-2 text-center fw-bold"><span class="badge bg-primary"><?php echo (int)($rem['cantidad_asignada'] - $rem['cantidad_devuelta']); ?></span></td>
@@ -535,20 +534,14 @@ try {
         </div>
     <?php endif; ?>
 
-    <script>
-    $(document).ready(function() {
-        $('#desgloseAsignacionesCollapse').on('shown.bs.collapse', function () {
-            this.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
-    });
-    </script>
-
     <?php
     $html = ob_get_clean();
     $remitoNum = $remito_activo ? (string) $remito_activo['numero_remito'] : null;
     $personaAsignada = $remito_activo ? trim(($remito_activo['nombre_persona_asignada'] ?? '') . ' ' . ($remito_activo['apellido_persona_asignada'] ?? '')) : null;
     $tipoInsumo = isset($insumo['tipo_insumo']) ? (string) $insumo['tipo_insumo'] : null;
-    $cantInsumo = isset($insumo['cantidad']) ? (int) $insumo['cantidad'] : null;
+    $cantInsumo = ($tipoInsumo === 'Varios') 
+        ? ((int)$insumo['cantidad_oficina'] + (int)$insumo['cantidad_deposito']) 
+        : (isset($insumo['cantidad']) ? (int) $insumo['cantidad'] : null);
     echo json_encode([
         'success' => true,
         'html' => $html,

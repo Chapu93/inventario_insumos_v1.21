@@ -25,9 +25,9 @@ try {
     $where = ['COALESCE(d.cantidad_devuelta,0) > 0'];
     $params = [];
     if ($search !== '') {
-        $where[] = '(r.numero_remito LIKE ? OR r.nombre_persona_asignada LIKE ? OR r.apellido_persona_asignada LIKE ?)';
+        $where[] = '(r.numero_remito LIKE ? OR r.nombre_persona_asignada LIKE ? OR r.apellido_persona_asignada LIKE ? OR s.nombre_sede LIKE ? OR l.nombre_localidad LIKE ? OR a.nombre_area LIKE ? OR i.nombre_insumo LIKE ?)';
         $like = '%' . $search . '%';
-        array_push($params, $like, $like, $like);
+        array_push($params, $like, $like, $like, $like, $like, $like, $like);
     }
     $whereSql = ' WHERE ' . implode(' AND ', $where);
 
@@ -35,6 +35,10 @@ try {
     $countSql = "SELECT COUNT(DISTINCT r.id_remito)
                  FROM remitos_detalle d
                  JOIN remitos r ON r.id_remito = d.id_remito
+                 LEFT JOIN sedes s ON r.id_sede = s.id_sede
+                 LEFT JOIN localidades l ON s.id_localidad = l.id_localidad
+                 LEFT JOIN areas a ON r.id_area = a.id_area
+                 JOIN insumos i ON d.id_insumo = i.id_insumo
                  $whereSql";
     $stmt = $db->prepare($countSql);
     $stmt->execute($params);
@@ -52,6 +56,10 @@ try {
                    COUNT(d.id_detalle) AS num_items
             FROM remitos_detalle d
             JOIN remitos r ON r.id_remito = d.id_remito
+            LEFT JOIN sedes s ON r.id_sede = s.id_sede
+            LEFT JOIN localidades l ON s.id_localidad = l.id_localidad
+            LEFT JOIN areas a ON r.id_area = a.id_area
+            JOIN insumos i ON d.id_insumo = i.id_insumo
             $whereSql
             GROUP BY r.id_remito, r.numero_remito, r.fecha_asignacion, r.fecha_devolucion, r.nombre_persona_asignada, r.apellido_persona_asignada
             ORDER BY r.fecha_devolucion DESC, r.fecha_asignacion DESC, r.id_remito DESC

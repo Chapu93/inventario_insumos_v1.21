@@ -873,7 +873,10 @@ function toggleSeleccionInsumo(id, cantidadInicial, evitarOrdenar) {
     if (!evitarOrdenar) {
         actualizarContador();
         guardarEstado();
-        ordenarFilas();
+        // Diferir el reordenamiento 150ms para permitir que finalice el evento click físico
+        setTimeout(() => {
+            ordenarFilas();
+        }, 150);
     }
 }
 
@@ -902,7 +905,7 @@ function ordenarFilas() {
         return aNombre.localeCompare(bNombre);
     });
     
-    tbody.empty();
+    // No usar .empty() para preservar estados dinámicos e inputs del DOM
     $.each(filas, function(idx, fila) {
         tbody.append(fila);
     });
@@ -1005,6 +1008,14 @@ function cambiarPagina(page) {
 $('#filtro_busqueda').on('input', filtrarInsumos);
 $('#filtro_tipo').on('change', filtrarInsumos);
 
+// Prevenir submit accidental con la tecla Enter en el input de búsqueda
+$('#filtro_busqueda').on('keydown', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        return false;
+    }
+});
+
 $('#btnLimpiarFiltros').on('click', function() {
     $('#filtro_busqueda').val('');
     $('#filtro_tipo').val('');
@@ -1025,7 +1036,10 @@ function seleccionarFiltrados() {
     });
     actualizarContador();
     guardarEstado();
-    ordenarFilas();
+    // Diferir el reordenamiento 150ms para permitir que finalice el evento click físico
+    setTimeout(() => {
+        ordenarFilas();
+    }, 150);
 }
 
 // Deseleccionar todos
@@ -1041,7 +1055,10 @@ function deseleccionarTodos() {
     });
     actualizarContador();
     guardarEstado();
-    ordenarFilas();
+    // Diferir el reordenamiento 150ms para permitir que finalice el evento click físico
+    setTimeout(() => {
+        ordenarFilas();
+    }, 150);
 }
 
 // Limpiar localStorage al enviar formulario

@@ -349,6 +349,18 @@ $localidades = $stmt->fetchAll();
                 btnEditar.style.display = 'none';
             });
     }
+
+    // Desplazar el modal automáticamente hasta la tabla al desplegar el desglose completo
+    $(document).on('shown.bs.collapse', '#desgloseAsignacionesCollapse', function () {
+        const modal = document.getElementById('modalVerInsumo');
+        const collapseEl = document.getElementById('desgloseAsignacionesCollapse');
+        if (modal && collapseEl) {
+            modal.scrollTo({
+                top: collapseEl.offsetTop - 15,
+                behavior: 'smooth'
+            });
+        }
+    });
 </script>
 
 <script>

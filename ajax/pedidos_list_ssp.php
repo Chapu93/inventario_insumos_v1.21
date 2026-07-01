@@ -109,9 +109,9 @@ try {
     if ($filtro_asignado !== '') { $where[] = 'p.asignado_a = ?'; $params[] = (int)$filtro_asignado; }
 
     if ($search !== '') {
-        $where[] = '(p.solicitante_nombre LIKE ? OR p.solicitante_apellido LIKE ? OR s.nombre_sede LIKE ? OR p.id_pedido LIKE ? OR u_asig.nombre LIKE ? OR u_asig.apellido LIKE ? OR u_asig.username LIKE ? OR p.tipo LIKE ?)';
+        $where[] = '(p.solicitante_nombre LIKE ? OR p.solicitante_apellido LIKE ? OR s.nombre_sede LIKE ? OR p.id_pedido LIKE ? OR u_asig.nombre LIKE ? OR u_asig.apellido LIKE ? OR u_asig.username LIKE ? OR p.tipo LIKE ? OR p.descripcion LIKE ? OR a.nombre_area LIKE ? OR r.numero_remito LIKE ?)';
         $like = '%' . $search . '%';
-        array_push($params, $like, $like, $like, $like, $like, $like, $like, $like);
+        array_push($params, $like, $like, $like, $like, $like, $like, $like, $like, $like, $like, $like);
     }
 
     $whereSql = ' WHERE ' . implode(' AND ', $where);

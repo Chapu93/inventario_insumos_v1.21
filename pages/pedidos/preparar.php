@@ -590,6 +590,14 @@ $(function() {
         filtrarInsumos();
     });
 
+    // Prevenir submit al presionar Enter en el input de búsqueda
+    $('#filtro_busqueda').on('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            return false;
+        }
+    });
+
     function filtrarInsumos() {
         const q = $('#filtro_busqueda').val().toLowerCase();
         const tipo = $('#filtro_tipo').val().toLowerCase();
@@ -619,8 +627,9 @@ $(function() {
         });
         const $others = $rows.not($selected);
         
-        // Re-insertar en orden: primero los seleccionados (manteniendo su orden) y luego el resto
-        $tbody.empty().append($selected).append($others);
+        // Re-insertar en orden sin vaciar con .empty() para preservar eventos y datos
+        $selected.each(function() { $tbody.prepend(this); });
+        $others.each(function() { $tbody.append(this); });
         
         renderPaginacion();
     }
@@ -692,9 +701,10 @@ $(function() {
         actualizarContador();
         
         // Diferir el reordenamiento para evitar conflictos con el evento click (fix 2-clicks)
+        // Se reduce a 150ms para que se sienta más ágil y responsivo
         setTimeout(() => {
             reorderSelectedFirst();
-        }, 50);
+        }, 150);
     };
 
     window.seleccionarFiltrados = function() {

@@ -2,6 +2,10 @@ public/uploads/*
 !public/uploads/.gitkeep
 !public/uploads/planos/.gitkeep
 
+# Subidas y archivos temporales
+uploads/
+scratch/
+
 # Archivo de configuración local (usar .env.example como referencia)
 .env
 

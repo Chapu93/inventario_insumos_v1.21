@@ -22,9 +22,9 @@ try {
     $where = ["r.estado = 'Anulado'"];
     $params = [];
     if ($search !== '') {
-        $where[] = '(r.numero_remito LIKE ? OR r.nombre_persona_asignada LIKE ? OR r.apellido_persona_asignada LIKE ? OR s.nombre_sede LIKE ? OR a.nombre_area LIKE ?)';
+        $where[] = '(r.numero_remito LIKE ? OR r.nombre_persona_asignada LIKE ? OR r.apellido_persona_asignada LIKE ? OR s.nombre_sede LIKE ? OR a.nombre_area LIKE ? OR l.nombre_localidad LIKE ? OR r.motivo_anulacion LIKE ?)';
         $like = '%' . $search . '%';
-        array_push($params, $like, $like, $like, $like, $like);
+        array_push($params, $like, $like, $like, $like, $like, $like, $like);
     }
     $whereSql = ' WHERE ' . implode(' AND ', $where);
 
@@ -32,6 +32,7 @@ try {
                  FROM remitos r
                  LEFT JOIN sedes s ON s.id_sede = r.id_sede
                  LEFT JOIN areas a ON a.id_area = r.id_area
+                 LEFT JOIN localidades l ON s.id_localidad = l.id_localidad
                  $whereSql";
     $stmt = $db->prepare($countSql);
     $stmt->execute($params);
@@ -43,6 +44,7 @@ try {
             FROM remitos r
             LEFT JOIN sedes s ON s.id_sede = r.id_sede
             LEFT JOIN areas a ON a.id_area = r.id_area
+            LEFT JOIN localidades l ON s.id_localidad = l.id_localidad
             $whereSql
             ORDER BY r.fecha_anulacion DESC, r.id_remito DESC
             LIMIT $start, $length";

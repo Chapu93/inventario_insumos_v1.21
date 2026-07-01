@@ -85,6 +85,10 @@ try {
             imp.marca LIKE ? OR imp.modelo LIKE ? OR 
             mon.marca LIKE ? OR mon.modelo LIKE ? OR 
             esc.marca LIKE ? OR esc.modelo LIKE ? OR 
+            i.subcategoria_varios LIKE ? OR
+            s.nombre_sede LIKE ? OR
+            l.nombre_localidad LIKE ? OR
+            r.numero_remito LIKE ? OR
             CONCAT_WS(\' \', r.nombre_persona_asignada, r.apellido_persona_asignada) LIKE ?
         )';
         $like = '%' . $search . '%';
@@ -106,7 +110,11 @@ try {
             $like,
             $like,
             $like,
-            $like
+            $like, // subcategoria_varios
+            $like, // nombre_sede
+            $like, // nombre_localidad
+            $like, // numero_remito
+            $like  // asignado
         );
     }
 

@@ -21,9 +21,9 @@ try {
     $where = [];
     $params = [];
     if ($search !== '') {
-        $where[] = '(i.nombre_insumo LIKE ? OR b.observacion LIKE ?)';
+        $where[] = '(i.nombre_insumo LIKE ? OR b.observacion LIKE ? OR i.numero_serie LIKE ? OR i.id_fisico LIKE ? OR i.id_patrimonio LIKE ? OR i.tipo_insumo LIKE ?)';
         $like = '%' . $search . '%';
-        array_push($params, $like, $like);
+        array_push($params, $like, $like, $like, $like, $like, $like);
     }
     $whereSql = count($where) ? (' WHERE ' . implode(' AND ', $where)) : '';
 

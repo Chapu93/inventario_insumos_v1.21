@@ -661,3 +661,7 @@ $.ajax({
 ### Skill: DataTables-AJAX-Flow
 - Capacidad para estructurar respuestas JSON en PHP que cumplan con el protocolo estricto de DataTables (draw, recordsTotal, recordsFiltered).
 - Configuración avanzada de elementos Select2 sincronizados mediante eventos de jQuery.
+
+### Reglas de Control de Versión y Reversión
+- **Uso de versiones históricas:** El agente puede consultar archivos antiguos o del historial del repositorio únicamente a modo comparativo o de referencia.
+- **Confirmación requerida para reversión:** Si el agente necesita restaurar o volver a una versión anterior de cualquier archivo, código o base de datos, **debe solicitar obligatoriamente la confirmación explícita del usuario** antes de realizar la acción.

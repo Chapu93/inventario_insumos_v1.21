@@ -641,6 +641,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         });
         $('#filtro_tipo').on('input change', function () { filtrarInsumos(); actualizarContadorSeleccionados(); });
 
+        // Prevenir submit accidental al presionar Enter en el input de búsqueda
+        $('#filtro_busqueda').on('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                return false;
+            }
+        });
+
         // Paginación
         let currentPage = 1;
         const rowsPerPage = 15;
@@ -691,7 +699,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (tipo === 'Varios' && max > 1) { $fila.find('.cantidad-input').css('display', 'flex').find('input').prop('disabled', false); }
             }
             actualizarContadorSeleccionados();
-            reorderSelectedFirst();
+            // Diferir el reordenamiento 150ms para permitir que finalice el evento click físico y sea más ágil
+            setTimeout(() => {
+                reorderSelectedFirst();
+            }, 150);
         }
 
         function seleccionarFiltrados() {
@@ -708,7 +719,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             });
             actualizarContadorSeleccionados();
-            reorderSelectedFirst();
+            // Diferir el reordenamiento 150ms para permitir que finalice el evento click físico y sea más ágil
+            setTimeout(() => {
+                reorderSelectedFirst();
+            }, 150);
         }
 
         function deseleccionarTodos() {
@@ -716,7 +730,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $('.btn-seleccionar').removeClass('btn-primary').addClass('btn-outline-primary').html('<i class="fas fa-plus"></i> Seleccionar');
             $('.cantidad-input').css('display', 'none').find('input').prop('disabled', true);
             actualizarContadorSeleccionados();
-            reorderSelectedFirst();
+            // Diferir el reordenamiento 150ms para permitir que finalice el evento click físico y sea más ágil
+            setTimeout(() => {
+                reorderSelectedFirst();
+            }, 150);
         }
 
         function reorderSelectedFirst() {

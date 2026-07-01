@@ -45,9 +45,9 @@ try {
     }
     
     if ($search !== '') {
-        $where[] = '(i.nombre_insumo LIKE ? OR i.subcategoria_varios LIKE ? OR m.observacion LIKE ?)';
+        $where[] = '(i.nombre_insumo LIKE ? OR i.subcategoria_varios LIKE ? OR m.observacion LIKE ? OR i.numero_serie LIKE ? OR i.id_fisico LIKE ? OR i.id_patrimonio LIKE ?)';
         $like = '%' . $search . '%';
-        array_push($params, $like, $like, $like);
+        array_push($params, $like, $like, $like, $like, $like, $like);
     }
     
     $whereSql = count($where) ? ('WHERE ' . implode(' AND ', $where)) : '';

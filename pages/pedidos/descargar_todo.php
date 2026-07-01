@@ -94,6 +94,13 @@ try {
     // 3. Adjuntar Remito Firmado (si existe)
     if (!empty($pedido['remito_firmado'])) {
         $firmadoPath = UPLOAD_BASE_DIR . 'pedidos/' . $pedido['remito_firmado'];
+        if (!empty($pedido['id_remito'])) {
+            $remitoFirmadoPath = UPLOAD_BASE_DIR . 'remitos_firmados/' . $pedido['remito_firmado'];
+            if (file_exists($remitoFirmadoPath)) {
+                $firmadoPath = $remitoFirmadoPath;
+            }
+        }
+        
         if (file_exists($firmadoPath)) {
             $ext = strtolower(pathinfo($firmadoPath, PATHINFO_EXTENSION));
             if ($ext === 'pdf') {
@@ -147,7 +154,31 @@ function importPdfPages($pdf, $filePath) {
             $pdf->useTemplate($tplIdx);
         }
     } catch (Exception $e) {
-        // Si falla una importación, añadir una página de error o simplemente saltar
+        // Si falla una importación por versión de PDF incompatible (ej: PDF 1.5+), intentar normalizarlo a PDF 1.4 usando Ghostscript
+        try {
+            $tempOutput = tempnam(sys_get_temp_dir(), 'pdf14_');
+            $cmd = "env -u LD_LIBRARY_PATH gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dNOPAUSE -dQUIET -dBATCH -sOutputFile=" . escapeshellarg($tempOutput) . " " . escapeshellarg($filePath);
+            exec($cmd, $output, $returnVar);
+            
+            if ($returnVar === 0 && file_exists($tempOutput) && filesize($tempOutput) > 0) {
+                $pageCount = $pdf->setSourceFile($tempOutput);
+                for ($n = 1; $n <= $pageCount; $n++) {
+                    $tplIdx = $pdf->importPage($n);
+                    $size = $pdf->getTemplateSize($tplIdx);
+                    $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
+                    $pdf->useTemplate($tplIdx);
+                }
+                unlink($tempOutput);
+                return;
+            }
+            if (file_exists($tempOutput)) {
+                unlink($tempOutput);
+            }
+        } catch (Exception $ex) {
+            // Ignorar y caer al fallback visual
+        }
+
+        // Si falla todo, añadir una página de error
         $pdf->AddPage();
         $pdf->SetFont('Arial', 'B', 12);
         $pdf->Cell(0, 10, 'Error al importar archivo: ' . basename($filePath), 0, 1);

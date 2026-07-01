@@ -262,12 +262,14 @@ try {
                                     u_sol.username as sol_user, u_sol.nombre as sol_nom, u_sol.apellido as sol_ape,
                                     u_asig.username as asig_user, u_asig.nombre as asig_nom, u_asig.apellido as asig_ape,
                                     s.nombre_sede, s.id_localidad,
+                                    a.nombre_area,
                                     i.nombre_insumo, i.numero_serie,
                                     r.numero_remito,
                                     r_rel.numero_remito as numero_remito_relacionado
                                   FROM pedidos p
                                   JOIN usuarios u_sol ON p.id_usuario_solicitante = u_sol.id_usuario
                                   JOIN sedes s ON p.id_sede = s.id_sede
+                                  LEFT JOIN areas a ON p.id_area = a.id_area
                                   LEFT JOIN usuarios u_asig ON p.asignado_a = u_asig.id_usuario
                                   LEFT JOIN insumos i ON p.id_insumo_relacionado = i.id_insumo
                                   LEFT JOIN remitos r ON p.id_remito = r.id_remito
@@ -740,6 +742,12 @@ try {
                     json_error('Debe adjuntar el archivo del remito firmado o constancia de entrega.', 400);
                 }
                 
+                // Obtener remito asociado al pedido
+                $stmtRem = $db->prepare("SELECT id_remito, (SELECT numero_remito FROM remitos WHERE id_remito = p.id_remito) as numero_remito FROM pedidos p WHERE p.id_pedido = ?");
+                $stmtRem->execute([$id]);
+                $pedidoRemito = $stmtRem->fetch();
+                $idRemito = $pedidoRemito ? (int)$pedidoRemito['id_remito'] : 0;
+
                 // Usar validarArchivoPlano que permite PDF e imágenes (JPG, PNG)
                 require_once '../includes/validar_archivo.php';
                 $validacion = validarArchivoPlano($_FILES['remito_firmado'], 10 * 1024 * 1024);
@@ -749,13 +757,21 @@ try {
                     json_error('Error en el archivo adjunto: ' . $validacion['error'], 400);
                 }
                 
-                $uploadDir = UPLOAD_BASE_DIR . 'pedidos/';
+                $extension = $validacion['extension'];
+                
+                if ($idRemito > 0) {
+                    $uploadDir = UPLOAD_BASE_DIR . 'remitos_firmados/';
+                    $nombreLimpio = str_replace('/', '_', $pedidoRemito['numero_remito']);
+                    $fileName = 'remito_firmado_' . $nombreLimpio . '_' . time() . '.' . $extension;
+                } else {
+                    $uploadDir = UPLOAD_BASE_DIR . 'pedidos/';
+                    $fileName = 'remito_entregado_' . time() . '_' . uniqid() . '.' . $extension;
+                }
+
                 if (!file_exists($uploadDir)) {
                     mkdir($uploadDir, 0755, true);
                 }
                 
-                $extension = $validacion['extension'];
-                $fileName = 'remito_entregado_' . time() . '_' . uniqid() . '.' . $extension;
                 $targetPath = $uploadDir . $fileName;
                 
                 if (defined('TESTING') && TESTING) {
@@ -765,6 +781,15 @@ try {
                         $db->rollBack();
                         json_error('Error al guardar el archivo adjunto en el servidor', 500);
                     }
+                }
+
+                // Si tiene remito, actualizar también la tabla remitos
+                if ($idRemito > 0) {
+                    $stmtUpdRem = $db->prepare("UPDATE remitos SET remito_firmado = ? WHERE id_remito = ?");
+                    $stmtUpdRem->execute([$fileName, $idRemito]);
+                    
+                    // Registrar auditoría para el remito
+                    registrarAuditoria('subir_remito_firmado', 'remitos', "Se adjuntó automáticamente desde la entrega del Pedido #$id", 'remito', $idRemito);
                 }
 
                 $sql .= ", fecha_entrega = NOW(), receptor_nombre = ?, estado = 'Completado', remito_firmado = ?";
