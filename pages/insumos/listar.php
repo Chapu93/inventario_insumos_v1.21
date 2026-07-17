@@ -210,7 +210,7 @@ $localidades = $stmt->fetchAll();
 <div class="row mt-3">
     <div class="col-12">
         <div class="d-flex justify-content-end gap-2">
-            <button type="button" class="btn btn-success" onclick="exportarExcel('tablaInsumos', 'insumos')">
+            <button type="button" class="btn btn-success" onclick="exportarInsumosExcel()">
                 <i class="fas fa-file-excel me-2"></i>Exportar Excel
             </button>
             <button type="button" class="btn btn-secondary" onclick="imprimirTabla('tablaInsumos', 'insumos')">
@@ -993,5 +993,37 @@ $localidades = $stmt->fetchAll();
                 modal.hide();
             }
         }
+    }
+
+    // Función para exportar la totalidad de insumos filtrados a Excel
+    function exportarInsumosExcel() {
+        const baseUrl = getAppBase ? getAppBase() : window.APP_BASE_URL || '';
+        
+        const tipo = $('#tipo').val() || '';
+        const estado = $('#estado').val() || '';
+        const idLocalidad = $('#id_localidad').val() || '';
+        const idSede = $('#id_sede').val() || '';
+        const esNuevo = $('#es_nuevo').val() || '';
+        
+        let search = '';
+        try {
+            if ($.fn.DataTable.isDataTable('#tablaInsumos')) {
+                search = $('#tablaInsumos').DataTable().search() || '';
+            }
+        } catch (e) {
+            console.error('Error al obtener búsqueda de DataTable:', e);
+        }
+        
+        const queryParams = new URLSearchParams({
+            tipo: tipo,
+            estado: estado,
+            id_localidad: idLocalidad,
+            id_sede: idSede,
+            es_nuevo: esNuevo,
+            search: search
+        });
+        
+        const url = baseUrl + '/pages/insumos/exportar_excel.php?' + queryParams.toString();
+        window.location.href = url;
     }
 </script>

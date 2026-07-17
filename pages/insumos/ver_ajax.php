@@ -96,7 +96,7 @@ try {
     }
 
     $stmt_act = $conexion->prepare("SELECT r.id_remito, r.numero_remito, r.fecha_asignacion, r.estado,
-                                           r.nombre_persona_asignada, r.apellido_persona_asignada,
+                                           r.nombre_persona_asignada, r.apellido_persona_asignada, r.declaracion_jurada,
                                            s.nombre_sede, l.nombre_localidad, z.nombre_zona, ar.nombre_area,
                                            d.cantidad AS cantidad_asignada, d.cantidad_devuelta
                                     FROM remitos_detalle d
@@ -394,6 +394,9 @@ try {
                         <p class="mb-2 small"><strong>Localidad:</strong> <?php echo htmlspecialchars($rem['nombre_localidad']); ?></p>
                         <p class="mb-2 small"><strong>Sede:</strong> <?php echo htmlspecialchars($rem['nombre_sede']); ?></p>
                         <a class="btn btn-sm btn-outline-primary py-1 px-3 mt-2" href="<?php echo app_base_url(); ?>/pages/reportes/remito.php?remito=<?php echo urlencode($rem['numero_remito']); ?>">Ver remito</a>
+                        <?php if (!empty($rem['declaracion_jurada'])): ?>
+                            <a class="btn btn-sm btn-outline-success py-1 px-3 mt-2 ms-1" href="<?php echo app_base_url(); ?>/uploads/documentos/<?php echo htmlspecialchars($rem['declaracion_jurada']); ?>" target="_blank"><i class="fas fa-file-pdf me-1"></i>Ver DDJJ</a>
+                        <?php endif; ?>
                     </div>
                 </div>
             <?php elseif (!empty($remitos_activos) && $insumo['tipo_insumo'] === 'Varios'): 

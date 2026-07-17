@@ -74,6 +74,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Validar que no existan duplicados de número de serie, ID físico o ID patrimonio
         $numero_serie = ($tipo_insumo != 'Varios') ? ($_POST['numero_serie'] ?: null) : null;
         $id_fisico = ($tipo_insumo != 'Varios') ? ($_POST['id_fisico'] ?: null) : null;
+        if ($id_fisico !== null) {
+            $id_fisico = strtoupper(str_replace(['-', ' '], '', trim($id_fisico)));
+        }
         $id_patrimonio = ($tipo_insumo != 'Varios') ? ($_POST['id_patrimonio'] ?: null) : null;
         
         $validacion = validarInsumoUnico($numero_serie, $id_fisico, $id_patrimonio, null, $conexion);
@@ -890,7 +893,7 @@ $(document).ready(function() {
         clearTimeout(timeoutValidacion);
         
         const numeroSerie = $('#numero_serie').val()?.trim() || '';
-        const idFisico = $('#id_fisico').val()?.trim() || '';
+        const idFisico = $('#id_fisico').val()?.trim().toUpperCase().replace(/[- ]/g, '') || '';
         const idPatrimonio = $('#id_patrimonio').val()?.trim() || '';
         
         // Si todos están vacíos, no validar

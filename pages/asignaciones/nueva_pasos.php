@@ -484,7 +484,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <!-- Contenedor Paginación JS -->
                                     <ul class="pagination pagination-sm justify-content-center mt-3" id="paginationInsumos"></ul>
 
-                                    <div id="declaracion_container" class="mt-3 mx-3 mx-md-5 alert alert-warning" style="display:none;">
+                                    <div id="declaracion_container" class="mt-3 mx-3 mx-md-5 alert alert-warning alert-permanent" style="display:none;">
                                         <label for="declaracion_jurada" class="form-label mb-1">
                                             <strong><i class="fas fa-file-pdf me-2"></i>Declaración Jurada Obligatoria</strong>
                                         </label>
@@ -823,13 +823,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const form = document.getElementById('formPasos');
             const total = $('.hidden-insumo-input:not(:disabled)').length;
             if (total === 0) { 
-                showAlert('Debe seleccionar al menos un insumo', 'warning');
+                showAlert({
+                    mensaje: 'Debe seleccionar al menos un insumo.',
+                    icono: 'fa-exclamation-triangle text-warning',
+                    claseBoton: 'btn-warning'
+                });
                 return; 
             }
 
             const hayNotebook = $('.hidden-insumo-input:not(:disabled)[data-tipo="Notebook"]').length > 0;
             if (hayNotebook && !$('#declaracion_jurada').val()) {
-                showAlert('Debe adjuntar la Declaración Jurada para asignar una Notebook.', 'warning');
+                showAlert({
+                    mensaje: 'Debe adjuntar la Declaración Jurada para asignar una Notebook.',
+                    icono: 'fa-exclamation-triangle text-warning',
+                    claseBoton: 'btn-warning'
+                });
                 $('#declaracion_jurada').addClass('is-invalid');
                 return;
             } else {

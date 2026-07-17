@@ -39,21 +39,25 @@ if (!$puedeCambiarSede && $userSedeId > 0) {
 include '../../includes/header.php';
 ?>
 
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="d-flex align-items-center mb-3">
-            <a href="javascript:void(0);" onclick="cancelarPedido()" class="btn btn-outline-secondary me-3"><i class="fas fa-arrow-left"></i></a>
-            <h1 class="mb-0">Nuevo Pendiente</h1>
+<div class="row">
+    <div class="col-12">
+        <div class="row mb-4">
+            <div class="col-12 d-flex justify-content-between align-items-center">
+                <h1 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Nuevo Pendiente</h1>
+                <a href="javascript:void(0);" onclick="cancelarPedido()" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Volver
+                </a>
+            </div>
         </div>
         
-            <div class="card shadow">
+        <div class="card shadow">
             <div class="card-body">
                 <form id="formCrearPedido">
                     <?php echo csrf_input(); ?>
                     <input type="hidden" name="accion" value="crear">                    
                     
                     <!-- Datos del Solicitante (Externo) -->
-                    <h5 class="mb-3 text-dark border-bottom pb-2">Datos del Solicitante (Agente Externo)</h5>
+                    <h5 class="section-title mb-4"><i class="fas fa-user-tie me-2"></i>Datos del Solicitante (Agente Externo)</h5>
                     <div class="row mb-3">
                         <div class="col-md-4">
                             <label for="solicitante_nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
@@ -111,7 +115,7 @@ include '../../includes/header.php';
                         <?php endif; ?>
                     </div>
 
-                    <h5 class="mb-3 text-dark border-bottom pb-2">Detalle de Solicitud</h5>
+                    <h5 class="section-title mb-4"><i class="fas fa-file-alt me-2"></i>Detalle de Solicitud</h5>
                     
                     <!-- Toggle Modo Insumo -->
                     <div class="mb-3">
@@ -626,7 +630,7 @@ $(document).ready(function() {
                     setTimeout(function(){ window.location.href = 'listar.php'; }, 1000);
                 } else {
                     showToast(resp.error || 'Error al crear pedido', 'error');
-                    btn.prop('disabled', false).html('<i class="fas fa-print me-2"></i>Crear e Imprimir');
+                    btn.prop('disabled', false).html('<i class="fas fa-paper-plane me-2"></i>Crear Pendiente');
                 }
             },
             error: function(xhr, status, error) {
@@ -636,7 +640,7 @@ $(document).ready(function() {
                     errMsg = xhr.responseJSON.error;
                 }
                 showToast(errMsg, 'error');
-                btn.prop('disabled', false).html('<i class="fas fa-paper-plane me-2"></i>Enviar Solicitud');
+                btn.prop('disabled', false).html('<i class="fas fa-paper-plane me-2"></i>Crear Pendiente');
             }
         });
     });

@@ -100,15 +100,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 include '../../includes/header.php';
 ?>
 
-<div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="mb-0"><i class="fas fa-file-signature me-2 text-primary"></i>Nueva Solicitud de Insumos</h2>
-            <a href="listar.php" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-2"></i>Volver</a>
+<div class="row">
+    <div class="col-12">
+        <div class="row mb-4">
+            <div class="col-12 d-flex justify-content-between align-items-center">
+                <h1 class="mb-0"><i class="fas fa-file-signature me-2"></i>Nueva Solicitud de Insumos</h1>
+                <a href="listar.php" class="btn btn-secondary"><i class="fas fa-arrow-left me-1"></i>Volver</a>
+            </div>
         </div>
 
-        <div class="card shadow-sm border-0">
-            <div class="card-header bg-primary text-white py-3">
+        <div class="card shadow">
+            <div class="card-header">
                 <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Datos de la Solicitud</h5>
             </div>
             <div class="card-body p-4">
@@ -118,7 +120,7 @@ include '../../includes/header.php';
                     <div class="row g-4">
                         <!-- Sección Solicitante -->
                         <div class="col-md-6">
-                            <h6 class="text-uppercase text-muted fw-bold mb-3 small">Solicitante</h6>
+                            <h5 class="section-title mb-3"><i class="fas fa-user me-2"></i>Solicitante</h5>
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Nombre *</label>
                                 <input type="text" class="form-control" name="solicitante_nombre" required placeholder="Ej: Juan">
@@ -131,7 +133,7 @@ include '../../includes/header.php';
 
                         <!-- Sección Ubicación -->
                         <div class="col-md-6">
-                            <h6 class="text-uppercase text-muted fw-bold mb-3 small">Destino</h6>
+                            <h5 class="section-title mb-3"><i class="fas fa-map-marker-alt me-2"></i>Destino</h5>
                             <div class="mb-3">
                                 <label class="form-label fw-semibold">Localidad *</label>
                                 <select class="form-select" id="id_localidad" required>
@@ -186,8 +188,9 @@ include '../../includes/header.php';
                             </div>
                         </div>
 
-                        <div class="col-12 text-end pt-3">
-                            <button type="submit" class="btn btn-primary btn-lg px-5 shadow-sm">
+                        <div class="col-12 d-flex justify-content-end gap-2 pt-3">
+                            <a href="listar.php" class="btn btn-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary px-5 shadow-sm">
                                 <i class="fas fa-paper-plane me-2"></i>Enviar Solicitud
                             </button>
                         </div>

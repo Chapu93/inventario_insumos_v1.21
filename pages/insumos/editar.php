@@ -43,6 +43,11 @@ switch ($tipo_insumo) {
     case 'Notebook':
         $q = $db->prepare("SELECT * FROM notebooks WHERE id_insumo = ?");
         $q->execute([$id]); $esp = $q->fetch() ?: [];
+        
+        // Obtener remito activo asociado a la notebook (si está asignada)
+        $qRem = $db->prepare("SELECT r.* FROM remitos r JOIN remitos_detalle d ON r.id_remito = d.id_remito WHERE d.id_insumo = ? AND r.estado = 'Activa' LIMIT 1");
+        $qRem->execute([$id]);
+        $remitoActivo = $qRem->fetch(PDO::FETCH_ASSOC) ?: null;
         break;
     case 'Impresora':
         $q = $db->prepare("SELECT * FROM impresoras WHERE id_insumo = ?");
@@ -127,6 +132,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $cantidadDeposito = null;
             $numero_serie = ($_POST['numero_serie'] ?? '') ?: null;
             $id_fisico = ($_POST['id_fisico'] ?? '') ?: null;
+            if ($id_fisico !== null) {
+                $id_fisico = strtoupper(str_replace(['-', ' '], '', trim($id_fisico)));
+            }
             $id_patrimonio = ($_POST['id_patrimonio'] ?? '') ?: null;
             $cantidad = 1; // fijo
         }
@@ -185,6 +193,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $caja,
                     $adaptadorRed
                 ]);
+
+                // Procesamiento de Declaración Jurada asociada al Remito Activo
+                $qRem = $db->prepare("SELECT r.* FROM remitos r JOIN remitos_detalle d ON r.id_remito = d.id_remito WHERE d.id_insumo = ? AND r.estado = 'Activa' LIMIT 1");
+                $qRem->execute([$id]);
+                $remAct = $qRem->fetch(PDO::FETCH_ASSOC);
+                
+                if ($remAct) {
+                    $declaracionNombre = $remAct['declaracion_jurada'] ?: null;
+                    $eliminarDj = isset($_POST['eliminar_dj']) ? 1 : 0;
+                    $uploadDir = UPLOAD_BASE_DIR . 'documentos/';
+                    
+                    if ($eliminarDj && $declaracionNombre) {
+                        $archivoAnterior = $uploadDir . $declaracionNombre;
+                        if (file_exists($archivoAnterior)) {
+                            unlink($archivoAnterior);
+                        }
+                        $declaracionNombre = null;
+                        
+                        $stmtUpdRem = $db->prepare("UPDATE remitos SET declaracion_jurada = NULL WHERE id_remito = ?");
+                        $stmtUpdRem->execute([$remAct['id_remito']]);
+                        
+                        registrarAuditoria('eliminar_declaracion_jurada', 'remitos', "Se eliminó declaración jurada de la notebook ID $id en remito #{$remAct['numero_remito']}", 'remito', $remAct['id_remito']);
+                    }
+                    
+                    if (!empty($_FILES['declaracion_jurada']) && $_FILES['declaracion_jurada']['error'] === UPLOAD_ERR_OK) {
+                        require_once '../../includes/validar_archivo.php';
+                        $validacion = validarArchivoPdf($_FILES['declaracion_jurada'], 10 * 1024 * 1024);
+                        if (!$validacion['valido']) {
+                            throw new Exception("Error en la declaración jurada: " . $validacion['error']);
+                        }
+                        
+                        if (!is_dir($uploadDir)) {
+                            mkdir($uploadDir, 0755, true);
+                        }
+                        
+                        if ($declaracionNombre) {
+                            $archivoAnterior = $uploadDir . $declaracionNombre;
+                            if (file_exists($archivoAnterior)) {
+                                unlink($archivoAnterior);
+                            }
+                        }
+                        
+                        $declaracionNombre = 'dj_notebook_' . $id . '_' . time() . '.' . $validacion['extension'];
+                        $rutaDestino = $uploadDir . $declaracionNombre;
+                        
+                        if (!move_uploaded_file($_FILES['declaracion_jurada']['tmp_name'], $rutaDestino)) {
+                            throw new Exception("Error al guardar la declaración jurada en el servidor.");
+                        }
+                        
+                        $stmtUpdRem = $db->prepare("UPDATE remitos SET declaracion_jurada = ? WHERE id_remito = ?");
+                        $stmtUpdRem->execute([$declaracionNombre, $remAct['id_remito']]);
+                        
+                        registrarAuditoria('subir_declaracion_jurada', 'remitos', "Se subió/reemplazó declaración jurada de la notebook ID $id en remito #{$remAct['numero_remito']}", 'remito', $remAct['id_remito']);
+                    }
+                }
                 break;
             case 'Impresora':
                 $db->prepare("DELETE FROM impresoras WHERE id_insumo = ?")->execute([$id]);
@@ -254,7 +317,7 @@ include '../../includes/header.php';
 
 <div class="card">
     <div class="card-body p-3">
-        <form method="POST" id="formInsumo" class="needs-validation" novalidate>
+        <form method="POST" id="formInsumo" class="needs-validation" enctype="multipart/form-data" novalidate>
             <?php echo csrf_input(); ?>
             <div class="row mb-3">
                 <div class="col-12">
@@ -571,6 +634,33 @@ include '../../includes/header.php';
                 </div>
                 <?php endif; ?>
             </div>
+
+            <?php if ($tipo_insumo === 'Notebook' && !empty($remitoActivo)): ?>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <div class="alert alert-warning alert-permanent p-3 rounded shadow-sm mb-0">
+                            <label for="declaracion_jurada" class="form-label mb-1 fw-bold">
+                                <i class="fas fa-file-pdf me-2 text-warning"></i>Declaración Jurada (Opcional)
+                            </label>
+                            <p class="small mb-2 text-dark">Ha seleccionado una Notebook. Modo Histórico: Puede adjuntar la declaración jurada si dispone de ella.</p>
+                            
+                            <?php if (!empty($remitoActivo['declaracion_jurada'])): ?>
+                                <div class="d-flex align-items-center mb-2 gap-2">
+                                    <a href="<?php echo app_base_url(); ?>/uploads/documentos/<?php echo htmlspecialchars($remitoActivo['declaracion_jurada']); ?>" target="_blank" class="btn btn-xs btn-outline-success py-1 px-2 fw-bold">
+                                        <i class="fas fa-eye me-1"></i>Ver actual
+                                    </a>
+                                    <div class="form-check form-switch mb-0 ms-2">
+                                        <input class="form-check-input" type="checkbox" id="eliminar_dj" name="eliminar_dj" value="1">
+                                        <label class="form-check-label text-danger fw-bold mb-0 small" for="eliminar_dj">Eliminar</label>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+                            
+                            <input type="file" class="form-control form-control-sm bg-white" name="declaracion_jurada" id="declaracion_jurada" accept=".pdf">
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
 
             <div class="mt-3 d-flex justify-content-end gap-2">
                 <a href="listar.php" class="btn btn-secondary"><i class="fas fa-times me-2"></i>Cancelar</a>

@@ -475,16 +475,13 @@
         }
 
         function registrarActividad() {
-            if (modalMostrado && modoModal === 'expirada') return;
+            // Si el modal ya está mostrado (sea de advertencia o expirada), ignoramos la actividad de fondo
+            if (modalMostrado) return;
+            
             const ahora = Date.now();
             if (ahora - lastActivityWrite > 5000) { // Max una escritura en localStorage cada 5 segundos
                 localStorage.setItem(STORAGE_KEY, ahora);
                 lastActivityWrite = ahora;
-                
-                // Si el modal está en modo advertencia y el usuario interactúa, restauramos sesión automáticamente
-                if (modalMostrado && modoModal === 'advertencia') {
-                    mantenerSesion();
-                }
             }
         }
 

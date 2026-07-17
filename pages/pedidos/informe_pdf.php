@@ -16,12 +16,14 @@ $db = conectarDB();
 $stmt = $db->prepare("SELECT p.*, i.*, 
                         u_sol.nombre as sol_nom, u_sol.apellido as sol_ape,
                         s.nombre_sede,
+                        l.nombre_localidad,
                         u_asig.nombre as asig_nom, u_asig.apellido as asig_ape,
                         ins.nombre_insumo, ins.numero_serie
                       FROM pedidos p
                       JOIN pedidos_informes i ON p.id_pedido = i.id_pedido
                       JOIN usuarios u_sol ON p.id_usuario_solicitante = u_sol.id_usuario
                       JOIN sedes s ON p.id_sede = s.id_sede
+                      JOIN localidades l ON s.id_localidad = l.id_localidad
                       LEFT JOIN usuarios u_asig ON p.asignado_a = u_asig.id_usuario
                       LEFT JOIN insumos ins ON p.id_insumo_relacionado = ins.id_insumo
                       WHERE p.id_pedido = ?");
@@ -37,6 +39,7 @@ if (!function_exists('u')) {
 
 // Generar PDF con soporte FPDI para membrete
 $pdf = new \setasign\Fpdi\Fpdi();
+$pdf->SetMargins(15, 10, 15);
 
 // Cargar plantilla membrete
 $templatePath = __DIR__ . '/../../membretada.pdf';
@@ -74,46 +77,58 @@ $pdf->Ln(5);
 $pdf->SetFont('Arial', '', 11);
 
 // Info Pedido
-$pdf->SetFillColor(240, 240, 240);
-$pdf->Cell(0, 8, u('DATOS DE LA SOLICITUD'), 1, 1, 'C', true);
+$pdf->SetFont('Arial', 'B', 12);
+$pdf->Cell(0, 8, u('DATOS DE LA SOLICITUD'), 0, 1, 'C');
 $pdf->Ln(2);
 
 $pdf->SetFont('Arial', 'B', 10);
-$pdf->Cell(30, 6, u('N° Pedido:'), 0, 0);
+$lbl = u('N° Pedido:');
+$w = $pdf->GetStringWidth($lbl) + 1.5;
+$pdf->Cell($w, 6, $lbl, 0, 0);
 $pdf->SetFont('Arial', '', 10);
-$pdf->Cell(60, 6, $data['id_pedido'], 0, 0);
+$pdf->Cell(90 - $w, 6, $data['id_pedido'], 0, 0);
 
 $pdf->SetFont('Arial', 'B', 10);
-$pdf->Cell(30, 6, u('Fecha Solicitud:'), 0, 0);
+$lbl2 = u('Fecha Solicitud:');
+$w2 = $pdf->GetStringWidth($lbl2) + 1.5;
+$pdf->Cell($w2, 6, $lbl2, 0, 0);
 $pdf->SetFont('Arial', '', 10);
 $pdf->Cell(0, 6, date('d/m/Y H:i', strtotime($data['fecha_creacion'])), 0, 1);
 
 $pdf->SetFont('Arial', 'B', 10);
-$pdf->Cell(30, 6, u('Solicitante:'), 0, 0);
+$lbl = u('Solicitante:');
+$w = $pdf->GetStringWidth($lbl) + 1.5;
+$pdf->Cell($w, 6, $lbl, 0, 0);
 $pdf->SetFont('Arial', '', 10);
-$pdf->Cell(60, 6, u($data['solicitante_nombre'] . ' ' . $data['solicitante_apellido']), 0, 0);
+$pdf->Cell(90 - $w, 6, u($data['solicitante_nombre'] . ' ' . $data['solicitante_apellido']), 0, 0);
 
 $pdf->SetFont('Arial', 'B', 10);
-$pdf->Cell(30, 6, u('Sede:'), 0, 0);
+$lbl2 = u('Localidad:');
+$w2 = $pdf->GetStringWidth($lbl2) + 1.5;
+$pdf->Cell($w2, 6, $lbl2, 0, 0);
 $pdf->SetFont('Arial', '', 10);
-$pdf->Cell(0, 6, u($data['nombre_sede']), 0, 1);
+$pdf->Cell(0, 6, u($data['nombre_localidad']), 0, 1);
 
 $pdf->SetFont('Arial', 'B', 10);
-$pdf->Cell(30, 6, u('Tipo:'), 0, 0);
+$lbl = u('Sede:');
+$w = $pdf->GetStringWidth($lbl) + 1.5;
+$pdf->Cell($w, 6, $lbl, 0, 0);
 $pdf->SetFont('Arial', '', 10);
-$pdf->Cell(60, 6, u($data['tipo']), 0, 1);
+$pdf->Cell(90 - $w, 6, u($data['nombre_sede']), 0, 0);
+
+$pdf->SetFont('Arial', 'B', 10);
+$lbl2 = u('Tipo:');
+$w2 = $pdf->GetStringWidth($lbl2) + 1.5;
+$pdf->Cell($w2, 6, $lbl2, 0, 0);
+$pdf->SetFont('Arial', '', 10);
+$pdf->Cell(0, 6, u($data['tipo']), 0, 1);
 
 $pdf->Ln(2);
-$pdf->SetFont('Arial', 'B', 10);
-$pdf->Cell(0, 6, u('Descripción Original:'), 0, 1);
-$pdf->SetFont('Arial', '', 10);
-$pdf->MultiCell(0, 5, u($data['descripcion']), 0, 'L');
 
 if (!empty($data['insumo_relacionado'])) {
     $pdf->Ln(2);
-    $pdf->SetFillColor(240, 240, 240);
-    $pdf->SetFont('Arial', 'B', 11);
-    $pdf->Cell(0, 8, u('DETALLE DEL INSUMO'), 1, 1, 'C', true);
+    $pdf->SetFont('Arial', 'B', 12);
+    $pdf->Cell(0, 8, u('DETALLE DEL INSUMO'), 0, 1, 'C');
     $pdf->Ln(2);
     
     // Soporte para múltiples insumos separados por |
@@ -121,16 +136,54 @@ if (!empty($data['insumo_relacionado'])) {
     foreach ($insumos as $index => $insumo) {
         if ($index > 0) $pdf->Ln(2);
         
-        $pdf->SetFont('Arial', 'B', 10);
-        $pdf->Cell(30, 6, u('Insumo' . (count($insumos) > 1 ? ' ' . ($index + 1) : '') . ':'), 0, 0);
-        $pdf->SetFont('Arial', '', 10);
-        $pdf->Cell(0, 6, u($insumo), 0, 1);
+        // Extraer número de serie de la cadena del insumo (si existe)
+        $sn_individual = null;
+        if (preg_match('/\(S\/N:\s*([^)]+)\)/i', $insumo, $matches_sn)) {
+            $sn_individual = trim($matches_sn[1]);
+        }
         
-        if ($index === 0 && !empty($data['numero_serie'])) {
+        // Extraer ID físico de la cadena del insumo (si existe)
+        $id_individual = null;
+        if (preg_match('/\(ID:\s*([^)]+)\)/i', $insumo, $matches_id)) {
+            $id_individual = trim($matches_id[1]);
+        }
+        
+        // Fallback para el primer insumo con datos de base de datos si no venían en la cadena
+        if (empty($sn_individual) && $index === 0 && !empty($data['numero_serie'])) {
+            $sn_individual = trim($data['numero_serie']);
+        }
+        
+        // Limpiar el N° de serie o ID redundante entre paréntesis del string del insumo
+        $insumo_limpio = preg_replace('/\s*\((S\/N|ID):\s*[^)]+\)/i', '', $insumo);
+        
+        // Si el tipo de insumo es "Varios - ...", usar solo el nombre
+        if (stripos($insumo_limpio, 'Varios - ') === 0) {
+            $insumo_limpio = substr($insumo_limpio, 9);
+        }
+        
+        $pdf->SetFont('Arial', 'B', 10);
+        $lbl = u('Insumo' . (count($insumos) > 1 ? ' ' . ($index + 1) : '') . ':');
+        $w = $pdf->GetStringWidth($lbl) + 1.5;
+        $pdf->Cell($w, 6, $lbl, 0, 0);
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(0, 6, u($insumo_limpio), 0, 1);
+        
+        // Imprimir N° de Serie si existe
+        if (!empty($sn_individual)) {
             $pdf->SetFont('Arial', 'B', 10);
-            $pdf->Cell(30, 6, u('N° de Serie:'), 0, 0);
+            $lbl_sn = u('N° de Serie:');
+            $w_sn = $pdf->GetStringWidth($lbl_sn) + 1.5;
+            $pdf->Cell($w_sn, 6, $lbl_sn, 0, 0);
             $pdf->SetFont('Arial', '', 10);
-            $pdf->Cell(0, 6, u($data['numero_serie']), 0, 1);
+            $pdf->Cell(0, 6, u($sn_individual), 0, 1);
+        } elseif (!empty($id_individual)) {
+            // ID físico alternativo
+            $pdf->SetFont('Arial', 'B', 10);
+            $lbl_id = u('ID Físico:');
+            $w_id = $pdf->GetStringWidth($lbl_id) + 1.5;
+            $pdf->Cell($w_id, 6, $lbl_id, 0, 0);
+            $pdf->SetFont('Arial', '', 10);
+            $pdf->Cell(0, 6, u($id_individual), 0, 1);
         }
     }
 }
@@ -138,17 +191,21 @@ if (!empty($data['insumo_relacionado'])) {
 $pdf->Ln(5);
 
 // Info Informe
-$pdf->SetFont('Arial', 'B', 11);
-$pdf->Cell(0, 8, u('DETALLE TÉCNICO'), 1, 1, 'C', true);
+$pdf->SetFont('Arial', 'B', 12);
+$pdf->Cell(0, 8, u('DETALLE TÉCNICO'), 0, 1, 'C');
 $pdf->Ln(2);
 
 $pdf->SetFont('Arial', 'B', 10);
-$pdf->Cell(30, 6, u('Técnico Asig.:'), 0, 0);
+$lbl = u('Técnico Asig.:');
+$w = $pdf->GetStringWidth($lbl) + 1.5;
+$pdf->Cell($w, 6, $lbl, 0, 0);
 $pdf->SetFont('Arial', '', 10);
-$pdf->Cell(60, 6, u($data['asig_nom'] . ' ' . $data['asig_ape']), 0, 0);
+$pdf->Cell(90 - $w, 6, u($data['asig_nom'] . ' ' . $data['asig_ape']), 0, 0);
 
 $pdf->SetFont('Arial', 'B', 10);
-$pdf->Cell(30, 6, u('Fecha Informe:'), 0, 0);
+$lbl2 = u('Fecha Informe:');
+$w2 = $pdf->GetStringWidth($lbl2) + 1.5;
+$pdf->Cell($w2, 6, $lbl2, 0, 0);
 $pdf->SetFont('Arial', '', 10);
 $pdf->Cell(0, 6, date('d/m/Y H:i', strtotime($data['fecha_informe'])), 0, 1);
 
@@ -156,21 +213,13 @@ $pdf->Ln(4);
 $pdf->SetFont('Arial', 'B', 10);
 $pdf->Cell(0, 6, u('Diagnóstico:'), 0, 1);
 $pdf->SetFont('Arial', '', 10);
-// Fondo ligero para bloques de texto
-$pdf->SetFillColor(250, 250, 250);
-$pdf->MultiCell(0, 5, u($data['diagnostico']), 0, 'L', true);
+$pdf->MultiCell(0, 5, u($data['diagnostico']), 0, 'L', false);
 
 $pdf->Ln(4);
 $pdf->SetFont('Arial', 'B', 10);
 $pdf->Cell(0, 6, u('Trabajo Realizado:'), 0, 1);
 $pdf->SetFont('Arial', '', 10);
-$pdf->MultiCell(0, 5, u($data['trabajo_realizado']), 0, 'L', true);
-
-$pdf->Ln(4);
-$pdf->SetFont('Arial', 'B', 10);
-$pdf->Cell(30, 8, u('RESULTADO:'), 0, 0);
-$pdf->SetFont('Arial', 'B', 12);
-$pdf->Cell(0, 8, u($data['resultado']), 0, 1);
+$pdf->MultiCell(0, 5, u($data['trabajo_realizado']), 0, 'L', false);
 
 $pdf->Ln(40);
 
@@ -178,16 +227,16 @@ $pdf->Ln(40);
 $y = $pdf->GetY();
 if ($y > 250) { $pdf->AddPage(); $y = 35; }
 
-$pdf->Line(20, $y, 80, $y);
-$pdf->Line(130, $y, 190, $y);
+$pdf->Line(30, $y, 90, $y);
+$pdf->Line(120, $y, 180, $y);
 
 $pdf->SetFont('Arial', '', 9);
-$pdf->SetXY(20, $y + 2);
+$pdf->SetXY(30, $y + 2);
 $pdf->Cell(60, 4, u('Firma Solicitante / Recibí Conforme'), 0, 0, 'C');
 
-$pdf->SetXY(130, $y + 2);
+$pdf->SetXY(120, $y + 2);
 $pdf->Cell(60, 4, u('Firma Técnico / Responsable'), 0, 0, 'C');
-$pdf->SetXY(130, $y + 6);
+$pdf->SetXY(120, $y + 6);
 $pdf->Cell(60, 4, u($data['asig_nom'] . ' ' . $data['asig_ape']), 0, 0, 'C');
 
 if (!isset($no_exit_pdf)) {

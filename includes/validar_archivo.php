@@ -19,7 +19,7 @@ if (!defined('APP_INIT')) {
  */
 function obtenerMimeTypesPermitidos() {
     return [
-        'pdf' => ['application/pdf'],
+        'pdf' => ['application/pdf', 'application/x-pdf', 'application/octet-stream', 'application/acrobat', 'applications/vnd.pdf', 'text/pdf'],
         'jpg' => ['image/jpeg'],
         'jpeg' => ['image/jpeg'],
         'png' => ['image/png'],

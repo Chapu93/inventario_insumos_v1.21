@@ -79,7 +79,7 @@ try {
 
     if ($search !== '') {
         $where[] = '(
-            i.nombre_insumo LIKE ? OR i.numero_serie LIKE ? OR i.id_fisico LIKE ? OR i.id_patrimonio LIKE ? OR
+            i.nombre_insumo LIKE ? OR i.numero_serie LIKE ? OR REPLACE(i.id_fisico, \'-\', \'\') LIKE ? OR i.id_patrimonio LIKE ? OR
             pc.procesador LIKE ? OR pc.mother LIKE ? OR pc.sist_op LIKE ? OR
             nb.procesador LIKE ? OR nb.marca LIKE ? OR nb.modelo LIKE ? OR 
             imp.marca LIKE ? OR imp.modelo LIKE ? OR 
@@ -92,11 +92,12 @@ try {
             CONCAT_WS(\' \', r.nombre_persona_asignada, r.apellido_persona_asignada) LIKE ?
         )';
         $like = '%' . $search . '%';
+        $like_id_fisico = '%' . str_replace(['-', ' '], '', $search) . '%';
         array_push(
             $params,
             $like,
             $like,
-            $like,
+            $like_id_fisico,
             $like,
             $like,
             $like,

@@ -613,6 +613,13 @@ include '../../includes/header.php';
                                 <td>
                                     <div class="btn-group" role="group">
                                         <button type="button" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="Ver detalles" aria-label="Ver detalles del servicio" onclick='verDetallesInternet(<?php echo json_encode($row, JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT); ?>)'><i class="fas fa-eye" aria-hidden="true"></i></button>
+                                        <?php if ($row['estado_servicio'] === 'De Baja' || $row['estado_servicio'] === 'Baja por Traslado'): ?>
+                                            <button type="button" class="btn btn-sm btn-secondary text-muted" disabled data-bs-toggle="tooltip" title="No se pueden gestionar tests en un servicio de baja" aria-label="Tests deshabilitados">
+                                                <i class="fas fa-tachometer-alt" aria-hidden="true"></i>
+                                            </button>
+                                        <?php else: ?>
+                                            <button type="button" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Tests de velocidad" aria-label="Tests de velocidad" onclick='gestionarTestsVelocidad(<?php echo json_encode($row, JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT); ?>)'><i class="fas fa-tachometer-alt" aria-hidden="true"></i></button>
+                                        <?php endif; ?>
                                         <a href="<?php echo app_base_url(); ?>/pages/reportes/internet_historial_pdf.php?id=<?php echo (int)$row['id_internet']; ?>" target="_blank" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" title="Generar PDF" aria-label="Generar PDF del historial"><i class="fas fa-file-pdf" aria-hidden="true"></i></a>
                                         
                                         <?php if ($row['estado_servicio'] === 'Baja por Traslado'): ?>
@@ -977,6 +984,16 @@ include '../../includes/header.php';
   </div>
 </div>
 
+<style>
+#tabla_historial_tests thead th,
+#detalle_tests_velocidad table thead th {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+</style>
+
 <!-- Modal Ver Detalles -->
 <div class="modal fade" id="modalVerDetalles" tabindex="-1" aria-labelledby="modalVerDetallesLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
@@ -988,120 +1005,227 @@ include '../../includes/header.php';
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
       <div class="modal-body">
-        <div class="row">
-          <!-- Columna izquierda -->
-          <div class="col-md-6">
+        <!-- Fila 1: Ubicación y Estado -->
+        <div class="row g-3 mb-4">
+          <!-- Ubicación -->
+          <div class="col-md-6 border-end">
             <h6 class="text-primary border-bottom pb-2 mb-3">
               <i class="fas fa-map-marker-alt me-2"></i>Ubicación
             </h6>
-            
-            <div class="mb-3">
-              <label class="text-muted small">Localidad:</label>
-              <p class="mb-1" id="detalle_localidad"></p>
-            </div>
-            
-            <div class="mb-3">
-              <label class="text-muted small">Sede:</label>
-              <p class="mb-1" id="detalle_sede"></p>
-            </div>
-            
-            <h6 class="text-primary border-bottom pb-2 mb-3 mt-4">
-              <i class="fas fa-network-wired me-2"></i>Información Técnica
-            </h6>
-            
-            <div class="mb-3">
-              <label class="text-muted small">Proveedor:</label>
-              <p class="mb-1" id="detalle_proveedor"></p>
-            </div>
-            
-            <div class="mb-3">
-              <label class="text-muted small">Tipo de Conexión:</label>
-              <p class="mb-1" id="detalle_tipo_conexion"></p>
-            </div>
-            
-            <div class="mb-3">
-              <label class="text-muted small">Velocidad:</label>
-              <p class="mb-1" id="detalle_velocidad"></p>
-            </div>
-            
-            <div class="mb-3">
-              <label class="text-muted small">Simétrico:</label>
-              <p class="mb-1" id="detalle_simetrico"></p>
-            </div>
-            
-            <div class="mb-3">
-              <label class="text-muted small">WiFi:</label>
-              <p class="mb-1" id="detalle_wifi"></p>
+            <div class="row">
+              <div class="col-sm-6 mb-2">
+                <label class="text-muted small d-block">Localidad:</label>
+                <strong id="detalle_localidad" class="fs-6"></strong>
+              </div>
+              <div class="col-sm-6 mb-2">
+                <label class="text-muted small d-block">Sede:</label>
+                <strong id="detalle_sede" class="fs-6"></strong>
+              </div>
             </div>
           </div>
           
-          <!-- Columna derecha -->
+          <!-- Estado del Servicio -->
           <div class="col-md-6">
             <h6 class="text-primary border-bottom pb-2 mb-3">
               <i class="fas fa-info-circle me-2"></i>Estado del Servicio
             </h6>
-            
-            <div class="mb-3">
-              <label class="text-muted small">Estado:</label>
-              <p class="mb-1" id="detalle_estado"></p>
-            </div>
-            
-            <!-- Fecha de instalación (Activo) -->
-            <div class="mb-3" id="detalle_fecha_instalacion_container" style="display:none;">
-              <label class="text-muted small">Fecha de Instalación:</label>
-              <p class="mb-1" id="detalle_fecha_instalacion"></p>
-            </div>
-            
-            <!-- Instancia (Pendiente) -->
-            <div class="mb-3" id="detalle_instancia_container" style="display:none;">
-              <label class="text-muted small">Instancia:</label>
-              <p class="mb-1" id="detalle_instancia"></p>
-            </div>
-            
-            <!-- Fecha de solicitud (Pendiente - Autorización) -->
-            <div class="mb-3" id="detalle_fecha_solicitud_container" style="display:none;">
-              <label class="text-muted small">Fecha de Solicitud:</label>
-              <p class="mb-1" id="detalle_fecha_solicitud"></p>
-            </div>
-            
-            <!-- Archivo de autorización (Pendiente - Autorización) -->
-            <div class="mb-3" id="detalle_archivo_container" style="display:none;">
-              <label class="text-muted small">Archivo de Autorización:</label>
-              <p class="mb-1">
-                <a href="#" id="detalle_archivo_link" target="_blank" class="btn btn-sm btn-outline-danger">
-                  <i class="fas fa-file-pdf me-1"></i>Descargar PDF
-                </a>
-              </p>
-            </div>
-            
-            <!-- Fecha de baja (De Baja) -->
-            <div class="mb-3" id="detalle_fecha_baja_container" style="display:none;">
-              <label class="text-muted small">Fecha de Baja:</label>
-              <p class="mb-1" id="detalle_fecha_baja"></p>
-            </div>
-            
-            <!-- Archivo de autorización (si existe, siempre visible) -->
-            <div class="mb-3" id="detalle_archivo_global_container" style="display:none;">
-              <h6 class="text-primary border-bottom pb-2 mb-3 mt-4">
-                <i class="fas fa-file-pdf me-2"></i>Documentación
-              </h6>
-              <label class="text-muted small">Archivo de Autorización:</label>
-              <p class="mb-1">
-                <a href="#" id="detalle_archivo_global_link" target="_blank" class="btn btn-sm btn-outline-danger">
-                  <i class="fas fa-file-pdf me-1"></i>Descargar PDF
-                </a>
-              </p>
-            </div>
-            
-            <!-- Observaciones -->
-            <div class="mb-3" id="detalle_observaciones_container" style="display:none;">
-              <h6 class="text-primary border-bottom pb-2 mb-3 mt-4">
-                <i class="fas fa-comment-dots me-2"></i>Observaciones
-              </h6>
-              <p class="mb-1" id="detalle_observaciones"></p>
+            <div class="row">
+              <div class="col-sm-6 mb-2">
+                <label class="text-muted small d-block">Estado:</label>
+                <span id="detalle_estado"></span>
+              </div>
+              
+              <!-- Fechas Condicionales -->
+              <div class="col-sm-6 mb-2" id="detalle_fecha_instalacion_container" style="display:none;">
+                <label class="text-muted small d-block">Fecha de Instalación:</label>
+                <span id="detalle_fecha_instalacion" class="fw-bold"></span>
+              </div>
+              <div class="col-sm-6 mb-2" id="detalle_instancia_container" style="display:none;">
+                <label class="text-muted small d-block">Instancia:</label>
+                <span id="detalle_instancia"></span>
+              </div>
+              <div class="col-sm-6 mb-2" id="detalle_fecha_solicitud_container" style="display:none;">
+                <label class="text-muted small d-block">Fecha de Solicitud:</label>
+                <span id="detalle_fecha_solicitud"></span>
+              </div>
+              <div class="col-sm-6 mb-2" id="detalle_fecha_baja_container" style="display:none;">
+                <label class="text-muted small d-block">Fecha de Baja:</label>
+                <span id="detalle_fecha_baja" class="fw-bold text-danger"></span>
+              </div>
             </div>
           </div>
         </div>
+
+        <!-- Fila 2: Información Técnica a Ancho Completo (Estilos Originales) -->
+        <div class="mt-4 col-12">
+          <h6 class="text-primary border-bottom pb-2 mb-3">
+            <i class="fas fa-network-wired me-2"></i>Información Técnica
+          </h6>
+          <div class="row">
+            <div class="col-6 col-md-4 col-lg mb-3">
+              <label class="text-muted small d-block">Proveedor:</label>
+              <p class="mb-1" id="detalle_proveedor"></p>
+            </div>
+            <div class="col-6 col-md-4 col-lg mb-3">
+              <label class="text-muted small d-block">Tipo de Conexión:</label>
+              <p class="mb-1" id="detalle_tipo_conexion"></p>
+            </div>
+            <div class="col-6 col-md-4 col-lg mb-3">
+              <label class="text-muted small d-block">Velocidad:</label>
+              <p class="mb-1" id="detalle_velocidad"></p>
+            </div>
+            <div class="col-6 col-md-4 col-lg mb-3">
+              <label class="text-muted small d-block">Simétrico:</label>
+              <p class="mb-1" id="detalle_simetrico"></p>
+            </div>
+            <div class="col-6 col-md-4 col-lg mb-3">
+              <label class="text-muted small d-block">WiFi:</label>
+              <p class="mb-1" id="detalle_wifi"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fila 3: Documentación y Observaciones de Ancho Completo -->
+        <div class="row g-3 mb-3">
+          <!-- Archivo de autorización -->
+          <div class="col-md-12" id="detalle_archivo_global_container" style="display:none;">
+            <div class="card border-danger-subtle bg-danger-subtle bg-opacity-10">
+              <div class="card-body p-3 d-flex align-items-center justify-content-between">
+                <div>
+                  <h6 class="mb-1 text-danger-emphasis fw-bold"><i class="fas fa-file-pdf me-2"></i>Documentación</h6>
+                  <small class="text-muted">Archivo de Autorización de Enlace</small>
+                </div>
+                <a href="#" id="detalle_archivo_global_link" target="_blank" class="btn btn-sm btn-outline-danger">
+                  <i class="fas fa-file-pdf me-1"></i>Descargar PDF
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Observaciones -->
+          <div class="col-md-12" id="detalle_observaciones_container" style="display:none;">
+            <h6 class="text-primary border-bottom pb-2 mb-3 mt-4">
+              <i class="fas fa-comment-dots me-2"></i>Observaciones
+            </h6>
+            <p class="mb-1 text-break" id="detalle_observaciones"></p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Gestionar Tests de Velocidad -->
+<div class="modal fade" id="modalGestionarTests" tabindex="-1" aria-labelledby="modalGestionarTestsLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title" id="modalGestionarTestsLabel">
+          <i class="fas fa-tachometer-alt me-2"></i>Tests de Velocidad - <span id="test_titulo_sede">-</span>
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Info Servicio -->
+        <h6 class="text-primary border-bottom pb-2 mb-3">
+          <i class="fas fa-info-circle me-2"></i>Datos del Servicio
+        </h6>
+        <div class="row mb-3 pb-3 border-bottom">
+          <div class="col-6 col-md-4 mb-2">
+            <label class="text-muted small d-block">Proveedor:</label>
+            <p class="mb-1" id="test_info_proveedor">-</p>
+          </div>
+          <div class="col-6 col-md-4 mb-2">
+            <label class="text-muted small d-block">Tipo de Conexión:</label>
+            <p class="mb-1" id="test_info_conexion">-</p>
+          </div>
+          <div class="col-6 col-md-4 mb-2">
+            <label class="text-muted small d-block">Velocidad Contratada:</label>
+            <p class="mb-1"><span id="test_info_velocidad">-</span> Mbps</p>
+          </div>
+        </div>
+
+        <!-- Tabla Historial -->
+        <h6 class="text-success fw-normal mb-3"><i class="fas fa-history me-2"></i>Historial de Tests</h6>
+        <div class="table-responsive mb-4">
+          <table class="table table-sm table-borderless align-middle" id="tabla_historial_tests">
+            <thead>
+              <tr>
+                <th class="text-success fw-bold">Fecha Test</th>
+                <th class="text-success fw-bold">Bajada (Mbps)</th>
+                <th class="text-success fw-bold">Subida (Mbps)</th>
+                <th class="text-success fw-bold">Ping (ms)</th>
+                <th class="text-success fw-bold">Creado por</th>
+                <th class="text-success fw-bold text-center">Captura</th>
+                <th class="text-success fw-bold text-end">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="lista_tests_cuerpo">
+              <tr>
+                <td colspan="7" class="text-center text-muted py-3">Cargando tests...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Formulario Carga (Colapsable/Integrado) -->
+        <div class="card border-success mb-3" id="cardFormTest" style="display:none;">
+          <div class="card-header bg-success-subtle py-2">
+            <h6 class="mb-0 text-success-emphasis" id="formTestTitulo">
+              <i class="fas fa-plus-circle me-2"></i>Registrar Nuevo Test de Velocidad
+            </h6>
+          </div>
+          <div class="card-body">
+            <form id="formVelocidadTest" enctype="multipart/form-data">
+              <?php echo csrf_input(); ?>
+              <input type="hidden" name="id_test" id="test_id_test" value="0">
+              <input type="hidden" name="id_internet" id="test_id_internet" value="0">
+              
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <label for="test_fecha_test" class="form-label">Fecha del Test <span class="text-danger">*</span></label>
+                  <input type="date" class="form-control" name="fecha_test" id="test_fecha_test" required>
+                </div>
+                <div class="col-md-4">
+                  <label for="test_velocidad_bajada" class="form-label">Bajada (Mbps) <span class="text-danger">*</span></label>
+                  <input type="number" class="form-control" name="velocidad_bajada" id="test_velocidad_bajada" min="1" required placeholder="Ej: 50">
+                </div>
+                <div class="col-md-4">
+                  <label for="test_velocidad_subida" class="form-label">Subida (Mbps) <span class="text-danger">*</span></label>
+                  <input type="number" class="form-control" name="velocidad_subida" id="test_velocidad_subida" min="1" required placeholder="Ej: 10">
+                </div>
+                <div class="col-md-4">
+                  <label for="test_ping" class="form-label">Ping (ms) <small class="text-muted">(Opcional)</small></label>
+                  <input type="number" class="form-control" name="ping" id="test_ping" min="0" placeholder="Ej: 15">
+                </div>
+                <div class="col-md-8">
+                  <label for="test_captura" class="form-label" id="test_label_captura">Captura de Pantalla (Test) <span class="text-danger">*</span></label>
+                  <input type="file" class="form-control" name="captura" id="test_captura" accept="image/*" required>
+                  <div class="form-text" id="test_help_captura">Adjunte el archivo de captura de pantalla (JPEG, PNG).</div>
+                </div>
+              </div>
+              
+              <div class="d-flex justify-content-end gap-2 mt-3">
+                <button type="button" class="btn btn-secondary btn-sm" id="btnCancelarFormTest">Cancelar</button>
+                <button type="submit" class="btn btn-success btn-sm px-4" id="btnGuardarTest">
+                  <i class="fas fa-save me-1"></i>Guardar Test
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="text-end" id="btnAgregarTestContainer">
+          <button type="button" class="btn btn-success btn-sm" id="btnMostrarFormTest">
+            <i class="fas fa-plus me-1"></i>Registrar Nuevo Test
+          </button>
+        </div>
+
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
@@ -1189,6 +1313,7 @@ function verDetallesInternet(row) {
   
   // Limpiar historial previo (evitar duplicación)
   $('#detalle_historial_traslados').remove();
+  $('#detalle_tests_velocidad').remove();
   
   // Información básica
   $('#detalle_localidad').text(row.nombre_localidad || '-');
@@ -1312,6 +1437,61 @@ function verDetallesInternet(row) {
     })
     .catch(error => {
       console.error('Error al obtener historial de traslados:', error);
+    });
+  
+  // Obtener y mostrar últimos 3 tests de velocidad
+  fetch(`${BASE}/ajax/telecom_internet_test_listar.php?id_internet=${row.id_internet}&limit=3`)
+    .then(response => response.json())
+    .then(resp => {
+      if (resp.success && resp.data && resp.data.length > 0) {
+        let htmlTests = `
+          <div class="mt-4" id="detalle_tests_velocidad">
+            <h6 class="text-success fw-normal border-bottom pb-2 mb-3">
+              <i class="fas fa-tachometer-alt me-2"></i>Últimos Tests de Velocidad
+            </h6>
+            <div class="table-responsive">
+              <table class="table table-sm table-borderless">
+                <thead>
+                  <tr>
+                    <th class="text-success fw-bold">Fecha</th>
+                    <th class="text-success fw-bold">Bajada</th>
+                    <th class="text-success fw-bold">Subida</th>
+                    <th class="text-success fw-bold">Ping</th>
+                    <th class="text-success fw-bold text-center">Captura</th>
+                  </tr>
+                </thead>
+                <tbody>
+        `;
+        
+        resp.data.forEach(test => {
+          htmlTests += `
+            <tr>
+              <td>${test.fecha_test_formateada}</td>
+              <td><strong>${test.velocidad_bajada}</strong> Mbps</td>
+              <td><strong>${test.velocidad_subida}</strong> Mbps</td>
+              <td>${test.ping ? test.ping + ' ms' : '-'}</td>
+              <td class="text-center">
+                <a href="${test.captura_url}" target="_blank" class="btn btn-sm btn-outline-danger" title="Ver captura" style="padding: 0.15rem 0.4rem; font-size: 0.75rem;">
+                  <i class="fas fa-image"></i>
+                </a>
+              </td>
+            </tr>
+          `;
+        });
+        
+        htmlTests += `
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+        
+        // Agregar al modal
+        document.querySelector('#modalVerDetalles .modal-body').insertAdjacentHTML('beforeend', htmlTests);
+      }
+    })
+    .catch(error => {
+      console.error('Error al obtener tests de velocidad:', error);
     });
   
   // Mostrar el modal
@@ -1625,7 +1805,215 @@ $(function(){
       eliminarInternet(id);
     }
   });
+
+  // --- LÓGICA DE TESTS DE VELOCIDAD DE INTERNET ---
+
+  // Mostrar formulario de carga de test
+  $('#btnMostrarFormTest').on('click', function() {
+    $('#test_id_test').val(0);
+    $('#formVelocidadTest')[0].reset();
+    $('#test_id_internet').val($('#test_id_internet').val()); // Preservar
+    
+    // Fecha hoy por defecto
+    const hoy = new Date().toISOString().split('T')[0];
+    $('#test_fecha_test').val(hoy);
+    
+    // Captura es requerida en creación
+    $('#test_captura').prop('required', true);
+    $('#test_label_captura').html('Captura de Pantalla (Test) <span class="text-danger">*</span>');
+    
+    $('#formTestTitulo').html('<i class="fas fa-plus-circle me-2"></i>Registrar Nuevo Test de Velocidad');
+    $('#cardFormTest').slideDown();
+    $('#btnAgregarTestContainer').hide();
+  });
+
+  // Cancelar formulario de test
+  $('#btnCancelarFormTest').on('click', function() {
+    $('#cardFormTest').slideUp();
+    $('#btnAgregarTestContainer').show();
+  });
+
+  // Guardar/Editar test (submit)
+  $('#formVelocidadTest').on('submit', function(e) {
+    e.preventDefault();
+    
+    const idInternet = $('#test_id_internet').val();
+    const formData = new FormData(this);
+    
+    $.ajax({
+      url: `${BASE}/ajax/telecom_internet_test_guardar.php`,
+      type: 'POST',
+      data: formData,
+      processData: false,
+      contentType: false,
+      dataType: 'json',
+      success: function(resp) {
+        if (resp.success) {
+          showToast(resp.mensaje || 'Guardado correctamente', 'success');
+          $('#cardFormTest').slideUp();
+          $('#btnAgregarTestContainer').show();
+          cargarTestsVelocidad(idInternet);
+        } else {
+          showToast(resp.error || 'Error al guardar', 'error');
+        }
+      },
+      error: function(xhr) {
+        let err = 'Error al guardar el test';
+        if (xhr.responseJSON && xhr.responseJSON.error) {
+          err = xhr.responseJSON.error;
+        }
+        showToast(err, 'error');
+      }
+    });
+  });
+
+  // Event delegation para editar test
+  $(document).on('click', '.btn-editar-test', function() {
+    const idTest = $(this).data('id');
+    const test = testsActuales.find(t => parseInt(t.id_test) === parseInt(idTest));
+    
+    if (test) {
+      $('#test_id_test').val(test.id_test);
+      $('#test_fecha_test').val(test.fecha_test);
+      $('#test_velocidad_bajada').val(test.velocidad_bajada);
+      $('#test_velocidad_subida').val(test.velocidad_subida);
+      $('#test_ping').val(test.ping || '');
+      
+      // Captura es opcional en edición
+      $('#test_captura').prop('required', false);
+      $('#test_label_captura').text('Reemplazar Captura (Opcional)');
+      
+      $('#formTestTitulo').html('<i class="fas fa-edit me-2"></i>Editar Test de Velocidad');
+      $('#cardFormTest').slideDown();
+      $('#btnAgregarTestContainer').hide();
+      
+      // Scroll al card del form
+      $('#cardFormTest')[0].scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+  });
+
+  // Event delegation para eliminar test
+  $(document).on('click', '.btn-eliminar-test', function() {
+    const idTest = $(this).data('id');
+    const idInternet = $('#test_id_internet').val();
+    
+    showConfirm({
+      titulo: 'Eliminar Test de Velocidad',
+      mensaje: '¿Está seguro de que desea eliminar este test de velocidad? Esta acción también borrará el archivo de captura asociado.',
+      icono: 'fa-trash-alt text-danger',
+      claseBoton: 'btn-danger',
+      textoAceptar: 'Eliminar',
+      onConfirm: () => {
+        $.ajax({
+          url: `${BASE}/ajax/telecom_internet_test_eliminar.php`,
+          type: 'POST',
+          data: {
+            id_test: idTest,
+            _csrf: document.querySelector('input[name="_csrf"]').value
+          },
+          dataType: 'json',
+          success: function(resp) {
+            if (resp.success) {
+              showToast(resp.mensaje || 'Eliminado correctamente', 'success');
+              cargarTestsVelocidad(idInternet);
+            } else {
+              showToast(resp.error || 'Error al eliminar', 'error');
+            }
+          },
+          error: function(xhr) {
+            let err = 'Error al eliminar el test';
+            if (xhr.responseJSON && xhr.responseJSON.error) {
+              err = xhr.responseJSON.error;
+            }
+            showToast(err, 'error');
+          }
+        });
+      }
+    });
+  });
 });
+
+let testsActuales = [];
+
+function gestionarTestsVelocidad(row) {
+  console.log('Gestionar tests para internet:', row);
+  
+  // Rellenar cabeceras
+  $('#test_titulo_sede').text(row.nombre_sede || '-');
+  $('#test_info_proveedor').text(row.proveedor || '-');
+  $('#test_info_conexion').text(row.tipo_conexion || '-');
+  $('#test_info_velocidad').text(row.velocidad_mbps || '-');
+  
+  // Guardar IDs en el formulario
+  $('#test_id_internet').val(row.id_internet);
+  $('#test_id_test').val(0);
+  
+  // Limpiar/Reiniciar panel de formulario
+  $('#formVelocidadTest')[0].reset();
+  $('#cardFormTest').hide();
+  $('#btnAgregarTestContainer').show();
+  
+  // Establecer fecha de hoy por defecto
+  const hoy = new Date().toISOString().split('T')[0];
+  $('#test_fecha_test').val(hoy);
+  
+  // Cargar lista
+  cargarTestsVelocidad(row.id_internet);
+  
+  // Abrir modal
+  const m = bootstrap.Modal.getOrCreateInstance(document.getElementById('modalGestionarTests'));
+  m.show();
+}
+
+function cargarTestsVelocidad(idInternet) {
+  const $cuerpo = $('#lista_tests_cuerpo');
+  $cuerpo.html('<tr><td colspan="7" class="text-center text-muted py-3"><i class="fas fa-spinner fa-spin me-2"></i>Cargando tests...</td></tr>');
+  
+  $.getJSON(`${BASE}/ajax/telecom_internet_test_listar.php`, { id_internet: idInternet })
+    .done(function(resp) {
+      if (resp.success) {
+        testsActuales = resp.data;
+        if (testsActuales.length === 0) {
+          $cuerpo.html('<tr><td colspan="7" class="text-center text-muted py-3"><i class="fas fa-info-circle me-2"></i>No hay tests de velocidad registrados</td></tr>');
+          return;
+        }
+        
+        let html = '';
+        testsActuales.forEach(test => {
+          html += `
+            <tr>
+              <td>${test.fecha_test_formateada}</td>
+              <td><strong>${test.velocidad_bajada}</strong> Mbps</td>
+              <td><strong>${test.velocidad_subida}</strong> Mbps</td>
+              <td>${test.ping ? test.ping + ' ms' : '-'}</td>
+              <td><small class="text-muted">${test.creador_nombre || '-'}</small></td>
+              <td class="text-center">
+                <a href="${test.captura_url}" target="_blank" class="btn btn-sm btn-outline-danger" title="Ver captura" style="padding: 0.15rem 0.4rem; font-size: 0.75rem;">
+                  <i class="fas fa-image"></i>
+                </a>
+              </td>
+              <td class="text-end">
+                <div class="btn-group">
+                  <button type="button" class="btn btn-sm btn-warning btn-editar-test" data-id="${test.id_test}" title="Editar" style="padding: 0.15rem 0.4rem; font-size: 0.75rem;">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button type="button" class="btn btn-sm btn-danger btn-eliminar-test" data-id="${test.id_test}" title="Eliminar" style="padding: 0.15rem 0.4rem; font-size: 0.75rem;">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+        });
+        $cuerpo.html(html);
+      } else {
+        $cuerpo.html(`<tr><td colspan="7" class="text-center text-danger py-3"><i class="fas fa-exclamation-triangle me-2"></i>${resp.error || 'Error al cargar tests'}</td></tr>`);
+      }
+    })
+    .fail(function() {
+      $cuerpo.html('<tr><td colspan="7" class="text-center text-danger py-3"><i class="fas fa-exclamation-triangle me-2"></i>Error de conexión al cargar tests</td></tr>');
+    });
+}
 </script>
 
 <?php include '../../includes/footer.php'; ?>
