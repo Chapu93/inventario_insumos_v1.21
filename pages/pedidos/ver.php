@@ -487,7 +487,7 @@ function renderPedido(p) {
             else if (p.estado === 'Preparado') estadoEntrega = 'Preparado';
             else estadoEntrega = 'Pendiente';
         }
-        let estadoEntregaLabel = (estadoEntrega === 'Enviado' && p.metodo_entrega === 'Retiro') ? 'Listo para retiro' : estadoEntrega;
+        let estadoEntregaLabel = (estadoEntrega === 'Enviado' && p.metodo_entrega === 'Retiro') ? 'Retirado' : estadoEntrega;
         $('#badgeEstadoEntrega')
             .attr('class', 'badge fs-6 ' + (entregaCls[estadoEntrega] || 'bg-secondary'))
             .text(estadoEntregaLabel);
@@ -519,7 +519,7 @@ function renderPedido(p) {
                             </button>
                         </div>`);
                 }
-                // "Enviado" / "Listo para retiro"
+                // "Enviado" / "Retirado"
                 if (estadoEntrega === 'Preparado' || estadoEntrega === 'Pendiente') {
                     if (p.metodo_entrega === 'Envío') {
                         $btns.append(`
@@ -532,7 +532,7 @@ function renderPedido(p) {
                         $btns.append(`
                             <div class="col">
                                 <button type="button" class="btn btn-sm btn-warning text-dark w-100" onclick="actualizarEstadoEntrega('Enviado')">
-                                    <i class="fas fa-hand-holding me-1"></i>Listo para retiro
+                                    <i class="fas fa-hand-holding me-1"></i>Marcar como Retirado
                                 </button>
                             </div>`);
                     }
@@ -950,7 +950,7 @@ $(function(){
     window.actualizarEstadoEntrega = function(nuevoEstado) {
         if (nuevoEstado === 'Enviado' || nuevoEstado === 'Preparado') {
             const textoConfirm = nuevoEstado === 'Enviado' ? 
-                (window.currentPedido.metodo_entrega === 'Retiro' ? '¿Confirmar que está listo para retiro?' : '¿Confirmar que el paquete fue enviado?') : 
+                (window.currentPedido.metodo_entrega === 'Retiro' ? '¿Confirmar que el pedido fue retirado?' : '¿Confirmar que el paquete fue enviado?') : 
                 '¿Confirmar que el pedido está preparado?';
             
             showConfirm({

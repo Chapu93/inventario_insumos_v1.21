@@ -36,6 +36,13 @@ try {
     }
     $idRemito = (int) $cab['id_remito'];
 
+    if (!empty($cab['fecha_asignacion'])) {
+        $cab['fecha_asignacion_formatted'] = date('d/m/Y', strtotime($cab['fecha_asignacion']));
+    }
+    if (!empty($cab['fecha_devolucion'])) {
+        $cab['fecha_devolucion_formatted'] = date('d/m/Y', strtotime($cab['fecha_devolucion']));
+    }
+
     // Intentar asegurar columna cantidad_devuelta (solo una vez, tolerante)
     try {
         $db->query("SELECT cantidad_devuelta FROM remitos_detalle LIMIT 1");

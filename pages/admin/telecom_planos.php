@@ -151,94 +151,136 @@ include '../../includes/header.php';
 </div>
 
 <!-- Modal Ver Detalles -->
-<div class="modal fade" id="modalVerPlano" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
-  <div class="modal-header bg-primary text-white">
-    <h5 class="modal-title"><i class="fas fa-info-circle me-2"></i>Detalles del Plano</h5>
-    <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+<div class="modal fade" id="modalVerPlano" tabindex="-1" aria-labelledby="modalVerPlanoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="modalVerPlanoLabel">
+          <i class="fas fa-info-circle me-2"></i>Detalles del Plano
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3 mb-4">
+          <!-- Ubicación -->
+          <div class="col-md-6 border-end">
+            <h6 class="text-primary border-bottom pb-2 mb-3">
+              <i class="fas fa-map-marker-alt me-2"></i>Ubicación
+            </h6>
+            <div class="row">
+              <div class="col-sm-6 mb-2">
+                <label class="text-muted small d-block">Localidad:</label>
+                <strong id="view_plano_localidad" class="fs-6"></strong>
+              </div>
+              <div class="col-sm-6 mb-2">
+                <label class="text-muted small d-block">Sede:</label>
+                <strong id="view_plano_sede" class="fs-6"></strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Información del Plano -->
+          <div class="col-md-6">
+            <h6 class="text-primary border-bottom pb-2 mb-3">
+              <i class="fas fa-draw-polygon me-2"></i>Información del Plano
+            </h6>
+            <div class="row g-2">
+              <div class="col-sm-6 mb-2">
+                <label class="text-muted small d-block">Tipo:</label>
+                <span class="badge bg-info" id="view_plano_tipo"></span>
+              </div>
+              <div class="col-sm-6 mb-2">
+                <label class="text-muted small d-block"><i class="fas fa-calendar me-1"></i>Fecha Subida:</label>
+                <span id="view_plano_fecha" class="fw-bold"></span>
+              </div>
+              <div class="col-sm-12 mt-2">
+                <label class="text-muted small d-block mb-1">Archivo del Plano:</label>
+                <a id="view_plano_archivo" href="#" target="_blank" class="btn btn-sm btn-outline-danger">
+                  <i class="fas fa-file-pdf me-2"></i>Descargar PDF
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Descripción -->
+        <div id="view_plano_desc_container" style="display:none;" class="mt-3">
+          <h6 class="text-primary border-bottom pb-2 mb-3">
+            <i class="fas fa-comment-dots me-2"></i>Descripción
+          </h6>
+          <p class="mb-0 text-muted" id="view_plano_descripcion"></p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Cerrar
+        </button>
+      </div>
+    </div>
   </div>
-  <div class="modal-body bg-light">
-    <!-- Ubicación -->
-    <div class="mb-4">
-      <h6 class="text-success mb-3"><i class="fas fa-map-marker-alt me-2"></i>Ubicación</h6>
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="form-label text-muted small mb-1">Localidad:</label>
-          <p class="mb-0 fw-bold" id="view_plano_localidad"></p>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label text-muted small mb-1">Sede:</label>
-          <p class="mb-0 fw-bold" id="view_plano_sede"></p>
-        </div>
-      </div>
-    </div>
+</div>
 
-    <!-- Información del Plano -->
-    <div class="mb-4">
-      <h6 class="text-success mb-3"><i class="fas fa-draw-polygon me-2"></i>Información del Plano</h6>
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="form-label text-muted small mb-1">Tipo:</label>
-          <p class="mb-0"><span class="badge bg-info" id="view_plano_tipo"></span></p>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label text-muted small mb-1"><i class="fas fa-calendar me-1"></i>Fecha de Subida:</label>
-          <p class="mb-0" id="view_plano_fecha"></p>
-        </div>
+<!-- Modal Subir Plano -->
+<div class="modal fade" id="modalPlano" tabindex="-1" aria-labelledby="modalPlanoTitle" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          <i class="fas fa-map me-2"></i><span id="modalPlanoTitle">Subir Plano</span>
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
-    </div>
+      <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+        <div class="modal-body">
+          <input type="hidden" name="_csrf" value="<?php echo htmlspecialchars(csrf_token()); ?>">
+          <input type="hidden" name="accion" value="subir">
 
-    <!-- Descripción -->
-    <div class="mb-4" id="view_plano_desc_container" style="display:none;">
-      <h6 class="text-success mb-3"><i class="fas fa-comment-dots me-2"></i>Descripción</h6>
-      <p class="mb-0" id="view_plano_descripcion"></p>
-    </div>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Localidad *</label>
+              <select id="id_localidad" class="form-select" required>
+                <option value="">Seleccione</option>
+              </select>
+              <div class="invalid-feedback">Seleccione localidad</div>
+            </div>
 
-    <!-- Documentación -->
-    <div>
-      <h6 class="text-success mb-3"><i class="fas fa-file me-2"></i>Documentación</h6>
-      <div class="row g-3">
-        <div class="col-12">
-          <label class="form-label text-muted small mb-1">Archivo de Plano:</label>
-          <p class="mb-0">
-            <a id="view_plano_archivo" href="#" target="_blank" class="btn btn-sm btn-outline-danger">
-              <i class="fas fa-file-pdf me-2"></i>Descargar PDF
-            </a>
-          </p>
+            <div class="col-md-6">
+              <label class="form-label">Sede *</label>
+              <select name="id_sede" id="id_sede" class="form-select" required>
+                <option value="">Seleccione</option>
+              </select>
+              <div class="invalid-feedback">Seleccione sede</div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Tipo *</label>
+              <select name="tipo_plano" class="form-select" required>
+                <option value="">Seleccione</option>
+                <option>Red</option>
+                <option>Vigilancia</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Descripción</label>
+              <input type="text" name="descripcion" class="form-control">
+            </div>
+
+            <div class="col-md-12">
+              <label class="form-label">Archivo (pdf/png/jpg/jpeg) *</label>
+              <input type="file" name="archivo" class="form-control" accept=".pdf,.png,.jpg,.jpeg" required>
+              <div class="form-text">Tamaño máximo: 10 MB. SVG no permitido por seguridad.</div>
+            </div>
+          </div>
         </div>
-      </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Subir</button>
+        </div>
+      </form>
     </div>
   </div>
-  <div class="modal-footer bg-light">
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cerrar</button>
-  </div>
-</div></div></div>
-
-<div class="modal fade" id="modalPlano" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
-  <div class="modal-header bg-primary text-white"><h5 class="modal-title"><i class="fas fa-map me-2"></i>Subir Plano</h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
-  <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
-    <div class="modal-body">
-      <input type="hidden" name="_csrf" value="<?php echo htmlspecialchars(csrf_token()); ?>">
-      <input type="hidden" name="accion" value="subir">
-      <div class="mb-2"><label class="form-label">Localidad *</label>
-        <select id="id_localidad" class="form-select" required>
-          <option value="">Seleccione</option>
-        </select><div class="invalid-feedback">Seleccione localidad</div>
-      </div>
-      <div class="mb-2"><label class="form-label">Sede *</label>
-        <select name="id_sede" id="id_sede" class="form-select" required>
-          <option value="">Seleccione</option>
-        </select><div class="invalid-feedback">Seleccione sede</div>
-      </div>
-      <div class="mb-2"><label class="form-label">Tipo *</label>
-        <select name="tipo_plano" class="form-select" required><option value="">Seleccione</option><option>Red</option><option>Vigilancia</option></select>
-      </div>
-      <div class="mb-2"><label class="form-label">Descripción</label><input type="text" name="descripcion" class="form-control"></div>
-      <div class="mb-2"><label class="form-label">Archivo (pdf/png/jpg/jpeg) *</label><input type="file" name="archivo" class="form-control" accept=".pdf,.png,.jpg,.jpeg" required></div>
-      <div class="form-text">Tamaño máximo: 10 MB. SVG no permitido por seguridad.</div>
-    </div>
-    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-primary">Subir</button></div>
-  </form>
-</div></div></div>
+</div>
 
 <script>
 const BASE = '<?php echo app_base_url(); ?>';

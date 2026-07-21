@@ -842,8 +842,6 @@ body {
 
 .modal-backdrop.show {
     opacity: 0.6 !important;
-    backdrop-filter: blur(3px);
-    -webkit-backdrop-filter: blur(3px);
 }
 
 [data-theme="dark"] .btn-close {
@@ -1482,17 +1480,47 @@ table.dataTable,
 @media (min-width: 992px) {
     /* Selector estricto para el título de la página principal */
     #content > .container-fluid > .row > .col-12 > .d-flex.justify-content-between > h1,
-    #content > .container-fluid > .row > .col-12 > .d-flex.justify-content-between > .h1 {
+    #content > .container-fluid > .row > .col-12 > .d-flex.justify-content-between > .h1,
+    #content > .container-fluid > .d-flex.justify-content-between > h1,
+    #content > .container-fluid > .d-flex.justify-content-between > .h1 {
         white-space: nowrap !important;
         flex-shrink: 0 !important;
-        font-size: calc(1.4rem + 0.5vw) !important; /* Ajuste fluido del tamaño del título */
     }
     
     /* Selector estricto para el grupo de botones y sus botones asociados en la cabecera */
     #content > .container-fluid > .row > .col-12 > .d-flex.justify-content-between > .btn-group,
     #content > .container-fluid > .row > .col-12 > .d-flex.justify-content-between > .btn,
-    #content > .container-fluid > .row > .col-12 > .d-flex.justify-content-between > .btn-group > .btn {
+    #content > .container-fluid > .row > .col-12 > .d-flex.justify-content-between > .btn-group > .btn,
+    #content > .container-fluid > .d-flex.justify-content-between > .btn-group,
+    #content > .container-fluid > .d-flex.justify-content-between > .btn,
+    #content > .container-fluid > .d-flex.justify-content-between > .btn-group > .btn {
         white-space: nowrap !important;
         flex-shrink: 0 !important;
     }
 }
+
+/* Transición de páginas (180ms) sobre tarjetas de contenido */
+#content .card {
+    animation: fadeInCard 0.18s ease-out forwards;
+}
+
+@keyframes fadeInCard {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Animación Zoom-In moderna en Modales (aplicada únicamente en .modal-dialog) */
+.modal.fade .modal-dialog {
+    transform: scale(0.94);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+}
+
+.modal.show .modal-dialog {
+    transform: scale(1);
+}
+
+

@@ -198,7 +198,7 @@ try {
             $estadoEnt = $r['estado_entrega'] ?? '';
             if ($estadoEnt !== 'Enviado' && $estadoEnt !== 'Entregado') {
                 $icon  = ($r['metodo_entrega'] === 'Retiro') ? 'fa-hand-holding' : 'fa-truck';
-                $label = ($r['metodo_entrega'] === 'Retiro') ? 'Listo para Retiro' : 'Marcar como Enviado';
+                $label = ($r['metodo_entrega'] === 'Retiro') ? 'Marcar como Retirado' : 'Marcar como Enviado';
                 $botones[] = '<button class="btn btn-sm btn-warning text-dark" onclick="actualizarLogistica(' . $r['id_pedido'] . ', \'' . $estadoEnt . '\', \'' . $r['metodo_entrega'] . '\')" data-bs-toggle="tooltip" title="' . $label . '"><i class="fas ' . $icon . '"></i></button>';
             }
             if ($estadoEnt !== 'Entregado') {
@@ -223,7 +223,7 @@ try {
              };
              $textoEntrega = $r['estado_entrega'];
              if ($r['estado_entrega'] === 'Enviado' && $r['metodo_entrega'] === 'Retiro') {
-                 $textoEntrega = 'Listo para retiro';
+                 $textoEntrega = 'Retirado';
              }
              $entregaHtml = '<span class="badge bg-' . $entregaCls . '">' . $textoEntrega . '</span>';
         }

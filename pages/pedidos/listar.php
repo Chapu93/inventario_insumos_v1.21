@@ -897,7 +897,7 @@ $(document).ready(function() {
 function actualizarLogistica(id, estadoActual, metodo) {
     const texto = (metodo === 'Envío') 
         ? '¿Confirmar que el pedido ha salido hacia su destino?' 
-        : '¿Confirmar que el pedido está listo para ser retirado?';
+        : '¿Confirmar que el pedido ha sido retirado?';
     
     showConfirm({
         titulo: 'Actualizar Logística',

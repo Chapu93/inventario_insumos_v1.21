@@ -229,7 +229,7 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
                         <tr>
                             <th>Persona Asignada</th>
                             <th>Localidad</th>
-                            <th>Fecha Asignación</th>
+                            <th id="colHeaderFecha">Fecha Asignación</th>
                             <th data-orderable="true">Estado</th>
                             <th>Acciones</th>
                         </tr>
@@ -530,13 +530,27 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
                 const c = data.data ? data.data.cab : data.cab;
                 if (!c) { throw new Error('Estructura de datos inválida recibida del servidor'); }
                 const items = data.data ? data.data.items : data.items;
+
+                const formatFechaModal = (str) => {
+                    if (!str) return '-';
+                    const clean = str.trim().split(' ')[0];
+                    const parts = clean.split('-');
+                    if (parts.length === 3) {
+                        return `${parts[2].padStart(2, '0')}/${parts[1].padStart(2, '0')}/${parts[0]}`;
+                    }
+                    return str;
+                };
+
+                const fechaAsigFormatted = c.fecha_asignacion_formatted || formatFechaModal(c.fecha_asignacion);
+                const fechaDevFormatted = c.fecha_devolucion_formatted || formatFechaModal(c.fecha_devolucion);
+
                 cab.innerHTML = `
         <div class="row">
           <div class="col-md-6">
             <p class="mb-1"><strong>Remito:</strong> ${c.numero_remito || ''}</p>
-            <p class="mb-1"><strong>Fecha:</strong> ${c.fecha_asignacion || ''}</p>
+            <p class="mb-1"><strong>Fecha Asignación:</strong> ${fechaAsigFormatted}</p>
             <p class="mb-1"><strong>Estado:</strong> <span class="badge ${c.estado === 'Activa' ? 'bg-warning' : 'bg-success'}">${c.estado || 'Desconocido'}</span></p>
-            ${c.estado === 'Devuelta' && c.fecha_devolucion ? `<p class="mb-1"><strong>Fecha devolución:</strong> ${c.fecha_devolucion}</p>` : ''}
+            ${c.estado === 'Devuelta' && c.fecha_devolucion ? `<p class="mb-1"><strong>Fecha Devolución:</strong> ${fechaDevFormatted}</p>` : ''}
             ${c.nota_solicitud ? `<p class="mb-1"><strong>Nota Solicitud:</strong> <a href="${getAppBase()}/uploads/${c.nota_solicitud}" target="_blank" class="btn btn-xs btn-outline-danger py-0 px-1"><i class="fas fa-file-pdf me-1"></i>Ver Nota</a></p>` : ''}
           </div>
           <div class="col-md-6">
@@ -1132,9 +1146,18 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
         const urlParams = new URLSearchParams(window.location.search);
         const estadoInicial = urlParams.get('estado') !== null ? urlParams.get('estado') : 'Activa';
 
+        function actualizarHeaderFecha(est) {
+            if (est === 'Devuelta') {
+                $('#colHeaderFecha').text('Fecha Devolución');
+            } else {
+                $('#colHeaderFecha').text('Fecha Asignación');
+            }
+        }
+
         // Establecer tab activo y valor inicial
         $('#estado').val(estadoInicial);
         $(`#tabsEstado a[data-estado="${estadoInicial}"]`).addClass('active').parent().siblings().find('a').removeClass('active');
+        actualizarHeaderFecha(estadoInicial);
 
         var $t = $('#tablaAsignaciones');
         if ($.fn && $.fn.DataTable && $t.length) {
@@ -1179,6 +1202,7 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
 
             const nuevoEstado = $(this).data('estado');
             $('#estado').val(nuevoEstado);
+            actualizarHeaderFecha(nuevoEstado);
             $('#tablaAsignaciones').DataTable().ajax.reload();
         });
 

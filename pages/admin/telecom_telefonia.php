@@ -221,101 +221,166 @@ include '../../includes/header.php';
 </div>
 
 <!-- Modal Ver Detalles -->
-<div class="modal fade" id="modalVerTel" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
-  <div class="modal-header bg-primary text-white">
-    <h5 class="modal-title"><i class="fas fa-info-circle me-2"></i>Detalles de la Línea</h5>
-    <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-  </div>
-  <div class="modal-body">
-    <!-- Ubicación -->
-    <div class="mb-4">
-      <h6 class="text-dark border-bottom pb-2 mb-3"><i class="fas fa-map-marker-alt me-2"></i>Ubicación</h6>
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="form-label text-muted small mb-1">Localidad:</label>
-          <p class="mb-0 fw-bold" id="view_tel_localidad"></p>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label text-muted small mb-1">Sede:</label>
-          <p class="mb-0 fw-bold" id="view_tel_sede"></p>
-        </div>
+<div class="modal fade" id="modalVerTel" tabindex="-1" aria-labelledby="modalVerTelLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="modalVerTelLabel">
+          <i class="fas fa-info-circle me-2"></i>Detalles de la Línea
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
-    </div>
+      <div class="modal-body">
+        <div class="row g-3 mb-4">
+          <!-- Ubicación -->
+          <div class="col-md-6 border-end">
+            <h6 class="text-primary border-bottom pb-2 mb-3">
+              <i class="fas fa-map-marker-alt me-2"></i>Ubicación
+            </h6>
+            <div class="row">
+              <div class="col-sm-6 mb-2">
+                <label class="text-muted small d-block">Localidad:</label>
+                <strong id="view_tel_localidad" class="fs-6"></strong>
+              </div>
+              <div class="col-sm-6 mb-2">
+                <label class="text-muted small d-block">Sede:</label>
+                <strong id="view_tel_sede" class="fs-6"></strong>
+              </div>
+            </div>
+          </div>
 
-    <!-- Información de la Línea -->
-    <div class="mb-4">
-      <h6 class="text-dark border-bottom pb-2 mb-3"><i class="fas fa-phone me-2"></i>Información de la Línea</h6>
-      <div class="row g-3">
-        <div class="col-md-4">
-          <label class="form-label text-muted small mb-1">Tipo:</label>
-          <p class="mb-0"><span class="badge bg-info" id="view_tel_tipo"></span></p>
+          <!-- Información de la Línea -->
+          <div class="col-md-6">
+            <h6 class="text-primary border-bottom pb-2 mb-3">
+              <i class="fas fa-phone me-2"></i>Información de la Línea
+            </h6>
+            <div class="row g-2">
+              <div class="col-sm-6 mb-2">
+                <label class="text-muted small d-block">Tipo:</label>
+                <span class="badge bg-info" id="view_tel_tipo"></span>
+              </div>
+              <div class="col-sm-6 mb-2">
+                <label class="text-muted small d-block">Operador:</label>
+                <span id="view_tel_operador" class="fw-bold"></span>
+              </div>
+              <div class="col-sm-6 mb-2">
+                <label class="text-muted small d-block">Número:</label>
+                <strong id="view_tel_numero" class="fs-6"></strong>
+              </div>
+              <div class="col-sm-6 mb-2">
+                <label class="text-muted small d-block">Dispositivo:</label>
+                <span id="view_tel_dispositivo"></span>
+              </div>
+              <div class="col-sm-12 mb-2">
+                <label class="text-muted small d-block">Estado:</label>
+                <span id="view_tel_estado_badge"></span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="col-md-4">
-          <label class="form-label text-muted small mb-1">Operador:</label>
-          <p class="mb-0" id="view_tel_operador"></p>
-        </div>
-        <div class="col-md-4">
-          <label class="form-label text-muted small mb-1">Número:</label>
-          <p class="mb-0 fw-bold" id="view_tel_numero"></p>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label text-muted small mb-1">Dispositivo:</label>
-          <p class="mb-0" id="view_tel_dispositivo"></p>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label text-muted small mb-1">Estado:</label>
-          <p class="mb-0"><span id="view_tel_estado_badge"></span></p>
+
+        <!-- Observaciones -->
+        <div id="view_tel_obs_container" style="display:none;" class="mt-3">
+          <h6 class="text-primary border-bottom pb-2 mb-3">
+            <i class="fas fa-comment-dots me-2"></i>Observaciones
+          </h6>
+          <p class="mb-0 text-muted" id="view_tel_observaciones"></p>
         </div>
       </div>
-    </div>
-
-    <!-- Observaciones -->
-    <div id="view_tel_obs_container" style="display:none;">
-      <h6 class="text-dark border-bottom pb-2 mb-3"><i class="fas fa-comment-dots me-2"></i>Observaciones</h6>
-      <p class="mb-0" id="view_tel_observaciones"></p>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>Cerrar
+        </button>
+      </div>
     </div>
   </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cerrar</button>
-  </div>
-</div></div></div>
+</div>
 
-<div class="modal fade" id="modalTel" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content">
-  <div class="modal-header bg-primary text-white"><h5 class="modal-title"><i class="fas fa-phone me-2"></i><span id="modalTelTitle">Agregar Línea</span></h5><button class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
-  <form method="POST" id="formTel" class="needs-validation" novalidate>
-    <div class="modal-body">
-      <input type="hidden" name="_csrf" value="<?php echo htmlspecialchars(csrf_token()); ?>">
-      <input type="hidden" name="accion" id="accion" value="agregar"><input type="hidden" name="id_linea" id="id_linea">
-      <div class="mb-2"><label class="form-label">Localidad *</label>
-        <select id="id_localidad" class="form-select" required>
-          <option value="">Seleccione</option>
-        </select><div class="invalid-feedback">Seleccione localidad</div>
+<!-- Modal Agregar/Editar Línea -->
+<div class="modal fade" id="modalTel" tabindex="-1" aria-labelledby="modalTelTitle" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title">
+          <i class="fas fa-phone me-2"></i><span id="modalTelTitle">Agregar Línea</span>
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
-      <div class="mb-2"><label class="form-label">Sede *</label>
-        <select name="id_sede" id="id_sede" class="form-select" required>
-          <option value="">Seleccione</option>
-        </select><div class="invalid-feedback">Seleccione sede</div>
-      </div>
-      <div class="mb-2"><label class="form-label">Tipo *</label>
-        <select name="tipo_linea" id="tipo_linea" class="form-select" required>
-          <option value="">Seleccione</option>
-          <option>Fija</option><option>Móvil</option>
-        </select>
-      </div>
-      <div class="mb-2"><label class="form-label">Operador</label><input type="text" name="operador" id="operador" class="form-control"></div>
-      <div class="row g-2">
-        <div class="col"><label class="form-label">Número</label><input type="text" name="numero" id="numero" class="form-control"></div>
-        <div class="col"><label class="form-label">Interno/Ext</label><input type="text" name="interno_ext" id="interno_ext" class="form-control"></div>
-      </div>
-      <div class="mb-2"><label class="form-label">Modelo dispositivo</label><input type="text" name="dispositivo_modelo" id="dispositivo_modelo" class="form-control"></div>
-      <div class="mb-2"><label class="form-label">Estado *</label>
-        <select name="estado" id="estado" class="form-select" required><option>Activa</option><option>Pendiente</option><option>De Baja</option></select>
-      </div>
-      <div class="mb-2"><label class="form-label">Observaciones</label><textarea name="observaciones" id="observaciones" class="form-control" rows="2"></textarea></div>
+      <form method="POST" id="formTel" class="needs-validation" novalidate>
+        <div class="modal-body">
+          <input type="hidden" name="_csrf" value="<?php echo htmlspecialchars(csrf_token()); ?>">
+          <input type="hidden" name="accion" id="accion" value="agregar">
+          <input type="hidden" name="id_linea" id="id_linea">
+          
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Localidad *</label>
+              <select id="id_localidad" class="form-select" required>
+                <option value="">Seleccione</option>
+              </select>
+              <div class="invalid-feedback">Seleccione localidad</div>
+            </div>
+            
+            <div class="col-md-6">
+              <label class="form-label">Sede *</label>
+              <select name="id_sede" id="id_sede" class="form-select" required>
+                <option value="">Seleccione</option>
+              </select>
+              <div class="invalid-feedback">Seleccione sede</div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Tipo *</label>
+              <select name="tipo_linea" id="tipo_linea" class="form-select" required>
+                <option value="">Seleccione</option>
+                <option>Fija</option>
+                <option>Móvil</option>
+              </select>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Operador</label>
+              <input type="text" name="operador" id="operador" class="form-control">
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Estado *</label>
+              <select name="estado" id="estado" class="form-select" required>
+                <option>Activa</option>
+                <option>Pendiente</option>
+                <option>De Baja</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Número</label>
+              <input type="text" name="numero" id="numero" class="form-control">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Interno/Ext</label>
+              <input type="text" name="interno_ext" id="interno_ext" class="form-control">
+            </div>
+
+            <div class="col-md-12">
+              <label class="form-label">Modelo dispositivo</label>
+              <input type="text" name="dispositivo_modelo" id="dispositivo_modelo" class="form-control">
+            </div>
+
+            <div class="col-md-12">
+              <label class="form-label">Observaciones</label>
+              <textarea name="observaciones" id="observaciones" class="form-control" rows="2"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar</button>
+        </div>
+      </form>
     </div>
-    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button><button type="submit" class="btn btn-primary">Guardar</button></div>
-  </form>
-</div></div></div>
+  </div>
+</div>
 
 <form id="formDel" method="POST" style="display:none">
   <?php echo csrf_input(); ?>

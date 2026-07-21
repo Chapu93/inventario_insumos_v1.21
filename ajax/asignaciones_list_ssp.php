@@ -17,21 +17,23 @@ try {
     $length = min(100, max(10, (int)($_GET['length'] ?? 25)));
     $search = isset($_GET['search']['value']) ? trim($_GET['search']['value']) : '';
 
-    $columns = [
-        0 => 'r.nombre_persona_asignada',
-        1 => 'l.nombre_localidad',
-        2 => 'r.fecha_asignacion',
-    ];
-    $orderColIdx = isset($_GET['order'][0]['column']) ? (int)$_GET['order'][0]['column'] : 2;
-    $orderDir = isset($_GET['order'][0]['dir']) && strtolower($_GET['order'][0]['dir']) === 'asc' ? 'ASC' : 'DESC';
-    $orderBy = $columns[$orderColIdx] ?? 'r.fecha_asignacion';
-
     $filtro_localidad = $_GET['localidad'] ?? '';
     $filtro_insumo = $_GET['insumo'] ?? '';
     $filtro_estado = $_GET['estado'] ?? '';
     $filtro_area = $_GET['area'] ?? '';
     $filtro_sede = $_GET['sede'] ?? '';
     $filtro_remito = isset($_GET['remito']) ? trim($_GET['remito']) : '';
+
+    $colFecha = ($filtro_estado === 'Devuelta') ? 'r.fecha_devolucion' : 'r.fecha_asignacion';
+
+    $columns = [
+        0 => 'r.nombre_persona_asignada',
+        1 => 'l.nombre_localidad',
+        2 => $colFecha,
+    ];
+    $orderColIdx = isset($_GET['order'][0]['column']) ? (int)$_GET['order'][0]['column'] : 2;
+    $orderDir = isset($_GET['order'][0]['dir']) && strtolower($_GET['order'][0]['dir']) === 'asc' ? 'ASC' : 'DESC';
+    $orderBy = $columns[$orderColIdx] ?? $colFecha;
 
     // Base subconsulta para contar activas
     $baseFrom = " FROM remitos r 
@@ -57,9 +59,10 @@ try {
     if ($filtro_area !== '') { $where[] = 'r.id_area = ?'; $params[] = $filtro_area; }
     if ($filtro_sede !== '') { $where[] = 'r.id_sede = ?'; $params[] = $filtro_sede; }
     if ($search !== '') {
-        $where[] = '(r.nombre_persona_asignada LIKE ? OR r.apellido_persona_asignada LIKE ? OR r.numero_remito LIKE ?)';
+        $where[] = '(r.nombre_persona_asignada LIKE ? OR r.apellido_persona_asignada LIKE ? OR r.numero_remito LIKE ? OR i.numero_serie LIKE ? OR REPLACE(i.id_fisico, \'-\', \'\') LIKE ?)';
         $like = '%' . $search . '%';
-        array_push($params, $like, $like, $like);
+        $like_id_fisico = '%' . str_replace(['-', ' '], '', $search) . '%';
+        array_push($params, $like, $like, $like, $like, $like_id_fisico);
     }
     if ($filtro_remito !== '') { $where[] = 'r.numero_remito = ?'; $params[] = $filtro_remito; }
     $whereSql = count($where) ? (' WHERE ' . implode(' AND ', $where)) : '';
@@ -78,6 +81,7 @@ try {
     // Filtrado y agrupado por remito
     $sqlGroup = "SELECT r.id_remito, r.numero_remito,
                         r.fecha_asignacion,
+                        r.fecha_devolucion,
                         r.nombre_persona_asignada,
                         r.apellido_persona_asignada,
                         ar.nombre_area,
@@ -110,7 +114,7 @@ try {
     $stmt->execute($extParams);
     $rows = $stmt->fetchAll();
 
-    $data = array_map(function($r){
+    $data = array_map(function($r) use ($filtro_estado) {
         $activas = (int)$r['activas'];
         $estadoRemito = trim((string)$r['estado']);
         $idRemito = $r['id_remito'];
@@ -167,11 +171,15 @@ try {
             $botones[] = '<button type="button" class="btn btn-sm btn-danger" aria-label="Anular remito" onclick="eliminarAsignacion(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Anular remito"><i class="fas fa-trash" aria-hidden="true"></i></button>';
         }
         
+        $esDevuelta = ($estado === 'Devuelta' || $filtro_estado === 'Devuelta');
+        $rawFecha = ($esDevuelta && !empty($r['fecha_devolucion'])) ? $r['fecha_devolucion'] : $r['fecha_asignacion'];
+        $fechaMostrar = $rawFecha ? date('d/m/Y', strtotime($rawFecha)) : '-';
+
         $acciones = '<div class="btn-group" role="group">' . implode(' ', $botones) . '</div>';
         return [
             htmlspecialchars($r['nombre_persona_asignada'] . ' ' . $r['apellido_persona_asignada']),
             htmlspecialchars($r['nombre_localidad']),
-            date('d/m/Y', strtotime($r['fecha_asignacion'])),
+            $fechaMostrar,
             $estadoBadge,
             $acciones,
         ];
