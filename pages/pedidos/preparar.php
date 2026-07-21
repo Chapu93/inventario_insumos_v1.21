@@ -376,7 +376,7 @@ include '../../includes/header.php';
                                                                     <input type="number" class="form-control form-control-sm text-center" name="cantidad_varios[<?php echo $ins['id_insumo']; ?>]" min="1" max="<?php echo (int)$ins['cantidad']; ?>" value="1" style="width:70px;" disabled>
                                                                 </div>
                                                             <?php endif; ?>
-                                                            <button type="button" class="btn btn-sm btn-outline-primary btn-seleccionar px-3" onclick="toggleSeleccionInsumo(this, <?php echo $ins['id_insumo']; ?>)" data-insumo-id="<?php echo $ins['id_insumo']; ?>">
+                                                            <button type="button" class="btn btn-sm btn-outline-primary btn-seleccionar px-3" onclick="toggleSeleccionInsumo(this, <?php echo $ins['id_insumo']; ?>, event)" data-insumo-id="<?php echo $ins['id_insumo']; ?>">
                                                                 <i class="fas fa-plus me-1"></i> Seleccionar
                                                             </button>
                                                         </div>
@@ -625,11 +625,11 @@ $(function() {
         const $selected = $rows.filter(function () { 
             return !$(this).find('.hidden-insumo-input').prop('disabled'); 
         });
-        const $others = $rows.not($selected);
         
-        // Re-insertar en orden sin vaciar con .empty() para preservar eventos y datos
-        $selected.each(function() { $tbody.prepend(this); });
-        $others.each(function() { $tbody.append(this); });
+        if ($selected.length > 0) {
+            $selected.detach();
+            $tbody.prepend($selected);
+        }
         
         renderPaginacion();
     }
@@ -673,7 +673,11 @@ $(function() {
 
     window.cambiarPagina = function(p) { currentPage = p; renderPaginacion(); };
 
-    window.toggleSeleccionInsumo = function(btn, id) {
+    window.toggleSeleccionInsumo = function(btn, id, e) {
+        if (e) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
         const $btn = $(btn);
         const $row = $btn.closest('tr');
         const $input = $row.find('.hidden-insumo-input');
@@ -699,28 +703,45 @@ $(function() {
         }
         
         actualizarContador();
-        
-        // Diferir el reordenamiento para evitar conflictos con el evento click (fix 2-clicks)
-        // Se reduce a 150ms para que se sienta más ágil y responsivo
-        setTimeout(() => {
-            reorderSelectedFirst();
-        }, 150);
+        reorderSelectedFirst();
     };
 
     window.seleccionarFiltrados = function() {
         $('.fila-insumo:visible').each(function() {
-            const btn = $(this).find('.btn-seleccionar')[0];
-            const id = $(btn).data('insumo-id');
-            if ($(this).find('.hidden-insumo-input').prop('disabled')) toggleSeleccionInsumo(btn, id);
+            const $row = $(this);
+            const $btn = $row.find('.btn-seleccionar');
+            const $input = $row.find('.hidden-insumo-input');
+            const $cant = $row.find('.cantidad-input');
+            if ($input.prop('disabled')) {
+                $input.prop('disabled', false);
+                $btn.removeClass('btn-outline-primary').addClass('btn-primary').html('<i class="fas fa-minus me-1"></i> Deseleccionar');
+                $row.addClass('selected');
+                if($cant.length) { 
+                    $cant.css('visibility', 'visible').removeClass('opacity-50').addClass('opacity-100');
+                    $cant.find('input').prop('disabled', false); 
+                }
+            }
         });
+        actualizarContador();
+        reorderSelectedFirst();
     }
 
     window.deseleccionarTodos = function() {
         $('.fila-insumo.selected').each(function() {
-            const btn = $(this).find('.btn-seleccionar')[0];
-            const id = $(btn).data('insumo-id');
-            toggleSeleccionInsumo(btn, id);
+            const $row = $(this);
+            const $btn = $row.find('.btn-seleccionar');
+            const $input = $row.find('.hidden-insumo-input');
+            const $cant = $row.find('.cantidad-input');
+            $input.prop('disabled', true);
+            $btn.removeClass('btn-primary').addClass('btn-outline-primary').html('<i class="fas fa-plus me-1"></i> Seleccionar');
+            $row.removeClass('selected');
+            if($cant.length) { 
+                $cant.css('visibility', 'hidden').removeClass('opacity-100').addClass('opacity-50');
+                $cant.find('input').prop('disabled', true); 
+            }
         });
+        actualizarContador();
+        reorderSelectedFirst();
     }
 
     function actualizarContador() {
