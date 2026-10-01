@@ -9,7 +9,7 @@ $db = conectarDB();
 
 echo "<!DOCTYPE html>\n<html>\n<head>\n";
 echo "<title>Diagnóstico de Permisos</title>\n";
-echo "<link href='https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css' rel='stylesheet'>\n";
+echo "<link href='" . app_base_url() . "/public/vendor/bootstrap/css/bootstrap.min.css' rel='stylesheet'>\n";
 echo "</head>\n<body class='p-4'>\n";
 
 echo "<h1>Diagnóstico de Permisos del Sistema</h1>\n";

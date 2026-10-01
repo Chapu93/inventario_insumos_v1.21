@@ -23,6 +23,12 @@ if ($fromIngreso && $returnToId > 0) {
 $stmt = $conexion->query("SELECT id_punto_stock, nombre_punto FROM puntos_stock ORDER BY nombre_punto");
 $puntos_stock = $stmt->fetchAll();
 
+// Catálogos oficiales de hardware y permisos
+$puedeGestionarCatalogo = tieneRol([1, 2, 'Super Administrador', 'Superadministrador', 'Administrador']);
+$catalogoMothers = obtenerCatalogoMotherboards($conexion);
+$catalogoCpusPc = obtenerCatalogoProcesadores('pc', $conexion);
+$catalogoCpusNb = obtenerCatalogoProcesadores('notebook', $conexion);
+
 // Procesar formulario
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // CSRF
@@ -163,9 +169,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 case 'PC Completa':
                 case 'PC Escritorio':
                     if (!empty($_POST['procesador']) || !empty($_POST['ram_gb']) || !empty($_POST['almacenamiento_gb']) || !empty($_POST['mother']) || !empty($_POST['sist_op']) || isset($_POST['ssd_o_superior'])) {
-                        $sql = "INSERT INTO pcs_completas (id_insumo, procesador, ram_gb, almacenamiento_gb, mother, sist_op, ssd_o_superior) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                        $sql = "INSERT INTO pcs_completas (id_insumo, procesador, ram_gb, almacenamiento_gb, mother, sist_op, ssd_o_superior, almacenamiento_secundario_gb, ssd_secundario) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
                         $stmt = $conexion->prepare($sql);
                         $ssdoSuperior = isset($_POST['ssd_o_superior']) ? 1 : 0;
+                        $almacenamientoSecundario = !empty($_POST['almacenamiento_secundario_gb']) ? (int)$_POST['almacenamiento_secundario_gb'] : null;
+                        $ssdSecundario = ($almacenamientoSecundario && isset($_POST['ssd_secundario'])) ? 1 : 0;
                         $stmt->execute([
                             $id_insumo,
                             $_POST['procesador'] ?: null,
@@ -173,14 +181,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             $_POST['almacenamiento_gb'] ?: null,
                             $_POST['mother'] ?: null,
                             $_POST['sist_op'] ?: null,
-                            $ssdoSuperior
+                            $ssdoSuperior,
+                            $almacenamientoSecundario,
+                            $ssdSecundario
                         ]);
                     }
                     break;
                     
                 case 'Notebook':
                     if (!empty($_POST['marca_notebook']) || !empty($_POST['modelo_notebook'])) {
-                        $sql = "INSERT INTO notebooks (id_insumo, marca, modelo, procesador, ram_gb, almacenamiento_gb, cargador, funda, micro_sd, micro_sd_gb, caja, adaptador_red) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                        $sql = "INSERT INTO notebooks (id_insumo, marca, modelo, procesador, ram_gb, almacenamiento_gb, cargador, funda, micro_sd, micro_sd_gb, caja, adaptador_red, ssd_o_superior) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                         $stmt = $conexion->prepare($sql);
                         $cargador = isset($_POST['cargador']) ? 1 : 0;
                         $funda = isset($_POST['funda']) ? 1 : 0;
@@ -188,6 +198,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         $microSdGb = $microSd ? (($_POST['micro_sd_gb'] !== '' ? (int)$_POST['micro_sd_gb'] : null)) : null;
                         $caja = isset($_POST['caja']) ? 1 : 0;
                         $adaptadorRed = isset($_POST['adaptador_red']) ? 1 : 0;
+                        $ssdoSuperiorNb = isset($_POST['ssd_o_superior_notebook']) ? 1 : 0;
                         $stmt->execute([
                             $id_insumo,
                             $_POST['marca_notebook'] ?: null,
@@ -200,7 +211,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             $microSd,
                             $microSdGb,
                             $caja,
-                            $adaptadorRed
+                            $adaptadorRed,
+                            $ssdoSuperiorNb
                         ]);
                     }
                     break;
@@ -307,7 +319,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $urlVolver = 'listar.php';
             }
             ?>
-            <a href="<?php echo $urlVolver; ?>" class="btn btn-secondary btn-sm">
+            <a href="<?php echo $urlVolver; ?>" class="btn btn-secondary btn-sm btn-volver">
                 <i class="fas fa-arrow-left me-1"></i>Volver
             </a>
         </div>
@@ -598,7 +610,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <div class="campos-especificos" id="campos-pc" style="display: none;">
                                 <div class="mb-2">
                                     <label for="procesador" class="form-label">Procesador *</label>
-                                    <input type="text" class="form-control form-control-sm w-100" id="procesador" name="procesador" required>
+                                    <?php if ($puedeGestionarCatalogo): ?>
+                                        <div class="input-group input-group-sm">
+                                            <select class="form-select form-select-sm select2-hardware select-cpu-catalog w-100" id="procesador" name="procesador" required>
+                                                <option value="">Seleccione procesador...</option>
+                                                <?php foreach ($catalogoCpusPc as $c): 
+                                                    $valC = htmlspecialchars(trim($c['marca'] . ' ' . $c['modelo']));
+                                                ?>
+                                                    <option value="<?php echo $valC; ?>" data-ram="<?php echo htmlspecialchars($c['tipo_ram']); ?>">
+                                                        <?php echo $valC; ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <button class="btn btn-outline-secondary btn-nuevo-hardware" type="button" data-tipo="procesador" data-tipo-equipo="pc" title="Agregar nuevo modelo de Procesador">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    <?php else: ?>
+                                        <select class="form-select form-select-sm select2-hardware select-cpu-catalog w-100" id="procesador" name="procesador" required>
+                                            <option value="">Seleccione procesador...</option>
+                                            <?php foreach ($catalogoCpusPc as $c): 
+                                                $valC = htmlspecialchars(trim($c['marca'] . ' ' . $c['modelo']));
+                                            ?>
+                                                <option value="<?php echo $valC; ?>" data-ram="<?php echo htmlspecialchars($c['tipo_ram']); ?>">
+                                                    <?php echo $valC; ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    <?php endif; ?>
                                     <div class="invalid-feedback">El procesador es obligatorio</div>
                                 </div>
                                 <div class="mb-2">
@@ -608,7 +647,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 </div>
                                 <div class="mb-2">
                                     <label for="mother" class="form-label">Motherboard *</label>
-                                    <input type="text" class="form-control form-control-sm w-100" id="mother" name="mother" required>
+                                    <?php if ($puedeGestionarCatalogo): ?>
+                                        <div class="input-group input-group-sm">
+                                            <select class="form-select form-select-sm select2-hardware select-mother-catalog w-100" id="mother" name="mother" required>
+                                                <option value="">Seleccione placa madre...</option>
+                                                <?php foreach ($catalogoMothers as $m): 
+                                                    $valM = htmlspecialchars(trim($m['marca'] . ' ' . $m['modelo']));
+                                                ?>
+                                                    <option value="<?php echo $valM; ?>" data-ram="<?php echo htmlspecialchars($m['tipo_ram']); ?>">
+                                                        <?php echo $valM; ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <button class="btn btn-outline-secondary btn-nuevo-hardware" type="button" data-tipo="motherboard" title="Agregar nuevo modelo de Motherboard">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    <?php else: ?>
+                                        <select class="form-select form-select-sm select2-hardware select-mother-catalog w-100" id="mother" name="mother" required>
+                                            <option value="">Seleccione placa madre...</option>
+                                            <?php foreach ($catalogoMothers as $m): 
+                                                $valM = htmlspecialchars(trim($m['marca'] . ' ' . $m['modelo']));
+                                            ?>
+                                                <option value="<?php echo $valM; ?>" data-ram="<?php echo htmlspecialchars($m['tipo_ram']); ?>">
+                                                    <?php echo $valM; ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    <?php endif; ?>
                                     <div class="invalid-feedback">La motherboard es obligatoria</div>
                                 </div>
                                 <div class="mb-2">
@@ -616,16 +682,40 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     <input type="text" class="form-control form-control-sm w-100" id="sist_op" name="sist_op" placeholder="Ej: Windows 11 Pro">
                                 </div>
                                 <div class="mb-2">
-                                    <label for="almacenamiento_gb" class="form-label">Almacenamiento (GB) *</label>
-                                    <input type="number" class="form-control form-control-sm w-100" id="almacenamiento_gb" name="almacenamiento_gb" min="1" required>
+                                    <label for="almacenamiento_gb" class="form-label">Almacenamiento Principal *</label>
+                                    <select class="form-select form-select-sm w-100" id="almacenamiento_gb" name="almacenamiento_gb" required>
+                                        <option value="">Seleccione capacidad...</option>
+                                        <?php foreach (obtenerOpcionesAlmacenamiento() as $opc): ?>
+                                            <option value="<?php echo $opc['capacidad_gb']; ?>"><?php echo htmlspecialchars($opc['etiqueta']); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
                                     <div class="invalid-feedback">El almacenamiento es obligatorio</div>
                                 </div>
                                 <div class="mb-2 d-flex justify-content-end align-items-center" style="min-height: 31px;">
-                                     <div class="form-check form-switch mb-0">
-                                         <input class="form-check-input" type="checkbox" id="ssd_o_superior" name="ssd_o_superior" value="1">
-                                         <label class="form-check-label mb-0" for="ssd_o_superior">SSD o superior</label>
-                                     </div>
-                                 </div>
+                                    <div class="form-check form-switch mb-0">
+                                        <input class="form-check-input switch-disco" type="checkbox" id="ssd_o_superior" name="ssd_o_superior" value="1" data-target-badge="badge_disco_pc">
+                                        <label class="form-check-label mb-0" for="ssd_o_superior">
+                                            <span id="badge_disco_pc" class="badge bg-secondary"><i class="fas fa-hdd me-1"></i>HDD</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <label for="almacenamiento_secundario_gb" class="form-label">Almacenamiento Secundario <span class="text-muted fw-normal">(Opcional)</span></label>
+                                    <select class="form-select form-select-sm w-100" id="almacenamiento_secundario_gb" name="almacenamiento_secundario_gb">
+                                        <option value="">Sin almacenamiento secundario</option>
+                                        <?php foreach (obtenerOpcionesAlmacenamiento() as $opc): ?>
+                                            <option value="<?php echo $opc['capacidad_gb']; ?>"><?php echo htmlspecialchars($opc['etiqueta']); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="mb-2 d-flex justify-content-end align-items-center" style="min-height: 31px;">
+                                    <div class="form-check form-switch mb-0">
+                                        <input class="form-check-input switch-disco" type="checkbox" id="ssd_secundario" name="ssd_secundario" value="1" data-target-badge="badge_disco_pc_sec">
+                                        <label class="form-check-label mb-0" for="ssd_secundario">
+                                            <span id="badge_disco_pc_sec" class="badge bg-secondary"><i class="fas fa-hdd me-1"></i>HDD</span>
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
                             
                             <!-- Campos para Notebook -->
@@ -642,7 +732,34 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 </div>
                                 <div class="mb-2">
                                     <label for="procesador_notebook" class="form-label">Procesador *</label>
-                                    <input type="text" class="form-control form-control-sm w-100" id="procesador_notebook" name="procesador_notebook" required>
+                                    <?php if ($puedeGestionarCatalogo): ?>
+                                        <div class="input-group input-group-sm">
+                                            <select class="form-select form-select-sm select2-hardware select-cpu-catalog w-100" id="procesador_notebook" name="procesador_notebook" required>
+                                                <option value="">Seleccione procesador...</option>
+                                                <?php foreach ($catalogoCpusNb as $c): 
+                                                    $valC = htmlspecialchars(trim($c['marca'] . ' ' . $c['modelo']));
+                                                ?>
+                                                    <option value="<?php echo $valC; ?>" data-ram="<?php echo htmlspecialchars($c['tipo_ram']); ?>">
+                                                        <?php echo $valC; ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <button class="btn btn-outline-secondary btn-nuevo-hardware" type="button" data-tipo="procesador" data-tipo-equipo="notebook" title="Agregar nuevo modelo de Procesador">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    <?php else: ?>
+                                        <select class="form-select form-select-sm select2-hardware select-cpu-catalog w-100" id="procesador_notebook" name="procesador_notebook" required>
+                                            <option value="">Seleccione procesador...</option>
+                                            <?php foreach ($catalogoCpusNb as $c): 
+                                                $valC = htmlspecialchars(trim($c['marca'] . ' ' . $c['modelo']));
+                                            ?>
+                                                <option value="<?php echo $valC; ?>" data-ram="<?php echo htmlspecialchars($c['tipo_ram']); ?>">
+                                                    <?php echo $valC; ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    <?php endif; ?>
                                     <div class="invalid-feedback">El procesador es obligatorio</div>
                                 </div>
                                 <div class="mb-2">
@@ -651,9 +768,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     <div class="invalid-feedback">La RAM es obligatoria</div>
                                 </div>
                                 <div class="mb-2">
-                                    <label for="almacenamiento_gb_notebook" class="form-label">Almacenamiento (GB) *</label>
-                                    <input type="number" class="form-control form-control-sm w-100" id="almacenamiento_gb_notebook" name="almacenamiento_gb_notebook" min="1" required>
+                                    <label for="almacenamiento_gb_notebook" class="form-label">Almacenamiento *</label>
+                                    <select class="form-select form-select-sm w-100" id="almacenamiento_gb_notebook" name="almacenamiento_gb_notebook" required>
+                                        <option value="">Seleccione capacidad...</option>
+                                        <?php foreach (obtenerOpcionesAlmacenamiento() as $opc): ?>
+                                            <option value="<?php echo $opc['capacidad_gb']; ?>"><?php echo htmlspecialchars($opc['etiqueta']); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
                                     <div class="invalid-feedback">El almacenamiento es obligatorio</div>
+                                </div>
+                                <div class="mb-2 d-flex justify-content-end align-items-center" style="min-height: 31px;">
+                                    <div class="form-check form-switch mb-0">
+                                        <input class="form-check-input switch-disco" type="checkbox" id="ssd_o_superior_notebook" name="ssd_o_superior_notebook" value="1" data-target-badge="badge_disco_nb">
+                                        <label class="form-check-label mb-0" for="ssd_o_superior_notebook">
+                                            <span id="badge_disco_nb" class="badge bg-secondary"><i class="fas fa-hdd me-1"></i>HDD</span>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                             
@@ -725,7 +855,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="row mt-3" id="botones-formulario" style="display: none;">
                 <div class="col-12">
                     <div class="d-flex justify-content-end gap-2">
-                        <a href="<?php echo $urlVolver; ?>" class="btn btn-secondary btn-sm">
+                        <a href="<?php echo $urlVolver; ?>" class="btn btn-secondary btn-sm btn-volver">
                             <i class="fas fa-times me-1"></i>Cancelar
                         </a>
                         <button type="submit" class="btn btn-primary btn-sm">
@@ -738,11 +868,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 </div>
 
+<?php if ($puedeGestionarCatalogo): ?>
+    <?php include __DIR__ . '/modal_nuevo_hardware.php'; ?>
+<?php endif; ?>
+
 <?php include '../../includes/footer.php'; ?>
 
 <script>
 $(document).ready(function() {
     console.log('Formulario de agregar cargado');
+    
+    // Inicializar Select2 para catálogo de hardware
+    $('.select2-hardware').select2({
+        theme: 'bootstrap-5',
+        language: 'es',
+        width: '100%'
+    });
     
     // Mostrar/ocultar campos según tipo de insumo
     $('#tipo_insumo').on('change', function() {

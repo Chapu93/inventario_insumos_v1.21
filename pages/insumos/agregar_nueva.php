@@ -10,6 +10,12 @@ $conexion = conectarDB();
 $localidades = $conexion->query("SELECT id_localidad, nombre_localidad FROM localidades ORDER BY nombre_localidad")->fetchAll();
 $puntos_stock = $conexion->query("SELECT id_punto_stock, nombre_punto FROM puntos_stock ORDER BY nombre_punto")->fetchAll();
 
+// Catálogos oficiales de hardware y permisos
+$puedeGestionarCatalogo = tieneRol([1, 2, 'Super Administrador', 'Superadministrador', 'Administrador']);
+$catalogoMothers = obtenerCatalogoMotherboards($conexion);
+$catalogoCpusPc = obtenerCatalogoProcesadores('pc', $conexion);
+$catalogoCpusNb = obtenerCatalogoProcesadores('notebook', $conexion);
+
 // Procesar formulario
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // CSRF
@@ -77,10 +83,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // Configurar cantidad según tipo
         if ($tipo_insumo == 'Varios') {
-            // Stock dual para tipo Varios
-            $cantidadOficina = isset($_POST['cantidad_oficina']) ? (int) $_POST['cantidad_oficina'] : 0;
-            $cantidadDeposito = isset($_POST['cantidad_deposito']) ? (int) $_POST['cantidad_deposito'] : 0;
-            $cantidad = $cantidadOficina + $cantidadDeposito;
+            // Para insumos creados directamente asignados, se asigna la cantidad completa a la sede
+            $cantidad = isset($_POST['cantidad_varios']) ? max(1, (int) $_POST['cantidad_varios']) : (isset($_POST['cantidad_oficina']) ? max(1, (int) $_POST['cantidad_oficina'] + (int) ($_POST['cantidad_deposito'] ?? 0)) : 1);
+            $cantidadOficina = 0;
+            $cantidadDeposito = 0;
         } else {
             $cantidad = $_POST['cantidad_especifica'] ?: 1;
             $cantidadOficina = null;
@@ -158,9 +164,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 case 'PC Completa':
                 case 'PC Escritorio':
                     if (!empty($_POST['procesador']) || !empty($_POST['ram_gb']) || !empty($_POST['almacenamiento_gb']) || !empty($_POST['mother']) || !empty($_POST['sist_op']) || isset($_POST['ssd_o_superior'])) {
-                        $sql = "INSERT INTO pcs_completas (id_insumo, procesador, ram_gb, almacenamiento_gb, mother, sist_op, ssd_o_superior) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                        $sql = "INSERT INTO pcs_completas (id_insumo, procesador, ram_gb, almacenamiento_gb, mother, sist_op, ssd_o_superior, almacenamiento_secundario_gb, ssd_secundario) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
                         $stmt = $conexion->prepare($sql);
                         $ssdoSuperior = isset($_POST['ssd_o_superior']) ? 1 : 0;
+                        $almacenamientoSecundario = !empty($_POST['almacenamiento_secundario_gb']) ? (int)$_POST['almacenamiento_secundario_gb'] : null;
+                        $ssdSecundario = ($almacenamientoSecundario && isset($_POST['ssd_secundario'])) ? 1 : 0;
                         $stmt->execute([
                             $id_insumo,
                             $_POST['procesador'] ?: null,
@@ -168,14 +176,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             $_POST['almacenamiento_gb'] ?: null,
                             $_POST['mother'] ?: null,
                             $_POST['sist_op'] ?: null,
-                            $ssdoSuperior
+                            $ssdoSuperior,
+                            $almacenamientoSecundario,
+                            $ssdSecundario
                         ]);
                     }
                     break;
 
                 case 'Notebook':
                     if (!empty($_POST['marca_notebook']) || !empty($_POST['modelo_notebook'])) {
-                        $sql = "INSERT INTO notebooks (id_insumo, marca, modelo, procesador, ram_gb, almacenamiento_gb, cargador, funda, micro_sd, micro_sd_gb, caja, adaptador_red) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                        $sql = "INSERT INTO notebooks (id_insumo, marca, modelo, procesador, ram_gb, almacenamiento_gb, cargador, funda, micro_sd, micro_sd_gb, caja, adaptador_red, ssd_o_superior) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                         $stmt = $conexion->prepare($sql);
                         $cargador = isset($_POST['cargador']) ? 1 : 0;
                         $funda = isset($_POST['funda']) ? 1 : 0;
@@ -183,6 +193,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         $microSdGb = $microSd ? (($_POST['micro_sd_gb'] !== '' ? (int) $_POST['micro_sd_gb'] : null)) : null;
                         $caja = isset($_POST['caja']) ? 1 : 0;
                         $adaptadorRed = isset($_POST['adaptador_red']) ? 1 : 0;
+                        $ssdoSuperiorNb = isset($_POST['ssd_o_superior_notebook']) ? 1 : 0;
                         $stmt->execute([
                             $id_insumo,
                             $_POST['marca_notebook'] ?: null,
@@ -195,7 +206,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             $microSd,
                             $microSdGb,
                             $caja,
-                            $adaptadorRed
+                            $adaptadorRed,
+                            $ssdoSuperiorNb
                         ]);
                     }
                     break;
@@ -527,34 +539,13 @@ $badgeModo = $modoActual === 'nuevo'
                                                 </select>
                                             </div>
 
-                                            <div class="row g-2 mb-2">
-                                                <div class="col-6">
-                                                    <label for="cantidad_oficina" class="form-label mb-1">
-                                                        <i class="fas fa-building text-success"></i> Cantidad Oficina
-                                                    </label>
-                                                    <input type="number" class="form-control" id="cantidad_oficina"
-                                                        name="cantidad_oficina" value="0" min="0">
-                                                    <small class="form-text text-muted d-block">Stock para
-                                                        asignaciones</small>
-                                                </div>
-                                                <div class="col-6">
-                                                    <label for="cantidad_deposito" class="form-label mb-1">
-                                                        <i class="fas fa-warehouse text-primary"></i> Cantidad Depósito
-                                                    </label>
-                                                    <input type="number" class="form-control" id="cantidad_deposito"
-                                                        name="cantidad_deposito" value="0" min="0">
-                                                    <small class="form-text text-muted d-block">Stock de reserva</small>
-                                                </div>
-                                            </div>
                                             <div class="mb-2">
-                                                <div class="alert alert-info py-2 mb-0">
-                                                    <small>
-                                                        <strong>Total:</strong> <span id="cantidad_total">0</span>
-                                                        unidades
-                                                        (Oficina: <span id="display_oficina">0</span> + Depósito: <span
-                                                            id="display_deposito">0</span>)
-                                                    </small>
-                                                </div>
+                                                <label for="cantidad_varios" class="form-label mb-1">
+                                                    <i class="fas fa-boxes text-primary"></i> Cantidad Asignada *
+                                                </label>
+                                                <input type="number" class="form-control form-control-sm w-100" id="cantidad_varios"
+                                                    name="cantidad_varios" value="1" min="1" required>
+                                                <small class="form-text text-muted d-block">Cantidad de unidades que se asignan en este remito</small>
                                             </div>
 
                                             <div class="mb-2">
@@ -628,9 +619,9 @@ $badgeModo = $modoActual === 'nuevo'
 
                                         <div class="mb-2">
                                             <div class="form-check">
-                                                <!-- Checkbox tildado por defecto (Nuevo) -->
+                                                <!-- Checkbox desmarcado por defecto (Usado) -->
                                                 <input class="form-check-input" type="checkbox" id="es_nuevo_nueva"
-                                                    name="es_nuevo" value="1" checked>
+                                                    name="es_nuevo" value="1">
                                                 <label class="form-check-label" for="es_nuevo_nueva">
                                                     <strong>Insumo Nuevo</strong> <small class="text-muted">(marcar si
                                                         es nuevo)</small>
@@ -713,8 +704,34 @@ $badgeModo = $modoActual === 'nuevo'
                                         <div class="campos-especificos" id="campos-pc" style="display: none;">
                                             <div class="mb-2">
                                                 <label for="procesador" class="form-label">Procesador *</label>
-                                                <input type="text" class="form-control form-control-sm w-100"
-                                                    id="procesador" name="procesador" required>
+                                                <?php if ($puedeGestionarCatalogo): ?>
+                                                    <div class="input-group input-group-sm">
+                                                        <select class="form-select form-select-sm select2-hardware select-cpu-catalog w-100" id="procesador" name="procesador" required>
+                                                            <option value="">Seleccione procesador...</option>
+                                                            <?php foreach ($catalogoCpusPc as $c): 
+                                                                $valC = htmlspecialchars(trim($c['marca'] . ' ' . $c['modelo']));
+                                                            ?>
+                                                                <option value="<?php echo $valC; ?>" data-ram="<?php echo htmlspecialchars($c['tipo_ram']); ?>">
+                                                                    <?php echo $valC; ?>
+                                                                </option>
+                                                            <?php endforeach; ?>
+                                                        </select>
+                                                        <button class="btn btn-outline-secondary btn-nuevo-hardware" type="button" data-tipo="procesador" data-tipo-equipo="pc" title="Agregar nuevo modelo de Procesador">
+                                                            <i class="fas fa-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                <?php else: ?>
+                                                    <select class="form-select form-select-sm select2-hardware select-cpu-catalog w-100" id="procesador" name="procesador" required>
+                                                        <option value="">Seleccione procesador...</option>
+                                                        <?php foreach ($catalogoCpusPc as $c): 
+                                                            $valC = htmlspecialchars(trim($c['marca'] . ' ' . $c['modelo']));
+                                                        ?>
+                                                            <option value="<?php echo $valC; ?>" data-ram="<?php echo htmlspecialchars($c['tipo_ram']); ?>">
+                                                                <?php echo $valC; ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                <?php endif; ?>
                                                 <div class="invalid-feedback">El procesador es obligatorio</div>
                                             </div>
                                             <div class="mb-2">
@@ -725,8 +742,34 @@ $badgeModo = $modoActual === 'nuevo'
                                             </div>
                                             <div class="mb-2">
                                                 <label for="mother" class="form-label">Motherboard *</label>
-                                                <input type="text" class="form-control form-control-sm w-100"
-                                                    id="mother" name="mother" required>
+                                                <?php if ($puedeGestionarCatalogo): ?>
+                                                    <div class="input-group input-group-sm">
+                                                        <select class="form-select form-select-sm select2-hardware select-mother-catalog w-100" id="mother" name="mother" required>
+                                                            <option value="">Seleccione placa madre...</option>
+                                                            <?php foreach ($catalogoMothers as $m): 
+                                                                $valM = htmlspecialchars(trim($m['marca'] . ' ' . $m['modelo']));
+                                                            ?>
+                                                                <option value="<?php echo $valM; ?>" data-ram="<?php echo htmlspecialchars($m['tipo_ram']); ?>">
+                                                                    <?php echo $valM; ?>
+                                                                </option>
+                                                            <?php endforeach; ?>
+                                                        </select>
+                                                        <button class="btn btn-outline-secondary btn-nuevo-hardware" type="button" data-tipo="motherboard" title="Agregar nuevo modelo de Motherboard">
+                                                            <i class="fas fa-plus"></i>
+                                                        </button>
+                                                    </div>
+                                                <?php else: ?>
+                                                    <select class="form-select form-select-sm select2-hardware select-mother-catalog w-100" id="mother" name="mother" required>
+                                                        <option value="">Seleccione placa madre...</option>
+                                                        <?php foreach ($catalogoMothers as $m): 
+                                                            $valM = htmlspecialchars(trim($m['marca'] . ' ' . $m['modelo']));
+                                                        ?>
+                                                            <option value="<?php echo $valM; ?>" data-ram="<?php echo htmlspecialchars($m['tipo_ram']); ?>">
+                                                                <?php echo $valM; ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                <?php endif; ?>
                                                 <div class="invalid-feedback">La motherboard es obligatoria</div>
                                             </div>
                                             <div class="mb-2">
@@ -735,52 +778,110 @@ $badgeModo = $modoActual === 'nuevo'
                                                     id="sist_op" name="sist_op" placeholder="Ej: Windows 11 Pro">
                                             </div>
                                             <div class="mb-2">
-                                                <label for="almacenamiento_gb" class="form-label">Almacenamiento (GB)
-                                                    *</label>
-                                                <input type="number" class="form-control form-control-sm w-100"
-                                                    id="almacenamiento_gb" name="almacenamiento_gb" min="1" required>
-                                                <div class="invalid-feedback">El almacenamiento es obligatorio</div>
-                                            </div>
-                                            <div class="mb-2 d-flex justify-content-end align-items-center" style="min-height: 31px;">
+                                                 <label for="almacenamiento_gb" class="form-label">Almacenamiento Principal *</label>
+                                                 <select class="form-select form-select-sm w-100" id="almacenamiento_gb" name="almacenamiento_gb" required>
+                                                     <option value="">Seleccione capacidad...</option>
+                                                     <?php foreach (obtenerOpcionesAlmacenamiento() as $opc): ?>
+                                                         <option value="<?php echo $opc['capacidad_gb']; ?>"><?php echo htmlspecialchars($opc['etiqueta']); ?></option>
+                                                     <?php endforeach; ?>
+                                                 </select>
+                                                 <div class="invalid-feedback">El almacenamiento es obligatorio</div>
+                                             </div>
+                                             <div class="mb-2 d-flex justify-content-end align-items-center" style="min-height: 31px;">
+                                                  <div class="form-check form-switch mb-0">
+                                                      <input class="form-check-input switch-disco" type="checkbox" id="ssd_o_superior" name="ssd_o_superior" value="1" data-target-badge="badge_disco_pc_nueva">
+                                                      <label class="form-check-label mb-0" for="ssd_o_superior">
+                                                          <span id="badge_disco_pc_nueva" class="badge bg-secondary"><i class="fas fa-hdd me-1"></i>HDD</span>
+                                                      </label>
+                                                  </div>
+                                              </div>
+                                             <div class="mb-2">
+                                                 <label for="almacenamiento_secundario_gb" class="form-label">Almacenamiento Secundario <span class="text-muted fw-normal">(Opcional)</span></label>
+                                                 <select class="form-select form-select-sm w-100" id="almacenamiento_secundario_gb" name="almacenamiento_secundario_gb">
+                                                     <option value="">Sin almacenamiento secundario</option>
+                                                     <?php foreach (obtenerOpcionesAlmacenamiento() as $opc): ?>
+                                                         <option value="<?php echo $opc['capacidad_gb']; ?>"><?php echo htmlspecialchars($opc['etiqueta']); ?></option>
+                                                     <?php endforeach; ?>
+                                                 </select>
+                                             </div>
+                                             <div class="mb-2 d-flex justify-content-end align-items-center" style="min-height: 31px;">
+                                                  <div class="form-check form-switch mb-0">
+                                                      <input class="form-check-input switch-disco" type="checkbox" id="ssd_secundario_nueva" name="ssd_secundario" value="1" data-target-badge="badge_disco_pc_sec_nueva">
+                                                      <label class="form-check-label mb-0" for="ssd_secundario_nueva">
+                                                          <span id="badge_disco_pc_sec_nueva" class="badge bg-secondary"><i class="fas fa-hdd me-1"></i>HDD</span>
+                                                      </label>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                         <div class="campos-especificos" id="campos-notebook" style="display: none;">
+                                             <div class="mb-2">
+                                                 <label for="marca_notebook" class="form-label">Marca *</label>
+                                                 <input type="text" class="form-control form-control-sm w-100"
+                                                     id="marca_notebook" name="marca_notebook" required>
+                                                 <div class="invalid-feedback">La marca es obligatoria</div>
+                                             </div>
+                                             <div class="mb-2">
+                                                 <label for="modelo_notebook" class="form-label">Modelo *</label>
+                                                 <input type="text" class="form-control form-control-sm w-100"
+                                                     id="modelo_notebook" name="modelo_notebook" required>
+                                                 <div class="invalid-feedback">El modelo es obligatorio</div>
+                                             </div>
+                                             <div class="mb-2">
+                                                 <label for="procesador_notebook" class="form-label">Procesador *</label>
+                                                 <?php if ($puedeGestionarCatalogo): ?>
+                                                     <div class="input-group input-group-sm">
+                                                         <select class="form-select form-select-sm select2-hardware select-cpu-catalog w-100" id="procesador_notebook" name="procesador_notebook" required>
+                                                             <option value="">Seleccione procesador...</option>
+                                                             <?php foreach ($catalogoCpusNb as $c): 
+                                                                 $valC = htmlspecialchars(trim($c['marca'] . ' ' . $c['modelo']));
+                                                             ?>
+                                                                 <option value="<?php echo $valC; ?>" data-ram="<?php echo htmlspecialchars($c['tipo_ram']); ?>">
+                                                                     <?php echo $valC; ?>
+                                                                 </option>
+                                                             <?php endforeach; ?>
+                                                         </select>
+                                                         <button class="btn btn-outline-secondary btn-nuevo-hardware" type="button" data-tipo="procesador" data-tipo-equipo="notebook" title="Agregar nuevo modelo de Procesador">
+                                                             <i class="fas fa-plus"></i>
+                                                         </button>
+                                                     </div>
+                                                 <?php else: ?>
+                                                     <select class="form-select form-select-sm select2-hardware select-cpu-catalog w-100" id="procesador_notebook" name="procesador_notebook" required>
+                                                         <option value="">Seleccione procesador...</option>
+                                                         <?php foreach ($catalogoCpusNb as $c): 
+                                                             $valC = htmlspecialchars(trim($c['marca'] . ' ' . $c['modelo']));
+                                                         ?>
+                                                             <option value="<?php echo $valC; ?>" data-ram="<?php echo htmlspecialchars($c['tipo_ram']); ?>">
+                                                                 <?php echo $valC; ?>
+                                                             </option>
+                                                         <?php endforeach; ?>
+                                                     </select>
+                                                 <?php endif; ?>
+                                                 <div class="invalid-feedback">El procesador es obligatorio</div>
+                                             </div>
+                                             <div class="mb-2">
+                                                 <label for="ram_gb_notebook" class="form-label">RAM (GB) *</label>
+                                                 <input type="number" class="form-control form-control-sm w-100"
+                                                     id="ram_gb_notebook" name="ram_gb_notebook" min="1" required>
+                                                 <div class="invalid-feedback">La RAM es obligatoria</div>
+                                             </div>
+                                             <div class="mb-2">
+                                                 <label for="almacenamiento_gb_notebook" class="form-label">Almacenamiento *</label>
+                                                 <select class="form-select form-select-sm w-100" id="almacenamiento_gb_notebook" name="almacenamiento_gb_notebook" required>
+                                                     <option value="">Seleccione capacidad...</option>
+                                                     <?php foreach (obtenerOpcionesAlmacenamiento() as $opc): ?>
+                                                         <option value="<?php echo $opc['capacidad_gb']; ?>"><?php echo htmlspecialchars($opc['etiqueta']); ?></option>
+                                                     <?php endforeach; ?>
+                                                 </select>
+                                                 <div class="invalid-feedback">El almacenamiento es obligatorio</div>
+                                             </div>
+                                             <div class="mb-2 d-flex justify-content-end align-items-center" style="min-height: 31px;">
                                                  <div class="form-check form-switch mb-0">
-                                                     <input class="form-check-input" type="checkbox" id="ssd_o_superior" name="ssd_o_superior" value="1">
-                                                     <label class="form-check-label mb-0" for="ssd_o_superior">SSD o superior</label>
+                                                     <input class="form-check-input switch-disco" type="checkbox" id="ssd_o_superior_notebook" name="ssd_o_superior_notebook" value="1" data-target-badge="badge_disco_nb_nueva">
+                                                     <label class="form-check-label mb-0" for="ssd_o_superior_notebook">
+                                                         <span id="badge_disco_nb_nueva" class="badge bg-secondary"><i class="fas fa-hdd me-1"></i>HDD</span>
+                                                     </label>
                                                  </div>
                                              </div>
-                                        </div>
-                                        <div class="campos-especificos" id="campos-notebook" style="display: none;">
-                                            <div class="mb-2">
-                                                <label for="marca_notebook" class="form-label">Marca *</label>
-                                                <input type="text" class="form-control form-control-sm w-100"
-                                                    id="marca_notebook" name="marca_notebook" required>
-                                                <div class="invalid-feedback">La marca es obligatoria</div>
-                                            </div>
-                                            <div class="mb-2">
-                                                <label for="modelo_notebook" class="form-label">Modelo *</label>
-                                                <input type="text" class="form-control form-control-sm w-100"
-                                                    id="modelo_notebook" name="modelo_notebook" required>
-                                                <div class="invalid-feedback">El modelo es obligatorio</div>
-                                            </div>
-                                            <div class="mb-2">
-                                                <label for="procesador_notebook" class="form-label">Procesador *</label>
-                                                <input type="text" class="form-control form-control-sm w-100"
-                                                    id="procesador_notebook" name="procesador_notebook" required>
-                                                <div class="invalid-feedback">El procesador es obligatorio</div>
-                                            </div>
-                                            <div class="mb-2">
-                                                <label for="ram_gb_notebook" class="form-label">RAM (GB) *</label>
-                                                <input type="number" class="form-control form-control-sm w-100"
-                                                    id="ram_gb_notebook" name="ram_gb_notebook" min="1" required>
-                                                <div class="invalid-feedback">La RAM es obligatoria</div>
-                                            </div>
-                                            <div class="mb-2">
-                                                <label for="almacenamiento_gb_notebook"
-                                                    class="form-label">Almacenamiento (GB) *</label>
-                                                <input type="number" class="form-control form-control-sm w-100"
-                                                    id="almacenamiento_gb_notebook" name="almacenamiento_gb_notebook"
-                                                    min="1" required>
-                                                <div class="invalid-feedback">El almacenamiento es obligatorio</div>
-                                            </div>
                                         </div>
                                         <div class="campos-especificos" id="campos-impresora" style="display: none;">
                                             <div class="mb-2">
@@ -870,6 +971,10 @@ $badgeModo = $modoActual === 'nuevo'
     </div>
 </div>
 
+<?php if ($puedeGestionarCatalogo): ?>
+    <?php include __DIR__ . '/modal_nuevo_hardware.php'; ?>
+<?php endif; ?>
+
 <?php include '../../includes/footer.php'; ?>
 
 <style>
@@ -890,6 +995,14 @@ $badgeModo = $modoActual === 'nuevo'
 </style>
 
 <script>
+    $(document).ready(function() {
+        $('.select2-hardware').select2({
+            theme: 'bootstrap-5',
+            language: 'es',
+            width: '100%'
+        });
+    });
+
     // Paso 1 -> Paso 2 y viceversa
     $('#btnSiguiente').on('click', function () {
         let ok = true;
@@ -1152,6 +1265,8 @@ $badgeModo = $modoActual === 'nuevo'
                 },
                 error: function () {
                     console.error('Error al validar duplicados');
+                    // Asegurar que el botón de submit NO quede deshabilitado permanentemente si falla la llamada
+                    $('button[type="submit"]').prop('disabled', false);
                 }
             });
         }, 500); // Esperar 500ms después de que el usuario deje de escribir
@@ -1222,14 +1337,24 @@ $badgeModo = $modoActual === 'nuevo'
         console.log('FORMULARIO SUBMIT DISPARADO');
         console.log('========================================');
         console.log('Tipo insumo:', $('#tipo_insumo').val());
-        console.log('Nombre insumo:', $('[name="nombre_insumo"]').val());
-        console.log('ID Sede:', $('#id_sede').val());
-        console.log('ID Area:', $('#id_area_asignada').val());
-        console.log('Nombre persona:', $('#nombre_persona_asignada').val());
-        console.log('Apellido persona:', $('#apellido_persona_asignada').val());
+
+        // Desactivar required de todos los elementos en bloques ocultos para prevenir trabas del navegador
+        $(this).find(':hidden').find('input, select, textarea').prop('required', false).removeAttr('required');
 
         // IMPORTANTE: Remover required de campos opcionales antes de validar
         $('#id_fisico, #id_patrimonio, #numero_serie').prop('required', false).removeAttr('required');
+
+        // Verificación específica de la Declaración Jurada si se seleccionó Notebook
+        if ($('#tipo_insumo').val() === 'Notebook' && $('#declaracion_jurada').prop('required') && !$('#declaracion_jurada').val()) {
+            e.preventDefault();
+            $('#declaracion_jurada').addClass('is-invalid').focus();
+            if (typeof showToast === 'function') {
+                showToast('Debe adjuntar la Declaración Jurada obligatoria para la Notebook', 'warning');
+            } else if (typeof showAlert === 'function') {
+                showAlert('Debe adjuntar la Declaración Jurada obligatoria para la Notebook', 'warning');
+            }
+            return false;
+        }
 
         // Verificar campos inválidos (EXCLUYENDO explícitamente los opcionales)
         const invalidos = $(this).find(':invalid').not('#id_fisico, #id_patrimonio, #numero_serie');
@@ -1241,7 +1366,11 @@ $badgeModo = $modoActual === 'nuevo'
                 console.log('  - Campo:', this.name || this.id, 'Valor:', $(this).val(), 'Tipo:', this.type);
             });
             e.preventDefault();
-            showAlert('Hay campos requeridos sin completar. Por favor revise el formulario.', 'warning');
+            if (typeof showToast === 'function') {
+                showToast('Hay campos requeridos sin completar. Por favor revise el formulario.', 'warning');
+            } else {
+                showAlert('Hay campos requeridos sin completar. Por favor revise el formulario.', 'warning');
+            }
             return false;
         }
 
@@ -1250,6 +1379,7 @@ $badgeModo = $modoActual === 'nuevo'
 
     // Calcular total automático para stock dual (Varios)
     function actualizarTotalVarios() {
+        if (!$('#cantidad_oficina').length) return;
         var oficina = parseInt($('#cantidad_oficina').val()) || 0;
         var deposito = parseInt($('#cantidad_deposito').val()) || 0;
         var total = oficina + deposito;
@@ -1259,13 +1389,13 @@ $badgeModo = $modoActual === 'nuevo'
         $('#display_deposito').text(deposito);
     }
 
-    // Eventos para actualizar total
+    // Eventos para actualizar total si existen los campos
     $('#cantidad_oficina, #cantidad_deposito').on('input change', function () {
         actualizarTotalVarios();
     });
 
     // Actualizar al cargar si es tipo Varios
-    if ($('#tipo_insumo').val() === 'Varios') {
+    if ($('#tipo_insumo').val() === 'Varios' && $('#cantidad_oficina').length) {
         actualizarTotalVarios();
     }
 </script>

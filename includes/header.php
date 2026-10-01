@@ -1,11 +1,14 @@
 <?php if (!defined('APP_INIT')) { http_response_code(403); exit; } ?>
 <!DOCTYPE html>
 <html lang="es">
-<!-- Inicializar tema antes de cargar CSS para evitar flash - @added v2.0 -->
+<!-- Inicializar tema y estado de sidebar antes de cargar CSS para evitar flash - @added v2.0 -->
 <script>
 (function() {
     var tema = localStorage.getItem('sitia_tema') || 'light';
     document.documentElement.setAttribute('data-theme', tema);
+    if (window.innerWidth > 992 && localStorage.getItem('sitia_sidebar_collapsed') === '1') {
+        document.documentElement.classList.add('sidebar-collapsed');
+    }
 })();
 </script>
 <head>
@@ -14,24 +17,60 @@
     <title><?php echo APP_NAME; ?></title>
     <meta name="csrf-token" content="<?php echo htmlspecialchars(csrf_token()); ?>">
     
+    <!-- Favicon SITIA -->
+    <link rel="icon" type="image/svg+xml" href="<?php echo app_base_url(); ?>/public/img/favicon.svg">
+    <link rel="alternate icon" type="image/x-icon" href="<?php echo app_base_url(); ?>/favicon.ico">
+    
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="<?php echo app_base_url(); ?>/public/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link href="<?php echo app_base_url(); ?>/public/vendor/fontawesome/css/all.min.css" rel="stylesheet" />
     <!-- DataTables -->
-    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <link href="<?php echo app_base_url(); ?>/public/vendor/datatables/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <!-- Select2 -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet">
+    <link href="<?php echo app_base_url(); ?>/public/vendor/select2/css/select2.min.css" rel="stylesheet">
+    <link href="<?php echo app_base_url(); ?>/public/vendor/select2/css/select2-bootstrap-5-theme.min.css" rel="stylesheet">
     
     <!-- Custom CSS -->
     <link href="<?php echo app_base_url(); ?>/public/css/style.css?v=<?php echo filemtime(__DIR__ . '/../public/css/style.css'); ?>" rel="stylesheet">
 
     <!-- jQuery early to allow page scripts to run -->
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="<?php echo app_base_url(); ?>/public/vendor/jquery/jquery-3.7.0.min.js"></script>
     <!-- Select2 JS early for page-level initializations -->
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script>window.APP_BASE_URL = '<?php echo app_base_url(); ?>';</script>
+    <script src="<?php echo app_base_url(); ?>/public/vendor/select2/js/select2.min.js"></script>
+    <style>
+        @keyframes toastProgressAnimation {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+        .toast-progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.85);
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            animation-name: toastProgressAnimation;
+            animation-timing-function: linear;
+            animation-fill-mode: forwards;
+        }
+        .toast-notificacion-large {
+            min-width: 440px !important;
+            max-width: 580px !important;
+            font-size: 1.02rem !important;
+            padding: 8px 12px !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25) !important;
+            border-radius: 10px !important;
+        }
+        @media (max-width: 576px) {
+            .toast-notificacion-large {
+                min-width: 90vw !important;
+                max-width: 95vw !important;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="wrapper">
@@ -57,6 +96,7 @@
                     '/pages/admin/sede_detalle.php',
                     '/pages/admin/sedes.php',
                     '/pages/admin/areas.php',
+                    '/pages/admin/catalogo_hardware.php',
                     '/pages/admin/telecom_planos.php' // Planos de Sede pertenece a Administración
                 ];
                 $telecomItems = [
@@ -99,6 +139,9 @@
                         <i class="fas fa-box me-2"></i>Insumos
                     </a>
                     <ul class="collapse list-unstyled <?php echo $isInsumos ? 'show' : ''; ?>" id="insumosSubmenu" data-bs-parent="#sidebar" role="menu">
+                        <li>
+                            <a href="<?php echo app_base_url(); ?>/pages/insumos/relevamientos_listar.php" class="<?php echo strpos($currentPath, '/pages/insumos/relevamientos_listar.php') !== false ? 'active' : ''; ?>" role="menuitem">Relevamientos</a>
+                        </li>
                         <li>
                             <a href="<?php echo app_base_url(); ?>/pages/insumos/ingresos_listar.php" class="<?php echo strpos($currentPath, '/pages/insumos/ingresos_listar.php') !== false ? 'active' : ''; ?>" role="menuitem">Ingresos</a>
                         </li>
@@ -143,6 +186,9 @@
                             <a href="<?php echo app_base_url(); ?>/pages/admin/areas.php" class="<?php echo strpos($currentPath, '/pages/admin/areas.php') !== false ? 'active' : ''; ?>" role="menuitem">Gestión de Áreas</a>
                         </li>
                         <li>
+                            <a href="<?php echo app_base_url(); ?>/pages/admin/catalogo_hardware.php" class="<?php echo strpos($currentPath, '/pages/admin/catalogo_hardware.php') !== false ? 'active' : ''; ?>" role="menuitem">Catálogo de Hardware</a>
+                        </li>
+                        <li>
                             <a href="<?php echo app_base_url(); ?>/pages/admin/telecom_planos.php" class="<?php echo strpos($currentPath, '/pages/admin/telecom_planos.php') !== false ? 'active' : ''; ?>" role="menuitem">Planos de Sede</a>
                         </li>
                         <?php if (tienePermiso('sistema', 'backup')): ?>
@@ -180,7 +226,7 @@
             <!-- Top Navigation -->
             <nav class="navbar navbar-expand-lg navbar-light bg-light" style="min-height: 70px; padding-top: 0; padding-bottom: 0;">
                 <div class="container-fluid">
-                    <button class="btn btn-outline-primary d-lg-none" type="button" id="btnToggleSidebar" aria-label="Alternar menú">
+                    <button class="btn btn-sidebar-toggle me-2" type="button" id="btnToggleSidebar" aria-label="Alternar menú lateral" title="Ocultar o mostrar menú lateral">
                         <i class="fas fa-bars"></i>
                     </button>
                     
@@ -206,6 +252,35 @@
                         <?php if (estaAutenticado()): 
                             $usuarioActual = obtenerUsuario();
                         ?>
+                            <!-- Menú de Notificaciones (Campana) -->
+                            <div class="dropdown me-3">
+                                <button class="btn btn-notificaciones position-relative" type="button" id="dropdownNotificaciones" data-bs-toggle="dropdown" aria-expanded="false" title="Notificaciones">
+                                    <i class="fas fa-bell"></i>
+                                    <span id="notifBadgeCounter" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
+                                        0
+                                    </span>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-end p-0 shadow border-0" aria-labelledby="dropdownNotificaciones" style="width: 480px; min-width: 480px; max-height: 580px; overflow-y: auto; border-radius: 12px;">
+                                    <div class="d-flex align-items-center justify-content-between p-3 border-bottom bg-light">
+                                        <h6 class="m-0 fw-bold fs-5"><i class="fas fa-bell me-2 text-primary"></i>Notificaciones</h6>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <button type="button" class="btn btn-link btn-sm text-decoration-none p-0 text-muted fs-6" onclick="marcarTodasNotificacionesLeidas()" title="Marcar todas como leídas">
+                                                <i class="fas fa-check-double me-1"></i>Marcar leídas
+                                            </button>
+                                            <span class="text-muted">|</span>
+                                            <button type="button" class="btn btn-link btn-sm text-decoration-none p-0 text-danger fs-6" onclick="limpiarBandejaNotificaciones()" title="Limpiar todas las notificaciones">
+                                                <i class="fas fa-trash-alt me-1"></i>Limpiar
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div id="notifListContainer" class="list-group list-group-flush">
+                                        <div class="text-center p-3 text-muted small">
+                                            <i class="fas fa-spinner fa-spin me-1"></i>Cargando...
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="dropdown">
                                 <button class="btn btn-link text-decoration-none dropdown-toggle" type="button" id="dropdownUsuario" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-user-circle me-1"></i>

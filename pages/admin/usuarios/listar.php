@@ -229,9 +229,6 @@ verificarPermiso('usuarios', 'ver');
 $(document).ready(function() {
     // Inicializar DataTable
     $('#tablaUsuarios').DataTable({
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json'
-        },
         order: [[4, 'desc']], // Ordenar por último acceso
         pageLength: 25
     });

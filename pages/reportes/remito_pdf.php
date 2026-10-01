@@ -34,36 +34,61 @@ $cab = $stmt->fetch();
 
 // Detalle
 $items = [];
+$id_insumo_filtro = 0;
+if (isset($_GET['id_insumo']) && is_numeric($_GET['id_insumo'])) {
+    $id_insumo_filtro = (int)$_GET['id_insumo'];
+} elseif (isset($_GET['insumo']) && is_numeric($_GET['insumo'])) {
+    $id_insumo_filtro = (int)$_GET['insumo'];
+}
+
 if ($cab) {
-    $stmtDet = $conexion->prepare("SELECT 
-                                        i.nombre_insumo,
-                                        i.tipo_insumo,
-                                        i.numero_serie,
-                                        i.id_fisico,
-                                        d.cantidad,
-                                        COALESCE(nb.marca, imp.marca, mon.marca, esc.marca) AS marca,
-                                        COALESCE(nb.modelo, imp.modelo, mon.modelo, esc.modelo) AS modelo,
-                                        pc.procesador AS pc_procesador,
-                                        pc.ram_gb     AS pc_ram,
-                                        pc.almacenamiento_gb AS pc_alm,
-                                        pc.mother     AS pc_mother,
-                                        pc.sist_op    AS pc_sist_op,
-                                        nb.procesador AS nb_procesador,
-                                        nb.ram_gb     AS nb_ram,
-                                        nb.almacenamiento_gb AS nb_alm,
-                                        nb.cargador, nb.funda, nb.micro_sd, nb.micro_sd_gb, nb.caja, nb.adaptador_red
-                                   FROM remitos_detalle d
-                                   JOIN insumos i ON d.id_insumo = i.id_insumo
-                                   JOIN remitos r ON r.id_remito = d.id_remito
-                                   LEFT JOIN pcs_completas pc ON pc.id_insumo = i.id_insumo
-                                   LEFT JOIN notebooks nb ON nb.id_insumo = i.id_insumo
-                                   LEFT JOIN impresoras imp ON imp.id_insumo = i.id_insumo
-                                   LEFT JOIN monitores mon ON mon.id_insumo = i.id_insumo
-                                   LEFT JOIN escaneres esc ON esc.id_insumo = i.id_insumo
-                                   WHERE r.numero_remito = ?
-                                   ORDER BY i.nombre_insumo");
-    $stmtDet->execute([$numero_remito]);
+    $sqlDet = "SELECT 
+                    i.id_insumo,
+                    i.nombre_insumo,
+                    i.tipo_insumo,
+                    i.numero_serie,
+                    i.id_fisico,
+                    d.cantidad,
+                    COALESCE(nb.marca, imp.marca, mon.marca, esc.marca) AS marca,
+                    COALESCE(nb.modelo, imp.modelo, mon.modelo, esc.modelo) AS modelo,
+                    pc.procesador AS pc_procesador,
+                    pc.ram_gb     AS pc_ram,
+                    pc.almacenamiento_gb AS pc_alm,
+                    pc.almacenamiento_secundario_gb AS pc_alm_sec,
+                    pc.ssd_o_superior AS pc_ssd,
+                    pc.ssd_secundario AS pc_ssd_sec,
+                    pc.mother     AS pc_mother,
+                    pc.sist_op    AS pc_sist_op,
+                    nb.procesador AS nb_procesador,
+                    nb.ram_gb     AS nb_ram,
+                    nb.almacenamiento_gb AS nb_alm,
+                    nb.ssd_o_superior AS nb_ssd,
+                    nb.cargador, nb.funda, nb.micro_sd, nb.micro_sd_gb, nb.caja, nb.adaptador_red
+               FROM remitos_detalle d
+               JOIN insumos i ON d.id_insumo = i.id_insumo
+               JOIN remitos r ON r.id_remito = d.id_remito
+               LEFT JOIN pcs_completas pc ON pc.id_insumo = i.id_insumo
+               LEFT JOIN notebooks nb ON nb.id_insumo = i.id_insumo
+               LEFT JOIN impresoras imp ON imp.id_insumo = i.id_insumo
+               LEFT JOIN monitores mon ON mon.id_insumo = i.id_insumo
+               LEFT JOIN escaneres esc ON esc.id_insumo = i.id_insumo
+               WHERE r.numero_remito = ?" . ($id_insumo_filtro > 0 ? " AND i.id_insumo = ?" : "") . "
+               ORDER BY i.nombre_insumo";
+
+    $paramsDet = [$numero_remito];
+    if ($id_insumo_filtro > 0) {
+        $paramsDet[] = $id_insumo_filtro;
+    }
+
+    $stmtDet = $conexion->prepare($sqlDet);
+    $stmtDet->execute($paramsDet);
     $items = $stmtDet->fetchAll();
+
+    if ($id_insumo_filtro > 0 && empty($items)) {
+        http_response_code(404);
+        echo 'El insumo especificado no pertenece a este remito.';
+        exit;
+    }
 }
 
 if (!$cab) {
@@ -247,7 +272,7 @@ foreach ($items as $it) {
         $bullets[] = '- Nro. de serie: ' . $it['numero_serie'];
     }
     if (!empty($it['id_fisico'])) {
-        $bullets[] = '- ID físico: ' . $it['id_fisico'];
+        $bullets[] = '- ID físico: ' . str_replace(['-', ' '], '', $it['id_fisico']);
     }
     if (isset($it['tipo_insumo']) && $it['tipo_insumo'] === 'Notebook') {
         // Accesorios notebook si existen
@@ -264,7 +289,15 @@ foreach ($items as $it) {
             $bullets[] = '- RAM: ' . $it['pc_ram'] . ' GB';
         }
         if (!empty($it['pc_alm'])) {
-            $bullets[] = '- Almacenamiento: ' . $it['pc_alm'] . ' GB';
+            $tipo1 = !empty($it['pc_ssd']) ? 'SSD' : 'HDD';
+            $cap1 = ((int)$it['pc_alm'] >= 1024 && (int)$it['pc_alm'] % 1024 === 0) ? ((int)$it['pc_alm'] / 1024) . ' TB' : $it['pc_alm'] . ' GB';
+            $textoAlm = '- Almacenamiento: ' . $cap1 . " ($tipo1)";
+            if (!empty($it['pc_alm_sec'])) {
+                $tipo2 = !empty($it['pc_ssd_sec']) ? 'SSD' : 'HDD';
+                $cap2 = ((int)$it['pc_alm_sec'] >= 1024 && (int)$it['pc_alm_sec'] % 1024 === 0) ? ((int)$it['pc_alm_sec'] / 1024) . ' TB' : $it['pc_alm_sec'] . ' GB';
+                $textoAlm .= ' + ' . $cap2 . " ($tipo2)";
+            }
+            $bullets[] = $textoAlm;
         }
         if (!empty($it['pc_mother'])) {
             $bullets[] = '- Mother: ' . $it['pc_mother'];
@@ -280,7 +313,9 @@ foreach ($items as $it) {
             $bullets[] = '- RAM: ' . $it['nb_ram'] . ' GB';
         }
         if (!empty($it['nb_alm'])) {
-            $bullets[] = '- Almacenamiento: ' . $it['nb_alm'] . ' GB';
+            $tipoNb = !empty($it['nb_ssd']) ? 'SSD' : 'HDD';
+            $capNb = ((int)$it['nb_alm'] >= 1024 && (int)$it['nb_alm'] % 1024 === 0) ? ((int)$it['nb_alm'] / 1024) . ' TB' : $it['nb_alm'] . ' GB';
+            $bullets[] = '- Almacenamiento: ' . $capNb . " ($tipoNb)";
         }
         // Accesorios notebook (si existen)
         $acc = [];
@@ -411,8 +446,9 @@ if (!empty($cab['declaracion_jurada'])) {
     }
 }
 
+$nombrePdf = $cab['numero_remito'] . ($id_insumo_filtro > 0 ? '_insumo_' . $id_insumo_filtro : '') . '.pdf';
 if (!isset($no_exit_pdf)) {
-    $pdf->Output('I', $cab['numero_remito'] . '.pdf');
+    $pdf->Output('I', $nombrePdf);
     exit;
 } else {
     echo $pdf->Output('S');

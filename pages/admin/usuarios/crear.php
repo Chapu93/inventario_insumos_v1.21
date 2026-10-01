@@ -126,7 +126,7 @@ try {
 <div class="row">
     <div class="col-12 d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0"><i class="fas fa-user-plus me-2"></i>Crear Usuario</h1>
-        <a href="listar.php" class="btn btn-secondary">
+        <a href="listar.php" class="btn btn-secondary btn-volver">
             <i class="fas fa-arrow-left me-1"></i>Volver
         </a>
     </div>

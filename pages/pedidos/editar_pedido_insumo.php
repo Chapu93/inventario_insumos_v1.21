@@ -113,7 +113,7 @@ include '../../includes/header.php';
     <div class="col-lg-8">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="mb-0"><i class="fas fa-edit me-2 text-dark"></i>Editar Solicitud de Insumos</h2>
-            <a href="ver.php?id=<?php echo $id; ?>" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-2"></i>Volver</a>
+            <a href="ver.php?id=<?php echo $id; ?>" class="btn btn-outline-secondary btn-volver"><i class="fas fa-arrow-left me-2"></i>Volver</a>
         </div>
 
         <div class="card shadow-sm border-0">
@@ -194,7 +194,10 @@ include '../../includes/header.php';
                                 <div class="input-group">
                                     <input type="file" class="form-control" name="nota_pedido" accept=".pdf">
                                     <?php if (!empty($pedido['pdf_nota'])): ?>
-                                    <a href="<?php echo app_base_url(); ?>/uploads/pedidos/<?php echo $pedido['pdf_nota']; ?>" target="_blank" class="btn btn-outline-success">
+                                    <a href="<?php echo app_base_url(); ?>/uploads/pedidos/<?php echo $pedido['pdf_nota']; ?>" 
+                                       data-visor-archivo="<?php echo app_base_url(); ?>/uploads/pedidos/<?php echo $pedido['pdf_nota']; ?>"
+                                       data-visor-titulo="Nota de Solicitud - Pedido #<?php echo $id; ?>"
+                                       target="_blank" class="btn btn-outline-success" title="Ver nota en visor">
                                         <i class="fas fa-file-pdf"></i>
                                     </a>
                                     <?php endif; ?>

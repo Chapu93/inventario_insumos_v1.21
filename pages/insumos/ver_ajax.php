@@ -149,7 +149,7 @@ try {
                     <div class="row">
                         <div class="col-md-6">
                             <p><strong><?php echo ($insumo['tipo_insumo'] !== 'Varios') ? 'Descripción' : 'Nombre'; ?>:</strong>
-                                <?php echo htmlspecialchars($insumo['nombre_insumo']); ?></p>
+                                <?php echo htmlspecialchars($insumo['nombre_insumo'] ?? ''); ?></p>
                             <p><strong>Tipo:</strong>
                                 <span class="badge bg-info"><?php
                                 if ($insumo['tipo_insumo'] === 'Varios' && !empty($insumo['subcategoria_varios'])) {
@@ -222,12 +222,12 @@ try {
                             </div>
                             <div class="col-md-4">
                                 <p><strong>ID Físico:</strong>
-                                    <?php echo !empty($insumo['id_fisico']) ? htmlspecialchars($insumo['id_fisico']) : '<span class="text-muted">No tiene</span>'; ?>
+                                    <?php echo !empty($insumo['id_fisico']) ? htmlspecialchars(str_replace(['-', ' '], '', $insumo['id_fisico'])) : '<span class="text-muted">No tiene</span>'; ?>
                                 </p>
                             </div>
                             <div class="col-md-4">
                                 <p><strong>ID Patrimonio:</strong>
-                                    <?php echo !empty($insumo['id_patrimonio']) ? htmlspecialchars($insumo['id_patrimonio']) : '<span class="text-muted">No tiene</span>'; ?>
+                                    <?php echo !empty($insumo['id_patrimonio']) ? htmlspecialchars(str_replace(['-', ' '], '', $insumo['id_patrimonio'])) : '<span class="text-muted">No tiene</span>'; ?>
                                 </p>
                             </div>
                         </div>
@@ -250,6 +250,17 @@ try {
                         </h6>
                     </div>
                     <div class="card-body">
+                        <?php 
+                        $formatearAlmacenamientoAjax = function($gb, $esSsd) {
+                            if (empty($gb)) return 'No especificado';
+                            $gbInt = (int)$gb;
+                            $textoCapacidad = ($gbInt >= 1024 && $gbInt % 1024 === 0) ? ($gbInt / 1024) . ' TB' : $gbInt . ' GB';
+                            $badge = !empty($esSsd) 
+                                ? '<span class="badge bg-success ms-1"><i class="fas fa-bolt me-1"></i>SSD</span>' 
+                                : '<span class="badge bg-secondary ms-1"><i class="fas fa-hdd me-1"></i>HDD</span>';
+                            return htmlspecialchars($textoCapacidad) . ' ' . $badge;
+                        };
+                        ?>
                         <?php if ($insumo['tipo_insumo'] === 'PC Escritorio' || $insumo['tipo_insumo'] === 'PC Completa'): ?>
                             <div class="row">
                                 <div class="col-md-6">
@@ -266,9 +277,13 @@ try {
                                     <?php endif; ?>
                                 </div>
                                 <div class="col-md-6">
-                                    <?php if ($datos_especificos['almacenamiento_gb']): ?>
+                                    <?php if (!empty($datos_especificos['almacenamiento_gb'])): ?>
                                         <p><strong>Almacenamiento:</strong>
-                                            <?php echo htmlspecialchars($datos_especificos['almacenamiento_gb']); ?> GB</p>
+                                            <?php echo $formatearAlmacenamientoAjax($datos_especificos['almacenamiento_gb'], !empty($datos_especificos['ssd_o_superior'])); ?></p>
+                                    <?php endif; ?>
+                                    <?php if (!empty($datos_especificos['almacenamiento_secundario_gb'])): ?>
+                                        <p><strong>Almacenamiento Secundario:</strong>
+                                            <?php echo $formatearAlmacenamientoAjax($datos_especificos['almacenamiento_secundario_gb'], !empty($datos_especificos['ssd_secundario'])); ?></p>
                                     <?php endif; ?>
                                     <?php if ($datos_especificos['mother']): ?>
                                         <p><strong>Motherboard:</strong> <?php echo htmlspecialchars($datos_especificos['mother']); ?>
@@ -284,6 +299,10 @@ try {
                                     <?php endif; ?>
                                     <?php if ($datos_especificos['modelo']): ?>
                                         <p><strong>Modelo:</strong> <?php echo htmlspecialchars($datos_especificos['modelo']); ?></p>
+                                    <?php endif; ?>
+                                    <?php if (!empty($datos_especificos['almacenamiento_gb'])): ?>
+                                        <p><strong>Almacenamiento:</strong>
+                                            <?php echo $formatearAlmacenamientoAjax($datos_especificos['almacenamiento_gb'], !empty($datos_especificos['ssd_o_superior'])); ?></p>
                                     <?php endif; ?>
                                 </div>
                                 <div class="col-md-6">
@@ -393,9 +412,21 @@ try {
                         <p class="mb-2 small"><strong>Persona:</strong> <?php echo htmlspecialchars(($rem['nombre_persona_asignada'] ?? '') . ' ' . ($rem['apellido_persona_asignada'] ?? '')); ?></p>
                         <p class="mb-2 small"><strong>Localidad:</strong> <?php echo htmlspecialchars($rem['nombre_localidad']); ?></p>
                         <p class="mb-2 small"><strong>Sede:</strong> <?php echo htmlspecialchars($rem['nombre_sede']); ?></p>
-                        <a class="btn btn-sm btn-outline-primary py-1 px-3 mt-2" href="<?php echo app_base_url(); ?>/pages/reportes/remito.php?remito=<?php echo urlencode($rem['numero_remito']); ?>">Ver remito</a>
+                        <a class="btn btn-sm btn-outline-primary py-1 px-3 mt-2" href="<?php echo app_base_url(); ?>/pages/reportes/remito.php?remito=<?php echo urlencode($rem['numero_remito']); ?>" target="_blank">Ver remito</a>
+                        <a class="btn btn-sm btn-outline-secondary py-1 px-3 mt-2 ms-1" 
+                           href="<?php echo app_base_url(); ?>/pages/reportes/remito_pdf.php?remito=<?php echo urlencode($rem['numero_remito']); ?>&id_insumo=<?php echo (int)$insumo['id_insumo']; ?>" 
+                           data-visor-pdf="<?php echo app_base_url(); ?>/pages/reportes/remito_pdf.php?remito=<?php echo urlencode($rem['numero_remito']); ?>&id_insumo=<?php echo (int)$insumo['id_insumo']; ?>"
+                           data-visor-titulo="Remito Individual Nº <?php echo htmlspecialchars($rem['numero_remito'], ENT_QUOTES); ?> - Insumo #<?php echo (int)$insumo['id_insumo']; ?>"
+                           target="_blank"
+                           title="Imprimir remito oficial con solo este insumo">
+                            <i class="fas fa-print me-1"></i>Imprimir individual
+                        </a>
                         <?php if (!empty($rem['declaracion_jurada'])): ?>
-                            <a class="btn btn-sm btn-outline-success py-1 px-3 mt-2 ms-1" href="<?php echo app_base_url(); ?>/uploads/documentos/<?php echo htmlspecialchars($rem['declaracion_jurada']); ?>" target="_blank"><i class="fas fa-file-pdf me-1"></i>Ver DDJJ</a>
+                            <a class="btn btn-sm btn-outline-success py-1 px-3 mt-2 ms-1" 
+                               href="<?php echo app_base_url(); ?>/uploads/documentos/<?php echo htmlspecialchars($rem['declaracion_jurada']); ?>" 
+                               data-visor-archivo="<?php echo app_base_url(); ?>/uploads/documentos/<?php echo htmlspecialchars($rem['declaracion_jurada']); ?>"
+                               data-visor-titulo="DDJJ Asignación - Remito <?php echo htmlspecialchars($rem['numero_remito'], ENT_QUOTES); ?>"
+                               target="_blank"><i class="fas fa-file-pdf me-1"></i>Ver DDJJ</a>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -425,7 +456,15 @@ try {
                                 <p class="mb-1"><strong>Persona:</strong> <?php echo htmlspecialchars(($rem['nombre_persona_asignada'] ?? '') . ' ' . ($rem['apellido_persona_asignada'] ?? '')); ?></p>
                                 <p class="mb-1"><strong>Localidad:</strong> <?php echo htmlspecialchars($rem['nombre_localidad']); ?></p>
                                 <p class="mb-1"><strong>Sede:</strong> <?php echo htmlspecialchars($rem['nombre_sede']); ?></p>
-                                <a class="btn btn-xs btn-outline-primary py-1 px-3 mt-2" href="<?php echo app_base_url(); ?>/pages/reportes/remito.php?remito=<?php echo urlencode($rem['numero_remito']); ?>">Ver remito</a>
+                                <a class="btn btn-xs btn-outline-primary py-1 px-3 mt-2" href="<?php echo app_base_url(); ?>/pages/reportes/remito.php?remito=<?php echo urlencode($rem['numero_remito']); ?>" target="_blank">Ver remito</a>
+                                <a class="btn btn-xs btn-outline-secondary py-1 px-3 mt-2 ms-1" 
+                                   href="<?php echo app_base_url(); ?>/pages/reportes/remito_pdf.php?remito=<?php echo urlencode($rem['numero_remito']); ?>&id_insumo=<?php echo (int)$insumo['id_insumo']; ?>" 
+                                   data-visor-pdf="<?php echo app_base_url(); ?>/pages/reportes/remito_pdf.php?remito=<?php echo urlencode($rem['numero_remito']); ?>&id_insumo=<?php echo (int)$insumo['id_insumo']; ?>"
+                                   data-visor-titulo="Remito Individual Nº <?php echo htmlspecialchars($rem['numero_remito'], ENT_QUOTES); ?> - Insumo #<?php echo (int)$insumo['id_insumo']; ?>"
+                                   target="_blank"
+                                   title="Imprimir remito oficial con solo este insumo">
+                                    <i class="fas fa-print me-1"></i>Imprimir individual
+                                </a>
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -524,6 +563,14 @@ try {
                                             <td class="pe-3 py-2 text-end">
                                                 <a class="btn btn-xs btn-outline-primary py-0 px-2" href="<?php echo app_base_url(); ?>/pages/reportes/remito.php?remito=<?php echo urlencode($rem['numero_remito']); ?>" target="_blank">
                                                     <i class="fas fa-eye me-1"></i>Ver Remito
+                                                </a>
+                                                <a class="btn btn-xs btn-outline-secondary py-0 px-2 ms-1" 
+                                                   href="<?php echo app_base_url(); ?>/pages/reportes/remito_pdf.php?remito=<?php echo urlencode($rem['numero_remito']); ?>&id_insumo=<?php echo (int)$insumo['id_insumo']; ?>" 
+                                                   data-visor-pdf="<?php echo app_base_url(); ?>/pages/reportes/remito_pdf.php?remito=<?php echo urlencode($rem['numero_remito']); ?>&id_insumo=<?php echo (int)$insumo['id_insumo']; ?>"
+                                                   data-visor-titulo="Remito Individual Nº <?php echo htmlspecialchars($rem['numero_remito'], ENT_QUOTES); ?> - Insumo #<?php echo (int)$insumo['id_insumo']; ?>"
+                                                   target="_blank"
+                                                   title="Imprimir remito oficial con solo este insumo">
+                                                    <i class="fas fa-print me-1"></i>Imprimir
                                                 </a>
                                             </td>
                                         </tr>

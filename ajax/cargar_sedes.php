@@ -17,9 +17,22 @@ if ($localidadId <= 0) {
 
 try {
     $conexion = conectarDB();
-    $sql = "SELECT id_sede, nombre_sede FROM sedes WHERE id_localidad = ? ORDER BY nombre_sede";
-    $stmt = $conexion->prepare($sql);
-    $stmt->execute([$localidadId]);
+    $sedeActualId = (int)($_GET['sede_actual_id'] ?? 0);
+    $incluirTodas = !empty($_GET['todas']);
+
+    if ($incluirTodas) {
+        $sql = "SELECT id_sede, nombre_sede FROM sedes WHERE id_localidad = ? ORDER BY nombre_sede";
+        $stmt = $conexion->prepare($sql);
+        $stmt->execute([$localidadId]);
+    } elseif ($sedeActualId > 0) {
+        $sql = "SELECT id_sede, nombre_sede FROM sedes WHERE id_localidad = ? AND (activo = 1 OR id_sede = ?) ORDER BY nombre_sede";
+        $stmt = $conexion->prepare($sql);
+        $stmt->execute([$localidadId, $sedeActualId]);
+    } else {
+        $sql = "SELECT id_sede, nombre_sede FROM sedes WHERE id_localidad = ? AND activo = 1 ORDER BY nombre_sede";
+        $stmt = $conexion->prepare($sql);
+        $stmt->execute([$localidadId]);
+    }
     $rows = $stmt->fetchAll();
     
     $sedes = array_map(function($r){

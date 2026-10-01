@@ -89,9 +89,19 @@ function registrarIntentoLogin($ip, $exitoso = false) {
  * @return bool
  */
 function estaAutenticado() {
-    return isset($_SESSION['usuario_id']) && 
-           isset($_SESSION['token_sesion']) && 
-           isset($_SESSION['ultimo_acceso']);
+    if (!isset($_SESSION['usuario_id']) || 
+        !isset($_SESSION['token_sesion']) || 
+        !isset($_SESSION['ultimo_acceso'])) {
+        return false;
+    }
+    
+    // Verificar timeout (30 minutos = 1800 segundos)
+    if (time() - (int)$_SESSION['ultimo_acceso'] > 1800) {
+        cerrarSesion();
+        return false;
+    }
+    
+    return true;
 }
 
 /**
@@ -254,6 +264,7 @@ function iniciarSesion($username, $password) {
         $_SESSION['id_rol'] = $usuario['id_rol'];
         $_SESSION['nombre_rol'] = $usuario['nombre_rol'];
         $_SESSION['ultimo_acceso'] = time();
+        $_SESSION['mostrar_bienvenida_login'] = true;
         
         // Registrar en auditoría
         registrarAuditoria('login', 'usuarios', "Login exitoso: {$usuario['username']}");
@@ -280,7 +291,13 @@ function iniciarSesion($username, $password) {
  * Cerrar sesión actual
  */
 function cerrarSesion() {
-    if (estaAutenticado()) {
+    // Si la sesión fue abierta en modo lectura (read_and_close) o no está activa,
+    // re-iniciarla en modo escritura para asegurar que session_destroy() elimine el archivo en disco.
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        @session_start();
+    }
+
+    if (isset($_SESSION['usuario_id'])) {
         try {
             $db = conectarDB();
             
@@ -309,7 +326,7 @@ function cerrarSesion() {
     }
     
     // Destruir sesión
-    session_destroy();
+    @session_destroy();
 }
 
 /**
@@ -546,3 +563,34 @@ function requerirRol($rolesPermitidos, $redirect = null) {
         exit;
     }
 }
+
+/**
+ * Crear una nueva notificación para un usuario
+ * @param int $id_usuario ID del usuario destinatario
+ * @param string $tipo Tipo de notificación (tarea_asignada, tarea_colaborativa, cambio_estado, nuevo_comentario)
+ * @param string $titulo Título de la notificación
+ * @param string $mensaje Contenido de la notificación
+ * @param string|null $url Enlace opcional a la tarea/pedido
+ * @return bool
+ */
+function crearNotificacion($id_usuario, $tipo, $titulo, $mensaje, $url = null) {
+    if (empty($id_usuario)) {
+        return false;
+    }
+    
+    try {
+        $db = conectarDB();
+        $sql = "INSERT INTO notificaciones (id_usuario, tipo, titulo, mensaje, url, mostrada, leida, fecha_creacion)
+                VALUES (?, ?, ?, ?, ?, 0, 0, NOW())";
+        $stmt = $db->prepare($sql);
+        return $stmt->execute([(int)$id_usuario, $tipo, $titulo, $mensaje, $url]);
+    } catch (Exception $e) {
+        Logger::error("Error al crear notificación", [
+            'mensaje' => $e->getMessage(),
+            'id_usuario' => $id_usuario,
+            'tipo' => $tipo
+        ]);
+        return false;
+    }
+}
+

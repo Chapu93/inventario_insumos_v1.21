@@ -16,6 +16,7 @@ $stmt = $db->query("SELECT i.id_insumo,
                            i.tipo_insumo,
                            i.numero_serie,
                            i.id_fisico,
+                           i.id_patrimonio,
                            i.cantidad,
                            ps.nombre_punto AS punto_stock,
                            pc.sist_op AS pc_sist_op,
@@ -127,13 +128,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $cantVarios = isset($_POST['cantidad_varios']) && is_array($_POST['cantidad_varios']) ? $_POST['cantidad_varios'] : [];
         foreach ($ids as $idIns) {
-            // Para tipo Varios, obtener cantidad_oficina y cantidad_deposito
-            $row = $db->prepare("SELECT tipo_insumo, cantidad, cantidad_oficina, cantidad_deposito FROM insumos WHERE id_insumo=? FOR UPDATE");
+            // Para tipo Varios, obtener cantidad_oficina y cantidad_deposito; para unitarios, verificar estado Disponible
+            $row = $db->prepare("SELECT tipo_insumo, nombre_insumo, numero_serie, estado, cantidad, cantidad_oficina, cantidad_deposito FROM insumos WHERE id_insumo=? FOR UPDATE");
             $row->execute([$idIns]);
             $ins = $row->fetch();
             if (!$ins) {
                 throw new Exception('Insumo no encontrado: ' . (int) $idIns);
             }
+
+            // Validar que el equipo unitario siga disponible
+            if ($ins['tipo_insumo'] !== 'Varios' && $ins['estado'] !== 'Disponible') {
+                $nombreMostrar = $ins['nombre_insumo'] ?: ($ins['tipo_insumo'] . ($ins['numero_serie'] ? " (S/N: {$ins['numero_serie']})" : ''));
+                throw new Exception("El insumo '{$nombreMostrar}' ya no se encuentra disponible (Estado actual: {$ins['estado']}).");
+            }
+
             $reps = 1;
             if ($ins['tipo_insumo'] === 'Varios') {
                 $sol = isset($cantVarios[$idIns]) ? max(1, (int) $cantVarios[$idIns]) : 1;
@@ -173,8 +181,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ->execute([$cantidadTotal, $nuevoOficina, $nuevoDeposito, $estado, $idIns]);
                 }
             } else {
-                $db->prepare("UPDATE insumos SET estado='Asignado', id_sede_actual=?, id_area_asignacion_actual=?, id_punto_stock_actual=NULL, es_nuevo = IF(es_nuevo = 1, 0, es_nuevo) WHERE id_insumo=?")
-                    ->execute([$idSede, $idArea, $idIns]);
+                $stmtUpd = $db->prepare("UPDATE insumos SET estado='Asignado', id_sede_actual=?, id_area_asignacion_actual=?, id_punto_stock_actual=NULL, es_nuevo = IF(es_nuevo = 1, 0, es_nuevo) WHERE id_insumo=? AND estado='Disponible'");
+                $stmtUpd->execute([$idSede, $idArea, $idIns]);
+                if ($stmtUpd->rowCount() === 0) {
+                    throw new Exception("Conflicto de concurrencia: El insumo ID {$idIns} fue asignado por otro usuario simultáneamente.");
+                }
             }
         }
 
@@ -220,7 +231,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h4 class="mb-0"><i class="fas fa-plus me-2"></i>Nueva Asignación (Pasos)</h4>
-            <a href="listar.php" class="btn btn-secondary"><i class="fas fa-arrow-left me-2"></i>Volver</a>
+            <a href="listar.php" class="btn btn-secondary btn-volver"><i class="fas fa-arrow-left me-2"></i>Volver</a>
         </div>
     </div>
 </div>
@@ -401,12 +412,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                     if ($displayName !== $originalName) {
                                                         $filterSource .= ' ' . $originalName;
                                                     }
-                                                    // Agregar id_fisico y numero_serie para búsqueda
+                                                    // Agregar id_fisico, id_patrimonio y numero_serie con y sin guiones para búsqueda
                                                     if (!empty($ins['id_fisico'])) {
-                                                        $filterSource .= ' ' . $ins['id_fisico'];
+                                                        $filterSource .= ' ' . $ins['id_fisico'] . ' ' . str_replace(['-', ' '], '', $ins['id_fisico']);
+                                                    }
+                                                    if (!empty($ins['id_patrimonio'])) {
+                                                        $filterSource .= ' ' . $ins['id_patrimonio'] . ' ' . str_replace(['-', ' '], '', $ins['id_patrimonio']);
                                                     }
                                                     if (!empty($ins['numero_serie'])) {
-                                                        $filterSource .= ' ' . $ins['numero_serie'];
+                                                        $filterSource .= ' ' . $ins['numero_serie'] . ' ' . str_replace(['-', ' '], '', $ins['numero_serie']);
                                                     }
                                                     $filterText = function_exists('mb_strtolower') ? mb_strtolower($filterSource, 'UTF-8') : strtolower($filterSource);
                                                     ?>
@@ -661,7 +675,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         function filtrarInsumos() {
             const tipo = ($('#filtro_tipo').val() || '').toLowerCase();
-            const q = ($('#filtro_busqueda').val() || '').toLowerCase();
+            const rawQ = ($('#filtro_busqueda').val() || '').trim().toLowerCase();
+            const qClean = rawQ.replace(/[- ]/g, '');
+
             $('.fila-insumo').each(function () {
                 const $f = $(this);
                 const t = ($f.data('tipo') || '').toLowerCase();
@@ -670,7 +686,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 let matches = true;
                 if (!selected) {
                     if (tipo && t !== tipo) matches = false;
-                    if (q && !txt.includes(q)) matches = false;
+                    if (rawQ) {
+                        const hasRaw = txt.includes(rawQ);
+                        const hasClean = qClean.length > 0 && txt.includes(qClean);
+                        if (!hasRaw && !hasClean) matches = false;
+                    }
                 }
                 
                 if (matches) {

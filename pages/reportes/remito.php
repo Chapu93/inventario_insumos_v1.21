@@ -32,7 +32,15 @@ if ($numero_remito !== '') {
     $cab = $stmt->fetch();
 
     if ($cab) {
-        $stmtDet = $conexion->prepare("SELECT i.nombre_insumo,
+        $id_insumo_filtro = 0;
+        if (isset($_GET['id_insumo']) && is_numeric($_GET['id_insumo'])) {
+            $id_insumo_filtro = (int)$_GET['id_insumo'];
+        } elseif (isset($_GET['insumo']) && is_numeric($_GET['insumo'])) {
+            $id_insumo_filtro = (int)$_GET['insumo'];
+        }
+
+        $sqlDet = "SELECT i.id_insumo,
+                                       i.nombre_insumo,
                                        i.tipo_insumo,
                                        i.numero_serie,
                                        i.id_fisico,
@@ -54,9 +62,15 @@ if ($numero_remito !== '') {
                                        LEFT JOIN impresoras imp ON imp.id_insumo = i.id_insumo
                                        LEFT JOIN monitores mon ON mon.id_insumo = i.id_insumo
                                        LEFT JOIN escaneres esc ON esc.id_insumo = i.id_insumo
-                                       WHERE r.numero_remito = ?
-                                       ORDER BY i.nombre_insumo");
-        $stmtDet->execute([$numero_remito]);
+                                       WHERE r.numero_remito = ?" . ($id_insumo_filtro > 0 ? " AND i.id_insumo = ?" : "") . "
+                                       ORDER BY i.nombre_insumo";
+        $paramsDet = [$numero_remito];
+        if ($id_insumo_filtro > 0) {
+            $paramsDet[] = $id_insumo_filtro;
+        }
+
+        $stmtDet = $conexion->prepare($sqlDet);
+        $stmtDet->execute($paramsDet);
         $items_remito = $stmtDet->fetchAll();
     }
 }
@@ -82,13 +96,21 @@ $asignaciones_recientes = $tieneRemitos ? [true] : [];
     <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0">
             <i class="fas fa-file-alt me-2"></i>Remito <?php echo htmlspecialchars($cab['numero_remito']); ?>
+            <?php if (!empty($id_insumo_filtro)): ?>
+                <span class="badge bg-secondary ms-2 fs-6">Individual: Insumo #<?php echo (int)$id_insumo_filtro; ?></span>
+            <?php endif; ?>
         </h5>
         <div class="btn-group">
+            <?php if (!empty($id_insumo_filtro)): ?>
+                <a class="btn btn-outline-primary btn-sm" href="?remito=<?php echo urlencode($cab['numero_remito']); ?>">
+                    <i class="fas fa-layer-group me-1"></i>Ver remito completo
+                </a>
+            <?php endif; ?>
             <a class="btn btn-outline-secondary btn-sm" href="?">
                 <i class="fas fa-list me-1"></i>Ver recientes
             </a>
-            <button type="button" class="btn btn-primary btn-sm" onclick="generarRemitoPDF('<?php echo htmlspecialchars($cab['numero_remito']); ?>')">
-                <i class="fas fa-print me-1"></i>Imprimir PDF
+            <button type="button" class="btn btn-primary btn-sm" onclick="generarRemitoPDF('<?php echo htmlspecialchars($cab['numero_remito'], ENT_QUOTES); ?>'<?php echo !empty($id_insumo_filtro) ? ', ' . (int)$id_insumo_filtro : ''; ?>)">
+                <i class="fas fa-print me-1"></i>Imprimir PDF<?php echo !empty($id_insumo_filtro) ? ' Individual' : ''; ?>
             </button>
         </div>
     </div>
@@ -166,7 +188,7 @@ $asignaciones_recientes = $tieneRemitos ? [true] : [];
                         <td><?php echo htmlspecialchars($tipo); ?></td>
                         <td><span class="badge bg-success"><?php echo isset($it['cantidad']) ? (int)$it['cantidad'] : 1; ?></span></td>
                         <td><small><?php echo htmlspecialchars($it['numero_serie'] ?: '-'); ?></small></td>
-                        <td><small><?php echo htmlspecialchars($it['id_fisico'] ?: '-'); ?></small></td>
+                        <td><small><?php echo htmlspecialchars($it['id_fisico'] ? str_replace(['-', ' '], '', $it['id_fisico']) : '-'); ?></small></td>
                     </tr>
                     <?php endforeach; ?>
                 </tbody>

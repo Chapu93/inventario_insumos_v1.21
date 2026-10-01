@@ -33,7 +33,7 @@ include '../../includes/header.php';
     <div class="col-lg-8">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="mb-0"><i class="fas fa-edit me-2 text-primary"></i>Editar Tarea Interna</h2>
-            <a href="ver.php?id=<?php echo $id; ?>" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-2"></i>Volver</a>
+            <a href="ver.php?id=<?php echo $id; ?>" class="btn btn-outline-secondary btn-volver"><i class="fas fa-arrow-left me-2"></i>Volver</a>
         </div>
 
         <div class="card shadow-sm border-0">

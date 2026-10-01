@@ -174,6 +174,7 @@ include '../../includes/header.php';
                     <option value="En Proceso" <?php echo $filtroEstado === 'En Proceso' ? 'selected' : ''; ?>>En Proceso</option>
                     <option value="Completado" <?php echo $filtroEstado === 'Completado' ? 'selected' : ''; ?>>Completado</option>
                     <option value="Rechazado" <?php echo $filtroEstado === 'Rechazado' ? 'selected' : ''; ?>>Rechazado</option>
+                    <option value="Sin Stock" <?php echo $filtroEstado === 'Sin Stock' ? 'selected' : ''; ?>>Sin Stock</option>
                 </select>
             </div>
             
@@ -381,7 +382,8 @@ $(document).ready(function() {
                         'Pendiente': 'bg-secondary',
                         'En Proceso': 'bg-primary',
                         'Completado': 'bg-success',
-                        'Rechazado': 'bg-danger'
+                        'Rechazado': 'bg-danger',
+                        'Sin Stock': 'bg-danger'
                     }[p.estado] || 'bg-secondary';
                     
                     html += '<tr>';

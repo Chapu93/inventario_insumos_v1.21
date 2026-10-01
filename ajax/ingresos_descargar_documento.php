@@ -52,9 +52,10 @@ try {
     
     $mimeType = $mimeTypes[$extension] ?? 'application/octet-stream';
     
-    // Enviar archivo
+    // Enviar archivo: inline para visor (si viene ver=1 o inline=1) o attachment para forzar descarga
+    $disposition = ((isset($_GET['ver']) && $_GET['ver'] == '1') || (isset($_GET['inline']) && $_GET['inline'] == '1')) ? 'inline' : 'attachment';
     header('Content-Type: ' . $mimeType);
-    header('Content-Disposition: attachment; filename="' . basename($documento['nombre_archivo']) . '"');
+    header('Content-Disposition: ' . $disposition . '; filename="' . basename($documento['nombre_archivo']) . '"');
     header('Content-Length: ' . filesize($rutaArchivo));
     header('Cache-Control: must-revalidate');
     header('Pragma: public');

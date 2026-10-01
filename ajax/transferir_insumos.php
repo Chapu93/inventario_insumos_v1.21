@@ -164,15 +164,23 @@ try {
 
         // 3. Actualizar estado del insumo
         if ($det['tipo_insumo'] === 'Varios') {
-            // Para tipo Varios, el estado se mantiene Asignado, solo cambia destino
+            // Para tipo Varios, la asignación física vive en remitos_detalle.
+            // En la tabla insumos, si aún queda stock central (oficina o depósito),
+            // debe mantenerse Disponible y con ubicación NULL (no atado a la sede de un remito particular).
+            $stmtStock = $db->prepare("SELECT cantidad_oficina, cantidad_deposito FROM insumos WHERE id_insumo = ?");
+            $stmtStock->execute([$idInsumo]);
+            $stk = $stmtStock->fetch(PDO::FETCH_ASSOC);
+            $stockRemanente = (int)($stk['cantidad_oficina'] ?? 0) + (int)($stk['cantidad_deposito'] ?? 0);
+            $nuevoEstado = ($stockRemanente > 0) ? 'Disponible' : 'Asignado';
+
             $db->prepare(
                 "UPDATE insumos
-                 SET estado = 'Asignado',
-                     id_sede_actual = ?,
-                     id_area_asignacion_actual = ?,
+                 SET estado = ?,
+                     id_sede_actual = NULL,
+                     id_area_asignacion_actual = NULL,
                      id_punto_stock_actual = NULL
                  WHERE id_insumo = ?"
-            )->execute([$idSedeDestino, $idAreaDestino, $idInsumo]);
+            )->execute([$nuevoEstado, $idInsumo]);
         } else {
             // Para unitarios (PC, Notebook, Monitor, etc.)
             $db->prepare(

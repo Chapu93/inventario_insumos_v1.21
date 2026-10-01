@@ -10,14 +10,13 @@ if (!tienePermiso('asignaciones', 'ver')) {
 }
 
 try {
-    if (!isset($_GET['remito']) || $_GET['remito'] === '') {
+    $numero = trim((string)($_GET['remito'] ?? ($_GET['numero'] ?? '')));
+    if ($numero === '') {
         json_error('Remito requerido', 400);
     }
-
-    $numero = $_GET['remito'];
     $db = conectarDB();
 
-    // Cabecera del remito
+    // Cabecera del remito (acepta número de remito o id_remito)
     $stmt = $db->prepare("SELECT r.id_remito, r.numero_remito, r.fecha_asignacion, r.estado, r.fecha_devolucion, r.observaciones, r.nota_solicitud,
                                  r.nombre_persona_asignada, r.apellido_persona_asignada,
                                  r.motivo_anulacion, r.fecha_anulacion,
@@ -27,9 +26,9 @@ try {
                           JOIN sedes s ON r.id_sede = s.id_sede
                           JOIN localidades l ON s.id_localidad = l.id_localidad
                           JOIN zonas z ON l.id_zona = z.id_zona
-                          WHERE r.numero_remito = ?
+                          WHERE r.numero_remito = ? OR r.id_remito = ?
                           LIMIT 1");
-    $stmt->execute([$numero]);
+    $stmt->execute([$numero, is_numeric($numero) ? (int)$numero : 0]);
     $cab = $stmt->fetch();
     if (!$cab) {
         json_error('Remito no encontrado', 404);
@@ -73,6 +72,7 @@ try {
                    pc.procesador AS pc_procesador,
                    pc.ram_gb AS pc_ram,
                    pc.almacenamiento_gb AS pc_disco,
+                   pc.almacenamiento_secundario_gb AS pc_disco_sec,
                    pc.mother AS pc_mother,
                    nb.procesador AS nb_procesador,
                    nb.ram_gb AS nb_ram,
@@ -90,13 +90,43 @@ try {
     $stmt->execute([$idRemito]);
     $items = $stmt->fetchAll();
 
+    // Obtener devoluciones asociadas a este remito
+    $devoluciones = [];
+    try {
+        $stmtDev = $db->prepare("SELECT rd.id_remito_devolucion, rd.numero_devolucion, rd.fecha_devolucion,
+                                        rd.persona_entrega, rd.observaciones, rd.remito_firmado,
+                                        COALESCE(NULLIF(TRIM(CONCAT(u.nombre, ' ', u.apellido)), ''), u.username) AS usuario_receptor
+                                 FROM remitos_devolucion rd
+                                 LEFT JOIN usuarios u ON rd.id_usuario_receptor = u.id_usuario
+                                 WHERE rd.id_remito_origen = ?
+                                 ORDER BY rd.fecha_devolucion DESC, rd.id_remito_devolucion DESC");
+        $stmtDev->execute([$idRemito]);
+        $devoluciones = $stmtDev->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($devoluciones as &$devItem) {
+            $devItem['fecha_devolucion_formatted'] = !empty($devItem['fecha_devolucion']) ? date('d/m/Y H:i', strtotime($devItem['fecha_devolucion'])) : '-';
+            $stmtDevItems = $db->prepare("SELECT rdd.id_insumo, rdd.cantidad, rdd.destino, rdd.motivo_baja,
+                                                 i.nombre_insumo, i.tipo_insumo, i.numero_serie, i.id_fisico
+                                          FROM remitos_devolucion_detalle rdd
+                                          JOIN insumos i ON rdd.id_insumo = i.id_insumo
+                                          WHERE rdd.id_remito_devolucion = ?
+                                          ORDER BY i.nombre_insumo");
+            $stmtDevItems->execute([$devItem['id_remito_devolucion']]);
+            $devItem['items'] = $stmtDevItems->fetchAll(PDO::FETCH_ASSOC);
+        }
+        unset($devItem);
+    } catch (Exception $eDev) {
+        $devoluciones = [];
+    }
+
     Logger::debug('Detalle de remito cargado', [
         'numero_remito' => $numero,
         'estado' => $cab['estado'],
-        'items_count' => count($items)
+        'items_count' => count($items),
+        'devoluciones_count' => count($devoluciones)
     ]);
 
-    json_success(['cab' => $cab, 'items' => $items]);
+    json_success(['cab' => $cab, 'items' => $items, 'devoluciones' => $devoluciones]);
 
 } catch (Exception $e) {
     Logger::error('Error al cargar detalle de remito', [

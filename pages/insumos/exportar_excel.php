@@ -145,6 +145,7 @@ try {
                        MAX(pc.procesador) AS pc_procesador,
                        MAX(pc.ram_gb) AS pc_ram,
                        MAX(pc.almacenamiento_gb) AS pc_disco,
+                       MAX(pc.almacenamiento_secundario_gb) AS pc_disco_sec,
                        MAX(nb.marca) AS nb_marca,
                        MAX(nb.modelo) AS nb_modelo,
                        MAX(nb.procesador) AS nb_procesador,
@@ -321,8 +322,14 @@ try {
                             $proc = trim((string)$r['pc_procesador']);
                             $ram = trim((string)$r['pc_ram']);
                             $disco = trim((string)$r['pc_disco']);
+                            $discoSec = trim((string)($r['pc_disco_sec'] ?? ''));
+                            if ($discoSec !== '') {
+                                $discoTexto = ($disco !== '' ? $disco . ' GB' : '-') . " + " . $discoSec . " GB";
+                            } else {
+                                $discoTexto = $disco !== '' ? $disco . ' GB' : '-';
+                            }
                             $so = trim((string)$r['pc_sist_op']);
-                            $detallesTecnicos = "Proc: " . ($proc !== '' ? $proc : '-') . " | RAM: " . ($ram !== '' ? $ram : '-') . " | Disco: " . ($disco !== '' ? $disco : '-') . " | SO: " . ($so !== '' ? $so : '-');
+                            $detallesTecnicos = "Proc: " . ($proc !== '' ? $proc : '-') . " | RAM: " . ($ram !== '' ? $ram : '-') . " | Disco: " . $discoTexto . " | SO: " . ($so !== '' ? $so : '-');
                         } else if ($tipo === 'Notebook') {
                             $proc = trim((string)$r['nb_procesador']);
                             $ram = trim((string)$r['nb_ram']);
@@ -358,7 +365,7 @@ try {
                             <td class="data-cell" style="text-align: center;"><?php echo htmlspecialchars($tipo); ?></td>
                             <td class="data-cell" style="text-align: center;"><?php echo $cantidadVal; ?></td>
                             <td class="data-cell text" style="text-align: center;"><?php echo htmlspecialchars($r['numero_serie'] !== '' ? $r['numero_serie'] : '-'); ?></td>
-                            <td class="data-cell text" style="text-align: center;"><?php echo htmlspecialchars($r['id_fisico'] !== '' ? $r['id_fisico'] : '-'); ?></td>
+                            <td class="data-cell text" style="text-align: center;"><?php echo htmlspecialchars($r['id_fisico'] !== '' ? str_replace(['-', ' '], '', $r['id_fisico']) : '-'); ?></td>
                             <td class="data-cell" style="font-size: 11px;"><?php echo htmlspecialchars($detallesTecnicos); ?></td>
                         </tr>
                     <?php endforeach; ?>

@@ -165,6 +165,7 @@ $total_mis_cosas = $total_mis_pedidos + $total_mis_tareas;
                 <option value="Preparado">Preparado</option>
                 <option value="Completado">Completado</option>
                 <option value="Rechazado">Rechazado</option>
+                <option value="Sin Stock">Sin Stock</option>
             </select>
         </div>
         
@@ -644,12 +645,35 @@ $(function() {
         }
     });
 
-    // Activar la pestaña activa por defecto para disparar la carga inicial
-    const $activeTab = $('#pedidosTabs .nav-link.active');
-    if ($activeTab.length > 0) {
-        $activeTab.trigger('shown.bs.tab');
+    // Activar la pestaña activa por defecto o por parámetro URL (tab o modo) o desde sessionStorage
+    const urlParams = new URLSearchParams(window.location.search);
+    const guardado = window.SITIA_Filtros ? window.SITIA_Filtros.obtener() : null;
+    const modoParam = urlParams.get('tab') || urlParams.get('modo') || (guardado && guardado._tab_modo ? guardado._tab_modo : null);
+    let $targetTab = null;
+
+    if (guardado) {
+        if (guardado.estado) $('#filtroEstado').val(guardado.estado);
+        if (guardado.prioridad) $('#filtroPrioridad').val(guardado.prioridad);
+        if (guardado.logistica) $('#filtroLogistica').val(guardado.logistica);
+        if (guardado.asignado_a) $('#filtroAsignado').val(guardado.asignado_a);
+        if (guardado.vista) $('#filtroVista').val(guardado.vista);
+    }
+
+    if (modoParam) {
+        $targetTab = $(`#pedidosTabs button[data-modo="${modoParam}"]`);
+    }
+
+    if ($targetTab && $targetTab.length > 0) {
+        $('#pedidosTabs .nav-link').removeClass('active');
+        $targetTab.addClass('active');
+        $targetTab.trigger('shown.bs.tab');
     } else {
-        adaptarFiltros($('#filtroModo').val());
+        const $activeTab = $('#pedidosTabs .nav-link.active');
+        if ($activeTab.length > 0) {
+            $activeTab.trigger('shown.bs.tab');
+        } else {
+            adaptarFiltros($('#filtroModo').val());
+        }
     }
 
     // Manejar envío del formulario de filtros
@@ -689,7 +713,7 @@ $(function() {
         if (imp && (typeof imp === 'string') && imp.trim() !== '') {
             const base = (typeof getAppBase === 'function') ? getAppBase() : '';
             const printUrl = `${base}/pages/reportes/remito_pdf.php?remito=${encodeURIComponent(imp)}`;
-            window.open(printUrl, 'remitoPrint');
+            abrirVisorPDF(printUrl, `Remito Nº ${imp}`);
             url.searchParams.delete('imprimir');
             window.history.replaceState({}, document.title, url.toString());
         }
@@ -808,7 +832,7 @@ function abrirModalAsignar(id) {
 function imprimirRemito(num) {
     if(!num) return;
     const url = '<?php echo app_base_url(); ?>/pages/reportes/remito_pdf.php?remito=' + encodeURIComponent(num);
-    window.open(url, 'remitoPrint');
+    abrirVisorPDF(url, 'Remito Nº ' + num);
 }
 
 // Handler para botón de asignación
@@ -960,6 +984,7 @@ function adaptarFiltros(modo) {
         <option value="Preparado">Preparado</option>
         <option value="Completado">Completado</option>
         <option value="Rechazado">Rechazado</option>
+        <option value="Sin Stock">Sin Stock</option>
     `);
 
     // Ocultar todo por defecto y mostrar solo lo necesario
@@ -1220,7 +1245,7 @@ function verTarea(id) {
                 + '<div class="col-md-6"><label class="fw-bold text-muted small">FECHA FINALIZACIÓN</label>' +
                   '<p class="mb-0">' + fechaFin + '</p></div>'
                 + (t.comentario ? '<div class="col-12 mt-3"><label class="fw-bold text-muted small">COMENTARIO FINAL</label><div class="p-2 bg-light border rounded" style="white-space:pre-wrap">' + $('<span>').text(t.comentario).html() + '</div></div>' : '')
-                + (t.adjunto_path ? '<div class="col-12 mt-2"><label class="fw-bold text-muted small">ADJUNTO</label><br><a href="<?php echo app_base_url(); ?>/uploads/tareas/' + t.adjunto_path + '" target="_blank" class="btn btn-sm btn-outline-primary mt-1"><i class="fas fa-paperclip me-1"></i>Ver adjunto</a></div>' : '');
+                + (t.adjunto_path ? '<div class="col-12 mt-2"><label class="fw-bold text-muted small">ADJUNTO</label><br><a href="<?php echo app_base_url(); ?>/uploads/tareas/' + t.adjunto_path + '" data-visor-archivo="<?php echo app_base_url(); ?>/uploads/tareas/' + t.adjunto_path + '" data-visor-titulo="Adjunto Tarea #' + t.id_tarea + '" target="_blank" class="btn btn-sm btn-outline-primary mt-1"><i class="fas fa-paperclip me-1"></i>Ver adjunto</a></div>' : '');
 
             // Sección de comentarios
             html += '<div class="col-12 mt-4"><hr class="border-2 opacity-25">'

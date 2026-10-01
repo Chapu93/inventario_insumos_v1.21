@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="sitia-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5cab7d" />
+      <stop offset="100%" stop-color="#46885f" />
+    </linearGradient>
+    <filter id="box-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="1.5" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+  <!-- Background squircle -->
+  <rect width="64" height="64" rx="14" fill="url(#sitia-bg)" />
+  
+  <!-- Stacked inventory box icon -->
+  <g filter="url(#box-shadow)">
+    <!-- Top Face -->
+    <polygon points="32,14 48,22.5 32,31 16,22.5" fill="#ffffff" />
+    <!-- Left Face -->
+    <polygon points="16,22.5 32,31 32,47 16,38.5" fill="#d1ebd8" />
+    <!-- Right Face -->
+    <polygon points="32,31 48,22.5 48,38.5 32,47" fill="#a5d8b4" />
+    <!-- Center seam & tape -->
+    <line x1="32" y1="31" x2="32" y2="47" stroke="#3b7a54" stroke-width="1.5" />
+    <line x1="32" y1="14" x2="32" y2="31" stroke="#3b7a54" stroke-width="1.2" stroke-opacity="0.5" />
+    <circle cx="32" cy="31" r="2" fill="#3b7a54" />
+  </g>
+</svg>

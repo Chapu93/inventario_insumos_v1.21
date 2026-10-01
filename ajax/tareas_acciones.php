@@ -79,8 +79,13 @@ try {
                  VALUES (?, ?, ?, ?, ?, ?)"
             );
             $stmt->execute([$titulo, $descripcion, $estado, $usuarioId, $asignadoA, $esColaborativa]);
+            $nuevaTareaId = $db->lastInsertId();
 
-            json_success(['mensaje' => 'Tarea creada correctamente', 'id' => $db->lastInsertId()]);
+            if ($asignadoA && $asignadoA != $usuarioId) {
+                crearNotificacion($asignadoA, 'tarea_asignada', 'Nueva Tarea Asignada', "Se te ha asignado la tarea: {$titulo}", app_base_url() . "/pages/pedidos/listar.php");
+            }
+
+            json_success(['mensaje' => 'Tarea creada correctamente', 'id' => $nuevaTareaId]);
             break;
 
         // ──────────────────────────────────────────────
@@ -92,7 +97,7 @@ try {
 
             $db->beginTransaction();
 
-            $stmt = $db->prepare("SELECT estado, asignado_a, es_colaborativa FROM tareas_internas WHERE id_tarea = ?");
+            $stmt = $db->prepare("SELECT estado, asignado_a, es_colaborativa, creado_por, titulo FROM tareas_internas WHERE id_tarea = ?");
             $stmt->execute([$id]);
             $tarea = $stmt->fetch();
 
@@ -106,6 +111,11 @@ try {
 
             $stmt = $db->prepare("UPDATE tareas_internas SET asignado_a = ?, estado = 'En Proceso' WHERE id_tarea = ?");
             $stmt->execute([$usuarioId, $id]);
+
+            if ($tarea['creado_por'] && $tarea['creado_por'] != $usuarioId) {
+                $nombreUsuario = $_SESSION['nombre_completo'] ?? 'Un técnico';
+                crearNotificacion($tarea['creado_por'], 'cambio_estado', 'Tarea Tomada', "{$nombreUsuario} tomó la tarea: {$tarea['titulo']}", app_base_url() . "/pages/pedidos/listar.php");
+            }
 
             $db->commit();
             json_success(['mensaje' => 'Tarea tomada correctamente']);
@@ -128,7 +138,7 @@ try {
             $userDestino = $stmtU->fetch();
             if (!$userDestino) { $db->rollBack(); json_error('Usuario no encontrado o inactivo', 400); }
 
-            $stmtT = $db->prepare("SELECT estado, es_colaborativa FROM tareas_internas WHERE id_tarea = ?");
+            $stmtT = $db->prepare("SELECT estado, es_colaborativa, titulo FROM tareas_internas WHERE id_tarea = ?");
             $stmtT->execute([$id]);
             $tarea = $stmtT->fetch();
             if (!$tarea) { $db->rollBack(); json_error('Tarea no encontrada', 404); }
@@ -137,6 +147,10 @@ try {
 
             $stmt = $db->prepare("UPDATE tareas_internas SET asignado_a = ?, estado = 'En Proceso' WHERE id_tarea = ?");
             $stmt->execute([$asignadoA, $id]);
+
+            if ($asignadoA != $usuarioId) {
+                crearNotificacion($asignadoA, 'tarea_asignada', 'Nueva Tarea Asignada', "Se te ha asignado la tarea: {$tarea['titulo']}", app_base_url() . "/pages/pedidos/listar.php");
+            }
 
             $db->commit();
             json_success(['mensaje' => 'Tarea asignada a ' . $userDestino['nombre'] . ' ' . $userDestino['apellido']]);
@@ -151,7 +165,7 @@ try {
 
             $db->beginTransaction();
 
-            $stmt = $db->prepare("SELECT estado, asignado_a, es_colaborativa FROM tareas_internas WHERE id_tarea = ?");
+            $stmt = $db->prepare("SELECT estado, asignado_a, es_colaborativa, creado_por, titulo FROM tareas_internas WHERE id_tarea = ?");
             $stmt->execute([$id]);
             $tarea = $stmt->fetch();
 
@@ -205,6 +219,11 @@ try {
                  WHERE id_tarea = ?"
             );
             $stmt->execute([$usuarioId, $comentario, $adjuntoPath, $id]);
+
+            if ($tarea['creado_por'] && $tarea['creado_por'] != $usuarioId) {
+                $nombreUsuario = $_SESSION['nombre_completo'] ?? 'Un técnico';
+                crearNotificacion($tarea['creado_por'], 'cambio_estado', 'Tarea Completada', "{$nombreUsuario} completó la tarea: {$tarea['titulo']}", app_base_url() . "/pages/pedidos/listar.php");
+            }
 
             $db->commit();
             json_success(['mensaje' => 'Tarea marcada como completada']);
@@ -373,7 +392,7 @@ try {
             if (empty($comentario))   json_error('El comentario no puede estar vacío', 400);
 
             // Verificar que la tarea existe y no esté completada
-            $stmtT = $db->prepare("SELECT estado FROM tareas_internas WHERE id_tarea = ?");
+            $stmtT = $db->prepare("SELECT estado, creado_por, asignado_a, titulo FROM tareas_internas WHERE id_tarea = ?");
             $stmtT->execute([$id_tarea]);
             $tarea = $stmtT->fetch();
             if (!$tarea) json_error('Tarea no encontrada', 404);
@@ -384,6 +403,31 @@ try {
                  VALUES (?, ?, ?)"
             );
             $stmt->execute([$id_tarea, $usuarioId, $comentario]);
+
+            // Notificar al creador de la tarea si no es quien comenta
+            $nombreComentador = $_SESSION['nombre_completo'] ?? 'Un usuario';
+            $comentarioResumen = (mb_strlen($comentario) > 60) ? mb_substr($comentario, 0, 57) . '...' : $comentario;
+
+            if ($tarea['creado_por'] && $tarea['creado_por'] != $usuarioId) {
+                crearNotificacion(
+                    $tarea['creado_por'],
+                    'nuevo_comentario',
+                    'Nuevo Comentario en Tarea',
+                    "{$nombreComentador} comentó en la tarea '{$tarea['titulo']}': \"{$comentarioResumen}\"",
+                    app_base_url() . "/pages/pedidos/listar.php?tab=tareas_internas"
+                );
+            }
+
+            // Notificar también al técnico asignado si no es quien comenta ni es el creador
+            if ($tarea['asignado_a'] && $tarea['asignado_a'] != $usuarioId && $tarea['asignado_a'] != $tarea['creado_por']) {
+                crearNotificacion(
+                    $tarea['asignado_a'],
+                    'nuevo_comentario',
+                    'Nuevo Comentario en Tarea',
+                    "{$nombreComentador} comentó en la tarea '{$tarea['titulo']}': \"{$comentarioResumen}\"",
+                    app_base_url() . "/pages/pedidos/listar.php?tab=mis_pedidos"
+                );
+            }
 
             json_success(['mensaje' => 'Comentario agregado correctamente']);
             break;

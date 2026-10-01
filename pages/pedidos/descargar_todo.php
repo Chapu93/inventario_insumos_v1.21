@@ -134,8 +134,9 @@ try {
     // Limpiar cualquier salida accidental antes del PDF final
     if (ob_get_level()) ob_end_clean();
     
-    // Salida del PDF final
-    $mergedPdf->Output('D', 'Pedido_' . $id . '_Completo.pdf');
+    // Salida del PDF final: Inline ('I') por defecto o Descarga ('D') si viene descargar=1
+    $destMerged = (isset($_GET['descargar']) && $_GET['descargar'] === '1') ? 'D' : 'I';
+    $mergedPdf->Output($destMerged, 'Pedido_' . $id . '_Completo.pdf');
 
 } catch (Exception $e) {
     die('Error al generar el documento unificado: ' . $e->getMessage());

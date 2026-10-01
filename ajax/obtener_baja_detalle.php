@@ -150,8 +150,8 @@ try {
                             </div>
                             <?php if ($idPedidoAsociado): ?>
                                 <div class="mt-3">
-                                    <a href="<?php echo app_base_url(); ?>/pages/pedidos/informe_pdf.php?id=<?php echo $idPedidoAsociado; ?>" target="_blank" class="btn btn-outline-danger btn-sm w-100 py-2 fw-bold">
-                                        <i class="fas fa-file-pdf me-2"></i>Descargar Informe Técnico
+                                    <a href="<?php echo app_base_url(); ?>/pages/pedidos/informe_pdf.php?id=<?php echo $idPedidoAsociado; ?>" data-visor-pdf="<?php echo app_base_url(); ?>/pages/pedidos/informe_pdf.php?id=<?php echo $idPedidoAsociado; ?>" data-visor-titulo="Informe Técnico - Insumo de Baja" target="_blank" class="btn btn-outline-danger btn-sm w-100 py-2 fw-bold">
+                                        <i class="fas fa-file-pdf me-2"></i>Ver / Imprimir Informe Técnico
                                     </a>
                                 </div>
                             <?php endif; ?>
@@ -236,8 +236,33 @@ try {
                                     <strong>RAM:</strong> <?php echo htmlspecialchars($datos_especificos['ram_gb'] ? $datos_especificos['ram_gb'] . ' GB' : 'No especificada'); ?>
                                 </div>
                                 <div class="col-12 mb-2">
-                                    <strong>Almacenamiento:</strong> <?php echo htmlspecialchars($datos_especificos['almacenamiento_gb'] ? $datos_especificos['almacenamiento_gb'] . ' GB' : 'No especificado'); ?>
+                                    <strong>Almacenamiento:</strong> 
+                                    <?php 
+                                    if (!empty($datos_especificos['almacenamiento_gb'])) {
+                                        $gbInt = (int)$datos_especificos['almacenamiento_gb'];
+                                        $capTxt = ($gbInt >= 1024 && $gbInt % 1024 === 0) ? ($gbInt / 1024) . ' TB' : $gbInt . ' GB';
+                                        $badge = !empty($datos_especificos['ssd_o_superior']) 
+                                            ? '<span class="badge bg-success ms-1"><i class="fas fa-bolt me-1"></i>SSD</span>' 
+                                            : '<span class="badge bg-secondary ms-1"><i class="fas fa-hdd me-1"></i>HDD</span>';
+                                        echo htmlspecialchars($capTxt) . ' ' . $badge;
+                                    } else {
+                                        echo 'No especificado';
+                                    }
+                                    ?>
                                 </div>
+                                <?php if (!empty($datos_especificos['almacenamiento_secundario_gb'])): ?>
+                                <div class="col-12 mb-2">
+                                    <strong>Almacenamiento Secundario:</strong> 
+                                    <?php 
+                                    $gbIntSec = (int)$datos_especificos['almacenamiento_secundario_gb'];
+                                    $capTxtSec = ($gbIntSec >= 1024 && $gbIntSec % 1024 === 0) ? ($gbIntSec / 1024) . ' TB' : $gbIntSec . ' GB';
+                                    $badgeSec = !empty($datos_especificos['ssd_secundario']) 
+                                        ? '<span class="badge bg-success ms-1"><i class="fas fa-bolt me-1"></i>SSD</span>' 
+                                        : '<span class="badge bg-secondary ms-1"><i class="fas fa-hdd me-1"></i>HDD</span>';
+                                    echo htmlspecialchars($capTxtSec) . ' ' . $badgeSec;
+                                    ?>
+                                </div>
+                                <?php endif; ?>
                                 <div class="col-12 mb-2">
                                     <strong>Sistema Operativo:</strong> <?php echo htmlspecialchars($datos_especificos['sist_op'] ?: 'No especificado'); ?>
                                 </div>
@@ -255,6 +280,21 @@ try {
                                 </div>
                                 <div class="col-12 mb-2">
                                     <strong>RAM:</strong> <?php echo htmlspecialchars($datos_especificos['ram_gb'] ? $datos_especificos['ram_gb'] . ' GB' : 'No especificada'); ?>
+                                </div>
+                                <div class="col-12 mb-2">
+                                    <strong>Almacenamiento:</strong> 
+                                    <?php 
+                                    if (!empty($datos_especificos['almacenamiento_gb'])) {
+                                        $gbInt = (int)$datos_especificos['almacenamiento_gb'];
+                                        $capTxt = ($gbInt >= 1024 && $gbInt % 1024 === 0) ? ($gbInt / 1024) . ' TB' : $gbInt . ' GB';
+                                        $badge = !empty($datos_especificos['ssd_o_superior']) 
+                                            ? '<span class="badge bg-success ms-1"><i class="fas fa-bolt me-1"></i>SSD</span>' 
+                                            : '<span class="badge bg-secondary ms-1"><i class="fas fa-hdd me-1"></i>HDD</span>';
+                                        echo htmlspecialchars($capTxt) . ' ' . $badge;
+                                    } else {
+                                        echo 'No especificado';
+                                    }
+                                    ?>
                                 </div>
                             </div>
                         <?php elseif ($baja['tipo_insumo'] === 'Impresora' || $baja['tipo_insumo'] === 'Monitor' || $baja['tipo_insumo'] === 'Escaner'): ?>

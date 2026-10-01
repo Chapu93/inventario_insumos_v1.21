@@ -295,6 +295,59 @@ function generarNumeroRemito($dbParam = null) {
     }
 }
 
+// Función para generar números de remito de devolución únicos con formato nnnn_yyyy_DEV
+function generarNumeroRemitoDevolucion($dbParam = null) {
+    $db = $dbParam instanceof PDO ? $dbParam : conectarDB();
+    $anio = (int)date('Y');
+    try {
+        $ownTxn = !$db->inTransaction();
+        if ($ownTxn) { $db->beginTransaction(); }
+        
+        // Crear fila si no existe
+        $stmtIns = $db->prepare("INSERT INTO remito_devolucion_secuencia (anio, ultimo) VALUES (?, 0) ON DUPLICATE KEY UPDATE ultimo = ultimo");
+        $stmtIns->execute([$anio]);
+        
+        // Obtener el último número y bloquearlo para evitar duplicados
+        $stmtSel = $db->prepare("SELECT ultimo FROM remito_devolucion_secuencia WHERE anio = ? FOR UPDATE");
+        $stmtSel->execute([$anio]);
+        $row = $stmtSel->fetch();
+        $actual = $row && isset($row['ultimo']) ? (int)$row['ultimo'] : 0;
+        $numeroAUsar = $actual + 1;
+        
+        // Actualizar secuencia
+        $stmtUpd = $db->prepare("UPDATE remito_devolucion_secuencia SET ultimo = ? WHERE anio = ?");
+        $stmtUpd->execute([$numeroAUsar, $anio]);
+
+        if ($ownTxn) { $db->commit(); }
+        
+        $formato = sprintf('%04d_%d_DEV', $numeroAUsar, $anio);
+        Logger::info("Remito de devolución generado", ['numero' => $numeroAUsar, 'anio' => $anio, 'formato' => $formato]);
+        return $formato;
+    } catch (Throwable $e) {
+        if (isset($ownTxn) && $ownTxn && $db->inTransaction()) { $db->rollBack(); }
+        Logger::error("Error en generarNumeroRemitoDevolucion", ['error' => $e->getMessage()]);
+        // Fallback: obtener el máximo número existente y sumar 1
+        $stmt = $db->prepare("SELECT numero_devolucion FROM remitos_devolucion WHERE numero_devolucion LIKE ? ORDER BY numero_devolucion DESC LIMIT 1");
+        $stmt->execute(["%_{$anio}_DEV"]);
+        $ultimo = $stmt->fetch();
+        $secuencia = 0;
+        if ($ultimo && isset($ultimo['numero_devolucion'])) {
+            $partes = explode('_', $ultimo['numero_devolucion']);
+            if (!empty($partes[0]) && ctype_digit($partes[0])) {
+                $secuencia = (int)$partes[0];
+            }
+        }
+        do {
+            $secuencia++;
+            $numero = sprintf('%04d_%d_DEV', $secuencia, $anio);
+            $stmtCheck = $db->prepare("SELECT COUNT(*) FROM remitos_devolucion WHERE numero_devolucion = ?");
+            $stmtCheck->execute([$numero]);
+            $existe = (int)$stmtCheck->fetchColumn() > 0;
+        } while ($existe);
+        return $numero;
+    }
+}
+
 // Función para generar números de informe técnico únicos con formato nnnn_yyyy
 function generarNumeroInforme($dbParam = null) {
     $db = $dbParam instanceof PDO ? $dbParam : conectarDB();
@@ -492,6 +545,116 @@ function procesarArchivoAdjunto($archivo, $id_ingreso, $tipo_documento, $uploadD
         @unlink($rutaCompleta);
         Logger::error("Error al registrar documento en BD", ['error' => $e->getMessage()]);
         return ['success' => false, 'error' => 'Error al registrar documento: ' . $e->getMessage()];
+    }
+}
+
+/**
+ * Obtener las opciones activas de almacenamiento (catálogo de capacidades de disco)
+ * Incluye respaldo en memoria si la tabla aún no existe o está inaccesible.
+ *
+ * @param PDO|null $pdo Opcional. Conexión PDO activa.
+ * @return array Lista de opciones con 'capacidad_gb' y 'etiqueta'
+ */
+function obtenerOpcionesAlmacenamiento(?PDO $pdo = null): array {
+    static $cacheOpciones = null;
+    if ($cacheOpciones !== null) {
+        return $cacheOpciones;
+    }
+
+    try {
+        $db = $pdo ?: conectarDB();
+        $stmt = $db->query("SELECT capacidad_gb, etiqueta FROM opciones_almacenamiento WHERE activo = 1 ORDER BY orden ASC");
+        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if (!empty($resultados)) {
+            $cacheOpciones = $resultados;
+            return $cacheOpciones;
+        }
+    } catch (Exception $e) {
+        // En caso de que la tabla aún no exista (ej. ventana de despliegue)
+        Logger::error("Error al consultar opciones_almacenamiento", ['error' => $e->getMessage()]);
+    }
+
+    // Fallback estándar en memoria para garantizar que el sistema nunca falle
+    $cacheOpciones = [
+        ['capacidad_gb' => 32, 'etiqueta' => '32 GB'],
+        ['capacidad_gb' => 80, 'etiqueta' => '80 GB'],
+        ['capacidad_gb' => 160, 'etiqueta' => '160 GB'],
+        ['capacidad_gb' => 256, 'etiqueta' => '256 GB'],
+        ['capacidad_gb' => 320, 'etiqueta' => '320 GB'],
+        ['capacidad_gb' => 480, 'etiqueta' => '480 GB'],
+        ['capacidad_gb' => 512, 'etiqueta' => '512 GB'],
+        ['capacidad_gb' => 1024, 'etiqueta' => '1 TB (1024 GB)'],
+        ['capacidad_gb' => 2048, 'etiqueta' => '2 TB (2048 GB)'],
+        ['capacidad_gb' => 4096, 'etiqueta' => '4 TB (4096 GB)'],
+        ['capacidad_gb' => 8192, 'etiqueta' => '8 TB (8192 GB)'],
+        ['capacidad_gb' => 16384, 'etiqueta' => '16 TB (16384 GB)'],
+    ];
+
+    return $cacheOpciones;
+}
+
+/**
+ * Obtener listado de motherboards del catálogo oficial
+ * 
+ * @param PDO|null $pdo Opcional. Conexión PDO activa.
+ * @param bool $soloActivos Filtrar solo modelos activos (default: true).
+ * @return array Lista de motherboards ordenadas por marca y modelo.
+ */
+function obtenerCatalogoMotherboards(?PDO $pdo = null, bool $soloActivos = true): array {
+    try {
+        $db = $pdo ?: conectarDB();
+        $sql = "SELECT id_mother, marca, modelo, tipo_ram, activo 
+                FROM catalogo_motherboards " . 
+                ($soloActivos ? "WHERE activo = 1 " : "") . 
+                "ORDER BY marca ASC, modelo ASC";
+        $stmt = $db->query($sql);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    } catch (Exception $e) {
+        Logger::error("Error al consultar catalogo_motherboards", ['error' => $e->getMessage()]);
+        return [];
+    }
+}
+
+/**
+ * Obtener listado de procesadores del catálogo oficial
+ * 
+ * @param string|null $tipoEquipo Opcional: 'pc', 'notebook' o null (todos).
+ * @param PDO|null $pdo Opcional. Conexión PDO activa.
+ * @param bool $soloActivos Filtrar solo modelos activos (default: true).
+ * @return array Lista de procesadores ordenados por marca y modelo.
+ */
+function obtenerCatalogoProcesadores(?string $tipoEquipo = null, ?PDO $pdo = null, bool $soloActivos = true): array {
+    try {
+        $db = $pdo ?: conectarDB();
+        $where = [];
+        $params = [];
+        
+        if ($soloActivos) {
+            $where[] = "activo = 1";
+        }
+        
+        if ($tipoEquipo === 'pc') {
+            $where[] = "tipo_equipo IN ('pc', 'ambos')";
+        } elseif ($tipoEquipo === 'notebook') {
+            $where[] = "tipo_equipo IN ('notebook', 'ambos')";
+        } elseif ($tipoEquipo !== null) {
+            $where[] = "tipo_equipo = ?";
+            $params[] = $tipoEquipo;
+        }
+        
+        $sql = "SELECT id_procesador, marca, modelo, tipo_ram, tipo_equipo, activo 
+                FROM catalogo_procesadores ";
+        if (!empty($where)) {
+            $sql .= "WHERE " . implode(" AND ", $where) . " ";
+        }
+        $sql .= "ORDER BY marca ASC, modelo ASC";
+        
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    } catch (Exception $e) {
+        Logger::error("Error al consultar catalogo_procesadores", ['error' => $e->getMessage()]);
+        return [];
     }
 }
 

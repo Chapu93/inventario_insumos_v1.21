@@ -184,7 +184,7 @@ try {
                 <span class="badge bg-info">Mi perfil</span>
             <?php endif; ?>
         </h1>
-        <a href="listar.php" class="btn btn-secondary">
+        <a href="listar.php" class="btn btn-secondary btn-volver">
             <i class="fas fa-arrow-left me-1"></i>Volver
         </a>
     </div>

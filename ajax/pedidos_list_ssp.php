@@ -54,6 +54,7 @@ try {
     $baseFrom = " FROM pedidos p
                   JOIN usuarios u_sol ON p.id_usuario_solicitante = u_sol.id_usuario
                   JOIN sedes s ON p.id_sede = s.id_sede
+                  LEFT JOIN localidades loc ON s.id_localidad = loc.id_localidad
                   LEFT JOIN usuarios u_asig ON p.asignado_a = u_asig.id_usuario 
                   LEFT JOIN areas a ON p.id_area = a.id_area
                   LEFT JOIN remitos r ON p.id_remito = r.id_remito ";
@@ -66,7 +67,7 @@ try {
         // Mis Tareas = Solo pedidos asignados a mí (o que tomé) que no estén finalizados del todo
         $where[] = "p.asignado_a = ?";
         $params[] = $usuarioId;
-        $where[] = "p.estado NOT IN ('Completado', 'Preparado', 'Rechazado')";
+        $where[] = "p.estado NOT IN ('Completado', 'Preparado', 'Rechazado', 'Sin Stock')";
     } elseif ($modo === 'pendientes') {
         // Modo pendientes (para técnicos/admins) - Solo tipos técnicos
         if (!tienePermiso('pedidos', 'ver_todos') && !tienePermiso('pedidos', 'gestionar')) {
@@ -126,12 +127,13 @@ try {
     $total = $filtered; 
 
     // Data
-                $pageSql = "SELECT p.*, 
-                       u_asig.username as asignado_user, u_asig.nombre as asignado_nombre, u_asig.apellido as asignado_apellido,
-                       s.nombre_sede, a.nombre_area, r.numero_remito
-                $baseFrom $whereSql 
-                ORDER BY $orderBy $orderDir 
-                LIMIT $start, $length";
+    $pageSql = "SELECT p.*, 
+           u_asig.username as asignado_user, u_asig.nombre as asignado_nombre, u_asig.apellido as asignado_apellido,
+           s.nombre_sede, loc.nombre_localidad, a.nombre_area, r.numero_remito,
+           (SELECT fecha FROM pedidos_historial WHERE id_pedido = p.id_pedido AND detalle LIKE '%Enviado%' ORDER BY id_historial DESC LIMIT 1) as fecha_enviado
+    $baseFrom $whereSql 
+    ORDER BY $orderBy $orderDir 
+    LIMIT $start, $length";
     
     $stmt = $db->prepare($pageSql);
     $stmt->execute($params);
@@ -145,7 +147,8 @@ try {
 
     $data = array_map(function($r) use ($usuarioId, $permGestionar, $permEliminar, $permVerTodos, $esAdmin, $modo) {
         // Formatear datos
-        $solicitante = htmlspecialchars($r['solicitante_nombre'] . ' ' . $r['solicitante_apellido']) . '<br><small class="text-muted">' . htmlspecialchars($r['nombre_sede']) . '</small>';
+        $localidad = !empty($r['nombre_localidad']) ? ' <span class="text-dark fw-medium">(' . htmlspecialchars($r['nombre_localidad']) . ')</span>' : '';
+        $solicitante = htmlspecialchars($r['solicitante_nombre'] . ' ' . $r['solicitante_apellido']) . '<br><small class="text-muted">' . htmlspecialchars($r['nombre_sede']) . $localidad . '</small>';
         
         $asignado = $r['asignado_a'] 
             ? '<span class="badge bg-info text-dark">' . htmlspecialchars($r['asignado_nombre'] . ' ' . $r['asignado_apellido']) . '</span>' 
@@ -164,6 +167,7 @@ try {
             'En Proceso' => 'primary',
             'Completado' => 'success',
             'Rechazado' => 'danger',
+            'Sin Stock' => 'danger',
             default => 'secondary'
         };
         $estado = '<span class="badge bg-' . $estadoClass . '">' . $r['estado'] . '</span>';
@@ -172,7 +176,7 @@ try {
         $botones = [];
         $botones[] = '<button class="btn btn-sm btn-info" onclick="verPedido(' . $r['id_pedido'] . ')" data-bs-toggle="tooltip" title="Ver Detalle"><i class="fas fa-eye"></i></button>';
 
-        if ($permGestionar && $r['estado'] !== 'Completado' && $r['estado'] !== 'Rechazado') {
+        if ($permGestionar && $r['estado'] !== 'Completado' && $r['estado'] !== 'Rechazado' && $r['estado'] !== 'Sin Stock') {
             if (!$r['asignado_a'] && $r['tipo'] !== 'Pedido Insumo') {
                 $botones[] = '<button class="btn btn-sm btn-primary" onclick="tomarPedido(' . $r['id_pedido'] . ')" data-bs-toggle="tooltip" title="Tomar Pedido"><i class="fas fa-hand-paper"></i></button>';
                 if ($esAdmin) {
@@ -212,7 +216,7 @@ try {
         }
 
         $entregaHtml = '-';
-        if ($r['tipo'] === 'Pedido Insumo' || $r['estado'] === 'Completado' || $r['estado'] === 'Preparado') {
+        if (($r['tipo'] === 'Pedido Insumo' || $r['estado'] === 'Completado' || $r['estado'] === 'Preparado') && $r['estado'] !== 'Sin Stock' && $r['estado'] !== 'Rechazado') {
              $entregaCls = match($r['estado_entrega']) {
                  'Pendiente' => 'secondary',
                  'Preparado' => 'info text-dark',
@@ -226,6 +230,16 @@ try {
                  $textoEntrega = 'Retirado';
              }
              $entregaHtml = '<span class="badge bg-' . $entregaCls . '">' . $textoEntrega . '</span>';
+
+             // Si el estado es Enviado o Retirado, mostrar debajo la fecha en que se realizó el envío
+             if ($r['estado_entrega'] === 'Enviado') {
+                 $fechaEnvioRaw = !empty($r['fecha_enviado']) ? $r['fecha_enviado'] : ($r['fecha_actualizacion'] ?? null);
+                 if ($fechaEnvioRaw) {
+                     $fechaEnvioFmt = date('d/m/Y', strtotime($fechaEnvioRaw));
+                     $titleLabel = ($textoEntrega === 'Retirado') ? 'Fecha de retiro' : 'Fecha de envío';
+                     $entregaHtml .= '<div class="small text-muted mt-1" style="font-size: 0.76rem;" title="' . $titleLabel . '"><i class="fas fa-calendar-alt me-1"></i>' . $fechaEnvioFmt . '</div>';
+                 }
+             }
         }
 
         return [

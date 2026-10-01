@@ -216,7 +216,24 @@ include '../../includes/header.php';
                 <td><?php echo htmlspecialchars($p['tipo_plano']); ?></td>
                 <td><?php echo htmlspecialchars($p['descripcion'] ?: '-'); ?></td>
                 <td><?php echo date('d/m/Y H:i', strtotime($p['fecha_subida'])); ?></td>
-                <td><a class="btn btn-sm btn-outline-primary" href="<?php echo app_base_url() . '/' . $p['archivo']; ?>" target="_blank"><i class="fas fa-download"></i> Descargar</a></td>
+                <td>
+                  <div class="btn-group">
+                    <a class="btn btn-sm btn-outline-primary" 
+                       href="<?php echo app_base_url() . '/' . $p['archivo']; ?>" 
+                       data-visor-archivo="<?php echo app_base_url() . '/' . $p['archivo']; ?>"
+                       data-visor-titulo="Plano <?php echo htmlspecialchars($p['tipo_plano'], ENT_QUOTES); ?>"
+                       target="_blank"
+                       title="Ver plano sin descargar">
+                      <i class="fas fa-eye"></i> Ver
+                    </a>
+                    <a class="btn btn-sm btn-outline-secondary" 
+                       href="<?php echo app_base_url() . '/' . $p['archivo']; ?>" 
+                       download
+                       title="Descargar archivo">
+                      <i class="fas fa-download"></i>
+                    </a>
+                  </div>
+                </td>
               </tr>
               <?php endforeach; ?>
             </tbody>

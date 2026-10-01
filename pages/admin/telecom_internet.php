@@ -600,10 +600,11 @@ include '../../includes/header.php';
                                     <?php if (!empty($row['archivo_autorizacion'])): ?>
                                         <small class="d-block mt-1">
                                             <a href="<?php echo app_base_url() . '/' . htmlspecialchars($row['archivo_autorizacion']); ?>" 
-                                               target="_blank" 
+                                               data-visor-archivo="<?php echo app_base_url() . '/' . htmlspecialchars($row['archivo_autorizacion']); ?>" 
+                                               data-visor-titulo="Archivo de Autorización - <?php echo htmlspecialchars($row['nombre_sede']); ?>" 
                                                class="btn btn-sm btn-outline-danger"
                                                data-bs-toggle="tooltip" 
-                                               title="Ver archivo de autorización"
+                                               title="Ver archivo de autorización en el visor"
                                                aria-label="Ver PDF">
                                                 <i class="fas fa-file-pdf me-1"></i>PDF
                                             </a>
@@ -620,7 +621,15 @@ include '../../includes/header.php';
                                         <?php else: ?>
                                             <button type="button" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Tests de velocidad" aria-label="Tests de velocidad" onclick='gestionarTestsVelocidad(<?php echo json_encode($row, JSON_HEX_APOS | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT); ?>)'><i class="fas fa-tachometer-alt" aria-hidden="true"></i></button>
                                         <?php endif; ?>
-                                        <a href="<?php echo app_base_url(); ?>/pages/reportes/internet_historial_pdf.php?id=<?php echo (int)$row['id_internet']; ?>" target="_blank" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" title="Generar PDF" aria-label="Generar PDF del historial"><i class="fas fa-file-pdf" aria-hidden="true"></i></a>
+                                        <a href="<?php echo app_base_url(); ?>/pages/reportes/internet_historial_pdf.php?id=<?php echo (int)$row['id_internet']; ?>" 
+                                           data-visor-archivo="<?php echo app_base_url(); ?>/pages/reportes/internet_historial_pdf.php?id=<?php echo (int)$row['id_internet']; ?>" 
+                                           data-visor-titulo="Historial de Internet - <?php echo htmlspecialchars($row['nombre_sede']); ?>" 
+                                           class="btn btn-sm btn-secondary" 
+                                           data-bs-toggle="tooltip" 
+                                           title="Ver historial en el visor" 
+                                           aria-label="Generar PDF del historial">
+                                            <i class="fas fa-file-pdf" aria-hidden="true"></i>
+                                        </a>
                                         
                                         <?php if ($row['estado_servicio'] === 'Baja por Traslado'): ?>
                                             <!-- Botón Editar deshabilitado para servicios trasladados -->
@@ -802,8 +811,11 @@ include '../../includes/header.php';
                   <div class="alert alert-success py-2 px-3 mb-0">
                     <i class="fas fa-check-circle me-2"></i>
                     <span id="archivo_actual_nombre"></span>
-                    <a href="#" id="archivo_actual_link" target="_blank" class="ms-2 btn btn-sm btn-outline-primary">
-                      <i class="fas fa-download me-1"></i>Ver archivo
+                    <button type="button" id="btn_ver_archivo_actual" class="ms-2 btn btn-sm btn-outline-primary" title="Ver archivo en el visor">
+                      <i class="fas fa-eye me-1"></i>Ver archivo
+                    </button>
+                    <a href="#" id="archivo_actual_link" download class="ms-1 btn btn-sm btn-outline-secondary" title="Descargar archivo">
+                      <i class="fas fa-download me-1"></i>Descargar
                     </a>
                     <small class="d-block mt-1 text-muted">Puede subir un nuevo archivo para reemplazarlo</small>
                   </div>
@@ -1095,9 +1107,14 @@ include '../../includes/header.php';
                   <h6 class="mb-1 text-danger-emphasis fw-bold"><i class="fas fa-file-pdf me-2"></i>Documentación</h6>
                   <small class="text-muted">Archivo de Autorización de Enlace</small>
                 </div>
-                <a href="#" id="detalle_archivo_global_link" target="_blank" class="btn btn-sm btn-outline-danger">
-                  <i class="fas fa-file-pdf me-1"></i>Descargar PDF
-                </a>
+                <div class="btn-group">
+                  <button type="button" id="btn_ver_detalle_archivo_global" class="btn btn-sm btn-outline-primary" title="Ver documento en visor">
+                    <i class="fas fa-eye me-1"></i>Ver PDF
+                  </button>
+                  <a href="#" id="detalle_archivo_global_link" download class="btn btn-sm btn-outline-secondary" title="Descargar archivo">
+                    <i class="fas fa-download me-1"></i>Descargar
+                  </a>
+                </div>
               </div>
             </div>
           </div>
@@ -1291,8 +1308,12 @@ function editarInternet(row){
     if (row.archivo_autorizacion) {
       $('#archivo_autorizacion_actual').val(row.archivo_autorizacion);
       const nombreArchivo = row.archivo_autorizacion.split('/').pop();
+      const archivoUrl = BASE + '/' + row.archivo_autorizacion;
       $('#archivo_actual_nombre').text(nombreArchivo);
-      $('#archivo_actual_link').attr('href', BASE + '/' + row.archivo_autorizacion);
+      $('#archivo_actual_link').attr('href', archivoUrl);
+      $('#btn_ver_archivo_actual').off('click').on('click', function() {
+        abrirVisorArchivo(archivoUrl, 'Archivo de Autorización - ' + (row.nombre_sede || 'Sede'));
+      });
       $('#archivo_actual_info').show();
     }
   }
@@ -1369,7 +1390,11 @@ function verDetallesInternet(row) {
   
   // Mostrar archivo de autorización SIEMPRE que exista (independiente del estado)
   if (row.archivo_autorizacion) {
-    $('#detalle_archivo_global_link').attr('href', BASE + '/' + row.archivo_autorizacion);
+    const authUrl = BASE + '/' + row.archivo_autorizacion;
+    $('#detalle_archivo_global_link').attr('href', authUrl);
+    $('#btn_ver_detalle_archivo_global').off('click').on('click', function() {
+      abrirVisorArchivo(authUrl, 'Archivo de Autorización - ' + (row.nombre_sede || 'Sede'));
+    });
     $('#detalle_archivo_global_container').show();
   }
   
@@ -1471,9 +1496,14 @@ function verDetallesInternet(row) {
               <td><strong>${test.velocidad_subida}</strong> Mbps</td>
               <td>${test.ping ? test.ping + ' ms' : '-'}</td>
               <td class="text-center">
-                <a href="${test.captura_url}" target="_blank" class="btn btn-sm btn-outline-danger" title="Ver captura" style="padding: 0.15rem 0.4rem; font-size: 0.75rem;">
+                <button type="button" class="btn btn-sm btn-outline-danger" 
+                        data-visor-archivo="${test.captura_url}"
+                        data-visor-titulo="Captura Test de Velocidad (${test.velocidad_bajada} Mbps / ${test.velocidad_subida} Mbps) - ${test.fecha_test_formateada}"
+                        onclick="abrirVisorArchivo('${test.captura_url}', 'Captura Test de Velocidad (${test.velocidad_bajada} Mbps / ${test.velocidad_subida} Mbps) - ${test.fecha_test_formateada}', 'imagen')" 
+                        title="Ver captura de pantalla en el visor" 
+                        style="padding: 0.15rem 0.4rem; font-size: 0.75rem;">
                   <i class="fas fa-image"></i>
-                </a>
+                </button>
               </td>
             </tr>
           `;
@@ -1988,9 +2018,14 @@ function cargarTestsVelocidad(idInternet) {
               <td>${test.ping ? test.ping + ' ms' : '-'}</td>
               <td><small class="text-muted">${test.creador_nombre || '-'}</small></td>
               <td class="text-center">
-                <a href="${test.captura_url}" target="_blank" class="btn btn-sm btn-outline-danger" title="Ver captura" style="padding: 0.15rem 0.4rem; font-size: 0.75rem;">
+                <button type="button" class="btn btn-sm btn-outline-danger" 
+                        data-visor-archivo="${test.captura_url}"
+                        data-visor-titulo="Captura Test de Velocidad (${test.velocidad_bajada} Mbps / ${test.velocidad_subida} Mbps) - ${test.fecha_test_formateada}"
+                        onclick="abrirVisorArchivo('${test.captura_url}', 'Captura Test de Velocidad (${test.velocidad_bajada} Mbps / ${test.velocidad_subida} Mbps) - ${test.fecha_test_formateada}', 'imagen')" 
+                        title="Ver captura de pantalla en el visor" 
+                        style="padding: 0.15rem 0.4rem; font-size: 0.75rem;">
                   <i class="fas fa-image"></i>
-                </a>
+                </button>
               </td>
               <td class="text-end">
                 <div class="btn-group">

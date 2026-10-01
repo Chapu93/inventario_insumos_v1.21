@@ -1,8 +1,12 @@
 /* ============================================================================
-   SITIA - HOJA DE ESTILOS PRINCIPAL (REFACTORIZADA - VARIABLES NATIVAS)
+   SITIA - HOJA DE ESTILOS PRINCIPAL
+   Sistema de Inventario de Telecomunicaciones, Insumos y Administración
+   Arquitectura optimizada: Tokens nativos, especificidad limpia, modo oscuro suave
    ============================================================================ */
 
-/* === FASE 1: VARIABLES (TOKENS) Y MAPEO CON BOOTSTRAP === */
+/* ============================================================================
+   1. VARIABLES DE DISEÑO (DESIGN TOKENS) & MAPEO BOOTSTRAP 5 (:root)
+   ============================================================================ */
 :root {
     /* Paleta Original SITIA (Modo Claro) */
     --sitia-primary: #5a9367;
@@ -16,25 +20,22 @@
     --sitia-info-hover: #3b8b82;
 
     /* Superficies y Textos (Modo Claro) */
-    --sitia-surface-1: #d1ded4;
-    /* Cabeceras modales, thead */
-    --sitia-surface-2: #dbe7e0;
-    /* Cabeceras tarjetas, fondo alterno tabla */
-    --sitia-surface-3: #e6efe9;
-    /* Fondo de la aplicación (body), tarjetas */
+    --sitia-surface-1: #d1ded4; /* Cabeceras modales, thead */
+    --sitia-surface-2: #dbe7e0; /* Cabeceras tarjetas, fondo alterno tabla */
+    --sitia-surface-3: #e6efe9; /* Fondo de la aplicación (body), tarjetas */
 
     --sitia-text: #1f2430;
     --sitia-text-muted: #6c757d;
     --sitia-border: rgba(0, 0, 0, 0.125);
 
-    /* Degradados Sidebar/Footer */
+    /* Degradados Sidebar / Footer */
     --sitia-menu-start: #5cab7d;
     --sitia-menu-end: #5a9367;
 
     /* Extras */
     --sitia-table-hover: rgba(90, 147, 103, 0.08);
 
-    /* --- MAPEO DIRECTO A BOOTSTRAP 5 --- */
+    /* Mapeo directo a Bootstrap 5 */
     --bs-primary: var(--sitia-primary);
     --bs-primary-rgb: 90, 147, 103;
     --bs-secondary: var(--sitia-secondary);
@@ -64,390 +65,16 @@
     --bs-table-hover-bg: var(--sitia-table-hover);
 }
 
-/* Clases de cabecera de tarjeta adaptables */
-.card-header--success {
-    background-color: #d1e7dd !important;
-    color: #0f5132 !important;
-}
-.card-header--info {
-    background-color: #cfe2ff !important;
-    color: #084298 !important;
-}
-
-/* === FASE 3: MODO OSCURO (SUAVE Y PASTEL) === */
-[data-theme="dark"] {
-    /* Paleta Modo Oscuro (Tonos Pastel Suaves) */
-    --sitia-primary: #a1d4b1; /* Verde salvia más claro */
-    --sitia-primary-hover: #b4e0c2;
-    --sitia-secondary: #7e8f89;
-    --sitia-secondary-hover: #8fa09a;
-    --sitia-success: #9de2b9;
-    --sitia-warning: #f4dd9e;
-    --sitia-danger: #f7aaaa;
-    --sitia-info: #a2dfe6;
-
-    /* Superficies Claras dentro del Modo Oscuro (Dim/Sage Extra Claro) */
-    --sitia-surface-1: #6b8077; /* Cabeceras principales, modales y dropdowns */
-    --sitia-surface-2: #60736b; /* Tarjetas, inputs y thead */
-    --sitia-surface-3: #556860; /* Fondo general del Body */
-
-    --sitia-text: #f4f7f5; /* Texto muy claro con buen contraste */
-    --sitia-text-muted: #dbe5e0; /* Texto secundario suave */
-    --sitia-border: #7a9187; /* Borde más visible pero suave */
-
-    /* Degradados Sidebar/Footer Modo Oscuro (Más Claros) */
-    --sitia-menu-start: #495c53;
-    --sitia-menu-end: #52665c;
-
-    --sitia-table-hover: rgba(161, 212, 177, 0.12);
-
-    /* Mapeo Bootstrap */
-    --bs-primary: var(--sitia-primary);
-    --bs-body-bg: var(--sitia-surface-3);
-    --bs-body-color: var(--sitia-text);
-    --sitia-input-bg: var(--sitia-surface-2);
-    --bs-border-color: var(--sitia-border);
-    --bs-secondary-bg: var(--sitia-surface-3);
-
-    /* Redefinición de botones en Modo Oscuro (Evita deslumbramientos y unifica la estética) */
-    .btn {
-        opacity: 0.85;
-    }
-    .btn:hover, .btn:focus, .btn:active {
-        opacity: 1 !important;
-    }
-
-    .btn-primary {
-        background-color: var(--sitia-primary) !important;
-        border-color: var(--sitia-primary) !important;
-        color: #1e2522 !important; /* Texto oscuro para legibilidad óptima */
-        font-weight: 600;
-    }
-    .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
-        background-color: var(--sitia-primary-hover) !important;
-        border-color: var(--sitia-primary-hover) !important;
-        color: #1e2522 !important;
-    }
-
-    .btn-secondary {
-        background-color: var(--sitia-secondary) !important;
-        border-color: var(--sitia-secondary) !important;
-        color: var(--sitia-text) !important;
-    }
-    .btn-secondary:hover, .btn-secondary:focus {
-        background-color: var(--sitia-secondary-hover) !important;
-        border-color: var(--sitia-secondary-hover) !important;
-        color: var(--sitia-text) !important;
-    }
-
-    .btn-success {
-        background-color: var(--sitia-success) !important;
-        border-color: var(--sitia-success) !important;
-        color: #1e2522 !important;
-        font-weight: 600;
-    }
-    .btn-success:hover, .btn-success:focus {
-        background-color: #b1ebd0 !important;
-        border-color: #b1ebd0 !important;
-        color: #1e2522 !important;
-    }
-
-    .btn-warning {
-        background-color: #e5ac6b !important;
-        border-color: #e5ac6b !important;
-        color: #3b2408 !important;
-        font-weight: 600;
-    }
-    .btn-warning.text-white {
-        color: #ffffff !important;
-    }
-    .btn-warning:hover, .btn-warning:focus {
-        background-color: #f2bd83 !important;
-        border-color: #f2bd83 !important;
-        color: #3b2408 !important;
-    }
-    .btn-warning.text-white:hover {
-        color: #ffffff !important;
-    }
-
-    .btn-danger {
-        background-color: var(--sitia-danger) !important;
-        border-color: var(--sitia-danger) !important;
-        color: #1e2522 !important;
-        font-weight: 600;
-    }
-    .btn-danger:hover, .btn-danger:focus {
-        background-color: #f9c2c2 !important;
-        border-color: #f9c2c2 !important;
-        color: #1e2522 !important;
-    }
-
-    .btn-light {
-        background-color: var(--sitia-surface-1) !important;
-        border-color: var(--sitia-border) !important;
-        color: var(--sitia-text) !important;
-    }
-    .btn-light:hover, .btn-light:focus, .btn-light:active {
-        background-color: var(--sitia-surface-2) !important;
-        border-color: var(--sitia-border) !important;
-        color: var(--sitia-text) !important;
-    }
-
-    /* Estilos outline atenuados en Modo Oscuro */
-    .btn-outline-primary {
-        color: var(--sitia-primary) !important;
-        border-color: var(--sitia-primary) !important;
-    }
-    .btn-outline-primary:hover, .btn-outline-primary:focus, .btn-outline-primary:active {
-        background-color: rgba(161, 212, 177, 0.15) !important;
-        color: var(--sitia-primary) !important;
-        border-color: var(--sitia-primary) !important;
-    }
-
-    .btn-outline-secondary {
-        color: var(--sitia-text-muted) !important;
-        border-color: var(--sitia-border) !important;
-    }
-    .btn-outline-secondary:hover, .btn-outline-secondary:focus {
-        background-color: rgba(255, 255, 255, 0.05) !important;
-        color: var(--sitia-text) !important;
-    }
-
-    .btn-outline-success {
-        color: var(--sitia-success) !important;
-        border-color: var(--sitia-success) !important;
-    }
-    .btn-outline-success:hover, .btn-outline-success:focus {
-        background-color: rgba(157, 226, 185, 0.15) !important;
-        color: var(--sitia-success) !important;
-    }
-
-    .btn-outline-danger {
-        color: var(--sitia-danger) !important;
-        border-color: var(--sitia-danger) !important;
-    }
-    .btn-outline-danger:hover, .btn-outline-danger:focus {
-        background-color: rgba(247, 170, 170, 0.15) !important;
-        color: var(--sitia-danger) !important;
-    }
-
-    .btn-outline-warning {
-        color: var(--sitia-warning) !important;
-        border-color: var(--sitia-warning) !important;
-    }
-    .btn-outline-warning:hover, .btn-outline-warning:focus {
-        background-color: rgba(244, 221, 158, 0.15) !important;
-        color: var(--sitia-warning) !important;
-    }
-
-    /* Redefinición de Badges y Estados (Estilo translúcido premium) */
-    .estado-disponible, .estado-activa, .badge.bg-success {
-        background-color: rgba(157, 226, 185, 0.15) !important;
-        color: #9de2b9 !important;
-        border: 1px solid rgba(157, 226, 185, 0.35) !important;
-    }
-    .estado-asignado, .badge.bg-warning {
-        background-color: rgba(244, 221, 158, 0.15) !important;
-        color: #f4dd9e !important;
-        border: 1px solid rgba(244, 221, 158, 0.35) !important;
-    }
-    .estado-baja, .estado-anulado, .badge.bg-danger {
-        background-color: rgba(247, 170, 170, 0.15) !important;
-        color: #f7aaaa !important;
-        border: 1px solid rgba(247, 170, 170, 0.35) !important;
-    }
-    .estado-devuelta, .badge.bg-secondary {
-        background-color: rgba(194, 207, 199, 0.15) !important;
-        color: #c2cfc7 !important;
-        border: 1px solid rgba(194, 207, 199, 0.35) !important;
-    }
-    .badge.bg-primary {
-        background-color: rgba(161, 212, 177, 0.15) !important;
-        color: #a1d4b1 !important;
-        border: 1px solid rgba(161, 212, 177, 0.35) !important;
-    }
-    .badge.bg-info {
-        background-color: rgba(162, 223, 230, 0.15) !important;
-        color: #a2dfe6 !important;
-        border: 1px solid rgba(162, 223, 230, 0.35) !important;
-    }
-    .badge.bg-dark {
-        background-color: var(--sitia-surface-1) !important;
-        color: var(--sitia-text) !important;
-        border: 1px solid var(--sitia-border) !important;
-    }
-
-    /* Badge Colaborativa en Modo Oscuro */
-    .badge-colaborativa {
-        background-color: #835dc2 !important;
-        border-color: #835dc2 !important;
-        color: #fff !important;
-    }
-
-    /* Clases utilitarias de Bootstrap y personalizadas */
-    .bg-light {
-        background-color: var(--sitia-surface-2) !important;
-        color: var(--sitia-text) !important;
-    }
-
-    .table-light,
-    .table-light th,
-    .table-light td {
-        background-color: var(--sitia-surface-2) !important;
-        color: var(--sitia-text) !important;
-        border-color: var(--sitia-border) !important;
-    }
-
-    /* Menús desplegables */
-    .dropdown-menu {
-        background-color: var(--sitia-surface-1);
-        border-color: var(--sitia-border);
-    }
-    .dropdown-item {
-        color: var(--sitia-text);
-    }
-    .dropdown-item:hover, .dropdown-item:focus {
-        background-color: var(--sitia-table-hover);
-        color: var(--sitia-text);
-    }
-    .dropdown-divider {
-        border-color: var(--sitia-border);
-    }
-
-    /* Alertas atenuadas */
-    .alert-success {
-        background-color: rgba(140, 214, 169, 0.15) !important;
-        border-color: rgba(140, 214, 169, 0.3) !important;
-        color: #8cd6a9 !important;
-    }
-    .alert-warning {
-        background-color: rgba(238, 208, 131, 0.15) !important;
-        border-color: rgba(238, 208, 131, 0.3) !important;
-        color: #eed083 !important;
-    }
-    .alert-danger {
-        background-color: rgba(234, 150, 150, 0.15) !important;
-        border-color: rgba(234, 150, 150, 0.3) !important;
-        color: #ea9696 !important;
-    }
-    .alert-info {
-        background-color: rgba(139, 203, 211, 0.15) !important;
-        border-color: rgba(139, 203, 211, 0.3) !important;
-        color: #8bcbd3 !important;
-    }
-    .alert-light {
-        background-color: var(--sitia-surface-2) !important;
-        border-color: var(--sitia-border) !important;
-        color: var(--sitia-text) !important;
-    }
-    /* Garantizar fondo de modales en Modo Oscuro (Sin costuras) */
-    .modal-content, .modal-body, .modal-header, .modal-footer {
-        background-color: var(--sitia-surface-3) !important;
-        color: var(--sitia-text) !important;
-    }
-    .modal-header {
-        border-bottom: 1px solid var(--sitia-border) !important;
-    }
-    .modal-footer {
-        border-top: 1px solid var(--sitia-border) !important;
-    }
-
-    /* Estilos de inputs y selects deshabilitados en Modo Oscuro */
-    .form-control:disabled,
-    .form-select:disabled {
-        color: var(--sitia-text-muted) !important;
-        background-color: var(--sitia-surface-3) !important;
-    }
-
-    /* Redefinición de dashboard-card en Modo Oscuro (Estilo Borde Izquierdo Integrado) */
-    .dashboard-card {
-        background-color: var(--sitia-surface-2) !important;
-        color: var(--sitia-text) !important;
-        border: 1px solid var(--sitia-border) !important;
-    }
-    .dashboard-card--primary {
-        border-left: 4px solid var(--sitia-primary) !important;
-    }
-    .dashboard-card--success {
-        border-left: 4px solid var(--sitia-success) !important;
-    }
-    .dashboard-card--info {
-        border-left: 4px solid var(--sitia-info) !important;
-    }
-    .dashboard-card--warning {
-        border-left: 4px solid var(--sitia-warning) !important;
-    }
-    .dashboard-card--danger {
-        border-left: 4px solid var(--sitia-danger) !important;
-    }
-
-    /* Anulación del degradado brillante en la tarjeta de Pendientes del Dashboard */
-    .dashboard-card[style*="#FF512F"],
-    .dashboard-card[style*="#DD2476"] {
-        background: linear-gradient(45deg, rgba(255, 81, 47, 0.15), rgba(221, 36, 118, 0.15)) !important;
-        border-color: rgba(221, 36, 118, 0.35) !important;
-        border-left: 4px solid #DD2476 !important;
-        color: var(--sitia-text) !important;
-    }
-
-    /* Ajuste para tarjetas estadísticas de Insumos Intervenidos en Modo Oscuro (Translúcido) */
-    .card[style*="#3d7b5f"] {
-        background-color: rgba(61, 123, 95, 0.15) !important;
-        color: #9de2b9 !important;
-        border: 1px solid rgba(61, 123, 95, 0.35) !important;
-    }
-    .card[style*="#d4a03c"] {
-        background-color: rgba(212, 160, 60, 0.15) !important;
-        color: #f4dd9e !important;
-        border: 1px solid rgba(212, 160, 60, 0.35) !important;
-    }
-    .card[style*="#c9544a"] {
-        background-color: rgba(201, 84, 74, 0.15) !important;
-        color: #f7aaaa !important;
-        border: 1px solid rgba(201, 84, 74, 0.35) !important;
-    }
-    .card[style*="#4a9b8c"] {
-        background-color: rgba(74, 155, 140, 0.15) !important;
-        color: #a2dfe6 !important;
-        border: 1px solid rgba(74, 155, 140, 0.35) !important;
-    }
-
-    /* Input group text y selector de archivos (Browse button) en Modo Oscuro */
-    .input-group-text {
-        background-color: var(--sitia-surface-1) !important;
-        border-color: var(--sitia-border) !important;
-        color: var(--sitia-text) !important;
-    }
-    .form-control::file-selector-button {
-        background-color: var(--sitia-surface-1) !important;
-        color: var(--sitia-text) !important;
-        border-color: var(--sitia-border) !important;
-    }
-    .form-control:hover::file-selector-button {
-        background-color: var(--sitia-surface-2) !important;
-    }
-
-    /* Clases de adaptabilidad del texto de comentarios para modo oscuro */
-    .dark-text-light {
-        color: var(--sitia-text) !important;
-    }
-    .dark-text-muted {
-        color: var(--sitia-text-muted) !important;
-    }
-    
-    .card-header--success {
-        background-color: rgba(92, 171, 125, 0.15) !important;
-        color: #9de2b9 !important;
-        border-bottom: 1px solid rgba(92, 171, 125, 0.3) !important;
-    }
-    .card-header--info {
-        background-color: rgba(74, 167, 155, 0.15) !important;
-        color: #a2dfe6 !important;
-        border-bottom: 1px solid rgba(74, 167, 155, 0.3) !important;
-    }
+/* ============================================================================
+   2. RESET, TIPOGRAFÍA & LAYOUT GENERAL
+   ============================================================================ */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
 }
 
-/* Transición suave entre modos */
+/* Transición suave entre temas */
 body,
 .card,
 .modal-content,
@@ -460,28 +87,10 @@ body,
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
-/* Alineación horizontal de cantidad en asignaciones */
-.cantidad-input {
-    display: flex !important;
-    align-items: center !important;
-    gap: 6px !important;
-}
-.cantidad-input label {
-    margin: 0 !important;
-    padding: 0 !important;
-    line-height: 1 !important;
-    white-space: nowrap;
-}
-.cantidad-input input {
-    margin: 0 !important;
-}
-
-
-/* === FASE 2: LAYOUT GENERAL === */
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 0;
+.wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
 }
 
 /* Contenedor principal */
@@ -494,18 +103,18 @@ body {
     transition: all 0.3s;
 }
 
-#content>.container-fluid {
+#content > .container-fluid {
     flex: 1 0 auto;
     padding: 1.5rem 2rem;
 }
 
-/* Sidebar */
-.wrapper {
-    display: flex;
+#content.active,
+html.sidebar-collapsed #content {
+    margin-left: 0;
     width: 100%;
-    align-items: stretch;
 }
 
+/* Sidebar */
 .sidebar {
     min-width: 250px;
     max-width: 250px;
@@ -519,13 +128,31 @@ body {
     transition: all 0.3s;
 }
 
-.sidebar.active {
+.sidebar.active,
+html.sidebar-collapsed .sidebar {
     margin-left: -250px;
 }
 
-#content.active {
-    margin-left: 0;
-    width: 100%;
+/* Botón Toggle Sidebar */
+.btn-sidebar-toggle {
+    border: 1px solid var(--sitia-border);
+    color: var(--sitia-text);
+    background-color: var(--sitia-surface-2);
+    padding: 0.35rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    line-height: 1.2;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-sidebar-toggle:hover,
+.btn-sidebar-toggle:focus {
+    background-color: var(--sitia-primary);
+    color: #fff;
+    border-color: var(--sitia-primary);
 }
 
 .sidebar-header {
@@ -561,14 +188,14 @@ body {
 }
 
 .sidebar .components li a:hover,
-.sidebar .components li>a.active,
-.sidebar .components li>a[aria-expanded="true"] {
+.sidebar .components li > a.active,
+.sidebar .components li > a[aria-expanded="true"] {
     background: rgba(255, 255, 255, 0.1);
     color: #fff;
 }
 
-.sidebar .components li>a.active::before,
-.sidebar .components li>a[aria-expanded="true"]::before {
+.sidebar .components li > a.active::before,
+.sidebar .components li > a[aria-expanded="true"]::before {
     content: '';
     position: absolute;
     left: 0;
@@ -614,12 +241,6 @@ body {
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-#busquedaGlobalResultados {
-    background-color: var(--sitia-input-bg);
-    color: var(--sitia-text);
-    border: 1px solid var(--sitia-border);
-}
-
 .navbar .navbar-text,
 .navbar .nav-link {
     color: var(--sitia-text) !important;
@@ -628,6 +249,12 @@ body {
 .navbar-brand {
     font-weight: bold;
     color: var(--sitia-primary) !important;
+}
+
+#busquedaGlobalResultados {
+    background-color: var(--sitia-input-bg);
+    color: var(--sitia-text);
+    border: 1px solid var(--sitia-border);
 }
 
 /* Sticky Footer */
@@ -651,7 +278,9 @@ body {
     font-weight: 600;
 }
 
-/* === COMPONENTES === */
+/* ============================================================================
+   3. COMPONENTES BASE (TARJETAS, FILTROS, FORMULARIOS)
+   ============================================================================ */
 
 /* Tarjetas */
 .card {
@@ -671,6 +300,26 @@ body {
     align-items: center !important;
     flex-wrap: wrap !important;
     gap: 1.5rem !important;
+}
+
+.card-header--success {
+    background-color: #d1e7dd !important;
+    color: #0f5132 !important;
+}
+
+.card-header--info {
+    background-color: #cfe2ff !important;
+    color: #084298 !important;
+}
+
+.card-header--danger {
+    background-color: #f8d7da !important;
+    color: #842029 !important;
+}
+
+.card-header--warning {
+    background-color: #fff3cd !important;
+    color: #664d03 !important;
 }
 
 .card .list-group-item {
@@ -732,30 +381,84 @@ body {
     box-shadow: 0 0 0 0.25rem rgba(90, 147, 103, 0.25);
 }
 
-/* Botones (Usando Variables de Bootstrap) */
+/* ============================================================================
+   4. BOTONES Y GESTIÓN DE FOCO / HOVER (CONSOLIDADO Y ACCESIBLE)
+   ============================================================================ */
 .btn {
     --bs-btn-border-radius: 0.25rem;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
+.btn-group .btn {
+    margin: 0 1px;
+}
+
+/* Supresión universal de halos y marcos residuales en botones al hacer clic con mouse */
+.btn:focus:not(:focus-visible),
+.btn-close:focus:not(:focus-visible),
+.nav-link:focus:not(:focus-visible),
+.dropdown-item:focus:not(:focus-visible),
+.btn:active:focus,
+.btn.show:focus,
+.btn-check:focus + .btn {
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Foco institucional verde SITIA accesible por teclado */
+.btn:focus-visible,
+.btn-close:focus-visible {
+    box-shadow: 0 0 0 0.25rem rgba(90, 147, 103, 0.25) !important;
+    outline: none !important;
+}
+
+/* Botón Primario */
 .btn-primary {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: var(--sitia-primary);
+    --bs-btn-border-color: var(--sitia-primary);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: var(--sitia-primary-hover);
+    --bs-btn-hover-border-color: var(--sitia-primary-hover);
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: var(--sitia-primary-hover);
+    --bs-btn-active-border-color: var(--sitia-primary-hover);
     background-color: var(--sitia-primary);
     border-color: var(--sitia-primary);
     color: #fff;
 }
 
-.btn-primary:hover {
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary.active {
     background-color: var(--sitia-primary-hover);
     border-color: var(--sitia-primary-hover);
     color: #fff;
 }
 
+.btn-primary:focus:not(:focus-visible) {
+    background-color: var(--sitia-primary);
+    border-color: var(--sitia-primary);
+    color: #fff;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.btn-primary:disabled,
+.btn-primary.disabled {
+    background-color: var(--sitia-primary) !important;
+    border-color: var(--sitia-primary) !important;
+    color: #fff !important;
+    opacity: 0.65;
+}
+
+/* Botón Outline Primario */
 .btn-outline-primary {
     color: var(--sitia-primary);
     border-color: var(--sitia-primary);
 }
 
 .btn-outline-primary:hover,
-.btn-outline-primary:focus,
 .btn-outline-primary:active,
 .btn-outline-primary.active {
     background-color: var(--sitia-primary) !important;
@@ -763,6 +466,23 @@ body {
     border-color: var(--sitia-primary) !important;
 }
 
+.btn-outline-primary:focus-visible {
+    background-color: transparent !important;
+    color: var(--sitia-primary) !important;
+    border-color: var(--sitia-primary) !important;
+    box-shadow: 0 0 0 0.25rem rgba(90, 147, 103, 0.25) !important;
+    outline: none !important;
+}
+
+.btn-outline-primary:focus:not(:focus-visible) {
+    background-color: transparent !important;
+    color: var(--sitia-primary) !important;
+    border-color: var(--sitia-primary) !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Botón Secundario */
 .btn-secondary {
     background-color: #9bb7a2;
     border-color: #8eab96;
@@ -770,85 +490,262 @@ body {
 }
 
 .btn-secondary:hover,
-.btn-secondary:focus {
+.btn-secondary:active,
+.btn-secondary.active {
     background-color: #8eab96;
     border-color: #7fa28b;
     color: #0f1a12;
 }
 
-.btn-group .btn {
-    margin: 0 1px;
+.btn-secondary:focus:not(:focus-visible) {
+    background-color: #9bb7a2;
+    border-color: #8eab96;
+    color: #0f1a12;
+    box-shadow: none !important;
+    outline: none !important;
 }
 
-/* Dashboard KPIs */
-.dashboard-card {
-    background-color: var(--sitia-surface-3);
-    color: var(--sitia-text);
-    padding: 1rem 1.25rem;
-    border-radius: var(--bs-border-radius);
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.12);
-    border: 1px solid var(--sitia-border);
-}
-
-.dashboard-card--primary {
-    background: var(--sitia-primary);
+/* Botón Success */
+.btn-success {
+    background-color: var(--sitia-success);
+    border-color: var(--sitia-success);
     color: #fff;
 }
 
-.dashboard-card--success {
-    background: var(--sitia-success);
+.btn-success:hover,
+.btn-success:active,
+.btn-success.active {
+    background-color: #4e9c70;
+    border-color: #4e9c70;
     color: #fff;
 }
 
-.dashboard-card--warning {
-    background: var(--sitia-warning);
-    color: #212529;
+.btn-success:focus:not(:focus-visible) {
+    background-color: var(--sitia-success);
+    border-color: var(--sitia-success);
+    color: #fff;
+    box-shadow: none !important;
+    outline: none !important;
 }
 
-.dashboard-card--info {
-    background: var(--sitia-info);
+.btn-success:disabled,
+.btn-success.disabled {
+    background-color: var(--sitia-success) !important;
+    border-color: var(--sitia-success) !important;
+    color: #fff !important;
+    opacity: 0.65;
+}
+
+/* Botón Danger */
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
     color: #fff;
 }
 
-.dashboard-card--danger {
-    background: var(--sitia-danger);
+.btn-danger:hover,
+.btn-danger:active,
+.btn-danger.active {
+    background-color: #bb2d3b;
+    border-color: #b02a37;
     color: #fff;
 }
 
-.dashboard-card h3 {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 0.25rem;
+.btn-danger:focus:not(:focus-visible) {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: #fff;
+    box-shadow: none !important;
+    outline: none !important;
 }
 
-/* Modales */
-.modal-content {
-    border-radius: 10px;
-    border: none;
-    background-color: var(--sitia-surface-3);
+/* Botón Info (Ver Insumos #4a9d95) */
+.btn-info {
+    background-color: #4a9d95 !important;
+    border-color: #4a9d95 !important;
+    color: #fff !important;
 }
 
-.modal-header {
-    background-color: var(--sitia-surface-2);
-    border-radius: 10px 10px 0 0;
-    color: var(--sitia-text);
+.btn-info:hover,
+.btn-info:active,
+.btn-info.active {
+    background-color: #3b827b !important;
+    border-color: #3b827b !important;
+    color: #fff !important;
 }
 
-.modal-footer {
-    background-color: var(--sitia-surface-1);
-    border-top: 1px solid var(--sitia-border);
-    border-radius: 0 0 10px 10px;
+.btn-info:focus:not(:focus-visible) {
+    background-color: #4a9d95 !important;
+    border-color: #4a9d95 !important;
+    color: #fff !important;
+    box-shadow: none !important;
+    outline: none !important;
 }
 
-.modal-backdrop.show {
-    opacity: 0.6 !important;
+/* Botón Warning (Ver Asignaciones #d9943f) */
+.btn-warning {
+    background-color: #d9943f !important;
+    border-color: #d9943f !important;
+    color: #fff !important;
 }
 
-[data-theme="dark"] .btn-close {
-    filter: invert(1) grayscale(100%) brightness(200%);
+.btn-warning:hover,
+.btn-warning:active,
+.btn-warning.active {
+    background-color: #be7b28 !important;
+    border-color: #be7b28 !important;
+    color: #fff !important;
 }
 
-/* Tablas */
+.btn-warning:focus:not(:focus-visible) {
+    background-color: #d9943f !important;
+    border-color: #d9943f !important;
+    color: #fff !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Botones Suaves de Acción */
+.btn-soft-warning {
+    background-color: #e6ad12 !important;
+    border-color: #e6ad12 !important;
+    color: #fff !important;
+    transition: all 0.2s ease-in-out;
+}
+.btn-soft-warning:hover,
+.btn-soft-warning:active {
+    background-color: #c9930c !important;
+    border-color: #c9930c !important;
+    color: #fff !important;
+}
+.btn-soft-warning:focus:not(:focus-visible) {
+    background-color: #e6ad12 !important;
+    border-color: #e6ad12 !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.btn-soft-success {
+    background-color: #28a745 !important;
+    border-color: #28a745 !important;
+    color: #fff !important;
+}
+.btn-soft-success:hover,
+.btn-soft-success:active {
+    background-color: #218838 !important;
+    border-color: #218838 !important;
+    color: #fff !important;
+}
+.btn-soft-success:focus:not(:focus-visible) {
+    background-color: #28a745 !important;
+    border-color: #28a745 !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.btn-soft-primary {
+    background-color: #66a86a !important;
+    border-color: #66a86a !important;
+    color: #fff !important;
+}
+.btn-soft-primary:hover,
+.btn-soft-primary:active {
+    background-color: #4e8351 !important;
+    border-color: #4e8351 !important;
+    color: #fff !important;
+}
+.btn-soft-primary:focus:not(:focus-visible) {
+    background-color: #66a86a !important;
+    border-color: #66a86a !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.btn-soft-secondary {
+    background-color: #85929e !important;
+    border-color: #85929e !important;
+    color: #fff !important;
+}
+.btn-soft-secondary:hover,
+.btn-soft-secondary:active {
+    background-color: #6c7781 !important;
+    border-color: #6c7781 !important;
+    color: #fff !important;
+}
+.btn-soft-secondary:focus:not(:focus-visible) {
+    background-color: #85929e !important;
+    border-color: #85929e !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Botón marrón claro pastel con fondo sólido e icono blanco */
+.btn-pastel-brown {
+    background-color: #a38974 !important;
+    border-color: #a38974 !important;
+    color: #ffffff !important;
+}
+.btn-pastel-brown:hover,
+.btn-pastel-brown:active {
+    background-color: #8c735f !important;
+    border-color: #8c735f !important;
+    color: #ffffff !important;
+}
+.btn-pastel-brown:focus:not(:focus-visible) {
+    background-color: #a38974 !important;
+    border-color: #a38974 !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Botón púrpura de Tarea Colaborativa */
+.btn-colaborativa {
+    background-color: #9b78db !important;
+    border-color: #9b78db !important;
+    color: #ffffff !important;
+}
+.btn-colaborativa:hover,
+.btn-colaborativa:active {
+    background-color: #7d5bbf !important;
+    border-color: #7d5bbf !important;
+    color: #ffffff !important;
+}
+.btn-colaborativa:focus:not(:focus-visible) {
+    background-color: #9b78db !important;
+    border-color: #9b78db !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Botón extra pequeño para comentarios */
+.btn-xs {
+    padding: 0.15rem 0.35rem;
+    font-size: 0.75rem;
+    line-height: 1.2;
+    border-radius: 0.2rem;
+}
+
+/* Opacidad y hover para botones de acción en tablas */
+.table .btn-group .btn {
+    opacity: 0.85;
+}
+
+.table .btn-group .btn:hover,
+.table .btn-group .btn:active {
+    opacity: 1;
+}
+
+.table .btn-group .btn:focus:not(:focus-visible) {
+    opacity: 0.85;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* ============================================================================
+   5. TABLAS, DATATABLES & SELECT2 (INTEGRACIÓN COMPLETA)
+   ============================================================================ */
+
+/* Tablas base */
 .table thead th {
     background-color: var(--sitia-surface-2);
     color: var(--sitia-text);
@@ -882,7 +779,7 @@ body {
     margin-bottom: 0;
 }
 
-/* Unificación de ancho de tablas al 100% y corrección de contenedores scroll de DataTables */
+/* Unificación de ancho de tablas al 100% y scroll */
 .dataTables_wrapper,
 .dataTables_scroll,
 .dataTables_scrollHead,
@@ -895,9 +792,16 @@ table.dataTable,
     width: 100% !important;
 }
 
-/* Alineación de controles de DataTables (Buscar y Mostrar) en el card-header a la derecha, título a la izquierda */
+.dataTables_scrollBody {
+    border-bottom: none !important;
+    overflow-x: hidden !important;
+}
 
-/* Si existen controles de DataTables, empujar el primer control a la derecha */
+.dataTables_scrollBody:hover {
+    overflow-x: auto !important;
+}
+
+/* Alineación de controles DataTables en card-header a la derecha */
 .card-header .dataTables_length {
     margin-left: auto !important;
 }
@@ -943,7 +847,29 @@ table.dataTable,
     padding-right: 1.75rem !important;
 }
 
-/* Quitar padding lateral y superior al card-body cuando contiene tablas principales de datos para hacerlas de borde a borde y pegadas al card-header */
+/* Controles de DataTables dentro del wrapper estándar */
+.dataTables_wrapper .dataTables_length select,
+.dataTables_wrapper .dataTables_filter input {
+    background-color: var(--sitia-input-bg);
+    border-color: var(--sitia-border);
+    color: var(--sitia-text);
+    border-radius: 6px;
+    outline: none;
+}
+
+.dataTables_wrapper .dataTables_length select:focus,
+.dataTables_wrapper .dataTables_filter input:focus {
+    border-color: var(--sitia-primary);
+    box-shadow: 0 0 0 0.25rem rgba(90, 147, 103, 0.25);
+}
+
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_length label,
+.dataTables_wrapper .dataTables_filter label {
+    color: var(--sitia-text);
+}
+
+/* Tablas borde a borde dentro del card-body */
 .card:has(table.datatable) .card-body,
 .card:has(.dataTables_wrapper) .card-body {
     padding-left: 0 !important;
@@ -951,7 +877,6 @@ table.dataTable,
     padding-top: 0 !important;
 }
 
-/* Eliminar márgenes y rellenos superiores en las tablas principales y su wrapper de DataTables */
 .card-body table.datatable,
 .card-body table.dataTable,
 .card-body .dataTables_wrapper {
@@ -959,7 +884,6 @@ table.dataTable,
     padding-top: 0 !important;
 }
 
-/* Mantener un padding correcto en las celdas laterales para que el contenido no pegue al borde */
 .card-body .table th:first-child,
 .card-body .table td:first-child {
     padding-left: 1.25rem !important;
@@ -969,7 +893,6 @@ table.dataTable,
     padding-right: 1.25rem !important;
 }
 
-/* Dar separación lateral a la información y paginación en el pie de la tabla */
 .card-body .dataTables_info {
     padding-left: 1.25rem !important;
 }
@@ -977,7 +900,6 @@ table.dataTable,
     padding-right: 1.25rem !important;
 }
 
-/* Devolver espaciado lateral y superior a filas y alertas en tarjetas con diseño de borde a borde */
 .card:has(table.datatable) .card-body > .row:not(.dataTables_wrapper),
 .card:has(.dataTables_wrapper) .card-body > .row:not(.dataTables_wrapper) {
     padding-left: 1.25rem !important;
@@ -991,26 +913,254 @@ table.dataTable,
     margin-right: 1.25rem !important;
 }
 
-.dataTables_scrollBody {
-    border-bottom: none !important;
-    overflow-x: hidden !important;
-}
-
-.dataTables_scrollBody:hover {
-    overflow-x: auto !important;
-}
-
-/* Tablas Striped en Card Body */
-.card-body .table.table-striped>tbody>tr:nth-of-type(odd)>* {
+/* Tablas Striped */
+.card-body .table.table-striped > tbody > tr:nth-of-type(odd) > * {
     --bs-table-accent-bg: var(--sitia-surface-3);
 }
 
-.card-body .table.table-striped>tbody>tr:nth-of-type(even)>* {
+.card-body .table.table-striped > tbody > tr:nth-of-type(even) > * {
     --bs-table-accent-bg: var(--sitia-surface-2);
 }
 
-.card-body .table.table-striped>tbody>tr:hover>* {
+.card-body .table.table-striped > tbody > tr:hover > * {
     background-color: rgba(90, 147, 103, 0.06) !important;
+}
+
+/* Resaltado de fila al volver de editar un insumo con foco visual */
+@keyframes rowHighlightPulse {
+    0% {
+        background-color: rgba(90, 147, 103, 0.38) !important;
+        box-shadow: inset 0 0 0 2px var(--sitia-primary);
+    }
+    60% {
+        background-color: rgba(90, 147, 103, 0.20) !important;
+        box-shadow: inset 0 0 0 1px var(--sitia-primary);
+    }
+    100% {
+        background-color: transparent !important;
+        box-shadow: none;
+    }
+}
+
+.row-highlight-active,
+.row-highlight-active > td,
+.row-highlight-active > th {
+    animation: rowHighlightPulse 3.5s ease-out forwards !important;
+}
+
+/* Paginación */
+.pagination .page-link {
+    background-color: var(--sitia-surface-3);
+    border-color: var(--sitia-border);
+    color: var(--sitia-primary);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--sitia-primary);
+    border-color: var(--sitia-primary);
+    color: #fff;
+}
+
+/* Select2 Bootstrap 5 Theme */
+.select2-container--bootstrap-5 .select2-selection {
+    background-color: var(--sitia-input-bg);
+    border-color: var(--sitia-border);
+    color: var(--sitia-text);
+}
+
+.select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+    color: var(--sitia-text);
+}
+
+.select2-container--bootstrap-5 .select2-dropdown {
+    background-color: var(--sitia-surface-2);
+    border: 1px solid var(--sitia-border);
+    border-radius: 6px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.select2-container--bootstrap-5 .select2-dropdown .select2-search {
+    padding: 7px 9px 5px;
+    background-color: var(--sitia-surface-1);
+    border-bottom: 1px solid var(--sitia-border);
+}
+
+.select2-container--bootstrap-5 .select2-search--dropdown .select2-search__field,
+.select2-container--bootstrap-5 .select2-dropdown .select2-search .select2-search__field {
+    background-color: var(--sitia-input-bg) !important;
+    color: var(--sitia-text) !important;
+    border: 1px solid var(--sitia-border) !important;
+    border-radius: 6px !important;
+    padding: 5px 8px 5px 28px !important;
+    font-size: 0.85rem !important;
+    line-height: 1.4 !important;
+    transition: all 0.2s ease-in-out !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='%238c98a4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: 8px center !important;
+    background-size: 13px 13px !important;
+}
+
+.select2-container--bootstrap-5 .select2-search--dropdown .select2-search__field:focus,
+.select2-container--bootstrap-5 .select2-dropdown .select2-search .select2-search__field:focus {
+    border-color: var(--sitia-primary) !important;
+    box-shadow: 0 0 0 2px rgba(90, 147, 103, 0.18) !important;
+    outline: none !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='%235a9367' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E") !important;
+}
+
+.select2-container--bootstrap-5 .select2-search--dropdown .select2-search__field::placeholder,
+.select2-container--bootstrap-5 .select2-dropdown .select2-search .select2-search__field::placeholder {
+    color: var(--sitia-muted) !important;
+    opacity: 0.8;
+    font-size: 0.82rem;
+}
+
+.select2-container--bootstrap-5 .select2-results__option {
+    color: var(--sitia-text);
+    padding: 6px 10px;
+    font-size: 0.88rem;
+}
+
+.select2-container--bootstrap-5 .select2-results__option--highlighted {
+    background-color: var(--sitia-primary);
+    color: #fff;
+}
+
+.select2-container--bootstrap-5 .select2-selection:focus,
+.select2-container--bootstrap-5.select2-container--open .select2-selection {
+    border-color: var(--sitia-primary) !important;
+    box-shadow: 0 0 0 2px rgba(90, 147, 103, 0.18) !important;
+}
+
+.select2-container--bootstrap-5.select2-container--open .select2-dropdown {
+    border-color: var(--sitia-primary);
+}
+
+/* Select2 integrado dentro de Bootstrap 5 Input Group */
+.input-group > .select2-container--bootstrap-5,
+.input-group > .select2-container {
+    flex: 1 1 auto;
+    width: 1% !important;
+}
+
+.input-group > .select2-container--bootstrap-5 .select2-selection,
+.input-group > .select2-container .select2-selection {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.input-group > .btn-nuevo-hardware {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    border-color: var(--sitia-border);
+    background-color: var(--sitia-surface-2);
+    color: var(--sitia-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem 0.65rem;
+    transition: all 0.2s ease-in-out;
+}
+
+.input-group > .btn-nuevo-hardware:hover {
+    background-color: var(--sitia-primary);
+    color: #fff;
+    border-color: var(--sitia-primary);
+}
+
+/* Soporte de Optgroups en Select2 y Modo Oscuro */
+.select2-container--bootstrap-5 .select2-results__group {
+    color: var(--sitia-primary);
+    font-weight: 700;
+    font-size: 0.82rem;
+    padding: 6px 10px 4px;
+    background-color: var(--sitia-surface-1);
+    border-bottom: 1px solid var(--sitia-border);
+}
+
+/* ============================================================================
+   6. COMPONENTES ESPECIALES (DASHBOARD CARDS, MODALES, STEPPER, VISOR)
+   ============================================================================ */
+
+/* Dashboard KPIs */
+.dashboard-card {
+    background-color: var(--sitia-surface-3);
+    color: var(--sitia-text);
+    padding: 1rem 1.25rem;
+    border-radius: var(--bs-border-radius);
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.12);
+    border: 1px solid var(--sitia-border);
+}
+
+.dashboard-card--primary {
+    background: var(--sitia-primary);
+    color: #fff;
+}
+
+.dashboard-card--success {
+    background: var(--sitia-success);
+    color: #fff;
+}
+
+.dashboard-card--warning {
+    background: var(--sitia-warning);
+    color: #212529;
+}
+
+.dashboard-card--info {
+    background: var(--sitia-info);
+    color: #fff;
+}
+
+.dashboard-card--danger {
+    background: var(--sitia-danger);
+    color: #fff;
+}
+
+.dashboard-card h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+/* Modales */
+.modal {
+    z-index: 1060;
+}
+
+.modal-backdrop {
+    z-index: 1050;
+}
+
+#modalConfirmacionSITIA {
+    z-index: 1100;
+}
+
+.modal-content {
+    border-radius: 10px;
+    border: none;
+    background-color: var(--sitia-surface-3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.modal-header {
+    background-color: var(--sitia-surface-2);
+    border-radius: 10px 10px 0 0;
+    color: var(--sitia-text);
+}
+
+.modal-footer {
+    background-color: var(--sitia-surface-1);
+    border-top: 1px solid var(--sitia-border);
+    border-radius: 0 0 10px 10px;
+}
+
+.modal-backdrop.show {
+    opacity: 0.6 !important;
 }
 
 /* Tooltips */
@@ -1044,7 +1194,7 @@ table.dataTable,
     border-right-color: #3b443e !important;
 }
 
-/* Stepper */
+/* Stepper Asistente */
 .stepper {
     display: flex;
     align-items: center;
@@ -1103,254 +1253,730 @@ table.dataTable,
     max-width: 100px;
 }
 
-/* === FASE 4: SELECT2 & DATATABLES === */
-.select2-container--bootstrap-5 .select2-selection {
-    background-color: var(--sitia-input-bg);
-    border-color: var(--sitia-border);
-    color: var(--sitia-text);
+/* Botón de Notificaciones (Campanita en Navbar) */
+.btn-notificaciones {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid var(--sitia-border);
+    background-color: var(--sitia-surface-2);
+    color: var(--sitia-text) !important;
+    transition: all 0.25s ease-in-out;
+    text-decoration: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    padding: 0;
 }
 
-.select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered {
+.btn-notificaciones i {
+    font-size: 1.05rem;
     color: var(--sitia-text);
+    transition: color 0.2s ease, transform 0.2s ease;
 }
 
-.select2-container--bootstrap-5 .select2-dropdown {
+.btn-notificaciones:hover,
+.btn-notificaciones:active {
+    background-color: var(--sitia-surface-1);
+    border-color: var(--sitia-primary);
+    box-shadow: 0 2px 6px rgba(90, 147, 103, 0.25);
+}
+
+.btn-notificaciones:focus,
+.btn-notificaciones:focus-visible {
     background-color: var(--sitia-surface-2);
     border-color: var(--sitia-border);
+    box-shadow: none !important;
+    outline: none !important;
 }
 
-.select2-container--bootstrap-5 .select2-search--dropdown .select2-search__field {
-    background-color: var(--sitia-input-bg);
-    color: var(--sitia-text);
-    border-color: var(--sitia-border);
-}
-
-.select2-container--bootstrap-5 .select2-results__option {
-    color: var(--sitia-text);
-}
-
-.select2-container--bootstrap-5 .select2-results__option--highlighted {
-    background-color: var(--sitia-primary);
-    color: #fff;
-}
-
-.select2-container--bootstrap-5 .select2-selection:focus,
-.select2-container--bootstrap-5.select2-container--open .select2-selection {
-    border-color: var(--sitia-primary);
-    box-shadow: 0 0 0 0.25rem rgba(90, 147, 103, 0.25);
-}
-
-.select2-container--bootstrap-5.select2-container--open .select2-dropdown {
-    border-color: var(--sitia-primary);
-}
-
-.dataTables_wrapper .dataTables_length select,
-.dataTables_wrapper .dataTables_filter input {
-    background-color: var(--sitia-input-bg);
-    border-color: var(--sitia-border);
-    color: var(--sitia-text);
-    border-radius: 6px;
-    outline: none;
-}
-
-.dataTables_wrapper .dataTables_length select:focus,
-.dataTables_wrapper .dataTables_filter input:focus {
-    border-color: var(--sitia-primary);
-    box-shadow: 0 0 0 0.25rem rgba(90, 147, 103, 0.25);
-}
-
-.dataTables_wrapper .dataTables_info,
-.dataTables_wrapper .dataTables_length label,
-.dataTables_wrapper .dataTables_filter label {
-    color: var(--sitia-text);
-}
-
-.pagination .page-link {
-    background-color: var(--sitia-surface-3);
-    border-color: var(--sitia-border);
+.btn-notificaciones:hover i,
+.btn-notificaciones:active i {
     color: var(--sitia-primary);
 }
 
-.pagination .page-item.active .page-link {
-    background-color: var(--sitia-primary);
-    border-color: var(--sitia-primary);
-    color: #fff;
+.btn-notificaciones.has-unread {
+    border-color: rgba(90, 147, 103, 0.5);
+    background-color: rgba(90, 147, 103, 0.12);
+    box-shadow: 0 0 0 3px rgba(90, 147, 103, 0.18);
 }
 
-/* Botón suave amarillo (Baja) - Sólido con icono blanco */
-.btn-soft-warning {
-    background-color: #e6ad12 !important;
-    border-color: #e6ad12 !important;
-    color: #fff !important;
-    transition: all 0.2s ease-in-out;
+.btn-notificaciones.has-unread i {
+    color: var(--sitia-primary) !important;
+    animation: bellShake 3.5s infinite ease-in-out;
+    transform-origin: top center;
 }
 
-.btn-soft-warning:hover {
-    background-color: #c9930c !important;
-    border-color: #c9930c !important;
-    color: #fff !important;
+/* Visor de PDF Integrado */
+#modalVisorPDF {
+    z-index: 1090 !important;
+}
+#modalVisorPDF .modal-dialog {
+    max-width: 94vw;
+    height: 92vh;
+    margin: 1.5rem auto;
+}
+#modalVisorPDF .modal-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border-radius: 12px;
+    overflow: hidden;
+}
+#modalVisorPDF .modal-header {
+    flex-shrink: 0;
+    background-color: var(--sitia-surface-1, #f8f9fa);
+    border-bottom: 1px solid var(--sitia-border, #dee2e6);
+}
+#modalVisorPDF .modal-body {
+    flex: 1 1 auto;
+    padding: 0;
+    position: relative;
+    background-color: #525659;
+    overflow: hidden;
+}
+#modalVisorPDF iframe {
+    transition: opacity 0.25s ease-in-out;
 }
 
-/* Redefinición global de btn-info al color de "Ver Insumos" (#4a9d95) */
-.btn-info {
-    background-color: #4a9d95 !important;
-    border-color: #4a9d95 !important;
-    color: #fff !important;
+/* ============================================================================
+   7. MODO OSCURO (SUAVE Y PASTEL - DIM/SAGE) CONSOLIDADO
+   ============================================================================ */
+[data-theme="dark"] {
+    /* Paleta Modo Oscuro (Tonos Pastel Suaves) */
+    --sitia-primary: #a1d4b1; /* Verde salvia más claro */
+    --sitia-primary-hover: #b4e0c2;
+    --sitia-secondary: #7e8f89;
+    --sitia-secondary-hover: #8fa09a;
+    --sitia-success: #9de2b9;
+    --sitia-warning: #f4dd9e;
+    --sitia-danger: #f7aaaa;
+    --sitia-info: #a2dfe6;
+
+    /* Superficies Claras dentro del Modo Oscuro (Dim/Sage Extra Claro) */
+    --sitia-surface-1: #6b8077; /* Cabeceras principales, modales y dropdowns */
+    --sitia-surface-2: #60736b; /* Tarjetas, inputs y thead */
+    --sitia-surface-3: #556860; /* Fondo general del Body */
+
+    --sitia-text: #f4f7f5; /* Texto muy claro con buen contraste */
+    --sitia-text-muted: #dbe5e0; /* Texto secundario suave */
+    --sitia-border: #7a9187; /* Borde más visible pero suave */
+
+    /* Degradados Sidebar/Footer Modo Oscuro (Más Claros) */
+    --sitia-menu-start: #495c53;
+    --sitia-menu-end: #52665c;
+
+    --sitia-table-hover: rgba(161, 212, 177, 0.12);
+
+    /* Mapeo Bootstrap en Modo Oscuro */
+    --bs-primary: var(--sitia-primary);
+    --bs-body-bg: var(--sitia-surface-3);
+    --bs-body-color: var(--sitia-text);
+    --sitia-input-bg: var(--sitia-surface-2);
+    --bs-border-color: var(--sitia-border);
+    --bs-secondary-bg: var(--sitia-surface-3);
+
+    /* Redefinición de botones en Modo Oscuro (Consolidado) */
+    .btn {
+        opacity: 0.88;
+    }
+    .btn:hover,
+    .btn:active,
+    .btn.active {
+        opacity: 1 !important;
+    }
+    .btn:focus,
+    .btn:focus-visible,
+    .btn:active:focus,
+    .btn.show:focus,
+    .btn-check:focus + .btn {
+        opacity: 0.88;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    .btn-primary {
+        background-color: var(--sitia-primary) !important;
+        border-color: var(--sitia-primary) !important;
+        color: #1e2522 !important;
+        font-weight: 600;
+    }
+    .btn-primary:hover,
+    .btn-primary:active,
+    .btn-primary.active {
+        background-color: var(--sitia-primary-hover) !important;
+        border-color: var(--sitia-primary-hover) !important;
+        color: #1e2522 !important;
+    }
+    .btn-primary:focus:not(:focus-visible) {
+        background-color: var(--sitia-primary) !important;
+        border-color: var(--sitia-primary) !important;
+        color: #1e2522 !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    .btn-secondary {
+        background-color: var(--sitia-secondary) !important;
+        border-color: var(--sitia-secondary) !important;
+        color: var(--sitia-text) !important;
+    }
+    .btn-secondary:hover,
+    .btn-secondary:active,
+    .btn-secondary.active {
+        background-color: var(--sitia-secondary-hover) !important;
+        border-color: var(--sitia-secondary-hover) !important;
+        color: var(--sitia-text) !important;
+    }
+    .btn-secondary:focus:not(:focus-visible) {
+        background-color: var(--sitia-secondary) !important;
+        border-color: var(--sitia-secondary) !important;
+        color: var(--sitia-text) !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    .btn-success {
+        background-color: var(--sitia-success) !important;
+        border-color: var(--sitia-success) !important;
+        color: #1e2522 !important;
+        font-weight: 600;
+    }
+    .btn-success:hover,
+    .btn-success:active,
+    .btn-success.active {
+        background-color: #b1ebd0 !important;
+        border-color: #b1ebd0 !important;
+        color: #1e2522 !important;
+    }
+    .btn-success:focus:not(:focus-visible) {
+        background-color: var(--sitia-success) !important;
+        border-color: var(--sitia-success) !important;
+        color: #1e2522 !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    .btn-warning {
+        background-color: #e5ac6b !important;
+        border-color: #e5ac6b !important;
+        color: #3b2408 !important;
+        font-weight: 600;
+    }
+    .btn-warning.text-white {
+        color: #ffffff !important;
+    }
+    .btn-warning:hover,
+    .btn-warning:active,
+    .btn-warning.active {
+        background-color: #f2bd83 !important;
+        border-color: #f2bd83 !important;
+        color: #3b2408 !important;
+    }
+    .btn-warning.text-white:hover {
+        color: #ffffff !important;
+    }
+    .btn-warning:focus:not(:focus-visible) {
+        background-color: #e5ac6b !important;
+        border-color: #e5ac6b !important;
+        color: #3b2408 !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    .btn-danger {
+        background-color: var(--sitia-danger) !important;
+        border-color: var(--sitia-danger) !important;
+        color: #1e2522 !important;
+        font-weight: 600;
+    }
+    .btn-danger:hover,
+    .btn-danger:active,
+    .btn-danger.active {
+        background-color: #f9c2c2 !important;
+        border-color: #f9c2c2 !important;
+        color: #1e2522 !important;
+    }
+    .btn-danger:focus:not(:focus-visible) {
+        background-color: var(--sitia-danger) !important;
+        border-color: var(--sitia-danger) !important;
+        color: #1e2522 !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    .btn-info {
+        background-color: #63b3ab !important;
+        border-color: #63b3ab !important;
+        color: #1a3a37 !important;
+        font-weight: 600;
+    }
+    .btn-info:hover,
+    .btn-info:active,
+    .btn-info.active {
+        background-color: #79c5bd !important;
+        border-color: #79c5bd !important;
+        color: #1a3a37 !important;
+    }
+    .btn-info:focus:not(:focus-visible) {
+        background-color: #63b3ab !important;
+        border-color: #63b3ab !important;
+        color: #1a3a37 !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    .btn-light {
+        background-color: var(--sitia-surface-1) !important;
+        border-color: var(--sitia-border) !important;
+        color: var(--sitia-text) !important;
+    }
+    .btn-light:hover,
+    .btn-light:active,
+    .btn-light.active {
+        background-color: var(--sitia-surface-2) !important;
+        border-color: var(--sitia-border) !important;
+        color: var(--sitia-text) !important;
+    }
+    .btn-light:focus:not(:focus-visible) {
+        background-color: var(--sitia-surface-1) !important;
+        border-color: var(--sitia-border) !important;
+        color: var(--sitia-text) !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    /* Botones Suaves en Modo Oscuro */
+    .btn-soft-warning {
+        background-color: #d1970b !important;
+        border-color: #d1970b !important;
+        color: #fff !important;
+    }
+    .btn-soft-warning:hover,
+    .btn-soft-warning:active {
+        background-color: #b88408 !important;
+        border-color: #b88408 !important;
+    }
+    .btn-soft-warning:focus:not(:focus-visible) {
+        background-color: #d1970b !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    .btn-soft-success {
+        background-color: #218838 !important;
+        border-color: #218838 !important;
+        color: #fff !important;
+    }
+    .btn-soft-success:hover,
+    .btn-soft-success:active {
+        background-color: #1a6d2c !important;
+        border-color: #1a6d2c !important;
+    }
+    .btn-soft-success:focus:not(:focus-visible) {
+        background-color: #218838 !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    .btn-soft-primary {
+        background-color: #4e8351 !important;
+        border-color: #4e8351 !important;
+        color: #fff !important;
+    }
+    .btn-soft-primary:hover,
+    .btn-soft-primary:active {
+        background-color: #3e6a41 !important;
+        border-color: #3e6a41 !important;
+    }
+    .btn-soft-primary:focus:not(:focus-visible) {
+        background-color: #4e8351 !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    .btn-soft-secondary {
+        background-color: #6c7781 !important;
+        border-color: #6c7781 !important;
+        color: #fff !important;
+    }
+    .btn-soft-secondary:hover,
+    .btn-soft-secondary:active {
+        background-color: #565f67 !important;
+        border-color: #565f67 !important;
+    }
+    .btn-soft-secondary:focus:not(:focus-visible) {
+        background-color: #6c7781 !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    /* Estilos outline atenuados en Modo Oscuro */
+    .btn-outline-primary {
+        color: var(--sitia-primary) !important;
+        border-color: var(--sitia-primary) !important;
+    }
+    .btn-outline-primary:hover,
+    .btn-outline-primary:active,
+    .btn-outline-primary.active {
+        background-color: rgba(161, 212, 177, 0.15) !important;
+        color: var(--sitia-primary) !important;
+        border-color: var(--sitia-primary) !important;
+    }
+    .btn-outline-primary:focus-visible {
+        background-color: transparent !important;
+        color: var(--sitia-primary) !important;
+        border-color: var(--sitia-primary) !important;
+        box-shadow: 0 0 0 0.25rem rgba(161, 212, 177, 0.25) !important;
+        outline: none !important;
+    }
+    .btn-outline-primary:focus:not(:focus-visible) {
+        background-color: transparent !important;
+        color: var(--sitia-primary) !important;
+        border-color: var(--sitia-primary) !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    .btn-outline-secondary {
+        color: var(--sitia-text-muted) !important;
+        border-color: var(--sitia-border) !important;
+    }
+    .btn-outline-secondary:hover,
+    .btn-outline-secondary:active,
+    .btn-outline-secondary.active {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        color: var(--sitia-text) !important;
+    }
+    .btn-outline-secondary:focus:not(:focus-visible) {
+        background-color: transparent !important;
+        color: var(--sitia-text-muted) !important;
+        border-color: var(--sitia-border) !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    .btn-sidebar-toggle {
+        background-color: var(--sitia-surface-2) !important;
+        border-color: var(--sitia-border) !important;
+        color: var(--sitia-text) !important;
+    }
+    .btn-sidebar-toggle:hover,
+    .btn-sidebar-toggle:focus {
+        background-color: var(--sitia-primary) !important;
+        color: #1e2522 !important;
+        border-color: var(--sitia-primary) !important;
+    }
+
+    .btn-outline-success {
+        color: var(--sitia-success) !important;
+        border-color: var(--sitia-success) !important;
+    }
+    .btn-outline-success:hover,
+    .btn-outline-success:active,
+    .btn-outline-success.active {
+        background-color: rgba(157, 226, 185, 0.15) !important;
+        color: var(--sitia-success) !important;
+    }
+    .btn-outline-success:focus:not(:focus-visible) {
+        background-color: transparent !important;
+        color: var(--sitia-success) !important;
+        border-color: var(--sitia-success) !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    .btn-outline-danger {
+        color: var(--sitia-danger) !important;
+        border-color: var(--sitia-danger) !important;
+    }
+    .btn-outline-danger:hover,
+    .btn-outline-danger:active,
+    .btn-outline-danger.active {
+        background-color: rgba(247, 170, 170, 0.15) !important;
+        color: var(--sitia-danger) !important;
+    }
+    .btn-outline-danger:focus:not(:focus-visible) {
+        background-color: transparent !important;
+        color: var(--sitia-danger) !important;
+        border-color: var(--sitia-danger) !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    .btn-outline-warning {
+        color: var(--sitia-warning) !important;
+        border-color: var(--sitia-warning) !important;
+    }
+    .btn-outline-warning:hover,
+    .btn-outline-warning:active,
+    .btn-outline-warning.active {
+        background-color: rgba(244, 221, 158, 0.15) !important;
+        color: var(--sitia-warning) !important;
+    }
+    .btn-outline-warning:focus:not(:focus-visible) {
+        background-color: transparent !important;
+        color: var(--sitia-warning) !important;
+        border-color: var(--sitia-warning) !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+
+    /* Badges y Estados en Modo Oscuro (Estilo translúcido premium) */
+    .estado-disponible, .estado-activa, .badge.bg-success {
+        background-color: rgba(157, 226, 185, 0.15) !important;
+        color: #9de2b9 !important;
+        border: 1px solid rgba(157, 226, 185, 0.35) !important;
+    }
+    .estado-asignado, .badge.bg-warning {
+        background-color: rgba(244, 221, 158, 0.15) !important;
+        color: #f4dd9e !important;
+        border: 1px solid rgba(244, 221, 158, 0.35) !important;
+    }
+    .estado-parcial {
+        background-color: rgba(254, 240, 138, 0.22) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(254, 240, 138, 0.45) !important;
+    }
+    .estado-baja, .estado-anulado, .badge.bg-danger {
+        background-color: rgba(247, 170, 170, 0.15) !important;
+        color: #f7aaaa !important;
+        border: 1px solid rgba(247, 170, 170, 0.35) !important;
+    }
+    .estado-devuelta, .badge.bg-secondary {
+        background-color: rgba(194, 207, 199, 0.15) !important;
+        color: #c2cfc7 !important;
+        border: 1px solid rgba(194, 207, 199, 0.35) !important;
+    }
+    .badge.bg-primary {
+        background-color: rgba(161, 212, 177, 0.15) !important;
+        color: #a1d4b1 !important;
+        border: 1px solid rgba(161, 212, 177, 0.35) !important;
+    }
+    .badge.bg-info {
+        background-color: rgba(162, 223, 230, 0.15) !important;
+        color: #a2dfe6 !important;
+        border: 1px solid rgba(162, 223, 230, 0.35) !important;
+    }
+    .badge.bg-dark {
+        background-color: var(--sitia-surface-1) !important;
+        color: var(--sitia-text) !important;
+        border: 1px solid var(--sitia-border) !important;
+    }
+
+    /* Badge Colaborativa en Modo Oscuro */
+    .badge-colaborativa {
+        background-color: #835dc2 !important;
+        border-color: #835dc2 !important;
+        color: #fff !important;
+    }
+
+    /* Clases utilitarias y tablas en Modo Oscuro */
+    .bg-light {
+        background-color: var(--sitia-surface-2) !important;
+        color: var(--sitia-text) !important;
+    }
+
+    .table-light,
+    .table-light th,
+    .table-light td {
+        background-color: var(--sitia-surface-2) !important;
+        color: var(--sitia-text) !important;
+        border-color: var(--sitia-border) !important;
+    }
+
+    /* Menús desplegables */
+    .dropdown-menu {
+        background-color: var(--sitia-surface-1);
+        border-color: var(--sitia-border);
+    }
+    .dropdown-item {
+        color: var(--sitia-text);
+    }
+    .dropdown-item:hover, .dropdown-item:focus {
+        background-color: var(--sitia-table-hover);
+        color: var(--sitia-text);
+    }
+    .dropdown-divider {
+        border-color: var(--sitia-border);
+    }
+
+    /* Alertas atenuadas */
+    .alert-success {
+        background-color: rgba(140, 214, 169, 0.15) !important;
+        border-color: rgba(140, 214, 169, 0.3) !important;
+        color: #8cd6a9 !important;
+    }
+    .alert-warning {
+        background-color: rgba(238, 208, 131, 0.15) !important;
+        border-color: rgba(238, 208, 131, 0.3) !important;
+        color: #eed083 !important;
+    }
+    .alert-danger {
+        background-color: rgba(234, 150, 150, 0.15) !important;
+        border-color: rgba(234, 150, 150, 0.3) !important;
+        color: #ea9696 !important;
+    }
+    .alert-info {
+        background-color: rgba(139, 203, 211, 0.15) !important;
+        border-color: rgba(139, 203, 211, 0.3) !important;
+        color: #8bcbd3 !important;
+    }
+    .alert-light {
+        background-color: var(--sitia-surface-2) !important;
+        border-color: var(--sitia-border) !important;
+        color: var(--sitia-text) !important;
+    }
+
+    /* Modales en Modo Oscuro */
+    .modal-content, .modal-body, .modal-header, .modal-footer {
+        background-color: var(--sitia-surface-3) !important;
+        color: var(--sitia-text) !important;
+    }
+    .modal-header {
+        border-bottom: 1px solid var(--sitia-border) !important;
+    }
+    .modal-footer {
+        border-top: 1px solid var(--sitia-border) !important;
+    }
+    .btn-close {
+        filter: invert(1) grayscale(100%) brightness(200%);
+    }
+
+    /* Inputs deshabilitados */
+    .form-control:disabled,
+    .form-select:disabled {
+        color: var(--sitia-text-muted) !important;
+        background-color: var(--sitia-surface-3) !important;
+    }
+
+    /* Redefinición de dashboard-card en Modo Oscuro */
+    .dashboard-card {
+        background-color: var(--sitia-surface-2) !important;
+        color: var(--sitia-text) !important;
+        border: 1px solid var(--sitia-border) !important;
+    }
+    .dashboard-card--primary {
+        border-left: 4px solid var(--sitia-primary) !important;
+    }
+    .dashboard-card--success {
+        border-left: 4px solid var(--sitia-success) !important;
+    }
+    .dashboard-card--info {
+        border-left: 4px solid var(--sitia-info) !important;
+    }
+    .dashboard-card--warning {
+        border-left: 4px solid var(--sitia-warning) !important;
+    }
+    .dashboard-card--danger {
+        border-left: 4px solid var(--sitia-danger) !important;
+    }
+
+    /* Anulación del degradado brillante en Pendientes del Dashboard */
+    .dashboard-card[style*="#FF512F"],
+    .dashboard-card[style*="#DD2476"] {
+        background: linear-gradient(45deg, rgba(255, 81, 47, 0.15), rgba(221, 36, 118, 0.15)) !important;
+        border-color: rgba(221, 36, 118, 0.35) !important;
+        border-left: 4px solid #DD2476 !important;
+        color: var(--sitia-text) !important;
+    }
+
+    /* Tarjetas estadísticas de Insumos Intervenidos */
+    .card[style*="#3d7b5f"] {
+        background-color: rgba(61, 123, 95, 0.15) !important;
+        color: #9de2b9 !important;
+        border: 1px solid rgba(61, 123, 95, 0.35) !important;
+    }
+    .card[style*="#d4a03c"] {
+        background-color: rgba(212, 160, 60, 0.15) !important;
+        color: #f4dd9e !important;
+        border: 1px solid rgba(212, 160, 60, 0.35) !important;
+    }
+    .card[style*="#c9544a"] {
+        background-color: rgba(201, 84, 74, 0.15) !important;
+        color: #f7aaaa !important;
+        border: 1px solid rgba(201, 84, 74, 0.35) !important;
+    }
+    .card[style*="#4a9b8c"] {
+        background-color: rgba(74, 155, 140, 0.15) !important;
+        color: #a2dfe6 !important;
+        border: 1px solid rgba(74, 155, 140, 0.35) !important;
+    }
+
+    /* Input group text y selector de archivos */
+    .input-group-text {
+        background-color: var(--sitia-surface-1) !important;
+        border-color: var(--sitia-border) !important;
+        color: var(--sitia-text) !important;
+    }
+    .form-control::file-selector-button {
+        background-color: var(--sitia-surface-1) !important;
+        color: var(--sitia-text) !important;
+        border-color: var(--sitia-border) !important;
+    }
+    .form-control:hover::file-selector-button {
+        background-color: var(--sitia-surface-2) !important;
+    }
+
+    /* Adaptabilidad del texto de comentarios */
+    .dark-text-light {
+        color: var(--sitia-text) !important;
+    }
+    .dark-text-muted {
+        color: var(--sitia-text-muted) !important;
+    }
+    
+    .card-header--success {
+        background-color: rgba(92, 171, 125, 0.15) !important;
+        color: #9de2b9 !important;
+        border-bottom: 1px solid rgba(92, 171, 125, 0.3) !important;
+    }
+    .card-header--info {
+        background-color: rgba(74, 167, 155, 0.15) !important;
+        color: #a2dfe6 !important;
+        border-bottom: 1px solid rgba(74, 167, 155, 0.3) !important;
+    }
+    .card-header--danger {
+        background-color: rgba(220, 53, 69, 0.15) !important;
+        color: #f87171 !important;
+        border-bottom: 1px solid rgba(220, 53, 69, 0.3) !important;
+    }
+    .card-header--warning {
+        background-color: rgba(255, 193, 7, 0.15) !important;
+        color: #fcd34d !important;
+        border-bottom: 1px solid rgba(255, 193, 7, 0.3) !important;
+    }
+
+    /* Visor de PDF en Modo Oscuro */
+    #modalVisorPDF .modal-header {
+        background-color: var(--sitia-surface-2) !important;
+        border-bottom: 1px solid var(--sitia-border) !important;
+        color: var(--sitia-text) !important;
+    }
+    #modalVisorPDF .modal-body {
+        background-color: #26282b !important;
+    }
 }
 
-.btn-info:hover, .btn-info:focus, .btn-info:active {
-    background-color: #3b827b !important;
-    border-color: #3b827b !important;
-    color: #fff !important;
-}
+/* ============================================================================
+   8. UTILIDADES Y ESTADOS ESPECÍFICOS
+   ============================================================================ */
 
-/* Modo Oscuro para btn-info (Tono pastel intermedio y suave) */
-[data-theme="dark"] .btn-info {
-    background-color: #63b3ab !important;
-    border-color: #63b3ab !important;
-    color: #1a3a37 !important;
+/* Alineación horizontal de cantidad en asignaciones */
+.cantidad-input {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
 }
-
-[data-theme="dark"] .btn-info:hover {
-    background-color: #79c5bd !important;
-    border-color: #79c5bd !important;
-    color: #1a3a37 !important;
+.cantidad-input label {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    white-space: nowrap;
 }
-
-/* Redefinición global de btn-warning al color de "Ver Asignaciones" (#d9943f) */
-.btn-warning {
-    background-color: #d9943f !important;
-    border-color: #d9943f !important;
-    color: #fff !important;
-}
-
-.btn-warning:hover, .btn-warning:focus, .btn-warning:active {
-    background-color: #be7b28 !important;
-    border-color: #be7b28 !important;
-    color: #fff !important;
-}
-
-/* Modo Oscuro para btn-soft-warning */
-[data-theme="dark"] .btn-soft-warning {
-    background-color: #d1970b !important;
-    border-color: #d1970b !important;
-    color: #fff !important;
-}
-
-/* Botones suaves para remitos firmados - Sólidos con icono blanco */
-.btn-soft-success {
-    background-color: #28a745 !important;
-    border-color: #28a745 !important;
-    color: #fff !important;
-}
-.btn-soft-success:hover {
-    background-color: #218838 !important;
-    border-color: #218838 !important;
-    color: #fff !important;
-}
-
-.btn-soft-primary {
-    background-color: #66a86a !important;
-    border-color: #66a86a !important;
-    color: #fff !important;
-}
-.btn-soft-primary:hover {
-    background-color: #4e8351 !important;
-    border-color: #4e8351 !important;
-    color: #fff !important;
-}
-
-.btn-soft-secondary {
-    background-color: #85929e !important;
-    border-color: #85929e !important;
-    color: #fff !important;
-}
-.btn-soft-secondary:hover {
-    background-color: #6c7781 !important;
-    border-color: #6c7781 !important;
-    color: #fff !important;
-}
-
-/* Modo Oscuro para los botones suaves */
-[data-theme="dark"] .btn-soft-success {
-    background-color: #218838 !important;
-    border-color: #218838 !important;
-    color: #fff !important;
-}
-
-[data-theme="dark"] .btn-soft-primary {
-    background-color: #4e8351 !important;
-    border-color: #4e8351 !important;
-    color: #fff !important;
-}
-
-[data-theme="dark"] .btn-soft-secondary {
-    background-color: #6c7781 !important;
-    border-color: #6c7781 !important;
-    color: #fff !important;
-}
-
-/* Botón marrón claro pastel con fondo sólido e icono blanco */
-.btn-pastel-brown {
-    background-color: #a38974 !important;
-    border-color: #a38974 !important;
-    color: #ffffff !important;
-}
-.btn-pastel-brown:hover, .btn-pastel-brown:focus {
-    background-color: #8c735f !important;
-    border-color: #8c735f !important;
-    color: #ffffff !important;
-}
-
-.btn-colaborativa {
-    background-color: #9b78db !important;
-    border-color: #9b78db !important;
-    color: #ffffff !important;
-}
-.btn-colaborativa:hover, .btn-colaborativa:focus {
-    background-color: #7d5bbf !important;
-    border-color: #7d5bbf !important;
-    color: #ffffff !important;
-}
-
-/* === UTILIDADES === */
-.btn-xs {
-    padding: 0.15rem 0.35rem;
-    font-size: 0.75rem;
-    line-height: 1.2;
-    border-radius: 0.2rem;
-}
-
-.circle-sm {
-    width: 28px !important;
-    height: 28px !important;
-}
-
-.fs-80 {
-    font-size: 0.8rem !important;
-}
-
-.fs-65 {
-    font-size: 0.65rem !important;
-}
-
-.ls-05 {
-    letter-spacing: 0.5px !important;
-}
-
-.input-width-qty {
-    width: 70px !important;
-}
-
-.dropdown-menu-scrollable {
-    max-height: 300px;
-    overflow-y: auto;
-}
-
-.pre-scrollable-custom {
-    max-height: 300px;
-    overflow-y: auto;
-    white-space: pre-wrap;
+.cantidad-input input {
+    margin: 0 !important;
 }
 
 /* Nav Tabs (Pestañas) */
@@ -1364,20 +1990,20 @@ table.dataTable,
     border-bottom-color: var(--sitia-primary) !important;
 }
 
+/* Badges específicos */
 .badge-tipo {
     background-color: var(--sitia-surface-2) !important;
     color: var(--sitia-text) !important;
     border: 1px solid var(--sitia-border);
 }
 
-/* Badge de Tarea Colaborativa (Púrpura Pastel) */
 .badge-colaborativa {
-    background-color: #9b78db !important; /* Púrpura/Lila pastel suave */
-    color: #fff !important;               /* Mantiene el texto e icono en blanco */
+    background-color: #9b78db !important;
+    color: #fff !important;
     border: 1px solid #9b78db !important;
 }
 
-/* Estados */
+/* Estados de SITIA (Modo Claro) */
 .estado-disponible {
     background-color: var(--sitia-success) !important;
     color: white !important;
@@ -1386,6 +2012,12 @@ table.dataTable,
 .estado-asignado {
     background-color: var(--sitia-warning) !important;
     color: black !important;
+}
+
+.estado-parcial {
+    background-color: #d99221 !important;
+    color: #ffffff !important;
+    border: 1px solid #c88316 !important;
 }
 
 .estado-baja {
@@ -1423,7 +2055,180 @@ table.dataTable,
     text-align: center;
 }
 
-/* Responsive General */
+/* ============================================================================
+   9. MEDIA QUERIES, ANIMACIONES Y RESPONSIVE
+   ============================================================================ */
+
+/* Transiciones nativas entre páginas completas */
+@media (prefers-reduced-motion: no-preference) {
+    @view-transition {
+        navigation: auto;
+    }
+}
+
+/* Transición suave al cargar cualquier página */
+#content > .container-fluid {
+    animation: pageFadeIn 0.22s ease-out;
+}
+
+@keyframes pageFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Transición suave para pestañas de contenido */
+.tab-pane.fade.show.active {
+    animation: stepFadeIn 0.22s ease-out;
+}
+
+@keyframes stepFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #content > .container-fluid,
+    .tab-pane {
+        animation: none !important;
+    }
+}
+
+/* Animación Zoom-In moderna en Modales */
+.modal.fade .modal-dialog {
+    transform: scale(0.94);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+}
+
+.modal.show .modal-dialog {
+    transform: scale(1);
+}
+
+/* Animación sutil de balanceo de campanita de notificaciones */
+@keyframes bellShake {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    5%, 15% {
+        transform: rotate(14deg);
+    }
+    10%, 20% {
+        transform: rotate(-14deg);
+    }
+    25% {
+        transform: rotate(8deg);
+    }
+    30% {
+        transform: rotate(-8deg);
+    }
+    35% {
+        transform: rotate(4deg);
+    }
+    40% {
+        transform: rotate(0deg);
+    }
+}
+
+/* ============================================================================
+   RESPONSIVE DENSITY: Laptops y Pantallas de Baja Altura (1366x768 / HD)
+   ============================================================================ */
+@media (max-width: 1400px), (max-height: 820px) {
+    html {
+        font-size: 14.45px; /* Aumentado un 5% adicional (de 13.75px a 14.45px, ~90% de escala) */
+    }
+
+    #content > .container-fluid {
+        padding: 0.85rem 1.25rem;
+    }
+
+    /* Reducción vertical de Navbar y Cabecera Sidebar */
+    .navbar.navbar-expand-lg {
+        min-height: 56px !important;
+    }
+    .sidebar-header {
+        height: 56px;
+    }
+
+    /* Títulos principales optimizados verticalmente */
+    h1 {
+        font-size: 1.6rem;
+        margin-bottom: 0.75rem !important;
+    }
+
+    /* Tarjetas del Dashboard compactas */
+    .dashboard-card {
+        padding: 0.65rem 0.9rem;
+    }
+    .dashboard-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.15rem;
+    }
+    .dashboard-card p {
+        font-size: 0.85rem;
+    }
+    .dashboard-card .fa-2x {
+        font-size: 1.4rem;
+    }
+
+    /* Tablas DataTables: mayor densidad vertical de información */
+    .table > :not(caption) > * > * {
+        padding: 0.45rem 0.6rem;
+    }
+    .table td, .table th {
+        font-size: 14px;
+    }
+
+    /* Badges y botones de acción en tablas */
+    .table .btn-sm {
+        padding: 0.2rem 0.45rem;
+        font-size: 0.8rem;
+    }
+
+    /* Footer compacto */
+    .app-footer {
+        padding: 6px 12px;
+        margin-top: 15px;
+        font-size: 0.8rem;
+    }
+}
+
+@media (min-width: 993px) and (max-width: 1400px), (min-width: 993px) and (max-height: 820px) {
+    /* Ajuste de sidebar abierta en pantallas de escritorio/laptop */
+    .sidebar {
+        min-width: 225px;
+        max-width: 225px;
+    }
+    .sidebar.active,
+    html.sidebar-collapsed .sidebar {
+        margin-left: -225px;
+    }
+
+    #content {
+        margin-left: 225px;
+        width: calc(100% - 225px);
+    }
+    #content.active,
+    html.sidebar-collapsed #content {
+        margin-left: 0;
+        width: 100%;
+    }
+}
+
+@media (min-width: 992px) {
+    #content > .container-fluid .d-flex.justify-content-between {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+}
+
+/* Breakpoint: Tablets y Laptops Pequeñas (992px) */
 @media (max-width: 992px) {
     .sidebar {
         margin-left: -250px;
@@ -1449,78 +2254,14 @@ table.dataTable,
     }
 }
 
-@media (max-width: 1366px) {
-    #content>.container-fluid {
-        padding: 1rem 1.25rem;
-    }
-}
-
+/* Breakpoint: Dispositivos Móviles (768px) */
 @media (max-width: 768px) {
     .app-footer {
         font-size: 0.75rem;
         padding: 8px 10px;
     }
 
-    .filtros-container .row>[class^="col-"] {
+    .filtros-container .row > [class^="col-"] {
         margin-bottom: 0.5rem;
     }
 }
-
-
-/* Hacer que los botones de acción en las tablas tengan tonos más suaves/claros */
-.table .btn-group .btn {
-    opacity: 0.80;
-}
-
-.table .btn-group .btn:hover {
-    opacity: 1;
-}
-
-/* Optimización de Títulos y Botones para pantallas de Laptops (1366px) sin alterar aspecto original */
-@media (min-width: 992px) {
-    /* Selector estricto para el título de la página principal */
-    #content > .container-fluid > .row > .col-12 > .d-flex.justify-content-between > h1,
-    #content > .container-fluid > .row > .col-12 > .d-flex.justify-content-between > .h1,
-    #content > .container-fluid > .d-flex.justify-content-between > h1,
-    #content > .container-fluid > .d-flex.justify-content-between > .h1 {
-        white-space: nowrap !important;
-        flex-shrink: 0 !important;
-    }
-    
-    /* Selector estricto para el grupo de botones y sus botones asociados en la cabecera */
-    #content > .container-fluid > .row > .col-12 > .d-flex.justify-content-between > .btn-group,
-    #content > .container-fluid > .row > .col-12 > .d-flex.justify-content-between > .btn,
-    #content > .container-fluid > .row > .col-12 > .d-flex.justify-content-between > .btn-group > .btn,
-    #content > .container-fluid > .d-flex.justify-content-between > .btn-group,
-    #content > .container-fluid > .d-flex.justify-content-between > .btn,
-    #content > .container-fluid > .d-flex.justify-content-between > .btn-group > .btn {
-        white-space: nowrap !important;
-        flex-shrink: 0 !important;
-    }
-}
-
-/* Transición de páginas (180ms) sobre tarjetas de contenido */
-#content .card {
-    animation: fadeInCard 0.18s ease-out forwards;
-}
-
-@keyframes fadeInCard {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-/* Animación Zoom-In moderna en Modales (aplicada únicamente en .modal-dialog) */
-.modal.fade .modal-dialog {
-    transform: scale(0.94);
-    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
-}
-
-.modal.show .modal-dialog {
-    transform: scale(1);
-}
-
-

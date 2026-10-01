@@ -637,6 +637,21 @@ include '../../includes/header.php';
               </button>`;
             }
 
+            const ext = (doc.nombre_archivo || '').split('.').pop().toLowerCase();
+            const esVisualizable = ['pdf', 'jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext);
+            let btnVer = '';
+            if (esVisualizable) {
+              const urlVer = `${BASE}/ajax/ingresos_descargar_documento.php?id=${doc.id_documento}&ver=1`;
+              btnVer = `
+                <button type="button" 
+                        class="btn btn-sm btn-outline-primary" 
+                        onclick="abrirVisorArchivo('${urlVer}', '${doc.nombre_archivo.replace(/'/g, "\\'")}')" 
+                        title="Ver documento sin descargar">
+                  <i class="fas fa-eye"></i>
+                </button>
+              `;
+            }
+
             html += `
             <div class="list-group-item">
               <div class="d-flex justify-content-between align-items-center">
@@ -645,6 +660,7 @@ include '../../includes/header.php';
                   <small class="text-muted"><strong>Tipo:</strong> ${tipoLabel}<br><strong>Cargado:</strong> ${doc.fecha_carga}</small>
                 </div>
                 <div class="btn-group">
+                  ${btnVer}
                   <a href="${BASE}/ajax/ingresos_descargar_documento.php?id=${doc.id_documento}" 
                      class="btn btn-sm btn-info" 
                      title="Descargar documento"

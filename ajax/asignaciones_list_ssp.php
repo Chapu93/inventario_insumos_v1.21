@@ -55,11 +55,18 @@ try {
     
     $params = [];
     if ($filtro_localidad !== '') { $where[] = 'l.id_localidad = ?'; $params[] = $filtro_localidad; }
-    if ($filtro_insumo !== '') { $where[] = 'i.tipo_insumo = ?'; $params[] = $filtro_insumo; }
+    if ($filtro_insumo !== '') { 
+        $where[] = 'i.tipo_insumo = ?' . ($filtro_estado === 'Activa' ? ' AND (d.cantidad - COALESCE(d.cantidad_devuelta, 0)) > 0' : ''); 
+        $params[] = $filtro_insumo; 
+    }
     if ($filtro_area !== '') { $where[] = 'r.id_area = ?'; $params[] = $filtro_area; }
     if ($filtro_sede !== '') { $where[] = 'r.id_sede = ?'; $params[] = $filtro_sede; }
     if ($search !== '') {
-        $where[] = '(r.nombre_persona_asignada LIKE ? OR r.apellido_persona_asignada LIKE ? OR r.numero_remito LIKE ? OR i.numero_serie LIKE ? OR REPLACE(i.id_fisico, \'-\', \'\') LIKE ?)';
+        if ($filtro_estado === 'Activa') {
+            $where[] = '(r.nombre_persona_asignada LIKE ? OR r.apellido_persona_asignada LIKE ? OR r.numero_remito LIKE ? OR ((i.numero_serie LIKE ? OR REPLACE(i.id_fisico, \'-\', \'\') LIKE ?) AND (d.cantidad - COALESCE(d.cantidad_devuelta, 0)) > 0))';
+        } else {
+            $where[] = '(r.nombre_persona_asignada LIKE ? OR r.apellido_persona_asignada LIKE ? OR r.numero_remito LIKE ? OR i.numero_serie LIKE ? OR REPLACE(i.id_fisico, \'-\', \'\') LIKE ?)';
+        }
         $like = '%' . $search . '%';
         $like_id_fisico = '%' . str_replace(['-', ' '], '', $search) . '%';
         array_push($params, $like, $like, $like, $like, $like_id_fisico);
@@ -90,7 +97,13 @@ try {
                         r.estado,
                         r.remito_firmado,
                         SUM(d.cantidad) AS cantidad_insumos,
-                        SUM(GREATEST(d.cantidad - COALESCE(d.cantidad_devuelta,0), 0)) AS activas
+                        SUM(GREATEST(d.cantidad - COALESCE(d.cantidad_devuelta,0), 0)) AS activas,
+                        SUM(COALESCE(d.cantidad_devuelta, 0)) AS total_devueltos,
+                        (SELECT COUNT(*) FROM remitos_devolucion rd WHERE rd.id_remito_origen = r.id_remito) AS total_remitos_devolucion,
+                        (SELECT COUNT(*) FROM remitos_devolucion rd WHERE rd.id_remito_origen = r.id_remito AND rd.remito_firmado IS NOT NULL AND rd.remito_firmado != '') AS total_remitos_dev_firmados,
+                        (SELECT rd.numero_devolucion FROM remitos_devolucion rd WHERE rd.id_remito_origen = r.id_remito ORDER BY rd.id_remito_devolucion DESC LIMIT 1) AS ultimo_numero_devolucion,
+                        (SELECT rd.id_remito_devolucion FROM remitos_devolucion rd WHERE rd.id_remito_origen = r.id_remito ORDER BY rd.id_remito_devolucion DESC LIMIT 1) AS ultimo_id_remito_devolucion,
+                        (SELECT rd.remito_firmado FROM remitos_devolucion rd WHERE rd.id_remito_origen = r.id_remito ORDER BY rd.id_remito_devolucion DESC LIMIT 1) AS ultimo_remito_dev_firmado
                  $baseFrom
                  $whereSql
                  GROUP BY r.id_remito";
@@ -119,17 +132,26 @@ try {
         $estadoRemito = trim((string)$r['estado']);
         $idRemito = $r['id_remito'];
         $archivoFirmado = $r['remito_firmado'];
-        
+        $numRemitoEscapado = htmlspecialchars($r['numero_remito'], ENT_QUOTES);
+        $totalDevueltos = (int)($r['total_devueltos'] ?? 0);
+        $tieneRemitoDev = !empty($r['ultimo_numero_devolucion']);
+        $esParcial = ($activas > 0 && ($totalDevueltos > 0 || $tieneRemitoDev));
+
         // Determinar el estado a mostrar
         if ($estadoRemito === 'Anulado') {
             $estado = 'Anulado';
+            $estadoBadge = '<span class="badge estado-anulado">Anulado</span>';
+        } elseif ($activas === 0) {
+            $estado = 'Devuelta';
+            $estadoBadge = '<span class="badge estado-devuelta">Devuelta</span>';
+        } elseif ($esParcial) {
+            $estado = 'Activa';
+            $estadoBadge = '<span class="badge estado-parcial" data-bs-toggle="tooltip" title="Asignación con devoluciones parciales y equipos aún activos">Devolución Parcial</span>';
         } else {
-            // Para remitos no anulados, determinar si está Activa o Devuelta
-            $estado = ($activas > 0) ? 'Activa' : 'Devuelta';
+            $estado = 'Activa';
+            $estadoBadge = '<span class="badge estado-activa">Activa</span>';
         }
-        
-        $estadoBadge = '<span class="badge estado-' . strtolower($estado) . '">' . $estado . '</span>';
-        
+
         // Verificar permisos para cada acción
         $puedeVer = tienePermiso('asignaciones', 'ver');
         $puedeImprimir = tienePermiso('asignaciones', 'ver'); // Same permission as ver
@@ -141,34 +163,63 @@ try {
         $botones = [];
         
         if ($puedeVer) {
-            $botones[] = '<button type="button" class="btn btn-sm btn-info text-white" aria-label="Ver asignación" onclick="abrirVerAsignacion(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Ver detalle"><i class="fas fa-eye" aria-hidden="true"></i></button>';
+            $botones[] = '<button type="button" class="btn btn-sm btn-info text-white" aria-label="Ver asignación" onclick="abrirVerAsignacion(\'' . $numRemitoEscapado . '\')" data-bs-toggle="tooltip" title="Ver detalle"><i class="fas fa-eye" aria-hidden="true"></i></button>';
         }
         
+        $esDevuelta = ($estado === 'Devuelta' || $filtro_estado === 'Devuelta');
+
         if ($puedeImprimir) {
-            $botones[] = '<button type="button" class="btn btn-sm btn-primary" aria-label="Imprimir remito" onclick="generarRemitoPDF(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Imprimir PDF"><i class="fas fa-print" aria-hidden="true"></i></button>';
+            if ($esDevuelta && $tieneRemitoDev) {
+                $botones[] = '<button type="button" class="btn btn-sm btn-warning text-dark" aria-label="Imprimir remitos de devolución" onclick="generarRemitosDevolucionPorRemitoPDF(\'' . $numRemitoEscapado . '\', this)" data-bs-toggle="tooltip" title="Imprimir Remitos de Devolución"><i class="fas fa-file-invoice"></i></button>';
+            } else {
+                $botones[] = '<button type="button" class="btn btn-sm btn-primary" aria-label="Imprimir remito" onclick="generarRemitoPDF(\'' . $numRemitoEscapado . '\')" data-bs-toggle="tooltip" title="Imprimir Remito Entrega"><i class="fas fa-print" aria-hidden="true"></i></button>';
+            }
         }
 
         // Botón de Remito Firmado
         if ($puedeSubirFirmado && $estadoRemito !== 'Anulado') {
-            $numRemitoEscapado = htmlspecialchars($r['numero_remito'], ENT_QUOTES);
-            if ($archivoFirmado) {
-                $urlArchivo = app_base_url() . '/uploads/remitos_firmados/' . $archivoFirmado;
-                $botones[] = '<a href="' . $urlArchivo . '" target="_blank" class="btn btn-sm btn-soft-success" data-bs-toggle="tooltip" title="Ver Remito Firmado"><i class="fas fa-file-signature"></i></a>';
-                $botones[] = '<button type="button" class="btn btn-sm btn-soft-secondary btn-subir-remito" data-id="' . $idRemito . '" data-numero="' . $numRemitoEscapado . '" data-has-file="1" data-bs-toggle="tooltip" title="Reemplazar remito firmado"><i class="fas fa-upload"></i></button>';
+            if ($esDevuelta && $tieneRemitoDev) {
+                // En pestaña Devuelta con remito de devolución
+                $totalDevs = (int)($r['total_remitos_devolucion'] ?? 0);
+                $totalFirmados = (int)($r['total_remitos_dev_firmados'] ?? 0);
+
+                if ($totalDevs > 1) {
+                    // Múltiples entregas / devoluciones asociadas al remito
+                    $btnClass = ($totalFirmados === $totalDevs) ? 'btn-soft-success' : (($totalFirmados > 0) ? 'btn-soft-warning' : 'btn-soft-primary');
+                    $titleTooltip = 'Ver / Subir Comprobantes de Devolución (' . $totalFirmados . '/' . $totalDevs . ' firmados)';
+                    $botones[] = '<button type="button" class="btn btn-sm ' . $btnClass . ' position-relative" aria-label="Gestionar comprobantes de devolución" onclick="abrirGestionComprobantesDevolucion(\'' . $numRemitoEscapado . '\')" data-bs-toggle="tooltip" title="' . htmlspecialchars($titleTooltip, ENT_QUOTES) . '"><i class="fas fa-file-signature"></i><span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-dark" style="font-size:0.6rem; padding: 0.2em 0.35em;">' . $totalDevs . '</span></button>';
+                } else {
+                    // 1 sola entrega
+                    $numDevEscapado = htmlspecialchars($r['ultimo_numero_devolucion'], ENT_QUOTES);
+                    $idDev = (int)$r['ultimo_id_remito_devolucion'];
+                    $firmadoDev = $r['ultimo_remito_dev_firmado'];
+                    if ($firmadoDev) {
+                        $urlArchivoDev = app_base_url() . '/uploads/remitos_firmados/' . $firmadoDev;
+                        $botones[] = '<a href="' . $urlArchivoDev . '" data-visor-archivo="' . $urlArchivoDev . '" data-visor-titulo="Remito Devolución Firmado ' . $numDevEscapado . '" target="_blank" class="btn btn-sm btn-soft-success" data-bs-toggle="tooltip" title="Ver Remito Devolución Firmado"><i class="fas fa-file-signature"></i></a>';
+                    } else {
+                        $botones[] = '<button type="button" class="btn btn-sm btn-soft-primary btn-subir-remito-dev" data-id-dev="' . $idDev . '" data-numero-dev="' . $numDevEscapado . '" data-has-file="0" data-bs-toggle="tooltip" title="Adjuntar remito devolución firmado"><i class="fas fa-upload"></i></button>';
+                    }
+                }
             } else {
-                $botones[] = '<button type="button" class="btn btn-sm btn-soft-primary btn-subir-remito" data-id="' . $idRemito . '" data-numero="' . $numRemitoEscapado . '" data-has-file="0" data-bs-toggle="tooltip" title="Adjuntar remito firmado"><i class="fas fa-upload"></i></button>';
+                // En pestaña Activa (o parcial): gestionar remito de entrega
+                if ($archivoFirmado) {
+                    $urlArchivo = app_base_url() . '/uploads/remitos_firmados/' . $archivoFirmado;
+                    $botones[] = '<a href="' . $urlArchivo . '" data-visor-archivo="' . $urlArchivo . '" data-visor-titulo="Remito Entrega Firmado ' . $numRemitoEscapado . '" target="_blank" class="btn btn-sm btn-soft-success" data-bs-toggle="tooltip" title="Ver Remito Entrega Firmado"><i class="fas fa-file-signature"></i></a>';
+                } else {
+                    $botones[] = '<button type="button" class="btn btn-sm btn-soft-primary btn-subir-remito" data-id="' . $idRemito . '" data-numero="' . $numRemitoEscapado . '" data-has-file="0" data-bs-toggle="tooltip" title="Adjuntar remito entrega firmado"><i class="fas fa-upload"></i></button>';
+                }
             }
         }
         
         if ($puedeDevolver && $estado === 'Activa') {
             $btnDevAttrs = $activas > 0
-                ? 'type="button" class="btn btn-sm btn-warning" aria-label="Devolver insumos" onclick="abrirDevolucion(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Devolver insumos"'
+                ? 'type="button" class="btn btn-sm btn-warning" aria-label="Devolver insumos" onclick="abrirDevolucion(\'' . $numRemitoEscapado . '\')" data-bs-toggle="tooltip" title="Devolver insumos pendientes"'
                 : 'type="button" class="btn btn-sm btn-warning" aria-label="Devolver insumos" disabled data-bs-toggle="tooltip" title="Sin ítems para devolver"';
             $botones[] = '<button ' . $btnDevAttrs . '><i class="fas fa-undo" aria-hidden="true"></i></button>';
         }
         
-        if ($puedeEliminar && $estado === 'Activa') {
-            $botones[] = '<button type="button" class="btn btn-sm btn-danger" aria-label="Anular remito" onclick="eliminarAsignacion(\'' . htmlspecialchars($r['numero_remito'], ENT_QUOTES) . '\')" data-bs-toggle="tooltip" title="Anular remito"><i class="fas fa-trash" aria-hidden="true"></i></button>';
+        if ($puedeEliminar && $estado === 'Activa' && !$esParcial && !$tieneRemitoDev) {
+            $botones[] = '<button type="button" class="btn btn-sm btn-danger" aria-label="Anular remito" onclick="eliminarAsignacion(\'' . $numRemitoEscapado . '\')" data-bs-toggle="tooltip" title="Anular remito"><i class="fas fa-trash" aria-hidden="true"></i></button>';
         }
         
         $esDevuelta = ($estado === 'Devuelta' || $filtro_estado === 'Devuelta');

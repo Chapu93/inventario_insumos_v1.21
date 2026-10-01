@@ -68,6 +68,7 @@ try {
     if (tienePermiso('asignaciones', 'ver')) {
         $stmt = $db->prepare("
             SELECT r.id_remito as id, r.numero_remito as titulo, 
+                   r.numero_remito,
                    CONCAT(r.nombre_persona_asignada, ' ', r.apellido_persona_asignada, ' (', s.nombre_sede, ' - ', l.nombre_localidad, ')') as subtitulo, 
                    'remito' as tipo
             FROM remitos r

@@ -5,7 +5,7 @@ if (!estaAutenticado()) {
     json_response(['valido' => false, 'error' => 'No autenticado'], 401);
 }
 
-if (!tienePermiso('insumos', 'crear')) {
+if (!tienePermiso('insumos', 'crear') && !tienePermiso('insumos', 'editar')) {
     json_response(['valido' => false, 'error' => 'No tienes permisos'], 403);
 }
 

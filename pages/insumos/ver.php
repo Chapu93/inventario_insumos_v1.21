@@ -104,7 +104,7 @@ include '../../includes/header.php';
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1><i class="fas fa-eye me-2"></i>Detalles del Insumo</h1>
             <div>
-                <a href="listar.php" class="btn btn-secondary"><i class="fas fa-arrow-left me-2"></i>Volver</a>
+                <a href="listar.php" class="btn btn-secondary btn-volver"><i class="fas fa-arrow-left me-2"></i>Volver</a>
                 <?php if (tienePermiso('insumos', 'editar')): ?>
                 <a href="editar.php?id=<?php echo $insumo['id_insumo']; ?>" class="btn btn-warning"><i class="fas fa-edit me-2"></i>Editar</a>
                 <?php endif; ?>
@@ -178,12 +178,12 @@ include '../../includes/header.php';
                         </div>
                         <div class="col-md-4">
                             <p><strong>ID Físico:</strong> 
-                                <?php echo !empty($insumo['id_fisico']) ? htmlspecialchars($insumo['id_fisico']) : '<span class="text-muted">No tiene</span>'; ?>
+                                <?php echo !empty($insumo['id_fisico']) ? htmlspecialchars(str_replace(['-', ' '], '', $insumo['id_fisico'])) : '<span class="text-muted">No tiene</span>'; ?>
                             </p>
                         </div>
                         <div class="col-md-4">
                             <p><strong>ID Patrimonio:</strong> 
-                                <?php echo !empty($insumo['id_patrimonio']) ? htmlspecialchars($insumo['id_patrimonio']) : '<span class="text-muted">No tiene</span>'; ?>
+                                <?php echo !empty($insumo['id_patrimonio']) ? htmlspecialchars(str_replace(['-', ' '], '', $insumo['id_patrimonio'])) : '<span class="text-muted">No tiene</span>'; ?>
                             </p>
                         </div>
                     </div>
@@ -201,10 +201,24 @@ include '../../includes/header.php';
             <div class="card mb-4">
                 <div class="card-header"><h5 class="mb-0"><i class="fas fa-cogs me-2"></i>Especificaciones Técnicas</h5></div>
                 <div class="card-body">
+                    <?php 
+                    $formatearAlmacenamiento = function($gb, $esSsd) {
+                        if (empty($gb)) return 'No especificado';
+                        $gbInt = (int)$gb;
+                        $textoCapacidad = ($gbInt >= 1024 && $gbInt % 1024 === 0) ? ($gbInt / 1024) . ' TB' : $gbInt . ' GB';
+                        $badge = !empty($esSsd) 
+                            ? '<span class="badge bg-success ms-1"><i class="fas fa-bolt me-1"></i>SSD</span>' 
+                            : '<span class="badge bg-secondary ms-1"><i class="fas fa-hdd me-1"></i>HDD</span>';
+                        return htmlspecialchars($textoCapacidad) . ' ' . $badge;
+                    };
+                    ?>
                     <?php if ($insumo['tipo_insumo'] === 'PC Escritorio' || $insumo['tipo_insumo'] === 'PC Completa'): ?>
                         <p><strong>Procesador:</strong> <?php echo htmlspecialchars($esp['procesador'] ?? ''); ?></p>
                         <p><strong>RAM:</strong> <?php echo htmlspecialchars($esp['ram_gb'] ?? ''); ?> GB</p>
-                        <p><strong>Almacenamiento:</strong> <?php echo htmlspecialchars($esp['almacenamiento_gb'] ?? ''); ?> GB <?php if (!empty($esp['ssd_o_superior'])): ?><span class="badge bg-success ms-1"><i class="fas fa-microchip me-1"></i>SSD o superior</span><?php endif; ?></p>
+                        <p><strong>Almacenamiento:</strong> <?php echo $formatearAlmacenamiento($esp['almacenamiento_gb'] ?? null, !empty($esp['ssd_o_superior'])); ?></p>
+                        <?php if (!empty($esp['almacenamiento_secundario_gb'])): ?>
+                            <p><strong>Almacenamiento Secundario:</strong> <?php echo $formatearAlmacenamiento($esp['almacenamiento_secundario_gb'], !empty($esp['ssd_secundario'])); ?></p>
+                        <?php endif; ?>
                         <p><strong>Mother:</strong> <?php echo htmlspecialchars($esp['mother'] ?? ''); ?></p>
                         <p><strong>Sistema Operativo:</strong> <?php echo htmlspecialchars($esp['sist_op'] ?? ''); ?></p>
                     <?php elseif ($insumo['tipo_insumo'] === 'Notebook'): ?>
@@ -212,7 +226,7 @@ include '../../includes/header.php';
                         <p><strong>Modelo:</strong> <?php echo htmlspecialchars($esp['modelo'] ?? ''); ?></p>
                         <p><strong>Procesador:</strong> <?php echo htmlspecialchars($esp['procesador'] ?? ''); ?></p>
                         <p><strong>RAM:</strong> <?php echo htmlspecialchars($esp['ram_gb'] ?? ''); ?> GB</p>
-                        <p><strong>Almacenamiento:</strong> <?php echo htmlspecialchars($esp['almacenamiento_gb'] ?? ''); ?> GB</p>
+                        <p><strong>Almacenamiento:</strong> <?php echo $formatearAlmacenamiento($esp['almacenamiento_gb'] ?? null, !empty($esp['ssd_o_superior'])); ?></p>
                     <?php elseif ($insumo['tipo_insumo'] === 'Impresora'): ?>
                         <p><strong>Marca:</strong> <?php echo htmlspecialchars($esp['marca'] ?? ''); ?></p>
                         <p><strong>Modelo:</strong> <?php echo htmlspecialchars($esp['modelo'] ?? ''); ?></p>
@@ -274,6 +288,7 @@ include '../../includes/header.php';
                                         'En Proceso' => 'bg-primary',
                                         'Completado' => 'bg-success',
                                         'Rechazado' => 'bg-danger',
+                                        'Sin Stock' => 'bg-danger',
                                         default => 'bg-secondary'
                                     };
                                     ?>
@@ -348,8 +363,16 @@ include '../../includes/header.php';
                             <?php if ($insumo['tipo_insumo'] === 'Varios'): ?>
                                 <p class="mb-1 small"><strong>Cantidad asignada:</strong> <span class="badge bg-primary"><?php echo (int)($remActItem['cantidad'] - $remActItem['cantidad_devuelta']); ?></span></p>
                             <?php endif; ?>
-                            <a class="btn btn-xs btn-outline-primary mt-1 py-0 px-2" href="<?php echo app_base_url(); ?>/pages/reportes/remito.php?remito=<?php echo urlencode($remActItem['numero_remito']); ?>">
+                            <a class="btn btn-xs btn-outline-primary mt-1 py-0 px-2" href="<?php echo app_base_url(); ?>/pages/reportes/remito.php?remito=<?php echo urlencode($remActItem['numero_remito']); ?>" target="_blank">
                                 <i class="fas fa-file-alt me-1"></i>Ver remito
+                            </a>
+                            <a class="btn btn-xs btn-outline-secondary mt-1 py-0 px-2 ms-1" 
+                               href="<?php echo app_base_url(); ?>/pages/reportes/remito_pdf.php?remito=<?php echo urlencode($remActItem['numero_remito']); ?>&id_insumo=<?php echo (int)$insumo['id_insumo']; ?>" 
+                               data-visor-pdf="<?php echo app_base_url(); ?>/pages/reportes/remito_pdf.php?remito=<?php echo urlencode($remActItem['numero_remito']); ?>&id_insumo=<?php echo (int)$insumo['id_insumo']; ?>"
+                               data-visor-titulo="Remito Individual Nº <?php echo htmlspecialchars($remActItem['numero_remito'], ENT_QUOTES); ?> - Insumo #<?php echo (int)$insumo['id_insumo']; ?>"
+                               target="_blank"
+                               title="Imprimir remito oficial con solo este insumo">
+                                <i class="fas fa-print me-1"></i>Imprimir individual
                             </a>
                         </div>
                     <?php endforeach; ?>

@@ -1166,6 +1166,19 @@ $(function() {
                                     <i class="fas fa-trash"></i>
                                 </button>`;
                         }
+                        const ext = (doc.nombre_archivo || '').split('.').pop().toLowerCase();
+                        const esVis = ['pdf', 'jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext);
+                        let btnVer = '';
+                        if (esVis) {
+                            const urlVer = `${BASE}/ajax/ingresos_descargar_documento.php?id=${doc.id_documento}&ver=1`;
+                            btnVer = `
+                                <button type="button" 
+                                        class="btn btn-sm btn-outline-primary" 
+                                        onclick="abrirVisorArchivo('${urlVer}', '${doc.nombre_archivo.replace(/'/g, "\\'")}')" 
+                                        title="Ver remito sin descargar">
+                                    <i class="fas fa-eye"></i>
+                                </button>`;
+                        }
                         html += `
                             <div class="list-group-item" id="doc-item-${doc.id_documento}">
                                 <div class="d-flex justify-content-between align-items-center">
@@ -1176,6 +1189,7 @@ $(function() {
                                         <small class="text-muted">${doc.fecha_carga}</small>
                                     </div>
                                     <div class="btn-group">
+                                        ${btnVer}
                                         <a href="${BASE}/ajax/ingresos_descargar_documento.php?id=${doc.id_documento}" 
                                            class="btn btn-sm btn-info" 
                                            download
@@ -1205,6 +1219,19 @@ $(function() {
                                     <i class="fas fa-trash"></i>
                                 </button>`;
                         }
+                        const extDoc = (doc.nombre_archivo || '').split('.').pop().toLowerCase();
+                        const esVisDoc = ['pdf', 'jpg', 'jpeg', 'png', 'webp', 'gif'].includes(extDoc);
+                        let btnVerDoc = '';
+                        if (esVisDoc) {
+                            const urlVerDoc = `${BASE}/ajax/ingresos_descargar_documento.php?id=${doc.id_documento}&ver=1`;
+                            btnVerDoc = `
+                                <button type="button" 
+                                        class="btn btn-sm btn-outline-primary" 
+                                        onclick="abrirVisorArchivo('${urlVerDoc}', '${doc.nombre_archivo.replace(/'/g, "\\'")}')" 
+                                        title="Ver documento sin descargar">
+                                    <i class="fas fa-eye"></i>
+                                </button>`;
+                        }
                         html += `
                             <div class="list-group-item" id="doc-item-${doc.id_documento}">
                                 <div class="d-flex justify-content-between align-items-center">
@@ -1215,6 +1242,7 @@ $(function() {
                                         <small class="text-muted">${doc.fecha_carga}</small>
                                     </div>
                                     <div class="btn-group">
+                                        ${btnVerDoc}
                                         <a href="${BASE}/ajax/ingresos_descargar_documento.php?id=${doc.id_documento}" 
                                            class="btn btn-sm btn-info" 
                                            download

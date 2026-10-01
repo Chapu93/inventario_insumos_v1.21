@@ -115,6 +115,80 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
     </div>
 </div>
 
+<!-- Modal: Subir Remito de Devolución Firmado -->
+<div class="modal fade" id="modalSubirRemitoDev" tabindex="-1" aria-labelledby="modalSubirRemitoDevLabel" aria-hidden="true" style="z-index: 1060;">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0">
+            <div class="modal-header bg-primary text-white py-3">
+                <h5 class="modal-title fw-bold" id="modalSubirRemitoDevLabel">
+                    <i class="fas fa-upload me-2"></i>Adjuntar Remito de Devolución Firmado
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formSubirRemitoDev" enctype="multipart/form-data">
+                <input type="hidden" name="id_remito_devolucion" id="id_remito_devolucion_firmado">
+                <div class="modal-body py-4">
+                    <div class="mb-4 text-center">
+                        <div class="icon-shape bg-light-primary text-primary rounded-circle mb-3 mx-auto" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-file-signature fa-2x"></i>
+                        </div>
+                        <p class="text-muted">Seleccione el comprobante de devolución firmado y escaneado (PDF o Imagen)</p>
+                    </div>
+                    <div class="mb-3">
+                        <label for="archivo_remito_dev_firmado" class="form-label fw-bold">Archivo del Remito de Devolución</label>
+                        <input type="file" class="form-control" id="archivo_remito_dev_firmado" name="archivo" accept=".pdf,image/*" required>
+                        <div class="form-text mt-2">Formatos permitidos: PDF, JPG, PNG. Máx. 10MB.</div>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light d-flex justify-content-between py-3">
+                    <button type="button" class="btn btn-outline-danger px-3 shadow-sm" id="btnEliminarRemitoDevFirmado" style="display: none;">
+                        <i class="fas fa-trash-alt me-1"></i>Eliminar Actual
+                    </button>
+                    <div class="d-flex gap-2 ms-auto">
+                        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary px-4 shadow-sm" id="btnGuardarRemitoDevFirmado">
+                            <i class="fas fa-check me-1"></i>Subir Archivo
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Gestión de Comprobantes de Múltiples Devoluciones -->
+<div class="modal fade" id="modalGestionDevoluciones" tabindex="-1" aria-labelledby="modalGestionDevolucionesLabel" aria-hidden="true" style="z-index: 1055;">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content shadow-lg border-0">
+            <div class="modal-header bg-primary text-white py-3">
+                <h5 class="modal-title fw-bold" id="modalGestionDevolucionesLabel">
+                    <i class="fas fa-file-invoice me-2"></i>Comprobantes de Devolución
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-3">
+                <div class="d-flex flex-wrap justify-content-between align-items-center bg-light p-2 rounded border mb-3">
+                    <div>
+                        <span class="text-muted small">Remito de Entrega Original:</span>
+                        <strong id="gestionDevRemitoBadge" class="fs-6 text-primary ms-1"></strong>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="btnImprimirTodasDevolucionesModal" title="Imprimir todos los remitos de devolución juntos">
+                        <i class="fas fa-print me-1"></i>Imprimir Todos los Remitos
+                    </button>
+                </div>
+                <div id="gestionDevLoading" class="text-center py-4">
+                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                    <span class="text-muted">Cargando entregas de devolución...</span>
+                </div>
+                <div id="gestionDevLista" class="d-flex flex-column gap-3" style="display: none;"></div>
+            </div>
+            <div class="modal-footer bg-light py-2">
+                <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row">
     <div class="col-12">
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -313,7 +387,7 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="modalDevolucionLabel">
-                    <i class="fas fa-undo me-2"></i>Devolver Insumos
+                    <i class="fas fa-undo me-2"></i>Devolver Insumos <span id="modalDevolucionRemito" class="badge bg-light text-primary ms-2 fs-6"></span>
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -337,10 +411,58 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Opción 1: Destino posterior a la devolución (Stock o Baja directa) -->
+                <div class="card p-3 my-3 bg-light border" id="cardDestinoDevolucion">
+                    <label class="form-label fw-bold mb-2">
+                        <i class="fas fa-route me-1 text-primary"></i>Destino posterior a la devolución:
+                    </label>
+                    <div class="d-flex flex-wrap gap-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="destinoDevolucion" id="destinoDisponible" value="disponible" checked>
+                            <label class="form-check-label text-success fw-bold" for="destinoDisponible">
+                                <i class="fas fa-boxes me-1"></i>Reintegrar a Stock (Disponible)
+                            </label>
+                            <div class="form-text small text-muted">El equipo vuelve al stock disponible en buen estado para futuras asignaciones.</div>
+                        </div>
+                        <?php if (tienePermiso('insumos', 'baja')): ?>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="destinoDevolucion" id="destinoBaja" value="baja">
+                            <label class="form-check-label text-danger fw-bold" for="destinoBaja">
+                                <i class="fas fa-arrow-down me-1"></i>Dar de Baja (Dañado/Fallado de fabrica/Obsoleto)
+                            </label>
+                            <div class="form-text small text-muted">Registra la devolución en el remito y pasa el insumo a estado De Baja.</div>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                    <div id="grupoMotivoBaja" class="mt-3" style="display: none;">
+                        <label for="motivoBajaDevolucion" class="form-label small fw-bold text-danger">
+                            Motivo / Detalle de la Baja <span class="text-danger">*</span>:
+                        </label>
+                        <textarea class="form-control form-control-sm" id="motivoBajaDevolucion" rows="2" placeholder="Describa el motivo del daño, falla de fábrica u obsolescencia del equipo devuelto..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Datos de la Persona que Entrega y Observaciones -->
+                <div class="card p-3 my-3 bg-light border">
+                    <label class="form-label fw-bold mb-2 text-primary">
+                        <i class="fas fa-id-card me-1"></i>Datos de la Devolución / Entrega:
+                    </label>
+                    <div class="mb-2">
+                        <label for="personaEntregaDevolucion" class="form-label small fw-bold">Persona que realiza la entrega:</label>
+                        <input type="text" class="form-control form-control-sm" id="personaEntregaDevolucion" placeholder="Nombre y Apellido de quien devuelve">
+                    </div>
+                    <div class="mt-2" id="grupoObservacionesDevolucion">
+                        <label for="observacionesDevolucion" class="form-label small fw-bold">Observaciones / Motivo de Devolución:</label>
+                        <textarea class="form-control form-control-sm" id="observacionesDevolucion" rows="2" placeholder="Detalles u observaciones sobre el estado o motivo de la devolución (opcional)..."></textarea>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-success" id="btnConfirmarDevolucion">Confirmar Devolución</button>
+                <button type="button" class="btn btn-success" id="btnConfirmarDevolucion">
+                    <i class="fas fa-check me-1"></i>Confirmar Devolución
+                </button>
             </div>
         </div>
     </div>
@@ -382,6 +504,28 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
         const modal = new bootstrap.Modal(document.getElementById('modalDevolucion'));
         const body = document.getElementById('tablaDevolucionBody');
         const alertBox = document.getElementById('devolucionAlert');
+        const remitoBadge = document.getElementById('modalDevolucionRemito');
+        if (remitoBadge) {
+            remitoBadge.textContent = '#' + remito;
+        }
+
+        // Reiniciar estado de destino y motivo
+        const radioDisp = document.getElementById('destinoDisponible');
+        if (radioDisp) radioDisp.checked = true;
+        const grupoMotivo = document.getElementById('grupoMotivoBaja');
+        if (grupoMotivo) grupoMotivo.style.display = 'none';
+        const grupoObs = document.getElementById('grupoObservacionesDevolucion');
+        if (grupoObs) grupoObs.style.display = 'block';
+        const motivoInput = document.getElementById('motivoBajaDevolucion');
+        if (motivoInput) motivoInput.value = '';
+        const pEnt = document.getElementById('personaEntregaDevolucion'); if (pEnt) pEnt.value = '';
+        const obsDev = document.getElementById('observacionesDevolucion'); if (obsDev) obsDev.value = '';
+        const btnConf = document.getElementById('btnConfirmarDevolucion');
+        if (btnConf) {
+            btnConf.className = 'btn btn-success';
+            btnConf.innerHTML = '<i class="fas fa-check me-1"></i>Confirmar Devolución';
+        }
+
         alertBox.style.display = 'none';
         body.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Cargando...</td></tr>';
         fetch(`${getAppBase()}/ajax/remito_items.php?remito=${encodeURIComponent(remito)}`)
@@ -405,7 +549,7 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
                     rows.push(`
             <tr>
               <td><input type="checkbox" class="chk-dev" data-id="${it.id_insumo}" ${pendientes > 0 ? 'checked' : 'disabled'}></td>
-              <td><strong>${displayName}</strong>${showOriginal ? `<br><small class="text-muted">${originalName}</small>` : ''}${it.numero_serie ? `<br><small class="text-muted">S/N: ${it.numero_serie}</small>` : ''}${it.id_fisico ? `<br><small class="text-muted">ID: ${it.id_fisico}</small>` : ''}</td>
+              <td><strong>${displayName}</strong>${showOriginal ? `<br><small class="text-muted">${originalName}</small>` : ''}${it.numero_serie ? `<br><small class="text-muted">S/N: ${it.numero_serie}</small>` : ''}${it.id_fisico ? `<br><small class="text-muted">ID: ${String(it.id_fisico).replace(/[- ]/g, '')}</small>` : ''}</td>
               <td><span class="badge ${isVarios ? 'bg-info' : 'bg-primary'}">${it.tipo_insumo}</span></td>
               <td><span class="badge bg-dark">${it.cantidad}</span> ${devueltos > 0 ? `<small class="text-muted">(devueltos: ${devueltos})</small>` : ''}</td>
               <td>${qtyInput}</td>
@@ -428,17 +572,38 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
         document.querySelectorAll('#tablaDevolucionBody .chk-dev').forEach(chk => { chk.checked = this.checked; });
     });
 
+    document.querySelectorAll('input[name="destinoDevolucion"]').forEach(radio => {
+        radio.addEventListener('change', function () {
+            const grupoMotivo = document.getElementById('grupoMotivoBaja');
+            const grupoObs = document.getElementById('grupoObservacionesDevolucion');
+            const btnConf = document.getElementById('btnConfirmarDevolucion');
+            if (this.value === 'baja') {
+                if (grupoMotivo) grupoMotivo.style.display = 'block';
+                if (grupoObs) grupoObs.style.display = 'none';
+                if (btnConf) {
+                    btnConf.className = 'btn btn-danger';
+                    btnConf.innerHTML = '<i class="fas fa-arrow-down me-1"></i>Confirmar Devolución y Baja';
+                }
+            } else {
+                if (grupoMotivo) grupoMotivo.style.display = 'none';
+                if (grupoObs) grupoObs.style.display = 'block';
+                if (btnConf) {
+                    btnConf.className = 'btn btn-success';
+                    btnConf.innerHTML = '<i class="fas fa-check me-1"></i>Confirmar Devolución';
+                }
+            }
+        });
+    });
+
     document.getElementById('btnConfirmarDevolucion').addEventListener('click', function () {
         const seleccion = [];
         document.querySelectorAll('#tablaDevolucionBody .chk-dev:checked').forEach(chk => {
             const id = parseInt(chk.getAttribute('data-id'), 10);
             const qtyInput = document.querySelector(`#tablaDevolucionBody input[type="number"][data-id="${id}"]`);
-            console.log('ID:', id, 'Input encontrado:', qtyInput, 'Valor:', qtyInput?.value);
             const cantidad = qtyInput ? Math.max(1, Math.min(parseInt(qtyInput.value || '1', 10), parseInt(qtyInput.getAttribute('data-max') || '1', 10))) : 1;
-            console.log('Cantidad final:', cantidad);
             seleccion.push({ id_insumo: id, cantidad });
         });
-        console.log('Selección completa:', seleccion);
+
         if (seleccion.length === 0) {
             showAlert({
                 titulo: 'Selección Requerida',
@@ -447,24 +612,88 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
             });
             return;
         }
+
+        const destinoInput = document.querySelector('input[name="destinoDevolucion"]:checked');
+        const accionDestino = destinoInput ? destinoInput.value : 'disponible';
+        const motivoBaja = (document.getElementById('motivoBajaDevolucion')?.value || '').trim();
+        const personaEntrega = (document.getElementById('personaEntregaDevolucion')?.value || '').trim();
+        const observaciones = (document.getElementById('observacionesDevolucion')?.value || '').trim();
+
+        if (accionDestino === 'baja' && !motivoBaja) {
+            showAlert({
+                titulo: 'Motivo Requerido',
+                mensaje: 'Debe ingresar el motivo de la baja de los insumos que no se reintegran a stock.',
+                icono: 'fa-exclamation-circle text-warning'
+            });
+            document.getElementById('motivoBajaDevolucion')?.focus();
+            return;
+        }
+
+        const obsFinal = (accionDestino === 'baja') ? motivoBaja : observaciones;
+
+        const btnConf = document.getElementById('btnConfirmarDevolucion');
+        if (btnConf) {
+            btnConf.disabled = true;
+            btnConf.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Procesando...';
+        }
+
         fetch(`${getAppBase()}/ajax/devolver_insumos.php`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-Token': (document.querySelector('meta[name="csrf-token"]') || {}).content || ''
             },
-            body: JSON.stringify({ remito: DEVOLUCION_REM, items: seleccion })
+            body: JSON.stringify({
+                remito: DEVOLUCION_REM,
+                items: seleccion,
+                accion_destino: accionDestino,
+                motivo_baja: motivoBaja,
+                persona_entrega: personaEntrega,
+                observaciones: obsFinal
+            })
         })
             .then(r => r.json())
             .then(data => {
                 if (!data.success) { throw new Error(data.error || 'Error en devolución'); }
                 const alertBox = document.getElementById('devolucionAlert');
                 alertBox.className = 'alert alert-success';
-                alertBox.textContent = 'Devolución registrada correctamente.';
+                const numDevText = data.numero_devolucion ? ` (Remito: <strong>${data.numero_devolucion}</strong>)` : '';
+                alertBox.innerHTML = `<i class="fas fa-check-circle me-1"></i>${(accionDestino === 'baja' ? 'Devolución y baja registradas correctamente.' : 'Devolución registrada correctamente.')}${numDevText}`;
                 alertBox.style.display = 'block';
-                setTimeout(() => { location.reload(); }, 1200);
+
+                showToast(`Devolución registrada con éxito${numDevText ? ': ' + data.numero_devolucion : ''}`, 'success');
+
+                // Abrir visor de remito de devolución
+                if (data.numero_devolucion) {
+                    generarRemitoDevolucionPDF(data.numero_devolucion);
+                }
+
+                // Limpiar parámetros de la URL inmediatamente para evitar reaperturas del modal
+                if (window.history && window.history.replaceState) {
+                    try {
+                        const cleanUrl = new URL(window.location.href);
+                        cleanUrl.searchParams.delete('devolver');
+                        cleanUrl.searchParams.delete('accion');
+                        cleanUrl.searchParams.delete('remito');
+                        window.history.replaceState({}, document.title, cleanUrl.pathname + (cleanUrl.search ? cleanUrl.search : ''));
+                    } catch (e) {}
+                }
+
+                setTimeout(() => { 
+                    bootstrap.Modal.getInstance(document.getElementById('modalDevolucion'))?.hide();
+                    const currentParams = new URLSearchParams(window.location.search);
+                    if (currentParams.get('origen') === 'insumos') {
+                        window.location.href = `${getAppBase()}/pages/insumos/listar.php`;
+                    } else {
+                        try { $('#tablaAsignaciones').DataTable().ajax.reload(null, false); } catch(e) { location.reload(); }
+                    }
+                }, 1200);
             })
             .catch(err => {
+                if (btnConf) {
+                    btnConf.disabled = false;
+                    btnConf.innerHTML = accionDestino === 'baja' ? '<i class="fas fa-arrow-down me-1"></i>Confirmar Devolución y Baja' : '<i class="fas fa-check me-1"></i>Confirmar Devolución';
+                }
                 const alertBox = document.getElementById('devolucionAlert');
                 alertBox.className = 'alert alert-danger';
                 alertBox.textContent = err.message;
@@ -505,6 +734,14 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Sección Devoluciones Registradas -->
+                <div id="verDevolucionesContainer" class="mt-4" style="display:none;">
+                    <h6 class="fw-bold border-bottom pb-2 text-primary">
+                        <i class="fas fa-undo me-2"></i>Devoluciones Registradas (<span id="verDevolucionesCount">0</span>)
+                    </h6>
+                    <div id="verDevolucionesList" class="mt-2"></div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -514,12 +751,106 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
 </div>
 
 <script>
-    function abrirVerAsignacion(remito) {
+    function renderDevolucionCardHtml(dev) {
+        const itemsDev = dev.items || [];
+        let itemsDevHtml = '';
+        itemsDev.forEach(itDev => {
+            const badgeDestino = itDev.destino === 'baja' ? '<span class="badge bg-danger">De Baja</span>' : '';
+            const motivoBajaHtml = itDev.motivo_baja ? `<br><small class="text-danger">Motivo Baja: ${itDev.motivo_baja}</small>` : '';
+            const serieDev = itDev.numero_serie ? ` <small class="text-muted">(S/N: ${itDev.numero_serie})</small>` : '';
+            const idFisicoDev = itDev.id_fisico ? ` <small class="text-muted">(ID: ${String(itDev.id_fisico).replace(/[- ]/g, '')})</small>` : '';
+            const nombreMostrar = (itDev.tipo_insumo === 'Varios') 
+                ? (itDev.nombre_insumo || 'Varios') 
+                : (itDev.tipo_insumo || itDev.nombre_insumo || 'Insumo');
+            itemsDevHtml += `
+                <li class="list-group-item d-flex justify-content-between align-items-center py-1 px-2 border-0 bg-transparent">
+                    <div>
+                        <i class="fas fa-box text-muted me-1"></i>
+                        <strong>${nombreMostrar}</strong>${serieDev}${idFisicoDev}
+                        ${motivoBajaHtml}
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="text-muted small fw-semibold">Cant.: ${itDev.cantidad}</span>
+                        ${badgeDestino}
+                    </div>
+                </li>`;
+        });
+
+        let accionesDevCard = '';
+        if (dev.remito_firmado) {
+            accionesDevCard += `
+                <a href="${getAppBase()}/uploads/remitos_firmados/${dev.remito_firmado}" 
+                   data-visor-archivo="${getAppBase()}/uploads/remitos_firmados/${dev.remito_firmado}" 
+                   data-visor-titulo="Comprobante Devolución Firmado ${dev.numero_devolucion}" 
+                   target="_blank" class="btn btn-sm btn-outline-primary" title="Ver comprobante escaneado">
+                    <i class="fas fa-file-signature me-1"></i>Firmado
+                </a>
+                <button type="button" class="btn btn-sm btn-outline-secondary btn-subir-remito-dev" 
+                        data-id-dev="${dev.id_remito_devolucion}" 
+                        data-numero-dev="${dev.numero_devolucion}" 
+                        data-has-file="1" title="Reemplazar o eliminar comprobante firmado">
+                    <i class="fas fa-sync-alt me-1"></i>Reemplazar
+                </button>
+            `;
+        } else {
+            accionesDevCard += `
+                <button type="button" class="btn btn-sm btn-outline-primary btn-subir-remito-dev" 
+                        data-id-dev="${dev.id_remito_devolucion}" 
+                        data-numero-dev="${dev.numero_devolucion}" 
+                        data-has-file="0" title="Adjuntar comprobante firmado">
+                    <i class="fas fa-upload me-1"></i>Adjuntar Firmado
+                </button>
+            `;
+        }
+
+        accionesDevCard += `
+            <button type="button" class="btn btn-sm btn-outline-secondary" 
+                    onclick="generarRemitoDevolucionPDF('${dev.numero_devolucion}', this)" title="Imprimir Remito de Devolución">
+                <i class="fas fa-print me-1"></i>Remito DEV
+            </button>
+        `;
+
+        const personaEntregaHtml = dev.persona_entrega ? `<small class="text-muted d-block"><i class="fas fa-user me-1"></i>Entrega: <strong>${dev.persona_entrega}</strong></small>` : '';
+        const receptorHtml = dev.usuario_receptor ? `<small class="text-muted d-block"><i class="fas fa-user-check me-1"></i>Receptor: ${dev.usuario_receptor}</small>` : '';
+        const obsDevHtml = dev.observaciones ? `<div class="small text-muted bg-white p-2 rounded border mt-2"><strong>Observaciones:</strong> ${dev.observaciones}</div>` : '';
+
+        return `
+            <div class="card mb-3 border shadow-sm">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+                    <div>
+                        <strong class="fs-6 text-dark">#${dev.numero_devolucion}</strong>
+                        <span class="text-muted small ms-2"><i class="far fa-calendar-alt me-1"></i>${dev.fecha_devolucion_formatted}</span>
+                    </div>
+                    <div class="d-flex gap-1 align-items-center">
+                        ${accionesDevCard}
+                    </div>
+                </div>
+                <div class="card-body p-2 bg-light-subtle">
+                    ${personaEntregaHtml}
+                    ${receptorHtml}
+                    <ul class="list-group list-group-flush my-1">
+                        ${itemsDevHtml}
+                    </ul>
+                    ${obsDevHtml}
+                </div>
+            </div>
+        `;
+    }
+
+    function abrirVerAsignacion(remito, irADevoluciones = false) {
         VER_REM = remito;
-        const modal = new bootstrap.Modal(document.getElementById('modalVerAsignacion'));
+        const modalEl = document.getElementById('modalVerAsignacion');
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
         const cab = document.getElementById('verCabecera');
         const body = document.getElementById('verTablaBody');
         const alertBox = document.getElementById('verAlert');
+        const devContainer = document.getElementById('verDevolucionesContainer');
+        const devList = document.getElementById('verDevolucionesList');
+        const devCount = document.getElementById('verDevolucionesCount');
+        if (devContainer) devContainer.style.display = 'none';
+        if (devList) devList.innerHTML = '';
+        if (devCount) devCount.textContent = '0';
+
         alertBox.style.display = 'none';
         cab.innerHTML = '';
         body.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Cargando...</td></tr>';
@@ -577,12 +908,16 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
                             const cpu = safeTrim(it.pc_procesador);
                             const ram = safeTrim(it.pc_ram);
                             const disco = safeTrim(it.pc_disco);
+                            const discoSec = safeTrim(it.pc_disco_sec);
                             const mbo = safeTrim(it.pc_mother);
                             if (cpu || ram || disco || mbo) {
                                 specsHtml += `<div class="d-flex flex-wrap gap-3 mb-0 text-muted small">`;
                                 if (cpu) specsHtml += `<span><strong><i class="fas fa-microchip me-1"></i>CPU:</strong> ${cpu}</span>`;
                                 if (ram) specsHtml += `<span><strong><i class="fas fa-memory me-1"></i>RAM:</strong> ${ram} GB</span>`;
-                                if (disco) specsHtml += `<span><strong><i class="fas fa-hdd me-1"></i>Disco:</strong> ${disco} GB</span>`;
+                                if (disco) {
+                                    const textoDisco = discoSec ? `${disco} GB + ${discoSec} GB` : `${disco} GB`;
+                                    specsHtml += `<span><strong><i class="fas fa-hdd me-1"></i>Disco:</strong> ${textoDisco}</span>`;
+                                }
                                 if (mbo) specsHtml += `<span><strong><i class="fas fa-chess-board me-1"></i>Motherboard:</strong> ${mbo}</span>`;
                                 specsHtml += `</div>`;
                             }
@@ -626,7 +961,7 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
                   <strong>${displayName}</strong>
                   ${showOriginal ? `<br><small class="text-muted">${originalName}</small>` : ''}
                   ${it.numero_serie ? `<br><small class="text-muted">S/N: ${it.numero_serie}</small>` : ''}
-                  ${it.id_fisico ? `<br><small class="text-muted">ID: ${it.id_fisico}</small>` : ''}
+                  ${it.id_fisico ? `<br><small class="text-muted">ID: ${String(it.id_fisico).replace(/[- ]/g, '')}</small>` : ''}
                   ${detailsHtml}
                 </td>
                 <td><span class="badge ${it.tipo_insumo === 'Varios' ? 'bg-info' : 'bg-primary'}">${it.tipo_insumo}</span></td>
@@ -638,13 +973,40 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
                     });
                 }
                 body.innerHTML = rows.join('') || '<tr><td colspan="5" class="text-center text-muted">Sin ítems</td></tr>';
+
+                // Cargar Devoluciones si existen
+                const devoluciones = data.data ? (data.data.devoluciones || []) : (data.devoluciones || []);
+                if (devContainer && devList && devoluciones && devoluciones.length > 0) {
+                    if (devCount) devCount.textContent = devoluciones.length;
+                    let devHtml = '';
+                    devoluciones.forEach(dev => {
+                        devHtml += renderDevolucionCardHtml(dev);
+                    });
+                    devList.innerHTML = devHtml;
+                    devContainer.style.display = 'block';
+                    if (irADevoluciones && devContainer) {
+                        const scrollToDev = () => {
+                            const rectContainer = devContainer.getBoundingClientRect();
+                            const rectModal = modalEl.getBoundingClientRect();
+                            const targetTop = modalEl.scrollTop + (rectContainer.top - rectModal.top) - 15;
+                            modalEl.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' });
+                            try {
+                                devContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            } catch (e) {}
+                        };
+                        setTimeout(scrollToDev, 150);
+                        setTimeout(scrollToDev, 400);
+                    }
+                }
             })
             .catch(err => {
                 alertBox.className = 'alert alert-danger';
                 alertBox.textContent = err.message;
                 alertBox.style.display = 'block';
             });
-        modal.show();
+        if (!modalEl.classList.contains('show')) {
+            modal.show();
+        }
     }
 </script>
 
@@ -915,7 +1277,7 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
                         ? `<input type="number" class="form-control form-control-sm transf-cant" min="1" max="${i.pendiente}" value="${i.pendiente}" data-max="${i.pendiente}" style="width:75px;">`
                         : `<span class="badge bg-secondary">1</span>`;
                     const identif = i.numero_serie ? `<small class="text-muted d-block">S/N: ${i.numero_serie}</small>`
-                        : (i.id_fisico ? `<small class="text-muted d-block">ID: ${i.id_fisico}</small>` : '');
+                        : (i.id_fisico ? `<small class="text-muted d-block">ID: ${String(i.id_fisico).replace(/[- ]/g, '')}</small>` : '');
                     rows += `<tr>
                         <td><input type="checkbox" class="form-check-input chk-transf" checked
                             data-id="${i.id_insumo}" data-remito="${i.id_remito}" data-max="${i.pendiente}"></td>
@@ -1141,10 +1503,196 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
         });
     });
 
+    // Manejar apertura de modal para subir remito de devolución firmado
+    $(document).on('click', '.btn-subir-remito-dev', function(e) {
+        e.preventDefault();
+        const idDev = $(this).data('id-dev');
+        const numDev = $(this).data('numero-dev');
+        const hasFile = $(this).data('has-file') == '1';
+        
+        const modalEl = document.getElementById('modalSubirRemitoDev');
+        if (!modalEl) return;
+
+        document.getElementById('id_remito_devolucion_firmado').value = idDev;
+        document.getElementById('modalSubirRemitoDevLabel').innerHTML = (hasFile ? '<i class="fas fa-sync me-2"></i>Reemplazar' : '<i class="fas fa-upload me-2"></i>Adjuntar') + ' Comprobante Devolución: ' + numDev;
+        
+        // Mostrar/Ocultar botón de eliminar
+        document.getElementById('btnEliminarRemitoDevFirmado').style.display = hasFile ? 'block' : 'none';
+        
+        bootstrap.Modal.getOrCreateInstance(modalEl).show();
+    });
+
+    // Manejar eliminación de remito de devolución firmado
+    $(document).on('click', '#btnEliminarRemitoDevFirmado', function() {
+        const idDev = document.getElementById('id_remito_devolucion_firmado').value;
+        if (!idDev) return;
+
+        showConfirm({
+            titulo: 'Eliminar Comprobante Firmado',
+            mensaje: '¿Está seguro de que desea eliminar el comprobante de devolución firmado? Esta acción no se puede deshacer.',
+            claseBoton: 'btn-danger',
+            textoAceptar: 'Eliminar',
+            onConfirm: () => {
+                const btn = document.getElementById('btnEliminarRemitoDevFirmado');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+                fetch(getAppBase() + '/ajax/devolucion_eliminar_firmado.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `id_remito_devolucion=${idDev}&_csrf=${(document.querySelector('meta[name="csrf-token"]') || {}).content || ''}`
+                })
+                .then(r => r.json())
+                .then(res => {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-trash-alt me-1"></i>Eliminar Actual';
+                    if (res.success) {
+                        showToast('Comprobante eliminado correctamente', 'success');
+                        bootstrap.Modal.getOrCreateInstance(document.getElementById('modalSubirRemitoDev')).hide();
+                        try { $('#tablaAsignaciones').DataTable().ajax.reload(null, false); } catch(e) { location.reload(); }
+                        if (typeof VER_REM !== 'undefined' && VER_REM) { abrirVerAsignacion(VER_REM, true); }
+                        if (typeof GESTION_DEV_REM !== 'undefined' && GESTION_DEV_REM) { cargarListaGestionDevoluciones(GESTION_DEV_REM); }
+                    } else {
+                        showToast(res.error || 'Error al eliminar', 'error');
+                    }
+                });
+            }
+        });
+    });
+
+    // Manejar envío del formulario de remito de devolución firmado
+    $(document).on('submit', '#formSubirRemitoDev', function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btnGuardarRemitoDevFirmado');
+        const file = document.getElementById('archivo_remito_dev_firmado');
+        
+        if (!file.files.length) { showToast('Seleccione un archivo', 'warning'); return; }
+        
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subiendo...';
+        
+        const fd = new FormData(this);
+        fd.append('_csrf', (document.querySelector('meta[name="csrf-token"]') || {}).content || '');
+
+        fetch(getAppBase() + '/ajax/devolucion_subir_firmado.php', { method: 'POST', body: fd })
+        .then(r => r.json())
+        .then(res => {
+            btn.disabled = false; btn.innerHTML = '<i class="fas fa-check me-1"></i>Subir Archivo';
+            if (res.success) {
+                showToast('Comprobante de devolución guardado correctamente', 'success');
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('modalSubirRemitoDev')).hide();
+                this.reset();
+                try { $('#tablaAsignaciones').DataTable().ajax.reload(null, false); } catch(e) { location.reload(); }
+                if (typeof VER_REM !== 'undefined' && VER_REM) { abrirVerAsignacion(VER_REM, true); }
+                if (typeof GESTION_DEV_REM !== 'undefined' && GESTION_DEV_REM) { cargarListaGestionDevoluciones(GESTION_DEV_REM); }
+            } else { showToast(res.error || 'Error al subir', 'error'); }
+        }).catch(e => {
+            btn.disabled = false; btn.innerHTML = '<i class="fas fa-check me-1"></i>Subir Archivo';
+            showToast('Error de conexión', 'error');
+        });
+    });
+
+    let GESTION_DEV_REM = '';
+
+    function abrirGestionComprobantesDevolucion(remito) {
+        GESTION_DEV_REM = remito;
+        const modalEl = document.getElementById('modalGestionDevoluciones');
+        if (!modalEl) return;
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+        document.getElementById('gestionDevRemitoBadge').textContent = '#' + remito;
+        document.getElementById('gestionDevLoading').style.display = 'block';
+        document.getElementById('gestionDevLista').style.display = 'none';
+        document.getElementById('gestionDevLista').innerHTML = '';
+
+        const btnImpTodas = document.getElementById('btnImprimirTodasDevolucionesModal');
+        if (btnImpTodas) {
+            btnImpTodas.onclick = function() {
+                generarRemitosDevolucionPorRemitoPDF(remito, this);
+            };
+        }
+
+        modal.show();
+        cargarListaGestionDevoluciones(remito);
+    }
+
+    function cargarListaGestionDevoluciones(remito) {
+        const loading = document.getElementById('gestionDevLoading');
+        const lista = document.getElementById('gestionDevLista');
+        if (!lista) return;
+
+        fetch(`${getAppBase()}/ajax/remito_detalle.php?remito=${encodeURIComponent(remito)}`)
+            .then(r => r.json())
+            .then(res => {
+                if (loading) loading.style.display = 'none';
+                if (!res.success) {
+                    lista.innerHTML = `<div class="alert alert-danger py-2 mb-0">${res.error || 'Error al cargar entregas'}</div>`;
+                    lista.style.display = 'block';
+                    return;
+                }
+
+                const devoluciones = res.data && res.data.devoluciones ? res.data.devoluciones : [];
+                if (!devoluciones.length) {
+                    lista.innerHTML = `<div class="text-center text-muted py-3">No se encontraron entregas de devolución registradas para este remito.</div>`;
+                    lista.style.display = 'block';
+                    return;
+                }
+
+                let html = '';
+                devoluciones.forEach(dev => {
+                    html += renderDevolucionCardHtml(dev);
+                });
+
+                lista.innerHTML = html;
+                lista.style.display = 'block';
+            })
+            .catch(err => {
+                if (loading) loading.style.display = 'none';
+                lista.innerHTML = `<div class="alert alert-danger py-2 mb-0">Error de conexión al cargar entregas</div>`;
+                lista.style.display = 'block';
+            });
+    }
+
     $(function () {
-        // Inicializar estado desde URL o por defecto 'Activa'
+        // Inicializar estado desde URL, o desde sessionStorage si venimos de volver/guardar, o por defecto 'Activa'
         const urlParams = new URLSearchParams(window.location.search);
-        const estadoInicial = urlParams.get('estado') !== null ? urlParams.get('estado') : 'Activa';
+        const remitoUrl = urlParams.get('remito');
+        const devolverUrl = urlParams.get('devolver');
+        const accionUrl = urlParams.get('accion');
+
+        if (devolverUrl || (accionUrl === 'devolver' && remitoUrl)) {
+            const targetRemito = devolverUrl || remitoUrl;
+            // Limpiar parámetros de la URL inmediatamente para evitar que se reabra en recargas
+            if (window.history && window.history.replaceState) {
+                try {
+                    const cleanUrl = new URL(window.location.href);
+                    cleanUrl.searchParams.delete('devolver');
+                    cleanUrl.searchParams.delete('accion');
+                    cleanUrl.searchParams.delete('remito');
+                    window.history.replaceState({}, document.title, cleanUrl.pathname + (cleanUrl.search ? cleanUrl.search : ''));
+                } catch (e) {}
+            }
+            setTimeout(function() {
+                if (typeof abrirDevolucion === 'function') {
+                    abrirDevolucion(targetRemito);
+                }
+            }, 400);
+        } else if (remitoUrl) {
+            setTimeout(function() {
+                if (typeof abrirVerAsignacion === 'function') {
+                    abrirVerAsignacion(remitoUrl);
+                }
+            }, 400);
+        }
+        const guardado = window.SITIA_Filtros ? window.SITIA_Filtros.obtener() : null;
+        let estadoInicial = 'Activa';
+        if (urlParams.get('estado') !== null) {
+            estadoInicial = urlParams.get('estado');
+        } else if (guardado && guardado._tab_estado) {
+            estadoInicial = guardado._tab_estado;
+        } else if (guardado && guardado.estado) {
+            estadoInicial = guardado.estado;
+        }
 
         function actualizarHeaderFecha(est) {
             if (est === 'Devuelta') {
@@ -1159,9 +1707,19 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
         $(`#tabsEstado a[data-estado="${estadoInicial}"]`).addClass('active').parent().siblings().find('a').removeClass('active');
         actualizarHeaderFecha(estadoInicial);
 
+        // Restaurar valores guardados en los filtros antes de inicializar la tabla
+        if (guardado) {
+            if (guardado.insumo) $('#insumo').val(guardado.insumo);
+            if (guardado.localidad) {
+                $('#localidad').val(guardado.localidad);
+                if (guardado.sede) $('#sede').attr('data-pending-val', guardado.sede);
+                $('#localidad').trigger('change');
+            }
+        }
+
         var $t = $('#tablaAsignaciones');
         if ($.fn && $.fn.DataTable && $t.length) {
-            var dt = $t.DataTable({
+            var dtOptions = {
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -1176,7 +1734,7 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
                         // Si hay filtro por remito en la URL, aplicarlo
                         try {
                             const url = new URL(window.location.href);
-                            const rem = url.searchParams.get('remito');
+                            const rem = url.searchParams.get('remito') || url.searchParams.get('devolver');
                             if (rem) { d.remito = rem; }
                         } catch (e) { }
                     }
@@ -1191,7 +1749,13 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
                     { data: 4, orderable: false, searchable: false }
                 ],
                 drawCallback: function () { inicializarTooltips(); }
-            });
+            };
+
+            if (guardado && guardado._dt_search) {
+                dtOptions.search = { search: guardado._dt_search };
+            }
+
+            var dt = $t.DataTable(dtOptions);
         }
 
         // Manejo de clicks en tabs
@@ -1249,12 +1813,7 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
             const imp = url.searchParams.get('imprimir');
             if (imp) {
                 const base = (typeof getAppBase === 'function') ? getAppBase() : '';
-                const win = window.open('', 'remitoPrint');
-                if (win) {
-                    win.location = `${base}/pages/reportes/remito_pdf.php?remito=${encodeURIComponent(imp)}`;
-                } else {
-                    window.open(`${base}/pages/reportes/remito_pdf.php?remito=${encodeURIComponent(imp)}`, '_blank');
-                }
+                abrirVisorPDF(`${base}/pages/reportes/remito_pdf.php?remito=${encodeURIComponent(imp)}`, `Remito Nº ${imp}`);
                 url.searchParams.delete('imprimir');
                 window.history.replaceState({}, document.title, url.toString());
             }
@@ -1300,7 +1859,7 @@ $areas = $conexion->query("SELECT id_area, nombre_area FROM areas ORDER BY nombr
                 
                 try {
                     const url = new URL(window.location.href);
-                    const rem = url.searchParams.get('remito');
+                    const rem = url.searchParams.get('remito') || url.searchParams.get('devolver');
                     if (rem) { params.remito = rem; }
                 } catch (e) { }
             } else {

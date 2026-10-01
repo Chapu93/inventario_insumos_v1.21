@@ -47,15 +47,21 @@ try {
         $params[] = $filtroTipo;
     }
     if ($filtroEstado !== '') {
-        $where[] = 'i.estado = ?';
-        $params[] = $filtroEstado;
+        if ($filtroEstado === 'Disponible') {
+            $where[] = "(i.estado = 'Disponible' OR (i.tipo_insumo = 'Varios' AND (COALESCE(i.cantidad_oficina, 0) + COALESCE(i.cantidad_deposito, 0)) > 0 AND i.estado != 'De Baja'))";
+        } elseif ($filtroEstado === 'Asignado') {
+            $where[] = "(i.estado = 'Asignado' OR i.tipo_insumo = 'Varios')";
+        } else {
+            $where[] = 'i.estado = ?';
+            $params[] = $filtroEstado;
+        }
     }
     if ($filtroLocalidad !== '') {
         $where[] = 'l.id_localidad = ?';
         $params[] = $filtroLocalidad;
     }
     if ($filtroSede !== '') {
-        $where[] = 'i.id_sede_actual = ?';
+        $where[] = 's.id_sede = ?';
         $params[] = $filtroSede;
     }
     if ($filtroCondicion !== '') {
@@ -65,17 +71,29 @@ try {
     $expandirAsignaciones = ($filtroEstado === 'Asignado');
 
     // Base de JOINs necesarios para toda consulta (incluso sin buscador textual)
-    $baseJoins = "LEFT JOIN sedes s ON i.id_sede_actual = s.id_sede
-                  LEFT JOIN localidades l ON s.id_localidad = l.id_localidad";
+    if ($expandirAsignaciones) {
+        $baseJoins = "LEFT JOIN remitos_detalle rd ON rd.id_insumo = i.id_insumo AND (rd.cantidad - COALESCE(rd.cantidad_devuelta, 0)) > 0
+                      LEFT JOIN remitos r ON r.id_remito = rd.id_remito AND r.estado = 'Activa'
+                      LEFT JOIN sedes s ON s.id_sede = COALESCE(r.id_sede, i.id_sede_actual)
+                      LEFT JOIN localidades l ON s.id_localidad = l.id_localidad";
 
-    // JOINs extras requeridos si estamos buscando por texto o si expandimos agrupacion
-    $searchJoins = " LEFT JOIN pcs_completas pc ON pc.id_insumo = i.id_insumo
-                     LEFT JOIN notebooks nb ON nb.id_insumo = i.id_insumo
-                     LEFT JOIN impresoras imp ON imp.id_insumo = i.id_insumo
-                     LEFT JOIN monitores mon ON mon.id_insumo = i.id_insumo
-                     LEFT JOIN escaneres esc ON esc.id_insumo = i.id_insumo
-                     LEFT JOIN remitos_detalle rd ON rd.id_insumo = i.id_insumo 
-                     LEFT JOIN remitos r ON r.id_remito = rd.id_remito AND r.estado = 'Activa'";
+        $searchJoins = " LEFT JOIN pcs_completas pc ON pc.id_insumo = i.id_insumo
+                         LEFT JOIN notebooks nb ON nb.id_insumo = i.id_insumo
+                         LEFT JOIN impresoras imp ON imp.id_insumo = i.id_insumo
+                         LEFT JOIN monitores mon ON mon.id_insumo = i.id_insumo
+                         LEFT JOIN escaneres esc ON esc.id_insumo = i.id_insumo";
+    } else {
+        $baseJoins = "LEFT JOIN sedes s ON i.id_sede_actual = s.id_sede
+                      LEFT JOIN localidades l ON s.id_localidad = l.id_localidad";
+
+        $searchJoins = " LEFT JOIN pcs_completas pc ON pc.id_insumo = i.id_insumo
+                         LEFT JOIN notebooks nb ON nb.id_insumo = i.id_insumo
+                         LEFT JOIN impresoras imp ON imp.id_insumo = i.id_insumo
+                         LEFT JOIN monitores mon ON mon.id_insumo = i.id_insumo
+                         LEFT JOIN escaneres esc ON esc.id_insumo = i.id_insumo
+                         LEFT JOIN remitos_detalle rd ON rd.id_insumo = i.id_insumo AND (rd.cantidad - COALESCE(rd.cantidad_devuelta, 0)) > 0
+                         LEFT JOIN remitos r ON r.id_remito = rd.id_remito AND r.estado = 'Activa'";
+    }
 
     if ($search !== '') {
         $where[] = '(
@@ -164,6 +182,7 @@ try {
                        MAX(mon.modelo) AS mon_modelo,
                        MAX(esc.marca) AS esc_marca,
                        MAX(esc.modelo) AS esc_modelo,
+                       MAX(r.id_remito) AS id_remito_activo,
                        MAX(r.numero_remito) AS numero_remito,
                        MAX(r.nombre_persona_asignada) AS nombre_persona_asignada,
                        MAX(r.apellido_persona_asignada) AS apellido_persona_asignada,
@@ -288,6 +307,7 @@ try {
         $puedeEditar = tienePermiso('insumos', 'editar');
         $puedeBaja = tienePermiso('insumos', 'baja');
         $puedeEliminar = tienePermiso('insumos', 'eliminar');
+        $puedeDevolver = tienePermiso('asignaciones', 'devolver');
 
         // Botón de reponer (solo para tipo Varios con stock en depósito y permiso editar, y si NO estamos viendo la asignacion desglosada)
         $btnReponer = '';
@@ -327,10 +347,20 @@ try {
         }
 
         if ($puedeEditar) {
-            $botones[] = '<a href="editar.php?id=' . (int) $r['id_insumo'] . '" class="btn btn-sm btn-warning" aria-label="Editar insumo" data-bs-toggle="tooltip" title="Editar"><i class="fas fa-edit" aria-hidden="true"></i></a>';
+            $origenParam = ($filtroEstado === 'Asignado') ? '&origen=asignados' : (($filtroEstado === 'Disponible') ? '&origen=disponibles' : '&origen=todos');
+            $origenEstadoParam = '&origen_estado=' . urlencode($filtroEstado);
+            $remitoParam = (!empty($r['numero_remito'])) ? '&remito=' . urlencode($r['numero_remito']) : '';
+            $remitoIdParam = (!empty($r['id_remito_activo'])) ? '&id_remito=' . (int)$r['id_remito_activo'] : '';
+            $pageParam = ($length > 0) ? '&dt_page=' . (floor($start / $length) + 1) : '';
+            $botones[] = '<a href="editar.php?id=' . (int) $r['id_insumo'] . $origenParam . $origenEstadoParam . $remitoParam . $remitoIdParam . $pageParam . '" class="btn btn-sm btn-warning" aria-label="Editar insumo" data-bs-toggle="tooltip" title="Editar"><i class="fas fa-edit" aria-hidden="true"></i></a>';
         }
 
-        if ($puedeBaja) {
+        $esAsignadoActivo = ($filtroEstado === 'Asignado' || ($filtroEstado === 'Todos' && strcasecmp(trim((string)$r['estado']), 'Asignado') === 0 && !empty($numeroRemito)));
+        if ($esAsignadoActivo && !empty($numeroRemito)) {
+            if ($puedeDevolver) {
+                $botones[] = '<a href="' . app_base_url() . '/pages/asignaciones/listar.php?devolver=' . urlencode($numeroRemito) . '" class="btn btn-sm btn-warning" aria-label="Devolución rápida" data-bs-toggle="tooltip" title="Devolución Rápida"><i class="fas fa-undo" aria-hidden="true"></i></a>';
+            }
+        } elseif ($puedeBaja) {
             $estadoClass = $isDeBaja ? 'disabled ' : '';
             $eventoOnclick = $isDeBaja ? '' : 'onclick=\'abrirModalBajaInsumo(' . (int) $r['id_insumo'] . ', ' . $nombreJs . ')\'';
             $botones[] = '<button type="button" class="btn btn-sm btn-soft-warning" aria-label="Dar de baja insumo" ' . $estadoClass . $eventoOnclick . ' data-bs-toggle="tooltip" title="Dar de baja"><i class="fas fa-arrow-down" aria-hidden="true"></i></button>';
@@ -340,13 +370,15 @@ try {
             $botones[] = '<button type="button" class="btn btn-sm btn-danger btn-eliminar-insumo" aria-label="Eliminar insumo" data-id="' . (int) $r['id_insumo'] . '" data-bs-toggle="tooltip" title="Eliminar"><i class="fas fa-trash" aria-hidden="true"></i></button>';
         }
 
-        $acciones = '<div class="btn-group" role="group">' . $btnReponer . implode(' ', $botones) . '</div>';
+        $acciones = '<div class="btn-group" role="group" data-id="' . (int) $r['id_insumo'] . '">' . $btnReponer . implode(' ', $botones) . '</div>';
         return [
-            '<strong>' . htmlspecialchars($displayName) . '</strong>' . $extraLine,
-            $tipoBadge,
-            $condicionBadge,
-            $cantBadge,
-            $acciones,
+            'DT_RowId' => 'insumo_row_' . (int) $r['id_insumo'],
+            'DT_RowAttr' => ['data-id' => (int) $r['id_insumo']],
+            0 => '<strong>' . htmlspecialchars($displayName) . '</strong>' . $extraLine,
+            1 => $tipoBadge,
+            2 => $condicionBadge,
+            3 => $cantBadge,
+            4 => $acciones,
         ];
     }, $rows);
 

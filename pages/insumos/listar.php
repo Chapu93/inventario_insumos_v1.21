@@ -77,19 +77,35 @@ $localidades = $stmt->fetchAll();
             <h1>
                 <i class="fas fa-boxes me-2"></i>Gestión de Insumos
             </h1>
-            <div class="btn-group">
-                <?php if (tienePermiso('insumos', 'crear')): ?>
-                    <a href="agregar.php" class="btn btn-primary">
-                        <i class="fas fa-plus me-2"></i>Agregar Insumo
-                    </a>
-                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
-                        data-bs-target="#modalTipoInsumoAsignado">
-                        <i class="fas fa-plus-square me-2"></i>Agregar Insumo Asignado
-                    </button>
-                <?php endif; ?>
-                <button type="button" class="btn btn-info" id="btnPlanillaRelevamiento">
-                    <i class="fas fa-file-pdf me-2"></i>Planilla de Relevamiento
+            <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownAccionesInsumos" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-plus me-1"></i>Acciones
                 </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="dropdownAccionesInsumos">
+                    <?php if (tienePermiso('insumos', 'crear')): ?>
+                        <li>
+                            <a class="dropdown-item py-2" href="agregar.php">
+                                <i class="fas fa-plus me-2 text-primary"></i>Agregar Insumo
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item py-2" href="#" data-bs-toggle="modal" data-bs-target="#modalTipoInsumoAsignado">
+                                <i class="fas fa-plus-square me-2 text-secondary"></i>Agregar Insumo Asignado
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item py-2" href="relevamiento_cargar.php">
+                                <i class="fas fa-clipboard-list me-2 text-success"></i>Carga de Relevamiento
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                    <?php endif; ?>
+                    <li>
+                        <a class="dropdown-item py-2" href="#" id="btnPlanillaRelevamiento">
+                            <i class="fas fa-file-pdf me-2 text-info"></i>Planilla de Relevamiento
+                        </a>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
@@ -315,7 +331,24 @@ $localidades = $stmt->fetchAll();
                     modalBody.innerHTML = data.html;
                     btnEditar.onclick = () => {
                         modal.hide();
-                        window.location.href = `editar.php?id=${id}`;
+                        const tabActiva = $('#tabsEstado .nav-link.active').data('estado') || '';
+                        let editUrl = `editar.php?id=${id}`;
+                        if (tabActiva === 'Asignado') {
+                            editUrl += '&origen=asignados';
+                        } else if (tabActiva === 'Disponible') {
+                            editUrl += '&origen=disponibles';
+                        } else {
+                            editUrl += '&origen=todos';
+                        }
+                        editUrl += `&origen_estado=${encodeURIComponent(tabActiva)}`;
+                        if (remito) editUrl += `&remito=${encodeURIComponent(remito)}`;
+                        if ($.fn.DataTable.isDataTable('#tablaInsumos')) {
+                            const pageInfo = $('#tablaInsumos').DataTable().page.info();
+                            if (pageInfo && typeof pageInfo.page === 'number') {
+                                editUrl += `&dt_page=${pageInfo.page + 1}`;
+                            }
+                        }
+                        window.location.href = editUrl;
                     };
                     btnEditar.style.display = 'inline-block';
                     // Si está asignado, deshabilitar baja y guiar al menú de Devoluciones
@@ -325,7 +358,7 @@ $localidades = $stmt->fetchAll();
                         const alerta = document.getElementById('bajaAlert');
                         if (alerta) {
                             alerta.className = 'alert alert-warning';
-                            alerta.innerHTML = `Este insumo está asignado (Remito <strong>${data.remito_activo_numero}</strong>). Debe devolverlo desde el menú <a href="${getAppBase()}/pages/asignaciones/listar.php" class="alert-link">Asignaciones</a> antes de darlo de baja.`;
+                            alerta.innerHTML = `Este insumo está asignado (Remito <strong>${data.remito_activo_numero}</strong>). Debe devolverlo desde el menú <a href="${getAppBase()}/pages/asignaciones/listar.php?devolver=${encodeURIComponent(data.remito_activo_numero)}" class="alert-link">Devoluciones</a> antes de darlo de baja.`;
                             alerta.style.display = 'block';
                         }
                     }
@@ -505,7 +538,7 @@ $localidades = $stmt->fetchAll();
                     btn.className = 'btn btn-sm btn-primary ms-2';
                     btn.textContent = 'Ir a Devoluciones';
                     btn.addEventListener('click', function () {
-                        window.location.href = `${getAppBase()}/pages/asignaciones/listar.php?remito=${encodeURIComponent(data.remito_activo_numero)}`;
+                        window.location.href = `${getAppBase()}/pages/asignaciones/listar.php?devolver=${encodeURIComponent(data.remito_activo_numero)}`;
                     });
                     const wrapper = document.createElement('div');
                     wrapper.className = 'mt-2';
@@ -690,9 +723,17 @@ $localidades = $stmt->fetchAll();
 
 <script>
     $(function () {
-        // Inicializar estado desde URL o por defecto 'Disponible'
+        // Inicializar estado desde URL, o desde sessionStorage si venimos de volver/guardar, o por defecto 'Disponible'
         const urlParams = new URLSearchParams(window.location.search);
-        const estadoInicial = urlParams.get('estado') !== null ? urlParams.get('estado') : 'Disponible';
+        const guardado = window.SITIA_Filtros ? window.SITIA_Filtros.obtener() : null;
+        let estadoInicial = 'Disponible';
+        if (urlParams.get('estado') !== null) {
+            estadoInicial = urlParams.get('estado');
+        } else if (guardado && typeof guardado._tab_estado !== 'undefined' && guardado._tab_estado !== null) {
+            estadoInicial = guardado._tab_estado;
+        } else if (guardado && typeof guardado.estado !== 'undefined' && guardado.estado !== null) {
+            estadoInicial = guardado.estado;
+        }
 
         // Función para actualizar visibilidad de filtros
         function actualizarFiltrosUbicacion(estado) {
@@ -719,9 +760,22 @@ $localidades = $stmt->fetchAll();
         $(`#tabsEstado a[data-estado="${estadoInicial}"]`).addClass('active').parent().siblings().find('a').removeClass('active');
         actualizarFiltrosUbicacion(estadoInicial);
 
+        // Restaurar valores guardados en los filtros antes de inicializar la tabla
+        if (guardado) {
+            if (guardado.tipo) $('#tipo').val(guardado.tipo);
+            if (guardado.es_nuevo) $('#es_nuevo').val(guardado.es_nuevo);
+            if (guardado.id_localidad) {
+                $('#id_localidad').val(guardado.id_localidad);
+                if (guardado.id_sede) {
+                    $('#id_sede').attr('data-pending-val', guardado.id_sede);
+                }
+                $('#id_localidad').trigger('change');
+            }
+        }
+
         var $t = $('#tablaInsumos');
         if ($.fn && $.fn.DataTable && $t.length) {
-            var dt = $t.DataTable({
+            var dtOptions = {
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -745,9 +799,88 @@ $localidades = $stmt->fetchAll();
                     { data: 3, orderable: true },  // Cantidad
                     { data: 4, orderable: false, searchable: false }  // Acciones
                 ],
-                drawCallback: function () { inicializarTooltips(); }
-            });
+            };
+
+            if (guardado && guardado._dt_search) {
+                dtOptions.search = { search: guardado._dt_search };
+            }
+
+            // Página a restaurar: prioridad parámetro URL ?dt_page=X, luego sessionStorage
+            const dtPageParam = parseInt(urlParams.get('dt_page'), 10);
+            let targetPage = -1;
+            if (!isNaN(dtPageParam) && dtPageParam > 0) {
+                targetPage = dtPageParam - 1; // 0-indexed
+            } else if (guardado && typeof guardado._dt_page !== 'undefined') {
+                targetPage = parseInt(guardado._dt_page, 10);
+            }
+
+            if (targetPage > 0) {
+                var pLen = dtOptions.pageLength || 25;
+                dtOptions.displayStart = targetPage * pLen;
+                dtOptions.iDisplayStart = targetPage * pLen;
+            }
+
+            const highlightId = urlParams.get('highlight');
+            let highlightApplied = false;
+
+            dtOptions.drawCallback = function () {
+                inicializarTooltips();
+
+                if (highlightId && !highlightApplied) {
+                    setTimeout(function () {
+                        const $row = $(`#insumo_row_${highlightId}, tr[data-id="${highlightId}"]`);
+                        if ($row.length) {
+                            highlightApplied = true;
+                            // Scroll suave hacia la fila
+                            $row[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            // Aplicar clase animada de resaltado
+                            $row.addClass('row-highlight-active');
+                            // Poner foco en el botón de la fila
+                            $row.find('button, a').first().focus();
+                            // Limpiar highlight y dt_page de la URL para evitar re-resaltar si el usuario recarga
+                            if (window.history && window.history.replaceState) {
+                                const cleanUrl = new URL(window.location);
+                                cleanUrl.searchParams.delete('highlight');
+                                cleanUrl.searchParams.delete('dt_page');
+                                window.history.replaceState({}, '', cleanUrl);
+                            }
+                            setTimeout(function () {
+                                $row.removeClass('row-highlight-active');
+                            }, 3500);
+                        }
+                    }, 150);
+                }
+            };
+
+            var dt = $t.DataTable(dtOptions);
         }
+
+        // Delegación para asegurar que cualquier clic en Editar adjunte el número de página actual y estado
+        $(document).on('click', '#tablaInsumos a[href*="editar.php"]', function () {
+            if ($.fn.DataTable.isDataTable('#tablaInsumos')) {
+                const pageInfo = $('#tablaInsumos').DataTable().page.info();
+                const estadoActual = $('#estado').val();
+                try {
+                    const urlObj = new URL(this.href, window.location.origin);
+                    if (pageInfo && typeof pageInfo.page === 'number') {
+                        urlObj.searchParams.set('dt_page', pageInfo.page + 1);
+                    }
+                    if (estadoActual !== undefined && estadoActual !== null) {
+                        urlObj.searchParams.set('origen_estado', estadoActual);
+                    }
+                    this.href = urlObj.pathname + urlObj.search;
+                } catch (e) {
+                    let href = $(this).attr('href');
+                    if (href && href.indexOf('dt_page=') === -1 && pageInfo) {
+                        href += (href.indexOf('?') === -1 ? '?' : '&') + `dt_page=${pageInfo.page + 1}`;
+                    }
+                    if (href && href.indexOf('origen_estado=') === -1 && estadoActual !== undefined) {
+                        href += `&origen_estado=${encodeURIComponent(estadoActual)}`;
+                    }
+                    $(this).attr('href', href);
+                }
+            }
+        });
 
         // Manejo de clicks en tabs
         $('#tabsEstado a').on('click', function (e) {
@@ -759,6 +892,21 @@ $localidades = $stmt->fetchAll();
             // Actualizar valor oculto y recargar tabla
             const nuevoEstado = $(this).data('estado');
             $('#estado').val(nuevoEstado);
+
+            if (window.history && window.history.replaceState) {
+                const url = new URL(window.location);
+                if (nuevoEstado !== undefined && nuevoEstado !== '') {
+                    url.searchParams.set('estado', nuevoEstado);
+                } else {
+                    url.searchParams.set('estado', '');
+                }
+                window.history.replaceState({}, '', url);
+            }
+
+            // Sincronizar inmediatamente con sessionStorage
+            if (window.SITIA_Filtros) {
+                window.SITIA_Filtros.guardar();
+            }
 
             actualizarFiltrosUbicacion(nuevoEstado);
 
@@ -939,7 +1087,8 @@ $localidades = $stmt->fetchAll();
         });
 
         // Evento click para el botón de planilla de relevamiento
-        $('#btnPlanillaRelevamiento').on('click', function () {
+        $('#btnPlanillaRelevamiento').on('click', function (e) {
+            e.preventDefault();
             mostrarOpcionesRelevamiento();
         });
     });
@@ -951,23 +1100,125 @@ $localidades = $stmt->fetchAll();
         modal.className = 'modal fade';
         modal.setAttribute('tabindex', '-1');
         modal.setAttribute('id', 'modalRelevamiento');
-        modal.innerHTML = '<div class="modal-dialog modal-dialog-centered">' +
+        modal.innerHTML = '<div class="modal-dialog modal-dialog-centered modal-lg">' +
             '<div class="modal-content">' +
             '<div class="modal-header bg-primary text-white">' +
             '<h5 class="modal-title"><i class="fas fa-file-pdf me-2"></i>Planilla de Relevamiento</h5>' +
             '<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>' +
             '</div>' +
-            '<div class="modal-body">' +
-            '<p class="mb-3">Seleccione la cantidad de formularios por hoja:</p>' +
-            '<div class="d-grid gap-2">' +
-            '<button type="button" class="btn btn-outline-primary" onclick="generarRelevamiento(4)">' +
-            '<i class="fas fa-th-large me-2"></i>4 formularios por hoja (2x2)' +
-            '<small class="d-block text-muted mt-1">Más espacio, menos cantidad</small>' +
+            '<div class="modal-body p-4">' +
+            '<div class="row g-3">' +
+
+            '<!-- Opción 1: Planilla de Insumos -->' +
+            '<div class="col-md-4">' +
+            '<div class="card border-primary h-100 shadow-sm">' +
+            '<div class="card-body d-flex flex-column justify-content-between">' +
+            '<div>' +
+            '<h6 class="card-title text-primary fw-bold mb-2">' +
+            '<i class="fas fa-desktop me-2"></i>Planilla de Insumos' +
+            '</h6>' +
+            '<p class="text-muted small mb-3">' +
+            'Contiene PC, Impresora, Escáner, Monitores, Periféricos, Estabilizadores y Notebooks.' +
+            '</p>' +
+            '</div>' +
+            '<button type="button" class="btn btn-primary w-100 mt-2" onclick="generarRelevamientoInsumos()">' +
+            '<i class="fas fa-file-pdf me-2"></i>Generar Insumos' +
             '</button>' +
-            '<button type="button" class="btn btn-outline-primary" onclick="generarRelevamiento(6)">' +
-            '<i class="fas fa-th me-2"></i>6 formularios por hoja (3x2)' +
-            '<small class="d-block text-muted mt-1">Más cantidad, formato compacto</small>' +
+            '</div>' +
+            '</div>' +
+            '</div>' +
+
+            '<!-- Opción 2: Planilla de Infraestructura de Red -->' +
+            '<div class="col-md-4">' +
+            '<div class="card border-info h-100 shadow-sm">' +
+            '<div class="card-body d-flex flex-column justify-content-between">' +
+            '<div>' +
+            '<h6 class="card-title text-info fw-bold mb-2">' +
+            '<i class="fas fa-network-wired me-2"></i>Infraestructura de Red' +
+            '</h6>' +
+            '<p class="text-muted small mb-3">' +
+            'Proveedor, tipo de conexión, velocidad, WiFi y tabla para 15 dispositivos de red.' +
+            '</p>' +
+            '</div>' +
+            '<button type="button" class="btn btn-info text-white w-100 mt-2" onclick="generarRelevamientoRed()">' +
+            '<i class="fas fa-file-pdf me-2"></i>Generar Red' +
             '</button>' +
+            '</div>' +
+            '</div>' +
+            '</div>' +
+
+            '<!-- Opción 3: Planilla de Sistema de Vigilancia -->' +
+            '<div class="col-md-4">' +
+            '<div class="card border-secondary h-100 shadow-sm">' +
+            '<div class="card-body d-flex flex-column justify-content-between">' +
+            '<div>' +
+            '<h6 class="card-title text-dark fw-bold mb-2">' +
+            '<i class="fas fa-video me-2"></i>Sistema de Vigilancia' +
+            '</h6>' +
+            '<p class="text-muted small mb-3">' +
+            'Proveedor, tipo de sistema y tabla de relevamiento para 15 dispositivos de seguridad.' +
+            '</p>' +
+            '</div>' +
+            '<button type="button" class="btn btn-secondary w-100 mt-2" onclick="generarRelevamientoVigilancia()">' +
+            '<i class="fas fa-file-pdf me-2"></i>Generar Vigilancia' +
+            '</button>' +
+            '</div>' +
+            '</div>' +
+            '</div>' +
+
+            '</div><!-- /row -->' +
+
+            '<!-- Opción 4: Planilla Personalizada / Parcial de Insumos -->' +
+            '<div class="card border-primary shadow-sm mt-4">' +
+            '<div class="card-body">' +
+            '<h6 class="card-title text-primary fw-bold mb-2">' +
+            '<i class="fas fa-sliders me-2"></i>Planilla Personalizada / Parcial de Insumos' +
+            '</h6>' +
+            '<p class="text-muted small mb-3">' +
+            'Seleccione únicamente los insumos que desea incluir en la planilla. Los campos no seleccionados se ocultarán y la tarjeta adaptará su espacio disponible.' +
+            '</p>' +
+            '<!-- Indicador en tiempo real del formato de la planilla -->' +
+            '<div id="badgeFormatoResultante" class="badge p-2.5 w-100 fs-6 bg-primary text-white mb-3 text-wrap text-start shadow-sm" style="line-height: 1.4;">' +
+            '<i class="fas fa-th-large me-2"></i>Formato resultante: <strong>2x2 Combinado</strong> (2 tarjetas Insumos arriba + 2 tarjetas Notebooks abajo)' +
+            '</div>' +
+            '<div class="row g-3 mb-3">' +
+            '<div class="col-md-6 d-flex flex-column gap-2.5">' +
+            '<div class="form-check">' +
+            '<input class="form-check-input" type="checkbox" id="chkIncPc" checked>' +
+            '<label class="form-check-label fw-semibold" for="chkIncPc">PC de Escritorio</label>' +
+            '</div>' +
+            '<div class="form-check">' +
+            '<input class="form-check-input" type="checkbox" id="chkIncMon" checked>' +
+            '<label class="form-check-label fw-semibold" for="chkIncMon">Monitores</label>' +
+            '</div>' +
+            '<div class="form-check">' +
+            '<input class="form-check-input" type="checkbox" id="chkIncImp" checked>' +
+            '<label class="form-check-label fw-semibold" for="chkIncImp">Impresoras</label>' +
+            '</div>' +
+            '<div class="form-check">' +
+            '<input class="form-check-input" type="checkbox" id="chkIncEsc" checked>' +
+            '<label class="form-check-label fw-semibold" for="chkIncEsc">Escáneres</label>' +
+            '</div>' +
+            '</div>' +
+            '<div class="col-md-6 d-flex flex-column gap-2.5">' +
+            '<div class="form-check">' +
+            '<input class="form-check-input" type="checkbox" id="chkIncPeri" checked>' +
+            '<label class="form-check-label fw-semibold" for="chkIncPeri">Periféricos</label>' +
+            '</div>' +
+            '<div class="form-check">' +
+            '<input class="form-check-input" type="checkbox" id="chkIncEst" checked>' +
+            '<label class="form-check-label fw-semibold" for="chkIncEst">Estabilizadores</label>' +
+            '</div>' +
+            '<div class="form-check">' +
+            '<input class="form-check-input" type="checkbox" id="chkIncNb" checked>' +
+            '<label class="form-check-label fw-semibold" for="chkIncNb">Notebooks</label>' +
+            '</div>' +
+            '</div>' +
+            '</div>' +
+            '<button type="button" class="btn btn-outline-primary w-100" onclick="generarRelevamientoParcial()">' +
+            '<i class="fas fa-filter me-2"></i>Generar Planilla Parcial' +
+            '</button>' +
+            '</div>' +
             '</div>' +
             '</div>' +
             '</div>' +
@@ -975,17 +1226,117 @@ $localidades = $stmt->fetchAll();
         document.body.appendChild(modal);
         const bsModal = new bootstrap.Modal(modal);
         bsModal.show();
+
+        // Event listener para actualizar el indicador en tiempo real al tildar/destildar
+        $(modal).find('.form-check-input').on('change', function () {
+            actualizarIndicadorFormatoModal();
+        });
+
         modal.addEventListener('hidden.bs.modal', function () {
             document.body.removeChild(modal);
         });
     }
 
-    // Función para generar el PDF con la cantidad elegida
-    function generarRelevamiento(cantidad) {
+    // Función para actualizar en tiempo real la vista previa del formato de planilla
+    function actualizarIndicadorFormatoModal() {
+        const incPc   = $('#chkIncPc').is(':checked');
+        const incMon  = $('#chkIncMon').is(':checked');
+        const incImp  = $('#chkIncImp').is(':checked');
+        const incEsc  = $('#chkIncEsc').is(':checked');
+        const incPeri = $('#chkIncPeri').is(':checked');
+        const incEst  = $('#chkIncEst').is(':checked');
+        const incNb   = $('#chkIncNb').is(':checked');
+
+        let numCampos = 0;
+        if (incPc)   numCampos += 7;
+        if (incMon)  numCampos += 4;
+        if (incImp)  numCampos += 3;
+        if (incEsc)  numCampos += 3;
+        if (incPeri) numCampos += 6;
+        if (incEst)  numCampos += 1;
+
+        const tieneInsumos = numCampos > 0;
+        let textoFormato = '';
+        let badgeClass = 'bg-primary';
+
+        if (tieneInsumos && incNb) {
+            textoFormato = 'Formato resultante: <strong>2x2 Combinado</strong> (2 tarjetas Insumos arriba + 2 tarjetas Notebooks abajo)';
+            badgeClass = 'bg-primary';
+        } else if (tieneInsumos && !incNb) {
+            if (numCampos <= 18) {
+                textoFormato = 'Formato resultante: <strong>2x2</strong> (4 tarjetas de Insumos por hoja - 2 filas x 2 columnas)';
+                badgeClass = 'bg-success';
+            } else {
+                textoFormato = 'Formato resultante: <strong>2x1</strong> (2 tarjetas de Insumos a la altura completa de la página)';
+                badgeClass = 'bg-info text-dark';
+            }
+        } else if (!tieneInsumos && incNb) {
+            textoFormato = 'Formato resultante: <strong>2x2</strong> (4 tarjetas de Notebooks por hoja - 2 filas x 2 columnas)';
+            badgeClass = 'bg-secondary';
+        } else {
+            textoFormato = 'Atención: Seleccione al menos un insumo para generar la planilla.';
+            badgeClass = 'bg-warning text-dark';
+        }
+
+        $('#badgeFormatoResultante')
+            .attr('class', 'badge p-2.5 w-100 fs-6 text-wrap text-start shadow-sm mb-3 ' + badgeClass)
+            .html('<i class="fas fa-th-large me-2"></i>' + textoFormato);
+    }
+
+    // Función para generar la Planilla de Insumos
+    function generarRelevamientoInsumos() {
         const baseUrl = getAppBase ? getAppBase() : window.APP_BASE_URL || '';
-        const url = baseUrl + '/pages/reportes/relevamientos_pdf.php?cantidad=' + cantidad;
-        window.open(url, '_blank');
-        // Cerrar el modal
+        const url = baseUrl + '/pages/reportes/relevamientos_pdf.php?tipo=insumos';
+        abrirVisorPDF(url, 'Planilla de Relevamiento de Insumos');
+        cerrarModalRelevamiento();
+    }
+
+    // Alias para compatibilidad previa
+    function generarRelevamientoCompleto() {
+        generarRelevamientoInsumos();
+    }
+
+    // Función para generar la Planilla de Infraestructura de Red
+    function generarRelevamientoRed() {
+        const baseUrl = getAppBase ? getAppBase() : window.APP_BASE_URL || '';
+        const url = baseUrl + '/pages/reportes/relevamientos_pdf.php?tipo=red';
+        abrirVisorPDF(url, 'Planilla de Infraestructura de Red');
+        cerrarModalRelevamiento();
+    }
+
+    // Función para generar la Planilla de Sistema de Vigilancia
+    function generarRelevamientoVigilancia() {
+        const baseUrl = getAppBase ? getAppBase() : window.APP_BASE_URL || '';
+        const url = baseUrl + '/pages/reportes/relevamientos_pdf.php?tipo=vigilancia';
+        abrirVisorPDF(url, 'Planilla de Sistema de Vigilancia');
+        cerrarModalRelevamiento();
+    }
+
+    // Función para generar la Planilla Personalizada / Parcial
+    function generarRelevamientoParcial() {
+        const baseUrl = getAppBase ? getAppBase() : window.APP_BASE_URL || '';
+        const incPc = $('#chkIncPc').is(':checked') ? 1 : 0;
+        const incMon = $('#chkIncMon').is(':checked') ? 1 : 0;
+        const incImp = $('#chkIncImp').is(':checked') ? 1 : 0;
+        const incEsc = $('#chkIncEsc').is(':checked') ? 1 : 0;
+        const incPeri = $('#chkIncPeri').is(':checked') ? 1 : 0;
+        const incEst = $('#chkIncEst').is(':checked') ? 1 : 0;
+        const incNb = $('#chkIncNb').is(':checked') ? 1 : 0;
+
+        const url = baseUrl + '/pages/reportes/relevamientos_pdf.php?tipo=parcial' +
+            '&inc_pc=' + incPc +
+            '&inc_mon=' + incMon +
+            '&inc_imp=' + incImp +
+            '&inc_esc=' + incEsc +
+            '&inc_peri=' + incPeri +
+            '&inc_est=' + incEst +
+            '&inc_nb=' + incNb;
+        
+        abrirVisorPDF(url, 'Planilla de Relevamiento Personalizada');
+        cerrarModalRelevamiento();
+    }
+
+    function cerrarModalRelevamiento() {
         const modalEl = document.getElementById('modalRelevamiento');
         if (modalEl) {
             const modal = bootstrap.Modal.getInstance(modalEl);

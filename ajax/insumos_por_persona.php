@@ -43,7 +43,7 @@ try {
                 FROM remitos r
                 JOIN remitos_detalle rd ON rd.id_remito = r.id_remito
                 JOIN sedes s ON r.id_sede = s.id_sede
-                JOIN areas a ON r.id_area = a.id_area
+                LEFT JOIN areas a ON r.id_area = a.id_area
                 JOIN localidades l ON s.id_localidad = l.id_localidad
                 WHERE r.estado = 'Activa'
                   AND GREATEST(rd.cantidad - COALESCE(rd.cantidad_devuelta, 0), 0) > 0
@@ -56,7 +56,7 @@ try {
                     r.nombre_persona_asignada,
                     r.apellido_persona_asignada,
                     s.id_sede,
-                    a.id_area
+                    r.id_area
                 HAVING total_insumos > 0
                 ORDER BY r.apellido_persona_asignada, r.nombre_persona_asignada
                 LIMIT 20";
@@ -117,7 +117,7 @@ try {
                 JOIN remitos_detalle rd ON rd.id_remito = r.id_remito
                 JOIN insumos i ON i.id_insumo = rd.id_insumo
                 JOIN sedes s ON r.id_sede = s.id_sede
-                JOIN areas a ON r.id_area = a.id_area
+                LEFT JOIN areas a ON r.id_area = a.id_area
                 JOIN localidades l ON s.id_localidad = l.id_localidad
                 WHERE r.estado = 'Activa'
                   AND r.nombre_persona_asignada = ?

@@ -142,7 +142,7 @@ $pendientes_count = $pedidos_count + $tareas_count;
                             title="<?php echo $tooltip; ?>">
                             <?php echo $pendientes_count; ?>
                         </h3>
-                        <p><i class="fas fa-tasks me-2"></i>Pendientes</p>
+                        <p class="mb-0">Pendientes</p>
                     </div>
                     <div class="align-self-center">
                         <i class="fas fa-exclamation-circle fa-2x opacity-75"></i>
@@ -157,7 +157,7 @@ $pendientes_count = $pedidos_count + $tareas_count;
             <div class="d-flex justify-content-between">
                 <div>
                     <h3 id="total-insumos"><?php echo $total_insumos; ?></h3>
-                    <p><i class="fas fa-boxes me-2"></i>Total Insumos</p>
+                    <p class="mb-0">Total Insumos</p>
                 </div>
                 <div class="align-self-center">
                     <i class="fas fa-boxes fa-2x opacity-75"></i>
@@ -171,7 +171,7 @@ $pendientes_count = $pedidos_count + $tareas_count;
             <div class="d-flex justify-content-between">
                 <div>
                     <h3 id="insumos-disponibles"><?php echo $insumos_disponibles; ?></h3>
-                    <p><i class="fas fa-check-circle me-2"></i>Disponibles</p>
+                    <p class="mb-0">Disponibles</p>
                 </div>
                 <div class="align-self-center">
                     <i class="fas fa-check-circle fa-2x opacity-75"></i>
@@ -185,7 +185,7 @@ $pendientes_count = $pedidos_count + $tareas_count;
             <div class="d-flex justify-content-between">
                 <div>
                     <h3 id="insumos-asignados"><?php echo $insumos_asignados; ?></h3>
-                    <p><i class="fas fa-clipboard-list me-2"></i>Asignados</p>
+                    <p class="mb-0">Asignados</p>
                 </div>
                 <div class="align-self-center">
                     <i class="fas fa-clipboard-list fa-2x opacity-75"></i>
@@ -199,7 +199,7 @@ $pendientes_count = $pedidos_count + $tareas_count;
             <div class="d-flex justify-content-between">
                 <div>
                     <h3 id="total-asignaciones"><?php echo $total_asignaciones; ?></h3>
-                    <p><i class="fas fa-file-alt me-2"></i>Total Asignaciones</p>
+                    <p class="mb-0">Total Asignaciones</p>
                 </div>
                 <div class="align-self-center">
                     <i class="fas fa-file-alt fa-2x opacity-75"></i>

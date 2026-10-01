@@ -49,21 +49,49 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 
             } elseif ($_POST['accion'] == 'editar') {
                 verificarPermiso('sedes', 'editar');
-                // Actualizar incluyendo observaciones
-                $sql = "UPDATE sedes SET nombre_sede = ?, id_localidad = ?, direccion = ?, observaciones = ?, delegado_nombre = ?, delegado_apellido = ?, delegado_telefono = ?, responsable_nombre = ?, responsable_apellido = ?, responsable_telefono = ? WHERE id_sede = ?";
+                $id_sede = (int)$_POST['id_sede'];
+                $activo = isset($_POST['activo']) ? (int)$_POST['activo'] : 1;
+
+                // Si se intenta desactivar, verificar que no tenga insumos asignados o pendientes de devolución
+                if ($activo === 0) {
+                    $stmtIns = $conexion->prepare("SELECT COUNT(*) FROM insumos WHERE id_sede_actual = ? AND estado != 'De Baja'");
+                    $stmtIns->execute([$id_sede]);
+                    $cantInsumos = (int)$stmtIns->fetchColumn();
+
+                    $stmtRem = $conexion->prepare("
+                        SELECT COALESCE(SUM(rd.cantidad - COALESCE(rd.cantidad_devuelta, 0)), 0) 
+                        FROM remitos_detalle rd 
+                        JOIN remitos r ON rd.id_remito = r.id_remito 
+                        WHERE r.id_sede = ?
+                    ");
+                    $stmtRem->execute([$id_sede]);
+                    $cantRem = (int)$stmtRem->fetchColumn();
+
+                    $pendientes = max($cantInsumos, $cantRem);
+                    if ($pendientes > 0) {
+                        $_SESSION['mensaje'] = "No se puede desactivar la sede porque aún cuenta con {$pendientes} insumo(s) asignado(s) o pendientes de devolución. Debe devolver la totalidad de los insumos antes de desactivarla.";
+                        $_SESSION['tipo_mensaje'] = "danger";
+                        header("Location: sedes.php");
+                        exit;
+                    }
+                }
+
+                // Actualizar incluyendo observaciones y estado activo
+                $sql = "UPDATE sedes SET nombre_sede = ?, id_localidad = ?, direccion = ?, observaciones = ?, activo = ?, delegado_nombre = ?, delegado_apellido = ?, delegado_telefono = ?, responsable_nombre = ?, responsable_apellido = ?, responsable_telefono = ? WHERE id_sede = ?";
                 $stmt = $conexion->prepare($sql);
                 $stmt->execute([
                     $_POST['nombre_sede'],
                     $_POST['id_localidad'],
                     ($_POST['direccion'] ?? null) ?: null,
                     ($_POST['observaciones'] ?? null) ?: null,
+                    $activo,
                     ($_POST['delegado_nombre'] ?? null) ?: null,
                     ($_POST['delegado_apellido'] ?? null) ?: null,
                     ($_POST['delegado_telefono'] ?? null) ?: null,
                     ($_POST['responsable_nombre'] ?? null) ?: null,
                     ($_POST['responsable_apellido'] ?? null) ?: null,
                     ($_POST['responsable_telefono'] ?? null) ?: null,
-                    $_POST['id_sede']
+                    $id_sede
                 ]);
                 
                 $_SESSION['mensaje'] = "Sede actualizada correctamente";
@@ -80,8 +108,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-// Obtener sedes con información de localidad y zona
-$sql = "SELECT s.*, l.nombre_localidad, z.nombre_zona 
+// Obtener sedes con información de localidad, zona e insumos asignados
+$sql = "SELECT s.*, l.nombre_localidad, z.nombre_zona,
+        (SELECT COUNT(*) FROM insumos i WHERE i.id_sede_actual = s.id_sede AND i.estado != 'De Baja') AS insumos_actuales,
+        (SELECT COALESCE(SUM(rd.cantidad - COALESCE(rd.cantidad_devuelta, 0)), 0) 
+         FROM remitos_detalle rd 
+         JOIN remitos r ON rd.id_remito = r.id_remito 
+         WHERE r.id_sede = s.id_sede) AS remitos_pendientes
         FROM sedes s 
         JOIN localidades l ON s.id_localidad = l.id_localidad 
         JOIN zonas z ON l.id_zona = z.id_zona 
@@ -135,41 +168,79 @@ $localidades = $stmt->fetchAll();
                             <th>Teléfono</th>
                             <th>Responsable</th>
                             <th>Teléfono Resp.</th>
+                            <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($sedes as $sede): ?>
-                            <tr>
+                        <?php foreach ($sedes as $sede): 
+                            $isActivo = !empty($sede['activo']);
+                            $insumosPendientes = max((int)($sede['insumos_actuales'] ?? 0), (int)($sede['remitos_pendientes'] ?? 0));
+                            $puedeDesactivar = ($insumosPendientes === 0);
+                        ?>
+                            <tr id="row_sede_<?php echo $sede['id_sede']; ?>" class="<?php echo !$isActivo ? 'opacity-50' : ''; ?>">
                                 <td><?php echo $sede['id_sede']; ?></td>
                                 <td><strong><?php echo htmlspecialchars($sede['nombre_sede']); ?></strong></td>
                                 <td><?php echo htmlspecialchars($sede['nombre_localidad']); ?></td>
-                                <!--< Zona column removed -->
                                 <td><?php echo htmlspecialchars(trim(($sede['delegado_nombre'] ?? '').' '.($sede['delegado_apellido'] ?? '')) ?: '-'); ?></td>
                                 <td><?php echo htmlspecialchars($sede['delegado_telefono'] ?? '-'); ?></td>
                                 <td><?php echo htmlspecialchars(trim(($sede['responsable_nombre'] ?? '').' '.($sede['responsable_apellido'] ?? '')) ?: '-'); ?></td>
                                 <td><?php echo htmlspecialchars($sede['responsable_telefono'] ?? '-'); ?></td>
+                                <td id="status_sede_<?php echo $sede['id_sede']; ?>">
+                                    <?php if ($isActivo): ?>
+                                        <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Activa</span>
+                                    <?php else: ?>
+                                        <span class="badge bg-secondary"><i class="fas fa-eye-slash me-1"></i>Inactiva</span>
+                                    <?php endif; ?>
+                                </td>
                                 <td>
-                                    <div class="btn-group" role="group">
+                                    <div class="btn-group btn-group-sm" role="group">
                                         <?php if (tienePermiso('sedes', 'editar')): ?>
                                         <button type="button" 
-                                                class="btn btn-sm btn-warning" 
+                                                class="btn btn-warning text-dark" 
                                                 onclick="editarSede(<?php echo htmlspecialchars(json_encode($sede)); ?>)"
                                                 data-bs-toggle="tooltip" 
                                                 title="Editar sede" aria-label="Editar sede">
                                             <i class="fas fa-edit" aria-hidden="true"></i>
                                         </button>
+                                        <?php if ($isActivo): ?>
+                                            <?php if ($puedeDesactivar): ?>
+                                            <button type="button" 
+                                                    class="btn btn-outline-secondary" 
+                                                    onclick="toggleEstadoSede(<?php echo (int)$sede['id_sede']; ?>, '<?php echo htmlspecialchars(addslashes($sede['nombre_sede'])); ?>', 1)"
+                                                    data-bs-toggle="tooltip" 
+                                                    title="Desactivar sede">
+                                                <i class="fas fa-toggle-on text-success"></i>
+                                            </button>
+                                            <?php else: ?>
+                                            <button type="button" 
+                                                    class="btn btn-outline-secondary" 
+                                                    disabled
+                                                    data-bs-toggle="tooltip" 
+                                                    title="No se puede desactivar: cuenta con <?php echo $insumosPendientes; ?> insumo(s) asignado(s) o pendientes de devolución">
+                                                <i class="fas fa-toggle-on text-muted"></i>
+                                            </button>
+                                            <?php endif; ?>
+                                        <?php else: ?>
+                                            <button type="button" 
+                                                    class="btn btn-outline-secondary" 
+                                                    onclick="toggleEstadoSede(<?php echo (int)$sede['id_sede']; ?>, '<?php echo htmlspecialchars(addslashes($sede['nombre_sede'])); ?>', 0)"
+                                                    data-bs-toggle="tooltip" 
+                                                    title="Activar sede">
+                                                <i class="fas fa-toggle-off text-muted"></i>
+                                            </button>
+                                        <?php endif; ?>
                                         <?php endif; ?>
                                         
                                         <?php if (tienePermiso('sedes', 'ver')): ?>
-                                        <a class="btn btn-sm btn-info" href="<?php echo app_base_url(); ?>/pages/admin/sede_detalle.php?id_localidad=<?php echo (int)$sede['id_localidad']; ?>&id_sede=<?php echo (int)$sede['id_sede']; ?>" data-bs-toggle="tooltip" title="Ver detalles" aria-label="Ver detalles de la sede">
+                                        <a class="btn btn-info text-white" href="<?php echo app_base_url(); ?>/pages/admin/sede_detalle.php?id_localidad=<?php echo (int)$sede['id_localidad']; ?>&id_sede=<?php echo (int)$sede['id_sede']; ?>" data-bs-toggle="tooltip" title="Ver detalles" aria-label="Ver detalles de la sede">
                                             <i class="fas fa-eye" aria-hidden="true"></i>
                                         </a>
                                         <?php endif; ?>
                                         
                                         <?php if (tienePermiso('sedes', 'eliminar')): ?>
                                         <button type="button" 
-                                                class="btn btn-sm btn-danger" 
+                                                class="btn btn-danger" 
                                                 onclick="eliminarItem(<?php echo $sede['id_sede']; ?>, 'sede')"
                                                 data-bs-toggle="tooltip" 
                                                 title="Eliminar sede" aria-label="Eliminar sede">
@@ -248,6 +319,19 @@ $localidades = $stmt->fetchAll();
                         </div>
                     </div>
                     
+                    <div class="row g-3 mt-2" id="grupo_estado_sede">
+                        <div class="col-md-6">
+                            <label for="sede_activo" class="form-label">Estado de la Sede</label>
+                            <select class="form-select" id="sede_activo" name="activo">
+                                <option value="1">Activa (operativa y visible en listados)</option>
+                                <option value="0">Inactiva (desactivada, no seleccionable)</option>
+                            </select>
+                            <small id="help_sede_activo" class="text-danger d-none mt-1">
+                                <i class="fas fa-exclamation-triangle me-1"></i><span id="help_sede_activo_text"></span>
+                            </small>
+                        </div>
+                    </div>
+                    
                     <div class="mb-3 mt-3">
                         <label for="observaciones" class="form-label">Observaciones</label>
                         <textarea class="form-control" id="observaciones" name="observaciones" rows="3"></textarea>
@@ -277,6 +361,18 @@ function editarSede(sede) {
     $('#responsable_nombre').val(sede.responsable_nombre || '');
     $('#responsable_apellido').val(sede.responsable_apellido || '');
     $('#responsable_telefono').val(sede.responsable_telefono || '');
+    $('#sede_activo').val(sede.activo !== undefined ? sede.activo : 1);
+
+    var insumosPend = Math.max(parseInt(sede.insumos_actuales || 0), parseInt(sede.remitos_pendientes || 0));
+    if (insumosPend > 0) {
+        $('#sede_activo option[value="0"]').prop('disabled', true);
+        $('#help_sede_activo_text').text('No se puede desactivar: cuenta con ' + insumosPend + ' insumo(s) asignado(s) o pendientes de devolución.');
+        $('#help_sede_activo').removeClass('d-none');
+    } else {
+        $('#sede_activo option[value="0"]').prop('disabled', false);
+        $('#help_sede_activo').addClass('d-none');
+    }
+
     $('#modalSede').modal('show');
 }
 
@@ -290,7 +386,7 @@ function eliminarItem(id, tipo) {
         onConfirm: () => {
             var form = document.createElement('form');
             form.method = 'POST';
-            form.action = '<?php echo app_base_url(); ?>/pages/insumos/eliminar.php';
+            form.action = '<?php echo app_base_url(); ?>/pages/admin/eliminar.php';
             
             var inputId = document.createElement('input');
             inputId.type = 'hidden';
@@ -321,10 +417,50 @@ $('#modalSede').on('hidden.bs.modal', function () {
     $('#modalSedeTitle').text('Agregar Sede');
     $('#accion').val('agregar');
     $('#id_sede').val('');
+    $('#sede_activo').val('1');
+    $('#sede_activo option[value="0"]').prop('disabled', false);
+    $('#help_sede_activo').addClass('d-none');
     $('#formSede')[0].reset();
     $('#formSede').removeClass('was-validated');
-    $('#observaciones').val('');
 });
+
+// Toggle para activar/desactivar sede con diálogo de confirmación estándar
+function toggleEstadoSede(idSede, nombreSede, esActiva) {
+    var accion = esActiva ? 'desactivar' : 'activar';
+    showConfirm({
+        titulo: (esActiva ? 'Desactivar' : 'Activar') + ' Sede',
+        mensaje: '¿Está seguro de que desea ' + accion + ' la sede "<strong>' + nombreSede + '</strong>"?',
+        icono: esActiva ? 'fa-eye-slash text-warning' : 'fa-check-circle text-success',
+        claseBoton: esActiva ? 'btn-warning' : 'btn-success',
+        textoAceptar: esActiva ? 'Desactivar' : 'Activar',
+        onConfirm: () => {
+            var csrfToken = $('meta[name="csrf-token"]').attr('content') || '<?php echo csrf_token(); ?>';
+            $.ajax({
+                url: '<?php echo app_base_url(); ?>/ajax/sedes_toggle_estado.php',
+                method: 'POST',
+                data: {
+                    id_sede: idSede,
+                    _csrf: csrfToken
+                },
+                dataType: 'json',
+                success: function(resp) {
+                    if (resp && resp.success) {
+                        showToast(resp.data && resp.data.mensaje ? resp.data.mensaje : 'Estado actualizado', 'success');
+                        setTimeout(function() {
+                            location.reload();
+                        }, 500);
+                    } else {
+                        showToast((resp && resp.error) ? resp.error : 'Error al cambiar estado', 'error');
+                    }
+                },
+                error: function(xhr) {
+                    var msg = (xhr.responseJSON && xhr.responseJSON.error) ? xhr.responseJSON.error : 'Error de comunicación';
+                    showToast(msg, 'error');
+                }
+            });
+        }
+    });
+}
 
 // Validación del formulario
 $('#formSede').on('submit', function(e) {

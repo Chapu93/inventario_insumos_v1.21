@@ -1,0 +1,266 @@
+﻿ID_PC;ID_Insumo;ID_Fisico;Numero_Serie;Mother_Original_BD;Fabricante_Normalizado;Modelo_Normalizado;Socket;Chipset;Procesador;RAM_GB;Disco_Principal;Disco_Secundario;Sistema_Operativo;Estado;Sede;Asignado_A;Remito
+44;109;A0103;-;MSI H110M PRO VH PLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel I3-7100;4;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Central;;109_2025_hist
+45;110;A0046;-;MSI H110M PRO VH PLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel I3-7100;4;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Central;;1_2025_hist
+46;111;-;-;MSI H110M PRO VH PLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel I3-7100;8;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Central;;2_2025_hist
+47;112;-;-;Gigabyte H410M S2H V3;Gigabyte;H410M S2H V3;LGA1200;Intel H410 / H470;Intel I3-10100;4;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Central;;3_2025_hist
+48;113;A0481;-;Gigabyte A320M-H-CF;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8-9600 R7;4;1024 GB (HDD);-;Ubuntu 18.04;Asignado;Central;;0116_2026
+49;114;-;-;Hp Prodesk 600 G3 Mt/8290;HP;ProDesk 600 G3 MT (Board 829D);LGA1151;Intel Q270;Intel I3-6100;4;512 GB (HDD);-;Ubuntu 18.04;Asignado;Central;;0116_2026
+50;115;D163;-;Asrock H81M-VG4 R2.0;ASRock;H81M-VG4 R2.0;LGA1150;Intel H81;Intel Pentium G3250;4;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Central;;0116_2026
+51;116;-;-;Asus B450M-A;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 5 2400G;16;2048 GB (HDD);-;Windows 10 Pro;Asignado;Central;;0116_2026
+54;119;-;-;Asus H110M-K;Asus;H110M-K;LGA1151;Intel H110;Intel I3-7100;8;160 GB (HDD);-;Ubuntu 22.04;Asignado;Central;;10_2025_hist
+55;120;-;-;MSI H110M PRO VH PLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel I3-7100;4;512 GB (HDD);-;Ubuntu 18.04;Asignado;Central;;11_2025_hist
+56;121;-;-;MSI H110M PRO VH PLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel I3-7100;4;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Central;;12_2025_hist
+57;122;-;-;MSI H110M PRO VH PLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel I3-7100;4;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Central;;13_2025_hist
+58;123;A0033;-;MSI H110M PRO VH PLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel I3-7100;4;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Central;;14_2025_hist
+59;124;D128;-;Biostar N6853+;Biostar;N68S3+;AM3;GeForce 7025 / nForce 630a;AMD Athon II x2 250;4;512 GB (HDD);-;Xubuntu 18.04;Asignado;Central;;15_2025_hist
+60;125;A0470;-;Gigabyte A320M-H;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8-9600 R7;4;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Central;;16_2025_hist
+62;127;-;-;MSI-7A154;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel I3-7100;4;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Central;;18_2025_hist
+63;128;-;-;Asus H81M-C;Asus;H81M-C;LGA1150;Intel H81;Intel I3-4160;4;512 GB (HDD);-;Ubuntu 22.04;Asignado;Central;;19_2025_hist
+64;129;-;-;Gigabyte H410M S2H V3;Gigabyte;H410M S2H V3;LGA1200;Intel H410 / H470;Intel I3-10100;8;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Central;;20_2025_hist
+65;130;-;-;Gigabyte H110M-H;Gigabyte;GA-H110M-H;LGA1151;Intel H110;Intel I3-7100;4;1024 GB (HDD);-;Ubuntu 18.04;Asignado;Central;;21_2025_hist
+67;132;-;-;Gigabyte A320M-H;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8-9600 R7;4;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Central;;0117_2026
+68;133;A0078;-;MSI H110M PRO VH PLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel I3-7100;4;1024 GB (HDD);-;Ubuntu 18.04;Asignado;Central;;0117_2026
+70;135;A0486;-;Gigabyte A320M-H;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8-9600 R7;4;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Sede;;0194_2026
+71;136;-;-;Intel DH61H0;Intel;Desktop Board DH61HO;LGA1155;Intel H61;Intel I3-3220;4;512 GB (HDD);-;Ubuntu 20.04;Asignado;Central;;27_2025_hist
+72;137;D156;-;Compaq 500B 2A8C Foxcon;Compaq / Foxconn;Presario 500B (2A8C);LGA775;Intel G41;Intel Pentium E5400;4;320 GB (HDD);-;Lubuntu 22.04;Asignado;Central;;0163_2026
+74;139;-;-;MSI H110M PRO VH PLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel I3-7100;4;1024 GB (HDD);-;Ubuntu 18.04;Asignado;Central;;30_2025_hist
+76;141;-;-;Asrock A320M-HDV;ASRock;A320M-HDV;AM4;AMD A320;AMD A10-9700 R7;8;512 GB (HDD);-;Ubuntu 22.04;Asignado;Central;;32_2025_hist
+80;142;E011;AA52SM4S-01-60000B51204521;MB Biostar AM4 A520MHP DD;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400 G;16;512 GB (HDD);-;Ubuntu 24.04;Asignado;Central;;0001_2026
+83;160;E015;AA52SM4S-01-60000B51204523;MB Biostar AM4 A520MHP DD;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400 G;16;512 GB (HDD);-;Ubuntu 24.04;Asignado;Central;;0011_2026
+85;159;E014;AA52SM4S-01-60000B51500076;MB Biostar AM4 A520MHP DD;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400 G;16;512 GB (HDD);-;Ubuntu 24.04;Asignado;Central;;0010_2026
+86;163;E017;AA52SM4S-01-60000B51204535;MB Biostar AM4 A520MHP DD;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400 G;16;512 GB (HDD);-;Ubuntu 24.04;Asignado;Central;;0017_2026
+88;168;A0383;MXL7521C7D;HP ProDesk 600 G3 MT;HP;ProDesk 600 G3 MT (Board 829D);LGA1151;Intel Q270;Intel Core i3-6100;8;512 GB (HDD);-;Ubuntu 22;Asignado;Central;;0021_2026
+90;169;E019;001PX005200328826;Biostar A520MHP;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400G;16;512 GB (HDD);-;Ubuntu 24;Asignado;Central;;0022_2026
+91;172;E021;AA52SM4S-01-60000B51500025;MB Biostar AM4 A520MHP DD;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400 G;16;512 GB (HDD);-;Ubuntu 24.04;Asignado;Central;;0023_2026
+92;173;E024;AA525M4S-01-600000B51204529;Biostar A520MHP;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400G;16;512 GB (HDD);-;Ubuntu 24;Asignado;Central;;0025_2026
+93;175;E025;AA525M4S-01-600000B51204536;Biostar A520MHP;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400G;16;512 GB (HDD);-;Ubuntu 24;Asignado;Central;;0026_2026
+94;177;E027;AA525M4S-01-600000B51500416;Biostar A520MHP;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400G;16;512 GB (HDD);-;Ubuntu 24;Asignado;Central;;0032_2026
+97;182;E029;AA525M4S-01-600000B51500406;Biostar A520MHP;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400G;16;512 GB (HDD);-;Ubuntu 24;Asignado;Central;;0036_2026
+98;184;E031;AA52SM4S-01-60000B515000039;MB Biostar AM4 A520MHP DD;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400 G;16;512 GB (HDD);-;Ubuntu 24.04;Asignado;Central;;0038_2026
+99;186;E033;AA525M4S-01-600000B51500070;Biostar A520MHP;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400G;16;512 GB (HDD);-;Ubuntu 24;Asignado;Central;;0039_2026
+100;189;E035;AA525M4S-01-600000B51500065;Biostar A520MHP;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400G;16;512 GB (HDD);-;Ubuntu 24;Asignado;Central;;0041_2026
+106;214;E045;AA525M4S-01-600000B51500067;Biostar A520MHP;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400G;16;512 GB (HDD);-;Ubuntu 24;Asignado;Central;;0050_2026
+107;216;E047;AA52SM4S-01-60000B51204266;MB Biostar AM4 A520MHP DD;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400 G;16;512 GB (HDD);-;Ubuntu 24.04;Asignado;Central;;0051_2026
+108;218;E049;AA52SM4S-01-60000B51500028;MB Biostar AM4 A520MHP DD;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400 G;16;512 GB (HDD);-;Ubuntu 24.04;Asignado;Central;;0053_2026
+134;246;ID14;-;AsRock FM2A68M-DG3+;ASRock;FM2A68M-DG3+;FM2+;AMD A68H;AMD A4 4000;4;512 GB (HDD);-;Ubuntu 22;Asignado;Central;;25_2026_hist
+144;256;A0384;-;HP ProDesk 600 G3 MT;HP;ProDesk 600 G3 MT (Board 829D);LGA1151;Intel Q270;Intel Core i3-7100;4;512 GB (HDD);-;Windows 10;Asignado;Central;;35_2026_hist
+146;258;E051;AA52SM4S-01-60000B51500066;MB Biostar AM4 A520MHP DD;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400 G;16;512 GB (HDD);-;Ubuntu 24.04;Asignado;Central;;0058_2026
+156;264;E054;AA52SM4S-01-60000B51500411;MB Biostar AM4 A520MHP DD;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400G;16;512 GB (HDD);-;Ubuntu 24.04;Asignado;Central;;0083_2026
+157;266;E056;AA52SM4S-01-60000B51500341;MB Biostar AM4 A520MHP DD;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400G;16;512 GB (HDD);-;Ubuntu 24.04;Asignado;Central;;0138_2026
+159;267;E057;AA525M4S-01-600000B51204275;Biostar A520MHP;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400G;16;512 GB (HDD);-;Windows 10;Asignado;Central;;0062_2026
+160;270;E060;AA52SM4S-01-60000B51500061;MB Biostar AM4 A520MHP DD;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400G;16;512 GB (HDD);-;Ubuntu 24.04;Asignado;Central;;0143_2026
+161;272;E062;AA52SM4S-01-60000B51204538;MB Biostar AM4 A520MHP DD;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400G;16;512 GB (HDD);-;Ubuntu 24.04;Asignado;Central;;0148_2026
+162;275;E064;AA52SM4S-01-60000B51500029;MB Biostar AM4 A520MHP DD;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400G;16;512 GB (HDD);-;Ubuntu 24.04;Disponible;Sin Sede Asignada;-;-
+163;277;E066;AA52SM4S-01-60000B51204537;MB Biostar AM4 A520MHP DD;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400G;16;512 GB (HDD);-;Ubuntu 24.04;Asignado;Central;;0084_2026
+164;280;E068;AA52SM4S-01-60000B51204533;MB Biostar AM4 A520MHP DD;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400G;8;512 GB (HDD);-;Ubuntu 24.04;Asignado;Central;;0146_2026
+165;282;E070;AA52SM4S-01-60000B51204540;MB Biostar AM4 A520MHP DD;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400 G;16;512 GB (HDD);-;Ubuntu 24.04;Disponible;Sin Sede Asignada;-;-
+166;283;E071;AA525M4S-01-600000B51204530;Biostar A520MHP;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400G;16;512 GB (HDD);-;Ubuntu 24;Asignado;Central;;0065_2026
+167;286;E074;AA52SM4S-01-60000B51204531;MB Biostar AM4 A520MHP DD;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400 G;16;512 GB (HDD);-;Ubuntu 24.04;Asignado;Central;;0092_2026
+170;118;D195;-;Gigabyte B85M-D3H-A;Gigabyte;GA-B85M-D3H-A;LGA1150;Intel B85;Intel I3-4170;4;512 GB (HDD);-;Ubuntu 22.04;Asignado;Sede;;0069_2026
+171;302;ID6;-;MSI A68HM-E33 v2;MSI;A68HM-E33 V2;FM2+;AMD A68H;AMD A4 4250;8;512 GB (HDD);-;Ubuntu Mint 22;Asignado;Viedma valle inferior;;0081_2026
+173;304;E079;AA52SM4S-01-60000B51204534;MB Biostar AM4 A520MHP DD;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400G;16;512 GB (HDD);-;Ubuntu 24.04;Asignado;Central;;0089_2026
+174;308;E080;AA52SM4S-01-60000B51500031;MB Biostar AM4 A520MHP DD;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400G;16;512 GB (HDD);-;Ubuntu 24.04;Asignado;Central;;0174_2026
+176;318;-;-;MSI A68HM-E33 v2;MSI;A68HM-E33 V2;FM2+;AMD A68H;AMD A4 4000;4;1024 GB (HDD);-;Ubuntu Mint 22;Asignado;Viedma valle inferior;;42_2026_hist
+177;319;D115;-;Asustek H81M-C;Asus;H81M-C;LGA1150;Intel H81;Intel Core i3-4160;8;512 GB (HDD);-;Ubuntu 22;Asignado;Viedma valle inferior;;43_2026_hist
+178;252;A0471;-;MSI MS-7A15;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core i3-7100;4;512 GB (HDD);-;Ubuntu 22.04;Asignado;Viedma valle inferior;;0108_2026
+179;320;D26;-;Gigabyte B85M-B3H-A;Gigabyte;GA-B85M-D3H-A;LGA1150;Intel B85;Intel Core i3-4170;4;512 GB (HDD);-;Ubuntu 22;Asignado;Viedma valle inferior;;44_2026_hist
+180;321;D129;-;Asustek H81M-C;Asus;H81M-C;LGA1150;Intel H81;Intel Core i3-4160;4;512 GB (HDD);-;Ubuntu 22;Asignado;Viedma valle inferior;;45_2026_hist
+182;323;5;-;Asustek H81M-C;Asus;H81M-C;LGA1150;Intel H81;Intel Core i3-4160;4;512 GB (HDD);-;Ubuntu 22;Asignado;Viedma valle inferior;;47_2026_hist
+184;326;A0459;-;Gigabyte A320M-H-CF;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8 9600 R7;4;512 GB (HDD);-;Ubuntu 22;Asignado;Viedma valle inferior;;49_2026_hist
+185;327;-;-;Asustek 2A73H;Asus / Pegatron;IPISB-CU (2A73h);LGA1155;Intel H61;Pentium Dual-Core E2160;4;320 GB (HDD);-;Ubuntu 20;Asignado;Viedma valle inferior;;50_2026_hist
+186;328;A0033;-;MSI H110M-PRO-VH PLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core i3-7100;4;512 GB (HDD);-;Ubuntu 22;Asignado;Viedma valle inferior;;51_2026_hist
+187;329;D49;-;Asus H110M-C;Asus;H110M-C;LGA1151;Intel H110;Intel I3-4160;8;512 GB (HDD);-;Linux Mint 21;Asignado;Sede;;0111_2026
+188;335;-;-;Gigabyte GA-G41M-ES2L;Gigabyte;GA-G41M-ES2L;LGA775;Intel G41;Intel Pentium E2160;2;160 GB (HDD);-;Windows 7;De Baja;Sin Sede Asignada;;55_2026_hist
+190;336;4;-;Asustek H81M-C;Asus;H81M-C;LGA1150;Intel H81;Intel Core i3-4160;4;512 GB (HDD);-;Linux Mint 21;Asignado;Galpon Amarillo;;0121_2026
+194;244;D155;-;Gigabyte G41MT-S2PT;Gigabyte;GA-G41MT-S2PT;LGA775;Intel G41;Pentium Dual-Core E5500;4;320 GB (HDD);-;Xubuntu 22.04;De Baja;Sin Sede Asignada;;0129_2026
+198;348;D4;-;MSI H110M-PRO-VH PLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core i3-7100;4;512 GB (HDD);-;Ubuntu 22;Asignado;Viedma valle inferior;;60_2026_hist
+202;241;A0461;-;Gigabyte A320M-H-CF;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8 9600;8;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Central;;0136_2026
+207;395;A0482;-;Gigabyte GA-A320M-H;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8 9600;4;512 GB (HDD);-;Ubuntu 22.04;Asignado;Sede;;65_2026_hist
+208;396;D198;-;H110M Pro-VH Plus;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel I3-7100;8;1024 GB (SSD);-;Ubuntu 22.04;Asignado;Central;;0151_2026
+211;390;A0426;-;Asus Prime B450M-A;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 5 2400 G;16;1024 GB (SSD);-;Ubuntu 24.04;Asignado;Central;;0188_2026
+213;254;-;-;AsRock A320M-HDV;ASRock;A320M-HDV;AM4;AMD A320;AMD A8 9600;4;512 GB (HDD);-;Ubuntu 18;Asignado;Central;;33_2026_hist
+216;140;D33;-;Biostar N6853B;Biostar;N68S3+;AM3;GeForce 7025 / nForce 630a;AMD Athon II x2 250;4;256 GB (HDD);-;Lubuntu 18.04;Asignado;Central;;31_2025_hist
+217;134;A0487;-;Gigabyte A320M-H;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8-9600 R7;4;1024 GB (HDD);-;Linux Mint 22.04;Disponible;Sin Sede Asignada;;0181_2026
+225;466;A0381;sin serie;HP 829D;HP;ProDesk 600 G3 MT (Board 829D);LGA1151;Intel Q270;I3-6100;8;512 GB (SSD);-;Ubuntu 22.04;Asignado;Sede;;94_2026_hist
+226;467;-;-;Asus H81M-C;Asus;H81M-C;LGA1150;Intel H81;I3-4160;4;512 GB (SSD);-;Ubuntu 22.04;Asignado;Sede;;95_2026_hist
+233;484;-;-;Asus;Asus;Asus (Sin modelo específico);N/A;N/A;I3-4160;4;512 GB (SSD);-;Windows 7;Asignado;Sede;;111_2026_hist
+234;486;-;-;Asus P5KPL-AMSE;Asus;P5KPL-AM SE;LGA775;Intel G31;Intel Pentium ES200;2;160 GB (SSD);-;Windows 10;Asignado;Sede;;113_2026_hist
+236;493;-;-;Asus H81M-C;Asus;H81M-C;LGA1150;Intel H81;I3-4160;4;512 GB (SSD);-;Ubuntu 22.04;Asignado;Sede;;120_2026_hist
+238;499;-;-;Intel DH61HO;Intel;Desktop Board DH61HO;LGA1155;Intel H61;I3-3220 5.30;4;512 GB (SSD);-;Windows 10 PRO;Asignado;Sede;;126_2026_hist
+239;501;-;-;Intel DH61HO;Intel;Desktop Board DH61HO;LGA1155;Intel H61;I3-3220;4;512 GB (SSD);-;Windows 7;Asignado;Sede;;128_2026_hist
+250;235;34ROCA;0801201401001016;Gigabyte B85M-B3H-A;Gigabyte;GA-B85M-D3H-A;LGA1150;Intel B85;Intel Core i3-4170;4;512 GB (HDD);-;Linux Mint 21;Asignado;Sede;;0132_2026
+252;482;A0029;-;H110M PRO-VHPLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;I3-7100;4;1024 GB (SSD);-;Ubuntu 18.04;Asignado;Sede;;109_2026_hist
+253;512;D63;BM08AAO5F781;Asus Prime B450 H-AII;Asus;Prime B450M-A II;AM4;AMD B450;Ryzen 3 3200 G;8;1024 GB (SSD);-;Windows 11 Pro;Asignado;Sede;;139_2026_hist
+254;529;A-0464;-;Gigabyte A320M-H-CF;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8 9600;8;512 GB (HDD);-;Linux Mint 22;Asignado;Viedma valle inferior;;154_2026_hist
+255;324;A0067;-;MSI H110M-PRO-VH PLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core i3-7100;4;1024 GB (HDD);-;Ubuntu 22;Asignado;Viedma valle inferior;;48_2026_hist
+256;238;D178;-;Gigabyte A320M-H-CF;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8 9600;8;1024 GB (HDD);-;Ubuntu 22;Asignado;Central;;17_2026_hist
+257;351;D178;-;Gigabyte A320M-H;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8 9600;8;1024 GB (HDD);-;Ubuntu 22;Asignado;Central;;0134_2026
+259;398;A0448;-;Gigabyte A320M-H;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8 9600 R7;8;1024 GB (SSD);-;Ubuntu 22;Asignado;Sede;;0147_2026
+260;533;D-15;-;Asustek H81M-C;Asus;H81M-C;LGA1150;Intel H81;Intel Core i3-4160;4;512 GB (HDD);-;Linux Mint 22;Asignado;Central;;0191_2026
+261;537;D206;-;Asus H81M-C;Asus;H81M-C;LGA1150;Intel H81;Intel I3-4160;4;1024 GB (SSD);-;Xubuntu 22.04;Asignado;Central;;0190_2026
+262;542;D207;-;Gigabyte A320M-H-CF;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8 9600;8;1024 GB (HDD);-;Linux Mint 21;Asignado;Central;;0192_2026
+263;545;A0150;-;MSI H110M-PRO-VH ;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel I3-7100;4;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Sede;;155_2026_hist
+264;546;-;-;Gigabyte B85M-B3H-A;Gigabyte;GA-B85M-D3H-A;LGA1150;Intel B85;Intel Core i3-4170;4;512 GB (HDD);-;Ubuntu 18;Asignado;Viedma valle inferior;;156_2026_hist
+268;571;7;-;Gigabyte B85M-D3H-A;Gigabyte;GA-B85M-D3H-A;LGA1150;Intel B85;Intel i3-4170;4;512 GB (HDD);-;Ubuntu 18;Asignado;Viedma valle inferior;;181_2026_hist
+270;580;12;-;Asustek H81M-C;Asus;H81M-C;LGA1150;Intel H81;AMD i3-4160;4;512 GB (HDD);-;Ubuntu 22;Asignado;Viedma valle inferior;;190_2026_hist
+272;181;D172;DX-ATX600-6810;MSI H110M-PRO-VH PLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core i3-7100 ;4;1024 GB (HDD);-;Ubuntu 22;Asignado;Central;;0034_2026
+273;222;A0485;S/N;Gigabyte A320M-H-CF;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8 9600 R7;4;1024 GB (HDD);-;Ubuntu 22;Asignado;Central;;0055_2026
+274;224;A0467;-;Gigabyte A320M-H-CF;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8 9600;4;1024 GB (HDD);-;Ubuntu 18;Asignado;Central;;3_2026_hist
+275;229;A0056;-;MSI H110M-PRO-VH PLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core i3-7100;4;1024 GB (HDD);-;Ubuntu 22;Asignado;Central;;8_2026_hist
+276;322;D136;-;Asustek Prime B450M;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200;8;1024 GB (HDD);-;Ubuntu 22;Asignado;Viedma valle inferior;;46_2026_hist
+277;428;A0089;-;Asus H110M-K;Asus;H110M-K;LGA1151;Intel H110;Intel Core i3-7100;8;1024 GB (HDD);-;Windows 10;Asignado;Globito Azul;;84_2026_hist
+278;429;A0065;-;MSI H110M-PRO-VH PLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core i3-7100;8;1024 GB (HDD);-;Windows 10;Asignado;Viedma valle inferior;;85_2026_hist
+279;554;A0083;-;MSI H110M-PRO-VH PLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core i3-7100;4;1024 GB (HDD);-;Ubuntu 22;Asignado;Viedma valle inferior;;164_2026_hist
+280;251;45;-;Gigabyte H110M-H;Gigabyte;GA-H110M-H;LGA1151;Intel H110;Intel Core i3-7100;4;1024 GB (HDD);-;Ubuntu 22;Asignado;Central;;30_2026_hist
+282;469;A0025;-;(Vacío);Desconocido;No especificado / Sin datos;N/A;N/A;I3-7100;4;512 GB (HDD);-;Windows 10 ;Asignado;Sede;;97_2026_hist
+284;471;A13;-;Asus Prime B340M-A;Asus;Prime B450M-A II;AM4;AMD B450;Ryzen 5 2400;16;2048 GB (HDD);-;Windows 10 PRO;Asignado;Sede;;99_2026_hist
+285;479;A09;-;Intel DH61HO;Intel;Desktop Board DH61HO;LGA1155;Intel H61;I3-3220;4;512 GB (SSD);-;Linux Mint 21;Asignado;Sede;;106_2026_hist
+288;243;A0057;-;MSI H110M-PRO-VH PLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core i3-7100;4;1024 GB (HDD);-;Ubuntu 18;Asignado;Central;;22_2026_hist
+289;250;A0473;-;Gigabyte A320M-H-CF;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8 9600;4;1024 GB (HDD);-;Ubuntu 18;Asignado;Central;;29_2026_hist
+290;231;D174;-;MSI H110M-PRO-VH PLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core i3-7100;4;1024 GB (HDD);-;Ubuntu 22;Asignado;Central;;10_2026_hist
+292;230;A0041;-;MSI MS-7A15;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core i3-7100;4;1024 GB (HDD);-;Ubuntu 22;Asignado;Central;;9_2026_hist
+293;237;D7;-;Biostar A68N-2100;Biostar;A68N-2100;SoC Integrado;AMD E1-2100;AMD E1-2100;6;1024 GB (HDD);-;Ubuntu 18;Asignado;Central;;16_2026_hist
+295;245;A0190;-;MSI MS-7A15;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core i3-7100;4;1024 GB (HDD);-;Ubuntu 22;Asignado;Central;;24_2026_hist
+296;242;A0194;-;MSI H110M-PRO-VH PLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core i3-7100;4;1024 GB (HDD);-;Ubuntu 22;Asignado;Central;;21_2026_hist
+297;227;A0053;-;MSI MS-7A15;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core i3-7100;4;1024 GB (HDD);-;Ubuntu 22;Asignado;Central;;6_2026_hist
+298;232;D175;-;Gigabyte A320M-H-CF;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8 9600;4;1024 GB (HDD);-;Ubuntu 22;Asignado;Central;;11_2026_hist
+299;226;A0496;-;Gigabyte A320M-H-CF;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8 9600;4;1024 GB (HDD);-;-;Asignado;Central;;5_2026_hist
+300;239;A0457;-;Gigabyte A320M-H-CF;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8 9600;4;1024 GB (HDD);-;Windows 10;Asignado;Central;;18_2026_hist
+301;240;D181;-;Gigabyte A320M-H-CF;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8 9600;4;1024 GB (HDD);-;Ubuntu 18;Asignado;Central;;19_2026_hist
+302;247;D184;-;Gigabyte A320M-H;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8 9600;4;1024 GB (HDD);-;Ubuntu 22;Asignado;Central;;26_2026_hist
+303;585;A0065MEXYCAS;-;(Vacío);Desconocido;No especificado / Sin datos;N/A;N/A;Intel i3-7100;8;1024 GB (HDD);-;Windows 10;Asignado;Viedma valle inferior;;195_2026_hist
+305;248;36VIEDMACENTRAL;-;MSI MS-7A15;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core i3-7100;4;1024 GB (HDD);-;Ubuntu 22;Asignado;Central;;27_2026_hist
+306;228;A0476;-;Gigabyte A320M-H-CF;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8 9600;4;1024 GB (HDD);-;Ubuntu 22;Asignado;Central;;7_2026_hist
+308;236;A0488;-;Gigabyte A320M-H-CF;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8 9600;4;1024 GB (HDD);-;Ubuntu 18;Asignado;Central;;15_2026_hist
+309;249;D187;-;Gigabyte A320M-H;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8 9600;4;1024 GB (HDD);-;Ubuntu 22;Asignado;Central;;28_2026_hist
+310;255;D191;-;Gigabyte A320M-H-CF;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8 9600;4;1024 GB (HDD);-;Ubuntu 22;Asignado;Central;;34_2026_hist
+312;505;D54;BMOBAAOSF779;Asus Prime B450 H-AII;Asus;Prime B450M-A II;AM4;AMD B450;Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24;Asignado;Sede;;132_2026_hist
+314;514;-;-;MSI MS-7A15;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel i3-7100 ;4;1024 GB (SSD);-;Ubuntu 22;Asignado;Sede;;141_2026_hist
+316;519;A0031;-;MSI MS-7A15;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel i3-7100 ;4;1024 GB (SSD);-;Ubuntu 22;Asignado;Sede;;146_2026_hist
+317;339;D196;-;AsRock FM2488M-HD+;ASRock;FM2A88M-HD+;FM2+;AMD A88X;AMD A4 4250;6;1024 GB (HDD);-;Linux Mint 21;Asignado;Viedma valle inferior;;0127_2026
+318;565;D196;-;AsRock FM2A88M-HD;ASRock;FM2A88M-HD+;FM2+;AMD A88X;AMD A4-4000;6;1024 GB (HDD);-;Linux Mint 22;Asignado;Viedma valle inferior;;175_2026_hist
+320;560;A0075;-;MSI MS-7A15;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel i3-7100;4;1024 GB (HDD);-;Ubuntu 22;Asignado;Viedma valle inferior;;170_2026_hist
+321;576;6MEXYCAS;-;MSI A68HM-E33;MSI;A68HM-E33 V2;FM2+;AMD A68H;AMD A4-4000;8;1024 GB (HDD);-;Linux Mint 21;Asignado;Viedma valle inferior;;186_2026_hist
+322;138;D126;-;Gigabyte F2A68HM-H;Gigabyte;GA-F2A68HM-H;FM2+;AMD A68H;AMD A4-4000;4;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Central;;29_2025_hist
+324;517;D60;BM08AAO5F784;Asus Prime B450 H-AII;Asus;Prime B450M-A II;AM4;AMD B450;Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24;Asignado;Sede;;144_2026_hist
+325;496;A0023;-;MSI MS-7A15;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel I3-7100 ;4;1024 GB (SSD);-;Ubuntu 22;Asignado;Sede;;123_2026_hist
+326;510;A34;-;Gigabyte B85M-D3H-A;Gigabyte;GA-B85M-D3H-A;LGA1150;Intel B85;Intel i3-4170;4;512 GB (SSD);-;Linux Mint 2L;Asignado;Sede;;137_2026_hist
+327;257;D193;-;MicroStar A320M-A Pro;MSI;A320M-A PRO;AM4;AMD A320;Ryzen 3 3200 G;6;1024 GB (HDD);-;Ubuntu 20;Asignado;Central;;36_2026_hist
+328;474;D67;BM08AA0SF791;Asus Prime B450 H-AII;Asus;Prime B450M-A II;AM4;AMD B450;Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24.04;Asignado;Sede;;101_2026_hist
+329;477;-;B1108AAOSF780;Asus Prime B450 H-AII;Asus;Prime B450M-A II;AM4;AMD B450;Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24.04;Asignado;Sede;;104_2026_hist
+330;508;D52;BM08AAOSF806;Asus Paime B450M -AII;Asus;Prime B450M-A II;AM4;AMD B450;Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24;Asignado;Sede;;135_2026_hist
+331;590;D138;BM22JJOSG253;Asustek Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200 G;8;1024 GB (HDD);-;Ubuntu 22;Asignado;CAD;;200_2026_hist
+332;126;-;-;Asrock G41C-VS;ASRock;G41C-VS;LGA775;Intel G41;Intel Celeron E3400;2;160 GB (HDD);-;Lubuntu 18.04;Asignado;Central;;17_2025_hist
+333;165;19VIEDMACENTRAL;-;D1800B-ITX;ASRock;D1800B-ITX;SoC Integrado;Intel Celeron J1800;Intel Celeron J1800;4;1024 GB (HDD);-;Ubuntu 22;Asignado;Central;;0018_2026
+334;223;D29;1;Gigabyte A520M K V2;Gigabyte;A520M K V2;AM4;AMD A520;AMD Ryzen 3 3200 G;8;512 GB (HDD);-;Ubuntu 22;Asignado;Central;;2_2026_hist
+335;597;A0471MEXYCAS;-;Gigabyte A320M-H;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8-9600;4;512 GB (HDD);-;Ubuntu 22;Asignado;Viedma valle inferior;;207_2026_hist
+336;604;-;-;Gigabyte H410M52H V3;Gigabyte;H410M S2H V3;LGA1200;Intel H410 / H470;Intel i3-10100;4;1024 GB (HDD);-;Ubuntu 22;Asignado;Viedma valle inferior;;214_2026_hist
+337;610;-;-;Asustek 2473h;Asus / Pegatron;IPISB-CU (2A73h);LGA1155;Intel H61;Pentium Dual E2160;4;320 GB (HDD);-;Ubuntu 20;Asignado;Viedma valle inferior;;220_2026_hist
+338;156;E013;AA52SM4S-01-60000B51204539;MB Biostar AM4 A520MHP DD;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400 G;16;512 GB (SSD);-;Ubuntu 24.04;Asignado;Central;;0003_2026
+342;638;D56;-;Asus Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24.04;Asignado;Sede;;223_2026_hist
+343;703;09ROCA;-;No disponible;Desconocido;No especificado / Sin datos;N/A;N/A;Intel Pentium Dual Core;2;160 GB (HDD);-;Windows 7;Asignado;Sede;;225_2026_hist
+344;706;-;-;No disponible;Desconocido;No especificado / Sin datos;N/A;N/A;AMD Athlon x2 Dual Core;1;80 GB (HDD);-;Windows 7;Asignado;Sede;;225_2026_hist
+345;711;D152;-;Asus Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24.04;Asignado;Sede;;226_2026_hist
+346;718;-;A0162;MSI H110M Pro Plus;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel I3-7100;4;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Sede;;226_2026_hist
+347;729;A0473MEXYCAS;-;Asustek K Prime A520M-A II;Asus;Prime A520M-A II;AM4;AMD A520;Ryzen 3-3200;8;256 GB (SSD);-;Ubuntu 22;Asignado;Viedma valle inferior;;229_2026_hist
+348;735;D3;-;Gigabyte F2A68HM-H;Gigabyte;GA-F2A68HM-H;FM2+;AMD A68H;AMD A8-7650 K;4;1024 GB (HDD);-;Ubuntu 22;Asignado;Viedma valle inferior;;231_2026_hist
+349;741;-;-;MSI H110M PRO-VH PLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel i3-7100;4;1024 GB (HDD);-;Ubuntu 22;Asignado;Viedma valle inferior;;232_2026_hist
+350;745;5MEXYCAS;-;Asustek H81M-C;Asus;H81M-C;LGA1150;Intel H81;AMD i3-4160;4;512 GB (HDD);-;Ubuntu 22;Asignado;Viedma valle inferior;;233_2026_hist
+351;756;-;-;Intel D946GZIS;Intel;Desktop Board D946GZIS;LGA775;Intel 946GZ;Intel Pentium 4;1;80 GB (HDD);-;Ubuntu 16.04 Zorin;Asignado;Caina Mujeres;;236_2026_hist
+352;770;-;-;Asustek H110M;Asus;H110M-K;LGA1151;Intel H110;Intel I3-7100;8;1024 GB (HDD);-;Windows 10 Pro;Asignado;Casa Abrigo Niños;;239_2026_hist
+353;779;-;-;Asustek H81M-C;Asus;H81M-C;LGA1150;Intel H81;Intel I3-4160;4;512 GB (HDD);-;Linux Mint 21 Xfce;Asignado;Galpon Amarillo;;240_2026_hist
+354;783;D30;-;Asrock N68-VS3 FX;ASRock;N68-VS3 FX;AM3+;GeForce 7025;AMD Athlon II x2 250;4;512 GB (HDD);-;Linux Mint 21;Asignado;Centro Socio Educativo;;241_2026_hist
+362;345;A0165;-;MSI H110M-Pro VH-Plus;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel I3-7100;4;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Sede;;58_2026_hist
+363;827;D134;BM22JJ056256;Asustek Prime B450-M;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24.04;Asignado;Sede;;245_2026_hist
+364;834;-;-;MSI H110M Pro VH Plus;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel I3-7100;4;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Sede;;245_2026_hist
+365;841;A0167;-;MSI H110-M;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel I3-7100;4;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Sede;;245_2026_hist
+366;844;A0451;-;Gigabyte A320-M;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD 8 9600;4;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Sede;;245_2026_hist
+367;854;-;-;MSI H110-M;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel I3-7100;4;1024 GB (HDD);-;Windows 10;Asignado;Sede;;245_2026_hist
+368;865;1SIERRACOLORADA;-;Intel DH61H0;Intel;Desktop Board DH61HO;LGA1155;Intel H61;Intel I3-3220;4;512 GB (HDD);-;Windows 7 Ultimate;Asignado;Sede;;246_2026_hist
+369;873;-;-;Asrock N68-S;ASRock;N68-S;AM2+/AM3;GeForce 7025;AMD Semprom 140;2;80 GB (HDD);-;Windows 7 Ultimate;Asignado;Sede;;247_2026_hist
+370;880;A0154;-;MSI H110M Pro-VH Plus;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel i3-7100;4;1024 GB (HDD);-;Ubuntu 18.04;Asignado;Sede;;247_2026_hist
+371;886;1RAMOSMEXIAS;-;Asrock N68-S;ASRock;N68-S;AM2+/AM3;GeForce 7025;AMD Semprom 140;2;512 GB (HDD);-;Windows 7;Asignado;Sede;;247_2026_hist
+372;893;A0147;-;MSI H110M Pro VH-Plus;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel I3-7100;4;1024 GB (HDD);-;Ubuntu 18.04;Asignado;Sede;;248_2026_hist
+380;948;-;-;Asustek H81M-C;Asus;H81M-C;LGA1150;Intel H81;Intel I3-4160;4;512 GB (HDD);-;Ubuntu 22.04;Asignado;Sede;;250_2026_hist
+381;954;2MAQUINCHAO;-;Gigabyte G-A78LMTS2;Gigabyte;GA-78LMT-S2;AM3+;AMD 760G;AMD FX (tm) 4130;4;512 GB (HDD);-;Windows 7;Asignado;Sede;;250_2026_hist
+382;959;-;A0480;Gigabyte A320M-H CF;Gigabyte;GA-A320M-H;AM4;AMD A320;A8 9600 R7;8;1024 GB (HDD);-;Ubuntu 18.04;Asignado;Sede;;250_2026_hist
+383;966;D132;BM22JJ05G259;Asus Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24.04;Asignado;Sede;;251_2026_hist
+384;973;D130;BM22JJ0SG252;Asus Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200 G;8;1024 GB (HDD);-;Ubuntu 24.04;Asignado;Sede;;251_2026_hist
+390;1002;-;-;Asrock G41-VS3;ASRock;G41-VS3;LGA775;Intel G41;Intel Pentium E5500;4;512 GB (HDD);-;Lubuntu 18.04;Asignado;Sede;;251_2026_hist
+392;234;D199;-;AsRock FM2A68M-DG3+;ASRock;FM2A68M-DG3+;FM2+;AMD A68H;AMD A4 4000;8;1024 GB (SSD);-;Ubuntu 22.04;Asignado;Sede;;0153_2026
+397;1037;-;A0472;Asustek A520M-A;Asus;Prime A520M-A II;AM4;AMD A520;AMD Ryzen 3 3200 G;8;256 GB (SSD);-;Ubuntu 24.04;Asignado;Sede;;254_2026_hist
+398;1043;A0093;-;MSI H110M;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel I3-7100;4;1024 GB (HDD);-;Ubuntu 20.04;Asignado;Sede;;254_2026_hist
+399;1049;D117;-;Asus Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24.04;Asignado;Sede;;254_2026_hist
+400;1059;D113;BM08AA05F797;Asus Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24.04;Asignado;Sede;;254_2026_hist
+401;1064;A0474;-;Gigabyte A320M-H CF;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8 9600 R7;4;1024 GB (HDD);-;Ubuntu 18.04;Asignado;Sede;;254_2026_hist
+402;1070;D121;-;Asus Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24.04;Asignado;Sede;;254_2026_hist
+403;225;A0021;-;MSI H110M-PRO-VH PLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core i3-7100;4;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Sede;;0139_2026
+404;1075;D168;-;Asustek H81M-C;Asus;H81M-C;LGA1150;Intel H81;Intel I3-4160;6;512 GB (HDD);-;Linux Mint;Asignado;Sede;;255_2026_hist
+405;1082;-;-;Gigabyte A320H;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8 9600 R7;4;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Sede;;255_2026_hist
+406;1088;D118;BM08AA0SF795;Asustek Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24.04;Asignado;Sede;;255_2026_hist
+411;1112;D76;BM08AA0F773;Asus Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24.04;Asignado;Sede;;257_2026_hist
+412;1118;4BARILOCHE;-;Wolfdale 1333-D667;ASRock;Wolfdale1333-D667;LGA775;Intel 945GC;Intel Pentium E5500 Dual Core;4;160 GB (HDD);-;Xubuntu 20.04;Asignado;Sede;;257_2026_hist
+413;1122;D75;BM08AA05F787;Asus Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24.04;Asignado;Sede;;257_2026_hist
+415;1130;D73;BM08AA05F782;Asus Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24.04;Asignado;Sede;;257_2026_hist
+416;1140;D68;BM08AA05F774;Asus Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24.04;Asignado;Sede;;257_2026_hist
+417;1145;-;-;Asus M4N68T-M-LE-V2;Asus;M4N68T-M LE V2;AM3;nForce 630a;AMD Athlon x2 250;6;256 GB (HDD);-;Windows 10 Pro;Asignado;Sede;;257_2026_hist
+418;1149;D81;BM08AA05F775;Asus Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24.04;Asignado;Sede;;257_2026_hist
+421;1161;D71;BM08AA05F790;Asus Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 22.04;Asignado;Sede;;257_2026_hist
+423;1170;D82;BM08AA05F792;Asus Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24.04;Asignado;Sede;;257_2026_hist
+429;1196;D78;BM08AA05F786;Asus Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24.04;Asignado;Centro Socio Educativo;;258_2026_hist
+432;1214;-;-;Asrock M61M-HVS;ASRock;M61M-HVS;AM3+;GeForce 7025;Intel Pentium G630;2;512 GB (HDD);-;Windows 7;Asignado;Casa Abrigo Niños;;260_2026_hist
+439;817;-;-;Intel DH61H0;Intel;Desktop Board DH61HO;LGA1155;Intel H61;Intel Core I3-3220;4;512 GB (HDD);-;Ubuntu 18.04;Asignado;Sede;;244_2026_hist
+440;814;A0125;-;MSI H110M PRO-VH PLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core i3-7100;4;1024 GB (HDD);-;Ubuntu 16.04;Asignado;Sede;;244_2026_hist
+442;465;D203;-;Intel DH61H0;Intel;Desktop Board DH61HO;LGA1155;Intel H61;Intel Core i3-3110M;6;512 GB (HDD);-;Linux Mint 22.04;Asignado;Sede;;93_2026_hist
+443;823;A0127;-;MSI H110M PRO-VH PLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core I3-7100;4;1024 GB (HDD);-;Ubuntu 16.04;Asignado;Sede;;244_2026_hist
+444;179;9VIEDMA;-;ASUS H81M-C;Asus;H81M-C;LGA1150;Intel H81;Intel Core I3-4160;8;512 GB (HDD);-;Ubuntu 24.04;Asignado;Sede;;0033_2026
+445;1096;-;-;Intel DH61M0;Intel;Desktop Board DH61HO;LGA1155;Intel H61;Intel Core I3-3220;8;512 GB (HDD);-;Windows 10;Asignado;CAINA Adolescentes Varones y Mujeres;;256_2026_hist
+446;1103;-;-;MSI H110M PRO-VH PLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core I3-7100;4;1024 GB (HDD);-;Ubuntu 24.04;Asignado;CAINA Adolescentes Varones y Mujeres;;256_2026_hist
+447;1126;A0477;-;Gigabyte A320M-H;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8-9600 Radeon R7;4;1024 GB (HDD);-;Windows 10 Pro;Asignado;Sede;;257_2026_hist
+448;1151;-;-;MSI H110M Pro VH-Plus;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core I3-7100;4;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Sede;;257_2026_hist
+449;1157;2BARILOCHE;-;Asus H81M-C;Asus;H81M-C;LGA1150;Intel H81;Intel Core I3-4160;4;512 GB (HDD);-;Ubuntu 22.04;Asignado;Sede;;257_2026_hist
+450;1165;-;-;MSI H110M-PRO-VH PLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core I3-7100;4;1024 GB (SSD);-;Windows 10 Pro;Asignado;Sede;;257_2026_hist
+451;1172;-;-;MSI H110M Pro-VH Plus;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core I3-7100;4;1024 GB (HDD);-;Ubuntu 20.04;Asignado;Sede;;257_2026_hist
+452;1178;A0011;-;MSI H110M Pro VH-Plus;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core I3-7100;4;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Sede;;257_2026_hist
+453;1183;-;-;Asrock H110M-HDV R3.0;ASRock;H110M-HDV R3.0;LGA1151;Intel H110;Intel Core I3-7100;4;1024 GB (HDD);-;Ubuntu 20.04;Asignado;Sede;;257_2026_hist
+454;1188;-;-;Asustek H81M-C;Asus;H81M-C;LGA1150;Intel H81;Intel Core I3-4160;4;512 GB (HDD);-;Ubuntu 22.04;Asignado;Sede;;257_2026_hist
+455;1192;-;-;Intel DH61H0;Intel;Desktop Board DH61HO;LGA1155;Intel H61;Intel Core I3-3220;4;512 GB (HDD);-;Ubuntu 24.04;Asignado;Sede;;257_2026_hist
+456;1201;10BARILOCHE;-;Intel DH61H0;Intel;Desktop Board DH61HO;LGA1155;Intel H61;Intel Core I3-3220;4;512 GB (HDD);-;Windows 7;Asignado;Centro Socio Educativo;;258_2026_hist
+457;1207;-;-;Gigabyte A320M-H;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8-9600 Radeon R7;4;1024 GB (HDD);-;Ubuntu 24.04;Asignado;Sin Sede Asignada;;259_2026_hist
+458;792;A0131;-;MSI H110M PRO-VH PLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core i3-7100;4;1024 GB (HDD);-;Ubuntu 18.04;Asignado;Sede;;243_2026_hist
+459;800;D85;BM08AA05F777;Asus Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24.04;Asignado;Sede;;243_2026_hist
+460;810;A0133;-;MSI H110M Pro-VH Plus;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core I3-7100;4;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Sede;;243_2026_hist
+461;812;D86;BM08AA05F776;Asus Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24.04;Asignado;Sede;;243_2026_hist
+462;435;-;-;Asus H81M-C;Asus;H81M-C;LGA1150;Intel H81;Intel Core I3-4160;4;512 GB (HDD);-;Linux Mint 21;Asignado;Sede;;89_2026_hist
+463;442;A0110;-;MSI H110M PRO-VH PLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core I3-7100;4;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Sede;;90_2026_hist
+464;448;D141;BM22JJ05G251;Asus Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200G;8;1024 GB (SSD);-;Ubuntu 24.04;Asignado;Sede;;91_2026_hist
+466;453;14CINCOSALTOS;-;Asus All Series;Asus;Asus (Sin modelo específico);N/A;N/A;Intel Core I3-4160;4;320 GB (HDD);-;Windows 7;Asignado;Sede;;91_2026_hist
+467;457;D142;BM22JJ05G257;Asus Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200G;8;1024 GB (SSD);-;Ubuntu 22.04;Asignado;Sede;;91_2026_hist
+468;131;D125;-;Asus H110M-K;Asus;H110M-K;LGA1151;Intel H110;Intel Core I3-7100;8;1024 GB (HDD);-;Windows 10 PRO;Asignado;Sede y Ecos;;0112_2026
+470;906;D89;BM08AA0SF778;Asus Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24.04;Asignado;Cipolletti;;249_2026_hist
+471;901;-;-;Asus H81M-C;Asus;H81M-C;LGA1150;Intel H81;Intel Core I3-4160;4;256 GB (HDD);-;Windows 7;Asignado;Cipolletti;;249_2026_hist
+472;912;D99;BH08AA05F800;Asus Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24.04;Asignado;Cipolletti;;249_2026_hist
+473;918;4CIPOLLETTI;-;Intel DH61HO;Intel;Desktop Board DH61HO;LGA1155;Intel H61;Intel Core I3-3220;4;1024 GB (HDD);-;Windows 7;Asignado;Cipolletti;;249_2026_hist
+474;924;D90;BM08AAOSF788;Asus Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24.04;Asignado;Cipolletti;;249_2026_hist
+475;929;D93;BM08AAOSF798;Asus Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24.04;Asignado;Cipolletti;;249_2026_hist
+476;940;5CIPOLLETTI;-;Gigabyte B85M-D3H-A;Gigabyte;GA-B85M-D3H-A;LGA1150;Intel B85;Intel Core I3-470;4;160 GB (HDD);-;Ubuntu 18.04;Asignado;Cipolletti;;249_2026_hist
+477;1018;A0478;-;Gigabyte A320M-H-CF;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8-9600 Radeon R7;4;1024 GB (HDD);-;Ubuntu 20.04;Asignado;Cipolletti;;253_2026_hist
+478;1024;D95;BM08AA0SF783;Asus Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24.04;Asignado;Cipolletti;;253_2026_hist
+479;1031;D101;BM08AAOSF793;Asus Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24.04;Asignado;Cipolletti;;253_2026_hist
+480;1221;-;-;Asus Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 22.04;Asignado;Cipolletti;;261_2026_hist
+481;1228;A0479;-;Gigabyte A320M-H-CF;Gigabyte;GA-A320M-H;AM4;AMD A320;AMD A8-9600 Radeon R7;4;1024 GB (HDD);-;Ubuntu 18.04;Asignado;Cipolletti;;261_2026_hist
+482;1234;D97;BM08AAOSF804;Asus Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;AMD Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24.04;Asignado;Cipolletti;;261_2026_hist
+483;1238;11CIPOLLETTI;-;MSI H110M PRO-VH PLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core I3-7100;4;1024 GB (HDD);-;Ubuntu 18.04;Asignado;Cipolletti;;261_2026_hist
+484;1244;A0097;-;MSI H110M PRO-VH PLUS;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core I3-7100;4;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Cipolletti;;261_2026_hist
+485;490;D58;BM08AA0SF785;Asus Prime B450M-A II;Asus;Prime B450M-A II;AM4;AMD B450;Ryzen 3 3200 G;8;1024 GB (SSD);-;Ubuntu 24.04;Asignado;Sede;;117_2026_hist
+487;192;E037;AA52SM4S-01-60000B51500030;MB Biostar AM4 A520MHP DD;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400 G;16;512 GB (SSD);-;Ubuntu 24.04;Asignado;Sede;;0094_2026
+488;194;E039;AA525M4S-01-600000B51500078;MB Biostar AM4 A520MHP DD;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400G;16;512 GB (SSD);-;Ubuntu 24.04;Asignado;Sede;;0095_2026
+489;196;E044;AA52SM4S-01-60000B51204524;MB Biostar AM4 A520MHP DD;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400 G;16;512 GB (SSD);-;Ubuntu 24.04;Asignado;Sede;;0096_2026
+491;198;E041;AA525M4S-01-600000B51500063;MB Biostar AM4 A520MHP DD;Biostar;A520MHP;AM4;AMD A520;AMD Ryzen 5 3400G;16;512 GB (SSD);-;Ubuntu 24.04;Asignado;Sede;;0093_2026
+492;220;A0063;-;MSI H110M Pro-VH Plus;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core i3-7100;4;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Sede;;0068_2026
+493;978;A0375;MXL7521C61;HP 829D;HP;ProDesk 600 G3 MT (Board 829D);LGA1151;Intel Q270;Intel Core I3-6100;4;1024 GB (HDD);-;Ubuntu 18.04;Asignado;Sede;;251_2026_hist
+494;982;-;MXL7521CC9;HP 829D;HP;ProDesk 600 G3 MT (Board 829D);LGA1151;Intel Q270;Intel Core I3-6100;4;512 GB (HDD);-;Ubuntu 18.04;Asignado;Sede;;251_2026_hist
+495;986;-;-;Asrock H81M-VGH;ASRock;H81M-VGH;LGA1150;Intel H81;Intel Core I3-4160;8;512 GB (HDD);-;Windows 11 Pro;Asignado;Sede;;251_2026_hist
+496;993;A0003;-;MSI H110M Pro-VH Plus;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core I3-7100;4;1024 GB (HDD);-;Ubuntu 22.04;Asignado;Sede;;251_2026_hist
+497;997;A0001;-;MSI H110M Pro-VH Plus;MSI;H110M PRO-VH PLUS (MS-7A15);LGA1151;Intel H110;Intel Core I3-7100;4;1024 GB (HDD);-;Ubuntu 24.04;Asignado;Sede;;251_2026_hist
+498;1005;-;MXL7521C4M;HP 829D;HP;ProDesk 600 G3 MT (Board 829D);LGA1151;Intel Q270;Intel Core I3-6100;4;512 GB (HDD);-;Ubuntu 18.04;Asignado;Sede;;251_2026_hist

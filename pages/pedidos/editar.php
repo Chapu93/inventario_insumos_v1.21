@@ -22,7 +22,7 @@ if (!$pedido) {
 }
 
 // Bloquear edición si está finalizado
-if ($pedido['estado'] === 'Completado' || $pedido['estado'] === 'Rechazado') {
+if ($pedido['estado'] === 'Completado' || $pedido['estado'] === 'Rechazado' || $pedido['estado'] === 'Sin Stock') {
     header('Location: ver.php?id=' . $id);
     exit;
 }
@@ -37,7 +37,7 @@ include '../../includes/header.php';
 <div class="row justify-content-center">
     <div class="col-md-8">
         <div class="d-flex align-items-center mb-3">
-            <a href="ver.php?id=<?php echo $id; ?>" class="btn btn-outline-secondary me-3"><i class="fas fa-arrow-left"></i></a>
+            <a href="ver.php?id=<?php echo $id; ?>" class="btn btn-outline-secondary me-3 btn-volver"><i class="fas fa-arrow-left"></i></a>
             <h1 class="mb-0">Editar Pendiente #<?php echo $id; ?></h1>
         </div>
         

@@ -140,9 +140,6 @@ $(document).ready(function() {
             { data: 6 },  // IP
             { data: 7, orderable: false, searchable: false }  // Botón detalles
         ],
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json'
-        },
         drawCallback: function() {
             inicializarTooltips();
         }

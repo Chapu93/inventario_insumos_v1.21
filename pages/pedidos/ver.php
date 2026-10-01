@@ -31,11 +31,11 @@ include '../../includes/header.php';
 <div id="contenidoPedido" style="display:none;">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="d-flex align-items-center">
-            <a href="listar.php" class="btn btn-outline-secondary me-3"><i class="fas fa-arrow-left"></i> Volver</a>
+            <a href="listar.php" class="btn btn-outline-secondary me-3 btn-volver"><i class="fas fa-arrow-left"></i> Volver</a>
             <h2 class="mb-0 text-truncate" style="max-width: 600px;" id="tituloPedido">Cargando...</h2>
             <span class="badge ms-3 fs-6" id="badgeEstado"></span>
         </div>
-        <div id="actionsContainer"></div>
+        <div id="actionsContainer" class="btn-group" role="group"></div>
     </div>
 
     <div class="row">
@@ -79,18 +79,18 @@ include '../../includes/header.php';
                 </div>
             </div>
 
-            <!-- Informe Técnico (Si existe) -->
+            <!-- Informe Técnico / Respuesta de Solicitud (Si existe) -->
             <div id="informeContainer" class="card mb-4 shadow-sm" style="display:none;">
                 <div class="card-header card-header--success">
                     <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>Informe Técnico</h5>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <h6 class="fw-bold">Diagnóstico:</h6>
+                        <h6 class="fw-bold" id="lblDiagInforme">Diagnóstico:</h6>
                         <p id="infDiagnostico" class="bg-light p-2 rounded"></p>
                     </div>
                     <div class="mb-3">
-                        <h6 class="fw-bold">Trabajo Realizado:</h6>
+                        <h6 class="fw-bold" id="lblTrabInforme">Trabajo Realizado:</h6>
                         <p id="infTrabajo" class="bg-light p-2 rounded"></p>
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
@@ -381,7 +381,7 @@ function cargarPedido() {
         
         // Auto-modal
         const urlParams = new URLSearchParams(window.location.search);
-        if(urlParams.get('accion') === 'completar' && pedido.estado !== 'Completado' && pedido.estado !== 'Rechazado') {
+        if(urlParams.get('accion') === 'completar' && pedido.estado !== 'Completado' && pedido.estado !== 'Rechazado' && pedido.estado !== 'Sin Stock') {
              if (pedido.asignado_a == USER_ID || PERMISOS.gestionar) {
                  $('#modalInforme').modal('show');
                  window.history.replaceState({}, document.title, window.location.pathname + '?id=' + PEDIDO_ID);
@@ -434,7 +434,9 @@ function renderPedido(p) {
         'Pendiente': 'bg-warning text-dark',
         'En Proceso': 'bg-primary',
         'Completado': 'bg-success',
-        'Rechazado': 'bg-danger'
+        'Preparado': 'bg-info text-dark',
+        'Rechazado': 'bg-danger',
+        'Sin Stock': 'bg-danger'
     };
     $('#badgeEstado').attr('class', 'badge ms-3 fs-6 ' + (badgeCls[p.estado] || 'bg-secondary')).text(p.estado);
     
@@ -448,8 +450,8 @@ function renderPedido(p) {
         $('#asignadoPedido').addClass('bg-secondary').removeClass('bg-info text-dark').text('Sin Asignar');
     }
 
-    // Información de Entrega (Si es Pedido Insumo o un Pedido Técnico con entrega definida)
-    if (p.tipo === 'Pedido Insumo' || (p.metodo_entrega && p.metodo_entrega !== 'No aplica')) {
+    // Información de Entrega (Si es Pedido Insumo o un Pedido Técnico con entrega definida, y NO está finalizado sin entrega)
+    if ((p.tipo === 'Pedido Insumo' || (p.metodo_entrega && p.metodo_entrega !== 'No aplica')) && p.estado !== 'Sin Stock' && p.estado !== 'Rechazado') {
         $('#entregaContainer').show();
 
         // Método de entrega
@@ -580,10 +582,39 @@ function renderHistorial(hist) {
 function renderInforme(inf, p) {
     if (inf) {
         $('#informeContainer').show();
-        $('#infDiagnostico').text(inf.diagnostico);
+        const esInsumo = (p.tipo === 'Pedido Insumo');
+        const tituloInforme = esInsumo ? 'Respuesta de Solicitud' : 'Informe Técnico';
+        const iconoInforme = esInsumo ? 'fa-file-invoice' : 'fa-check-circle';
+        const headerClase = (esInsumo && (inf.resultado === 'Sin Solución' || p.estado === 'Rechazado' || p.estado === 'Sin Stock')) ? 'card-header--danger' : 'card-header--success';
+        
+        $('#informeContainer .card-header').attr('class', 'card-header ' + headerClase);
+        $('#informeContainer .card-header h5').html(`<i class="fas ${iconoInforme} me-2"></i>${tituloInforme}`);
+        $('#lblDiagInforme').text(esInsumo ? 'Requerimiento de Insumos:' : 'Diagnóstico:');
+        $('#lblTrabInforme').text(esInsumo ? 'Informe / Respuesta:' : 'Trabajo Realizado:');
+
+        let diagTexto = inf.diagnostico || '';
+        if (esInsumo) {
+            diagTexto = diagTexto.replace(/^Requerimiento de Insumos:\s*/i, '');
+        }
+        $('#infDiagnostico').text(diagTexto);
         $('#infTrabajo').text(inf.trabajo_realizado);
-        $('#infResultado').text(inf.resultado).addClass(inf.resultado === 'Solucionado' ? 'bg-success' : 'bg-warning text-dark');
-        $('#btnDescargarPdf').attr('href', 'informe_pdf.php?id=' + p.id_pedido);
+
+        let resultadoTexto = inf.resultado;
+        let resultadoClase = 'bg-success';
+        if (esInsumo && (inf.resultado === 'Sin Solución' || p.estado === 'Rechazado' || p.estado === 'Sin Stock')) {
+            resultadoTexto = 'Sin Stock / Indisponible';
+            resultadoClase = 'bg-danger text-white';
+        } else if (inf.resultado === 'Sin Solución') {
+            resultadoClase = 'bg-warning text-dark';
+        }
+
+        $('#infResultado').text(resultadoTexto).attr('class', 'badge ' + resultadoClase);
+        
+        const visorTitulo = `${tituloInforme} - Pedido #${p.id_pedido}`;
+        $('#btnDescargarPdf').attr('href', 'informe_pdf.php?id=' + p.id_pedido)
+            .attr('data-visor-pdf', 'informe_pdf.php?id=' + p.id_pedido)
+            .attr('data-visor-titulo', visorTitulo)
+            .html(`<i class="fas fa-file-pdf me-2"></i>Ver ${tituloInforme}`);
     } else {
         $('#informeContainer').hide();
     }
@@ -591,32 +622,31 @@ function renderInforme(inf, p) {
 
 function renderBotones(p) {
     const $c = $('#actionsContainer').empty();
-    const isCompleted = (p.estado === 'Completado' || p.estado === 'Rechazado');
+    const isCompleted = (p.estado === 'Completado' || p.estado === 'Rechazado' || p.estado === 'Sin Stock');
     const isOwner = (p.id_usuario_solicitante == USER_ID);
     
     // Ver Nota Original (PDF)
     if (p.pdf_nota) {
-        $c.append(`<a href="<?php echo app_base_url(); ?>/uploads/pedidos/${p.pdf_nota}" target="_blank" class="btn btn-sm btn-info text-white me-2"><i class="fas fa-file-pdf me-2"></i>Ver Nota</a>`);
+        $c.append(`<a href="<?php echo app_base_url(); ?>/uploads/pedidos/${p.pdf_nota}" data-visor-pdf="<?php echo app_base_url(); ?>/uploads/pedidos/${p.pdf_nota}" data-visor-titulo="Nota de Solicitud #${p.id_pedido}" target="_blank" class="btn btn-sm btn-info text-white"><i class="fas fa-file-pdf me-2"></i>Ver Nota</a>`);
     }
     
     if (p.remito_firmado) {
         const folder = (p.id_remito && p.id_remito > 0) ? 'remitos_firmados' : 'pedidos';
-        $c.append(`<a href="<?php echo app_base_url(); ?>/uploads/${folder}/${p.remito_firmado}" target="_blank" class="btn btn-sm btn-success me-2 text-white" data-bs-toggle="tooltip" title="Ver Constancia Firmada de Entrega"><i class="fas fa-file-signature me-2"></i>Ver Constancia Firmada</a>`);
+        $c.append(`<a href="<?php echo app_base_url(); ?>/uploads/${folder}/${p.remito_firmado}" data-visor-pdf="<?php echo app_base_url(); ?>/uploads/${folder}/${p.remito_firmado}" data-visor-titulo="Constancia Firmada" target="_blank" class="btn btn-sm btn-success text-white" data-bs-toggle="tooltip" title="Ver Constancia Firmada de Entrega"><i class="fas fa-file-signature me-2"></i>Ver Constancia Firmada</a>`);
     }
 
     // Botón Descargar Todo (Merge PDF)
-    $c.append(`<a href="descargar_todo.php?id=${p.id_pedido}" target="_blank" class="btn btn-sm btn-dark me-2" title="Descargar toda la documentación en un solo PDF"><i class="fas fa-file-archive me-2"></i>Descargar Todo</a>`);
+    $c.append(`<a href="descargar_todo.php?id=${p.id_pedido}" data-visor-pdf="descargar_todo.php?id=${p.id_pedido}" data-visor-titulo="Documentación Unificada #${p.id_pedido}" target="_blank" class="btn btn-sm btn-dark" title="Ver o descargar toda la documentación en un solo PDF"><i class="fas fa-file-archive me-2"></i>Descargar Todo</a>`);
 
     // Imprimir Remito (Solo Insumos con remito)
     if (p.tipo === 'Pedido Insumo' && p.numero_remito) {
-        $c.append(`<button class="btn btn-sm btn-primary me-2" onclick="imprimirRemito('${p.numero_remito}')"><i class="fas fa-print me-2"></i>Imprimir Remito</button>`);
+        $c.append(`<button class="btn btn-sm btn-primary" onclick="imprimirRemito('${p.numero_remito}')"><i class="fas fa-print me-2"></i>Imprimir Remito</button>`);
     }
 
     // Ver Constancia (Solo para Tareas Técnicas)
     if (p.tipo !== 'Pedido Insumo') {
-        $c.append(`<a href="constancia_pdf.php?id=${p.id_pedido}" target="_blank" class="btn btn-sm btn-outline-dark me-2" data-bs-toggle="tooltip" title="Imprimir constancia de visita técnica"><i class="fas fa-print me-2"></i>Constancia</a>`);
+        $c.append(`<a href="constancia_pdf.php?id=${p.id_pedido}" data-visor-pdf="constancia_pdf.php?id=${p.id_pedido}" data-visor-titulo="Constancia de Visita Técnica #${p.id_pedido}" target="_blank" class="btn btn-sm btn-outline-dark" data-bs-toggle="tooltip" title="Imprimir constancia de visita técnica"><i class="fas fa-print me-2"></i>Constancia</a>`);
     }
-    
 
     // Acciones de Gestión
     if (PERMISOS.gestionar && !isCompleted) {
@@ -626,34 +656,34 @@ function renderBotones(p) {
         } else if (p.tipo === 'Tarea Interna') {
             urlEditar = 'editar_tarea_interna.php';
         }
-        $c.append(`<a href="${urlEditar}?id=${p.id_pedido}" class="btn btn-sm btn-warning me-2"><i class="fas fa-edit me-2"></i>Editar</a>`);
+        $c.append(`<a href="${urlEditar}?id=${p.id_pedido}" class="btn btn-sm btn-warning"><i class="fas fa-edit me-2"></i>Editar</a>`);
         // Tomar si no tiene asignado O si tiene asignado 0/null
         if (!p.asignado_a || p.asignado_a == 0) {
             // Solo se permite "Tomar" si es un pedido técnico. 
             // Los pedidos de insumo los "Prepara" cualquier gestor desde el detalle.
             if (p.tipo !== 'Pedido Insumo') {
-                $c.append(`<button class="btn btn-sm btn-primary me-2" onclick="accionTomar()"><i class="fas fa-hand-paper me-2"></i>Tomar Pedido</button>`);
+                $c.append(`<button class="btn btn-sm btn-primary" onclick="accionTomar()"><i class="fas fa-hand-paper me-2"></i>Tomar Pedido</button>`);
             }
         } else if (p.asignado_a == USER_ID) {
             // Solo pedidos técnicos llevan informe
             if (p.tipo !== 'Pedido Insumo') {
-                $c.append(`<button class="btn btn-sm btn-success me-2" onclick="$('#modalInforme').modal('show')"><i class="fas fa-check me-2"></i>Completar con Informe</button>`);
+                $c.append(`<button class="btn btn-sm btn-success" onclick="$('#modalInforme').modal('show')"><i class="fas fa-check me-2"></i>Completar con Informe</button>`);
             }
         }
         
         // Boton Asignar (Solo Admin/SuperAdmin y si no tiene asignado) - NO para Pedidos de Insumo
         if (p.tipo !== 'Pedido Insumo' && (!p.asignado_a || p.asignado_a == 0) && (CURRENT_USER_ROL_ID == 1 || CURRENT_USER_ROL_ID == 2)) {
-             $c.append(`<button class="btn btn-sm btn-outline-primary me-2" onclick="accionAsignar()"><i class="fas fa-user-plus me-2"></i>Asignar a...</button>`);
+             $c.append(`<button class="btn btn-sm btn-outline-primary" onclick="accionAsignar()"><i class="fas fa-user-plus me-2"></i>Asignar a...</button>`);
         }
         // Boton Rechazar - Solo para el usuario asignado
         if (p.asignado_a == USER_ID) {
-             $c.append(`<button class="btn btn-sm btn-danger me-2" onclick="accionRechazar()"><i class="fas fa-times me-2"></i>Rechazar</button>`);
+             $c.append(`<button class="btn btn-sm btn-danger" onclick="accionRechazar()"><i class="fas fa-times me-2"></i>Rechazar</button>`);
         }
 
         // Nuevo Botón para Preparar (Solo Insumos en estado Pendiente) - Redirige a la página de preparación interactiva
         if (p.tipo === 'Pedido Insumo' && p.estado === 'Pendiente') {
             const urlPreparar = '<?php echo app_base_url(); ?>/pages/pedidos/preparar.php?id=' + p.id_pedido;
-            $c.append(`<a href="${urlPreparar}" class="btn btn-sm btn-success me-2"><i class="fas fa-box-open me-2"></i>PREPARAR PEDIDO</a>`);
+            $c.append(`<a href="${urlPreparar}" class="btn btn-sm btn-success"><i class="fas fa-box-open me-2"></i>PREPARAR PEDIDO</a>`);
         }
     }
     
@@ -663,7 +693,23 @@ function renderBotones(p) {
 }
  
 function mostrarRechazo(p, h) {
-    $('#alertRechazo').remove();
+    $('#alertRechazo, #alertSinStock').remove();
+    if (p.estado === 'Sin Stock') {
+        const infStock = h.find(item => item.accion === 'Respuesta Solicitud');
+        const detalleStock = infStock ? infStock.detalle : 'Se constató la indisponibilidad de stock para abastecer la solicitud.';
+        $('#contenidoPedido').prepend(`
+            <div id="alertSinStock" class="alert alert-warning alert-permanent border-0 p-3 rounded mb-4 shadow-sm d-flex align-items-center">
+                <div class="me-3">
+                    <i class="fas fa-boxes-packing fa-2x text-warning"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold mb-1 text-warning-emphasis">Solicitud Finalizada - Sin Disponibilidad de Stock</h5>
+                    <p class="mb-0 small text-muted" style="white-space: pre-line;">${detalleStock}</p>
+                </div>
+            </div>
+        `);
+        return;
+    }
     if (p.estado !== 'Rechazado') return;
     
     // Buscar motivo en historial
@@ -733,7 +779,7 @@ window.accionPreparar = function() {
 window.imprimirRemito = function(num) {
     if(!num) return;
     const url = '<?php echo app_base_url(); ?>/pages/reportes/remito_pdf.php?remito=' + encodeURIComponent(num);
-    window.open(url, 'remitoPrint');
+    abrirVisorPDF(url, 'Remito Nº ' + num);
 };
 
 function renderRemitoItems(items, pedido) {
@@ -784,12 +830,26 @@ function renderRemitoItems(items, pedido) {
         }
 
     } else if (pedido.tipo === 'Pedido Insumo' && !pedido.id_remito) {
-        // Pedido aún no preparado
-        $container.show();
-        $('#labelInsumoRel').html('<i class="fas fa-clock me-1 text-warning"></i>Insumos del Pedido');
-        $texto.html('<span class="text-muted fst-italic"><i class="fas fa-clock me-1"></i>Pendiente de preparación — los insumos aún no fueron seleccionados.</span>');
-        $('#btnVerInsumos').hide();
-        $list.empty();
+        if (pedido.estado === 'Sin Stock') {
+            $container.show();
+            $('#labelInsumoRel').html('<i class="fas fa-ban me-1 text-danger"></i>Insumos del Pedido');
+            $texto.html('<span class="text-muted fst-italic"><i class="fas fa-ban me-1 text-danger"></i>No se asignaron insumos debido a indisponibilidad de stock.</span>');
+            $('#btnVerInsumos').hide();
+            $list.empty();
+        } else if (pedido.estado === 'Rechazado') {
+            $container.show();
+            $('#labelInsumoRel').html('<i class="fas fa-times-circle me-1 text-danger"></i>Insumos del Pedido');
+            $texto.html('<span class="text-muted fst-italic"><i class="fas fa-times-circle me-1 text-danger"></i>Pedido rechazado sin asignación de insumos.</span>');
+            $('#btnVerInsumos').hide();
+            $list.empty();
+        } else {
+            // Pedido aún no preparado
+            $container.show();
+            $('#labelInsumoRel').html('<i class="fas fa-clock me-1 text-warning"></i>Insumos del Pedido');
+            $texto.html('<span class="text-muted fst-italic"><i class="fas fa-clock me-1"></i>Pendiente de preparación — los insumos aún no fueron seleccionados.</span>');
+            $('#btnVerInsumos').hide();
+            $list.empty();
+        }
     } else {
         $container.hide();
     }
@@ -872,8 +932,8 @@ $(function(){
                             $('#modalInforme').modal('hide');
                             showToast('Pedido completado correctamente', 'success');
                             
-                            // Abrir informe PDF automáticamente
-                            window.open('informe_pdf.php?id=' + PEDIDO_ID, '_blank');
+                            // Abrir informe PDF automáticamente en el visor
+                            abrirVisorPDF('informe_pdf.php?id=' + PEDIDO_ID, 'Informe Técnico - Pedido #' + PEDIDO_ID);
                             
                             cargarPedido();
                         } else {

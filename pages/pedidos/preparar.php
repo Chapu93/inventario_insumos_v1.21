@@ -142,10 +142,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $resumenInsumos = [];
 
         foreach ($idsInsumos as $idIns) {
-            $row = $db->prepare("SELECT tipo_insumo, nombre_insumo, numero_serie, cantidad, cantidad_oficina, cantidad_deposito FROM insumos WHERE id_insumo=? FOR UPDATE");
+            $row = $db->prepare("SELECT tipo_insumo, nombre_insumo, numero_serie, estado, cantidad, cantidad_oficina, cantidad_deposito FROM insumos WHERE id_insumo=? FOR UPDATE");
             $row->execute([$idIns]);
             $ins = $row->fetch();
             if (!$ins) throw new Exception('Insumo no encontrado');
+
+            // Validar que el equipo unitario siga disponible
+            if ($ins['tipo_insumo'] !== 'Varios' && $ins['estado'] !== 'Disponible') {
+                $nombreMostrar = $ins['nombre_insumo'] ?: ($ins['tipo_insumo'] . ($ins['numero_serie'] ? " (S/N: {$ins['numero_serie']})" : ''));
+                throw new Exception("El insumo '{$nombreMostrar}' ya no se encuentra disponible (Estado actual: {$ins['estado']}).");
+            }
 
             $reps = 1;
             if ($ins['tipo_insumo'] === 'Varios') {
@@ -178,8 +184,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                        ->execute([$cantidadTotal, $nuevoOficina, $nuevoDeposito, $estado, $idIns]);
                 }
             } else {
-                $db->prepare("UPDATE insumos SET estado='Asignado', id_sede_actual=?, id_area_asignacion_actual=?, id_punto_stock_actual=NULL WHERE id_insumo=?")
-                   ->execute([$pedido['id_sede'], $pedido['id_area'], $idIns]);
+                $stmtUpd = $db->prepare("UPDATE insumos SET estado='Asignado', id_sede_actual=?, id_area_asignacion_actual=?, id_punto_stock_actual=NULL WHERE id_insumo=? AND estado='Disponible'");
+                $stmtUpd->execute([$pedido['id_sede'], $pedido['id_area'], $idIns]);
+                if ($stmtUpd->rowCount() === 0) {
+                    throw new Exception("Conflicto de concurrencia: El insumo ID {$idIns} fue asignado por otro usuario simultáneamente.");
+                }
             }
         }
 
@@ -281,8 +290,11 @@ include '../../includes/header.php';
                                             </div>
                                             <?php if ($pedido['pdf_nota']): ?>
                                                 <div class="mt-2 text-end">
-                                                    <a href="<?php echo app_base_url(); ?>/uploads/pedidos/<?php echo $pedido['pdf_nota']; ?>" target="_blank" class="btn btn-sm btn-outline-danger border-opacity-25 shadow-none ms-2">
-                                                        <i class="fas fa-file-pdf me-1"></i>DESCARGAR NOTA
+                                                    <a href="<?php echo app_base_url(); ?>/uploads/pedidos/<?php echo $pedido['pdf_nota']; ?>" 
+                                                       data-visor-archivo="<?php echo app_base_url(); ?>/uploads/pedidos/<?php echo $pedido['pdf_nota']; ?>"
+                                                       data-visor-titulo="Nota de Solicitud - Pedido #<?php echo $id; ?>"
+                                                       target="_blank" class="btn btn-sm btn-outline-danger border-opacity-25 shadow-none ms-2">
+                                                        <i class="fas fa-file-pdf me-1"></i>VER NOTA
                                                     </a>
                                                 </div>
                                             <?php endif; ?>
@@ -295,7 +307,7 @@ include '../../includes/header.php';
                             <div class="card mb-3">
                                 <div class="card-body">
                                     <div class="row g-2 align-items-end">
-                                        <div class="col-md-5">
+                                        <div class="col-md-4">
                                             <label class="form-label mb-1">Buscar</label>
                                             <input type="text" class="form-control" id="filtro_busqueda" placeholder="Nombre, S/N, ID físico...">
                                         </div>
@@ -310,8 +322,13 @@ include '../../includes/header.php';
                                                 <option value="Monitor">Monitor</option>
                                             </select>
                                         </div>
-                                        <div class="col-md-3 d-flex justify-content-end gap-2">
-                                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="location.reload()" title="Limpiar filtros"><i class="fas fa-eraser"></i></button>
+                                        <div class="col-md-4 d-flex justify-content-end align-items-end gap-2">
+                                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="location.reload()" title="Limpiar filtros">
+                                                <i class="fas fa-eraser me-1"></i>Limpiar
+                                            </button>
+                                            <button type="button" class="btn btn-danger btn-sm px-3 fw-semibold shadow-sm" id="btnSinStock" data-bs-toggle="modal" data-bs-target="#modalSinStock" title="Cerrar pedido por falta de stock">
+                                                <i class="fas fa-ban me-1"></i>Sin stock
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -767,7 +784,116 @@ $(function() {
             $('#declaracion_jurada').prop('required', false).val('');
         }
     }
+
+    // Cierre por falta de stock (Respuesta de Solicitud)
+    $('#btnConfirmarSinStock').on('click', function() {
+        const requerimiento = $('#requerimientoSinStock').val().trim();
+        const motivo = $('#motivoSinStock').val().trim();
+        if (!requerimiento) {
+            showToast('Por favor ingrese el requerimiento o insumos solicitados', 'warning');
+            $('#requerimientoSinStock').focus();
+            return;
+        }
+        if (!motivo) {
+            showToast('Por favor ingrese el informe o justificación', 'warning');
+            $('#motivoSinStock').focus();
+            return;
+        }
+
+        const $btn = $(this);
+        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Emitiendo respuesta...');
+
+        $.ajax({
+            url: '<?php echo app_base_url(); ?>/ajax/pedidos_acciones.php',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                accion: 'cerrar_sin_stock',
+                id: <?php echo (int)$idPedido; ?>,
+                requerimiento: requerimiento,
+                motivo: motivo,
+                _csrf: '<?php echo htmlspecialchars(csrf_token()); ?>'
+            },
+            success: function(res) {
+                if (res.success) {
+                    $('#modalSinStock').modal('hide');
+                    showToast(res.mensaje || 'Respuesta emitida correctamente', 'success');
+
+                    const urlPdf = '<?php echo app_base_url(); ?>/pages/pedidos/informe_pdf.php?id=<?php echo (int)$idPedido; ?>';
+                    if (typeof abrirVisorPDF === 'function') {
+                        // Esperar a que el usuario cierre el visor PDF para redirigir
+                        $('#modalVisorPDF').one('hidden.bs.modal', function() {
+                            window.location.href = '<?php echo app_base_url(); ?>/pages/pedidos/listar.php';
+                        });
+                        abrirVisorPDF(urlPdf, 'Respuesta de Solicitud #<?php echo (int)$idPedido; ?>');
+                    } else {
+                        window.open(urlPdf, '_blank');
+                        window.location.href = '<?php echo app_base_url(); ?>/pages/pedidos/listar.php';
+                    }
+                } else {
+                    showToast(res.error || 'Error al procesar la solicitud', 'error');
+                    $btn.prop('disabled', false).html('<i class="fas fa-file-pdf me-1"></i>Confirmar y Emitir Respuesta');
+                }
+            },
+            error: function(xhr) {
+                let msg = 'Error en el servidor al cerrar el pedido';
+                try {
+                    const r = JSON.parse(xhr.responseText);
+                    if (r.error) msg = r.error;
+                } catch(e) {}
+                showToast(msg, 'error');
+                $btn.prop('disabled', false).html('<i class="fas fa-file-pdf me-1"></i>Confirmar y Emitir Respuesta');
+            }
+        });
+    });
 });
 </script>
+
+<!-- Modal Sin Stock / Respuesta de Solicitud -->
+<div class="modal fade" id="modalSinStock" tabindex="-1" aria-labelledby="modalSinStockLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-file-invoice me-2 text-danger"></i>Respuesta a Solicitud - Sin Stock</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="alert alert-warning alert-permanent border-0 d-flex align-items-center mb-3">
+                    <i class="fas fa-exclamation-triangle fa-lg me-3 text-warning"></i>
+                    <div class="small">
+                        Esta acción dará por <strong>cerrada</strong> la solicitud de insumos por falta de disponibilidad y generará el documento oficial <strong>Respuesta de Solicitud</strong> en PDF.
+                    </div>
+                </div>
+
+                <div class="p-3 rounded mb-3 bg-light border">
+                    <div class="row g-2 small">
+                        <div class="col-md-4"><strong>N° Solicitud:</strong> #<?php echo $idPedido; ?></div>
+                        <div class="col-md-4"><strong>Solicitante:</strong> <?php echo htmlspecialchars($pedido['solicitante_nombre'] . ' ' . $pedido['solicitante_apellido']); ?></div>
+                        <div class="col-md-4"><strong>Sede:</strong> <?php echo htmlspecialchars($pedido['nombre_sede'] . ' - ' . $pedido['nombre_localidad']); ?></div>
+                    </div>
+                </div>
+
+                <form id="formSinStock">
+                    <div class="mb-3">
+                        <label for="requerimientoSinStock" class="form-label fw-bold">Requerimiento / Insumos Solicitados <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="requerimientoSinStock" rows="3" placeholder="Detalle los insumos solicitados..." required><?php echo htmlspecialchars($pedido['descripcion']); ?></textarea>
+                        <div class="form-text">Puede complementar o corregir el detalle de los insumos solicitados para que quede registrado formalmente en el documento.</div>
+                    </div>
+
+                    <div class="mb-2">
+                        <label for="motivoSinStock" class="form-label fw-bold">Informe / Justificación de Indisponibilidad <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="motivoSinStock" rows="3" placeholder="Detalle las razones o justificación de la falta de stock..." required>Por medio de la presente, se informa que luego del relevamiento de depósito no se cuenta con stock disponible de los insumos requeridos al momento de la solicitud.</textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-sm btn-danger px-3" id="btnConfirmarSinStock">
+                    <i class="fas fa-file-pdf me-1"></i>Confirmar y Emitir Respuesta
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <?php include '../../includes/footer.php'; ?>

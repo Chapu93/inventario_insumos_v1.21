@@ -107,11 +107,13 @@ include '../../includes/header.php';
             <td>
               <a class="btn btn-sm btn-outline-primary" 
                  href="<?php echo app_base_url() . '/' . $p['archivo']; ?>" 
+                 data-visor-archivo="<?php echo app_base_url() . '/' . $p['archivo']; ?>"
+                 data-visor-titulo="Plano <?php echo htmlspecialchars($p['tipo_plano'] . ' - ' . $p['nombre_sede'], ENT_QUOTES); ?>"
                  target="_blank"
                  data-bs-toggle="tooltip" 
-                 title="Abrir plano"
+                 title="Ver plano sin descargar"
                  aria-label="Abrir plano">
-                <i class="fas fa-file" aria-hidden="true"></i> Abrir
+                <i class="fas fa-eye" aria-hidden="true"></i> Abrir
               </a>
             </td>
             <td>
@@ -329,7 +331,11 @@ function viewPlano(p){
     $('#view_plano_desc_container').hide();
   }
   if (p.archivo) {
-    $('#view_plano_archivo').attr('href', BASE + '/' + p.archivo);
+    const urlPlano = BASE + '/' + p.archivo;
+    const tituloPlano = 'Plano ' + (p.tipo_plano || '') + ' - ' + (p.nombre_sede || '');
+    $('#view_plano_archivo').attr('href', urlPlano)
+      .attr('data-visor-archivo', urlPlano)
+      .attr('data-visor-titulo', tituloPlano);
   }
   new bootstrap.Modal(document.getElementById('modalVerPlano')).show();
 }

@@ -1,4 +1,9 @@
 <?php
+// Abrir la sesión en modo SOLO LECTURA antes de incluir config.php
+// Esto evita que la actualización periódica de contadores renueve el timestamp de la sesión
+if (session_status() === PHP_SESSION_NONE) {
+    session_start(['read_and_close' => true]);
+}
 require_once '../includes/config.php';
 
 if (!estaAutenticado()) {

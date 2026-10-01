@@ -451,10 +451,7 @@ $(function() {
     var table = $('#tblDisps').DataTable({
         "dom": 't', // Solo muestra la tabla (sin search, info, pagination)
         "paging": false, // Deshabilita paginación
-        "order": [[ 0, "asc" ]],
-        "language": {
-            "url": "//cdn.datatables.net/plug-ins/1.13.4/i18n/es-ES.json"
-        }
+        "order": [[ 0, "asc" ]]
     });
 
     $('#filterTipo').on('change', function() {

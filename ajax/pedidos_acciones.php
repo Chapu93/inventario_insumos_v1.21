@@ -65,7 +65,7 @@ try {
             $pedidoActual = $stmt->fetch();
 
             if (!$pedidoActual) json_error('Pedido no encontrado', 404);
-            if ($pedidoActual['estado'] === 'Completado' || $pedidoActual['estado'] === 'Rechazado') {
+            if ($pedidoActual['estado'] === 'Completado' || $pedidoActual['estado'] === 'Rechazado' || $pedidoActual['estado'] === 'Sin Stock') {
                 json_error('No se puede editar un pedido finalizado', 400);
             }
 
@@ -358,6 +358,74 @@ try {
             json_success(['mensaje' => 'Pedido rechazado. Ha vuelto a la lista de pendientes.']);
             break;
 
+        case 'cerrar_sin_stock':
+            if (!tienePermiso('pedidos', 'gestionar') && !defined('TESTING')) {
+                json_error('Sin permiso para gestionar pedidos', 403);
+            }
+
+            $id = (int)($_POST['id'] ?? 0);
+            $motivo = trim($_POST['motivo'] ?? '');
+            $requerimiento = trim($_POST['requerimiento'] ?? '');
+
+            if ($id <= 0) json_error('ID de pedido inválido', 400);
+            if (empty($motivo)) {
+                $motivo = 'Por medio de la presente, se informa que luego del relevamiento de depósito no se cuenta con stock disponible de los insumos requeridos al momento de la solicitud.';
+            }
+
+            $db->beginTransaction();
+
+            // Verificar pedido
+            $stmt = $db->prepare("SELECT id_pedido, tipo, estado, descripcion FROM pedidos WHERE id_pedido = ? FOR UPDATE");
+            $stmt->execute([$id]);
+            $pedido = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$pedido) {
+                $db->rollBack();
+                json_error('Pedido no encontrado', 404);
+            }
+
+            if ($pedido['tipo'] !== 'Pedido Insumo') {
+                $db->rollBack();
+                json_error('Esta acción solo aplica para Pedidos de Insumos', 400);
+            }
+
+            if ($pedido['estado'] !== 'Pendiente') {
+                $db->rollBack();
+                json_error('El pedido no se encuentra en estado Pendiente', 400);
+            }
+
+            // Si se completó o detalló el requerimiento, usarlo; sino mantener el actual
+            if (empty($requerimiento)) {
+                $requerimiento = $pedido['descripcion'];
+            }
+
+            // Generar número de informe / respuesta oficial
+            $numeroInforme = generarNumeroInforme($db);
+
+            // Insertar en pedidos_informes
+            $diagnostico = $requerimiento;
+            $stmtInf = $db->prepare("INSERT INTO pedidos_informes (id_pedido, numero_informe, diagnostico, trabajo_realizado, resultado, fecha_informe) VALUES (?, ?, ?, ?, 'Sin Solución', NOW())");
+            $stmtInf->execute([$id, $numeroInforme, $diagnostico, $motivo]);
+
+            // Actualizar pedido a 'Sin Stock' (cierre formal por falta de stock) y guardar el requerimiento detallado
+            $stmtUpd = $db->prepare("UPDATE pedidos SET estado = 'Sin Stock', descripcion = ?, asignado_a = ?, fecha_actualizacion = NOW() WHERE id_pedido = ?");
+            $stmtUpd->execute([$requerimiento, $usuarioId, $id]);
+
+            // Registrar en historial
+            $usuarioAct = obtenerUsuario();
+            $nombreUsuario = $usuarioAct ? ($usuarioAct['nombre'] . ' ' . $usuarioAct['apellido']) : 'Usuario';
+            $detalleHistorial = "Cierre por falta de stock emitido por: {$nombreUsuario}\nRespuesta de Solicitud N°: {$numeroInforme}\nInforme: {$motivo}";
+            $stmtHist = $db->prepare("INSERT INTO pedidos_historial (id_pedido, id_usuario, accion, detalle) VALUES (?, ?, 'Respuesta Solicitud', ?)");
+            $stmtHist->execute([$id, $usuarioId, $detalleHistorial]);
+
+            $db->commit();
+
+            json_success([
+                'id_pedido' => $id,
+                'numero_informe' => $numeroInforme,
+                'mensaje' => 'Pedido cerrado por falta de stock. Se emitió la Respuesta de Solicitud correctamente.'
+            ]);
+            break;
 
         case 'asignar':
             if (!tieneRol([1, 2]) && !defined('TESTING')) json_error('Sin permiso para asignar pedidos', 403);
@@ -390,7 +458,7 @@ try {
                 $db->rollBack(); 
                 json_error('El pedido ya está asignado. Debe tomarlo o rechazarlo primero.', 400); 
             }
-            if ($curr['estado'] === 'Completado' || $curr['estado'] === 'Rechazado') {
+            if ($curr['estado'] === 'Completado' || $curr['estado'] === 'Rechazado' || $curr['estado'] === 'Sin Stock') {
                 $db->rollBack();
                 json_error('No se puede asignar un pedido finalizado', 400);
             }
@@ -407,6 +475,10 @@ try {
             $stmtH = $db->prepare("INSERT INTO pedidos_historial (id_pedido, id_usuario, accion, detalle) VALUES (?, ?, 'Asignación', ?)");
             $stmtH->execute([$id, $usuarioId, $detalle]);
             
+            if ($asignadoA != $usuarioId) {
+                crearNotificacion($asignadoA, 'pedido_asignado', 'Nuevo Pedido Asignado', "Se te ha asignado el pedido #{$id}", app_base_url() . "/pages/pedidos/ver.php?id={$id}");
+            }
+
             $db->commit();
             json_success(['mensaje' => 'Pedido asignado correctamente a ' . $userDestino['nombre'] . ' ' . $userDestino['apellido']]);
             break;
@@ -560,6 +632,22 @@ try {
              $stmtH = $db->prepare("INSERT INTO pedidos_historial (id_pedido, id_usuario, accion, detalle) VALUES (?, ?, 'Informe generado', ?)");
              $descHist = "Informe generado. Resultado: $resultado" . ($darDeBaja ? " - Insumo dado de baja." : "");
              $stmtH->execute([$id, $usuarioId, $descHist]);
+
+             // Notificar al solicitante/creador del pedido si no es quien genera el informe
+             $stmtSol = $db->prepare("SELECT id_usuario_solicitante FROM pedidos WHERE id_pedido = ?");
+             $stmtSol->execute([$id]);
+             $idSol = $stmtSol->fetchColumn();
+
+             if ($idSol && $idSol != $usuarioId) {
+                 $nombreUsuario = $_SESSION['nombre_completo'] ?? 'Un técnico';
+                 crearNotificacion(
+                     $idSol,
+                     'nuevo_comentario',
+                     'Informe Técnico Generado',
+                     "{$nombreUsuario} completó el pedido #{$id} y generó el informe técnico ({$resultado}).",
+                     app_base_url() . "/pages/pedidos/ver.php?id={$id}"
+                 );
+             }
              
              $db->commit();
              json_success(['mensaje' => 'Pedido completado e informe generado']);
@@ -613,7 +701,7 @@ try {
                  json_error('No tienes permiso para adjuntar nota a este pedido', 403);
              }
              
-             if ($p['estado'] == 'Completado' || $p['estado'] == 'Rechazado') {
+             if ($p['estado'] == 'Completado' || $p['estado'] == 'Rechazado' || $p['estado'] == 'Sin Stock') {
                  json_error('No se puede adjuntar nota a un pedido finalizado', 400);
              }
              

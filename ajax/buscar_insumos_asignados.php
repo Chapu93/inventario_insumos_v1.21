@@ -22,6 +22,7 @@ try {
     }
     
     $like = '%' . $busqueda . '%';
+    $like_id_fisico = '%' . str_replace(['-', ' '], '', $busqueda) . '%';
     
     if ($soloAsignados) {
         // Buscar solo insumos con asignación activa
@@ -59,8 +60,11 @@ try {
                     i.tipo_insumo LIKE ?
                     OR i.nombre_insumo LIKE ? 
                     OR i.numero_serie LIKE ? 
+                    OR REPLACE(i.numero_serie, '-', '') LIKE ?
                     OR i.id_fisico LIKE ?
+                    OR REPLACE(i.id_fisico, '-', '') LIKE ?
                     OR i.id_patrimonio LIKE ?
+                    OR REPLACE(i.id_patrimonio, '-', '') LIKE ?
                     OR s.nombre_sede LIKE ?
                     OR a.nombre_area LIKE ?
                     OR r.numero_remito LIKE ?
@@ -71,7 +75,7 @@ try {
                 LIMIT " . (int)$limit;
         
         $stmt = $db->prepare($sql);
-        $stmt->execute([$like, $like, $like, $like, $like, $like, $like, $like, $like, $like]);
+        $stmt->execute([$like, $like, $like, $like_id_fisico, $like, $like_id_fisico, $like, $like_id_fisico, $like, $like, $like, $like, $like]);
     } else {
         // Buscar todos los insumos (asignados o disponibles)
         $sql = "SELECT 
@@ -98,8 +102,11 @@ try {
                     i.tipo_insumo LIKE ?
                     OR i.nombre_insumo LIKE ? 
                     OR i.numero_serie LIKE ? 
+                    OR REPLACE(i.numero_serie, '-', '') LIKE ?
                     OR i.id_fisico LIKE ?
+                    OR REPLACE(i.id_fisico, '-', '') LIKE ?
                     OR i.id_patrimonio LIKE ?
+                    OR REPLACE(i.id_patrimonio, '-', '') LIKE ?
                     OR s.nombre_sede LIKE ?
                     OR a.nombre_area LIKE ?
                     OR r.numero_remito LIKE ?
@@ -110,7 +117,7 @@ try {
                 LIMIT " . (int)$limit;
         
         $stmt = $db->prepare($sql);
-        $stmt->execute([$like, $like, $like, $like, $like, $like, $like, $like, $like, $like]);
+        $stmt->execute([$like, $like, $like, $like_id_fisico, $like, $like_id_fisico, $like, $like_id_fisico, $like, $like, $like, $like, $like]);
     }
     
     $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
