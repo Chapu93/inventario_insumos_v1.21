@@ -54,7 +54,7 @@ if ($filtro_estado) {
     $params[] = $filtro_estado;
 }
 
-$sql .= " ORDER BY CASE i.estado WHEN 'Disponible' THEN 0 WHEN 'Asignado' THEN 1 ELSE 2 END, i.nombre_insumo ASC";
+$sql .= " ORDER BY CASE i.estado WHEN 'Disponible' THEN 0 WHEN 'Asignado' THEN 1 ELSE 2 END, i.nombre_insumo ASC, i.id_insumo ASC";
 
 $stmt = $conexion->prepare($sql);
 $stmt->execute($params);

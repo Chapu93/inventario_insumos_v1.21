@@ -1,165 +1,209 @@
-# ROL
-Sos un ingeniero frontend senior especializado en CSS escalable y Bootstrap 5.
-Vas a refactorizar el archivo style.css de un proyecto PHP + Bootstrap 5.
+# REFACTORIZACIÓN DEL CSS: PHP + Bootstrap 5
 
-# CONTEXTO
-- style.css tiene ~2250 líneas y fue generado de forma incremental con agentes de IA.
-- Problemas detectados:
-  * ~520 usos de `!important` (270 solo en el modo oscuro).
-  * El modo oscuro ocupa ~600 líneas redefiniendo componentes completos
-    (botones, card-headers, modales) en vez de apoyarse en variables.
-  * Usa CSS nesting nativo dentro de `[data-theme="dark"]`, que no funciona
-    en navegadores viejos.
-  * Colores hex repetidos que ya tienen token (#4a9d95, #d9943f, #218838,
-    #dc3545, #9b78db, etc.) y colores fijos dentro de SVG data-URI.
-  * Selectores duplicados (ej: `#content > .container-fluid` aparece dos veces).
-  * Selectores por ID que elevan la especificidad.
-  * `--bs-secondary` (#fff) no coincide con `--bs-secondary-rgb` (155,183,162).
-  * Media queries que mezclan `max-width` y `max-height`, breakpoints que se
-    solapan (992 / 993) y `font-size` en px que no escala.
-  * `z-index` sueltos (1000, 1050, 1060, 1080, 1090, 1100) sin escala central.
-# ACCESO AL PROYECTO
+## ROL
+Sos un ingeniero frontend senior especializado en CSS escalable, Bootstrap 5
+y proyectos PHP. Vas a refactorizar el CSS de este proyecto.
+
+## STACK
+PHP, Bootstrap 5, CSS plano y MySQL. No hay paso de build (ni Sass, ni
+PostCSS, ni Node). No agregues ninguna herramienta ni dependencia sin
+preguntarme antes.
+
+## ACCESO AL PROYECTO
 Tenés el proyecto abierto en el IDE. No esperes a que te pase archivos:
-buscá vos mismo toda la información que necesites.
-
-- Explorá la estructura completa del proyecto antes de empezar (carpetas de
-  vistas, includes, parciales, plantillas, assets, JS, y cualquier otro lugar
-  donde se pueda usar una clase o un ID).
-- Identificá todos los archivos que cargan o dependen de style.css: vistas
-  PHP, HTML, plantillas, archivos JS propios, y librerías de terceros
-  (DataTables, Select2, Bootstrap, etc.).
-- Antes de eliminar, renombrar o modificar cualquier selector, buscá su uso
-  en TODO el proyecto con grep o búsqueda global, incluyendo:
-  * clases escritas en HTML/PHP,
-  * clases agregadas o quitadas desde JS (classList, addClass, toggleClass,
-    querySelector, jQuery, innerHTML, template strings),
-  * clases armadas por concatenación o dinámicamente (ej: "btn-" + tipo),
-  * IDs y atributos de datos (data-theme, data-bs-*),
-  * clases generadas por librerías.
-- Excluí de la búsqueda carpetas como vendor/, node_modules/ y .git/, salvo
-  para consultar cómo una librería genera sus clases.
-- Si no podés acceder a alguna parte del proyecto, o una búsqueda no te da
-  certeza (por ejemplo, clases dinámicas), no asumas que el selector es
-  seguro de borrar: marcalo como "no verificado" y preguntame.
+buscá vos mismo la información que necesites.
+- Explorá la estructura completa antes de empezar (vistas, includes,
+  parciales, plantillas, assets, JS).
+- Identificá dónde se enlaza hoy style.css (layout, header, includes) y qué
+  archivos PHP/HTML/JS dependen de él, incluyendo librerías de terceros
+  (DataTables, Select2, Bootstrap JS, etc.).
+- Excluí vendor/, node_modules/ y .git/ de las búsquedas, salvo para
+  consultar cómo una librería genera sus clases.
 - Si no podés ejecutar comandos o un navegador (para las capturas), decímelo
   al principio y proponé la alternativa manual.
-  
+- Si algo no te da certeza, marcalo como "no verificado" y preguntame. Nunca
+  asumas que un selector es seguro de borrar.
 
-# OBJETIVO
+## CONTEXTO: PROBLEMAS DETECTADOS EN style.css (~2250 líneas)
+- ~520 `!important` (unos 270 solo en el modo oscuro).
+- Modo oscuro de ~600 líneas que redefine componentes completos (botones,
+  card-headers, modales) en vez de apoyarse en variables.
+- CSS nesting nativo dentro de `[data-theme="dark"]`: no funciona en
+  navegadores sin soporte y se ignora en silencio.
+- Colores hex repetidos que ya tienen token (#4a9d95, #d9943f, #218838,
+  #dc3545, #9b78db...) y colores fijos dentro de SVG data-URI.
+- Selectores duplicados (ej: `#content > .container-fluid`) y selectores por
+  ID que elevan la especificidad.
+- `--bs-secondary` (#fff) no coincide con `--bs-secondary-rgb` (155,183,162).
+- Media queries que mezclan `max-width` y `max-height`, breakpoints que se
+  solapan (992/993) y `font-size` en px que no escala (ej: raíz a 14.45px
+  por prueba y error).
+- `z-index` sueltos (1000, 1050, 1060, 1080, 1090, 1100), varios con
+  `!important`, sin escala central.
+- Posible contraste justo en el modo oscuro (fondo medio con colores pastel).
+
+## OBJETIVO
 Reducir la deuda técnica y dejar el CSS escalable y mantenible, SIN cambiar
 cómo se ve ni cómo funciona la aplicación.
 
-# REGLAS INNEGOCIABLES
-1. Cero cambios visuales: cada pantalla debe verse igual, en modo claro y en
-   modo oscuro, en todos los breakpoints.
-2. No renombres ni elimines clases, IDs ni atributos que usen los archivos
-   PHP, HTML o JS. Antes de borrar o renombrar cualquier selector, buscalo
-   con grep en TODO el proyecto (vistas PHP, JS, plantillas), incluyendo
-   clases armadas dinámicamente o generadas por librerías (DataTables,
-   Select2, Bootstrap JS, etc.). Si hay duda, NO lo borres: listalo para
-   que yo decida.
-3. No modifiques HTML, PHP ni JS salvo que sea imprescindible. Si lo fuera,
-   pedime confirmación antes y explicá por qué.
-4. Mantené el mecanismo actual del tema oscuro (`[data-theme="dark"]` y la
-   clase/atributo que use el JS). Podés agregar compatibilidad con
-   `data-bs-theme`, pero sin romper lo existente.
-5. No agregues dependencias nuevas sin preguntarme. Si el proyecto no tiene
-   paso de build (Sass/PostCSS), el resultado debe poder funcionar con CSS
-   plano.
-6. Trabajá en una rama de git nueva y hacé commits pequeños por paso, para
-   poder revertir.
+## REGLAS INNEGOCIABLES
+1. Cero cambios visuales: cada pantalla debe verse igual en modo claro y
+   oscuro, en todos los breakpoints y estados (hover, focus, modales, etc.).
+2. No renombres ni elimines clases, IDs ni atributos usados por PHP, HTML o
+   JS. Antes de borrar o renombrar un selector, buscalo en TODO el proyecto:
+   * clases en HTML/PHP,
+   * clases agregadas o quitadas desde JS (classList, addClass, toggleClass,
+     querySelector, jQuery, innerHTML, template strings),
+   * clases armadas por concatenación (ej: "btn-" + tipo),
+   * IDs y atributos de datos (data-theme, data-bs-*),
+   * clases generadas por librerías.
+   Si hay duda, NO lo borres: listalo para que yo decida.
+3. No modifiques HTML, PHP ni JS salvo que sea imprescindible. Si lo es,
+   pedime confirmación antes y explicá por qué. La única excepción prevista
+   es el enlace al CSS (ver Fase 6).
+4. Mantené el mecanismo actual del tema oscuro (`[data-theme="dark"]` y el
+   JS que lo activa). Podés sumar compatibilidad con `data-bs-theme` solo si
+   no rompe nada existente.
+5. Trabajá en una rama de git nueva y hacé commits pequeños por paso.
+6. No hagas cambios masivos de una vez: avanzá fase por fase y esperá mi
+   confirmación entre fase y fase.
+7. Si algo es ambiguo o riesgoso, preguntame antes de actuar.
 
-# PROCESO (por fases, esperá mi OK entre fase y fase)
+## PROCESO
 
-## Fase 0: Auditoría (sin modificar nada)
+### Fase 0: Auditoría (sin modificar nada)
 - Leé style.css completo y los archivos PHP/JS que lo usan.
 - Entregame un informe con:
   * Conteo de `!important` por sección y cuáles son realmente necesarios
     (por ejemplo, para vencer estilos inline o de librerías).
   * Lista de colores hardcodeados y a qué token corresponde cada uno.
-  * Selectores duplicados o muertos (con evidencia de grep).
+  * Selectores duplicados o muertos, con evidencia de búsqueda.
   * Qué overrides del modo oscuro se pueden eliminar porque ya los cubren
     los tokens.
+  * Clases dinámicas o generadas por librerías que no se pueden verificar.
   * Riesgos y partes que no recomendás tocar.
-- Proponé la estructura de archivos final y el orden de los cambios.
+- Confirmá o ajustá la estructura de archivos propuesta abajo según el
+  tamaño real de cada sección (si algo queda muy chico, proponé juntarlo).
+- Proponé el orden de los cambios.
 
-## Fase 1: Red de seguridad visual
-- Armá una verificación de regresión visual ANTES de tocar el CSS:
-  capturas (Playwright o similar) de las pantallas principales en modo claro
-  y oscuro, y en 3 anchos (mobile ~375px, tablet ~768px, desktop ~1440px).
-  También de estados: hover, focus, modales abiertos, tablas con DataTables,
-  Select2 abierto.
-- Guardá esas capturas como línea base. Si no podés ejecutar el navegador,
-  dame una checklist manual de pantallas y estados a revisar.
+### Fase 1: Red de seguridad visual
+- Antes de tocar el CSS, armá una verificación de regresión visual: capturas
+  (Playwright o similar, si ya está disponible o si me pedís permiso para
+  usarlo) de las pantallas principales en modo claro y oscuro, en tres
+  anchos (~375px, ~768px, ~1440px), incluyendo estados: hover, focus,
+  modales abiertos, tablas con DataTables, Select2 abierto.
+- Guardalas como línea base. Si no podés ejecutar el navegador, dame una
+  checklist manual de pantallas y estados para revisar yo.
 
-## Fase 2: Tokens y estructura
+### Fase 2: Tokens
 - Organizá los tokens en capas:
   * Primitivos (paleta cruda).
   * Semánticos (`--sitia-primary`, `--sitia-surface-*`, `--sitia-text`...).
-  * De componente cuando haga falta.
+  * De componente solo cuando haga falta.
 - Corregí la inconsistencia `--bs-secondary` / `--bs-secondary-rgb` sin
   alterar el aspecto resultante.
 - Creá una escala central de `z-index` con variables.
-- Reemplazá todos los hex repetidos por variables. Para los SVG embebidos,
-  usá `mask`/`currentColor` o un enfoque que dependa del token.
+- Reemplazá los hex repetidos por variables. Para los SVG embebidos, usá
+  `mask` con `currentColor` o un enfoque que dependa del token, verificando
+  que el resultado visual sea idéntico.
 
-## Fase 3: Reducción de `!important` y especificidad
-- Personalizá los componentes Bootstrap mediante sus variables nativas
+### Fase 3: Menos `!important` y menos especificidad
+- Personalizá los componentes Bootstrap con sus variables nativas
   (`--bs-btn-*`, `--bs-table-*`, `--bs-card-*`, `--bs-modal-*`...) en lugar
   de pisar propiedades finales.
-- Cambiá selectores por ID a clases cuando sea seguro (verificando el uso).
-- Eliminá duplicados y reglas muertas.
-- Dejá `!important` solo donde sea imprescindible, con un comentario
-  breve que explique por qué.
+- Cambiá selectores por ID a clases cuando sea seguro (verificando su uso).
+- Eliminá duplicados y reglas muertas verificadas.
+- Dejá `!important` solo donde sea imprescindible, con un comentario breve
+  que explique por qué.
 
-## Fase 4: Modo oscuro por tokens
-- Dejá en `[data-theme="dark"]` solo la redefinición de variables.
-- Eliminá los overrides de componentes que sean redundantes y conservá
-  únicamente los que sean realmente necesarios, comprobándolo con las
+### Fase 4: Modo oscuro por tokens
+- En `[data-theme="dark"]` dejá la redefinición de variables y solo los
+  overrides de componentes estrictamente necesarios, comprobados con las
   capturas.
-- Aplanar el nesting nativo (sin anidar reglas dentro del bloque) para que
-  funcione en navegadores sin soporte.
+- Aplaná el nesting nativo: sin reglas anidadas.
+- Señalame (sin corregir por tu cuenta) los pares de colores del modo
+  oscuro con contraste por debajo de WCAG AA, para que yo decida.
 
-## Fase 5: Responsive y unidades
-- Unificá los breakpoints en variables o comentarios consistentes,
-  alineados con Bootstrap (evitá solapes de 992/993).
-- Evitá `max-height` en media queries de layout salvo que sea indispensable.
-  Si es así, explicá por qué.
-- Cambiá `px` por `rem` en tipografía donde no altere el resultado actual
-  (calculando los equivalentes exactos).
+### Fase 5: Responsive y unidades
+- Unificá los breakpoints alineados con Bootstrap (evitá solapes como
+  992/993; usá 991.98px donde corresponda).
+- Evitá `max-height` en media queries de layout salvo que sea indispensable;
+  si lo es, explicá por qué.
+- Pasá de `px` a `rem` en tipografía donde no altere el resultado actual,
+  calculando equivalentes exactos.
+- Cada componente lleva sus propios media queries al final de su archivo.
 
-## Fase 6: Modularización
-- Dividí el CSS en módulos con responsabilidad única, por ejemplo:
-  tokens, base/layout, componentes (botones, tarjetas, tablas, modales,
-  formularios), integraciones (DataTables, Select2), tema oscuro, utilidades,
-  responsive.
-- Si no hay build, dejá un `style.css` final que importe o concatene los
-  módulos, y explicame cómo cargarlos. Si hay Sass, usá partials.
-- Un componente nuevo no debería requerir tocar más de un archivo.
+### Fase 6: Modularización y carga
+Dividí el CSS en archivos numerados dentro de public/css/. El número define
+el orden de carga. No uses @import.
 
-## Fase 7: Calidad continua
-- Proponé una configuración de stylelint con reglas como:
-  `declaration-no-important`, prohibir colores hex fuera del archivo de
-  tokens, límite de especificidad y orden consistente.
-- Dejame un `CSS-GUIDELINES.md` corto con las reglas del proyecto (nomenclatura,
-  dónde va cada cosa, cómo agregar un componente o un color nuevo,
-  prohibiciones) para que cualquier agente o persona futura las siga.
+```
+public/css/
+├── 00-tokens.css        # primitivos, semánticos, escala de z-index
+├── 10-base.css          # reset, tipografía, estilos globales
+├── 20-layout.css        # wrapper, sidebar, navbar, footer
+├── 30-buttons.css
+├── 31-forms.css         # inputs, switches, filtros
+├── 32-cards.css
+├── 33-tables.css
+├── 34-modals.css
+├── 35-badges.css        # badges de estado
+├── 36-kpi.css
+├── 37-stepper.css
+├── 38-pdf-viewer.css
+├── 50-select2.css       # integración Select2
+├── 51-datatables.css    # integración DataTables
+├── 90-dark.css          # tokens + excepciones mínimas
+└── 99-utilities.css     # helpers de una sola propiedad
+```
 
-# CRITERIOS DE ÉXITO
-- Capturas antes/después equivalentes (diferencias mínimas explicadas).
-- `!important` reducido a una cantidad mínima y justificada.
-- Cero colores hex fuera del archivo de tokens.
-- Modo oscuro reducido a tokens y a los overrides estrictamente necesarios.
-- Ningún selector usado en PHP/JS fue eliminado o renombrado.
-- El archivo o módulos resultantes son claramente más chicos y legibles.
+- Cada archivo tiene una única responsabilidad. Si surge algo que no
+  encaja, creá un archivo nuevo con nombre claro. Prohibido un archivo
+  "varios" o "misc".
+- Buscá dónde se enlaza hoy style.css y reemplazá ese enlace por un único
+  include PHP (por ejemplo includes/css.php) que cargue todos los *.css de
+  public/css/ en orden alfabético, con `?v=` + filemtime para evitar caché
+  vieja. Mostrame el cambio ANTES de aplicarlo y verificá que la ruta
+  pública coincida con cómo se sirve el proyecto.
+- Asegurate de que el style.css original NO se cargue a la vez que los
+  módulos (evitá estilos duplicados). Conservalo como respaldo fuera de
+  public/css/ hasta que yo confirme que todo se ve igual, y recién entonces
+  proponé eliminarlo.
 
-# ENTREGABLE FINAL
-1. Resumen de cambios por fase, con métricas antes/después (líneas,
+### Fase 7: Calidad continua
+- Generá `CSS-GUIDELINES.md` (corto y concreto) con: estructura de archivos
+  y orden de carga, reglas de tokens (colores solo en 00-tokens.css), la
+  prohibición de `!important` y de selectores por ID, cómo agregar un
+  componente, un color o una variante nueva, cómo funciona el modo oscuro
+  (solo variables), breakpoints y escala de z-index.
+- Proponé reglas de stylelint (`declaration-no-important`, colores hex fuera
+  de tokens, límite de especificidad), pero NO lo instales sin preguntarme:
+  requiere Node.
+- Si hay un archivo de reglas permanentes para agentes (AGENTS.md,
+  CLAUDE.md, .cursorrules o similar), proponé una versión breve de las
+  reglas clave que apunte a CSS-GUIDELINES.md.
+- Opcional, solo si te lo pido: un script simple que concatene y minifique
+  los módulos en un solo archivo para producción.
+
+## CRITERIOS DE ÉXITO
+- Capturas antes/después equivalentes (cualquier diferencia mínima,
+  explicada).
+- `!important` reducido al mínimo y justificado uno por uno.
+- Cero colores hex fuera de 00-tokens.css.
+- Modo oscuro reducido a tokens más excepciones mínimas.
+- Ningún selector usado en PHP, JS o por librerías fue eliminado o
+  renombrado.
+- CSS dividido en módulos claros, sin duplicados ni reglas muertas.
+- El proyecto carga y funciona igual.
+
+## ENTREGABLE FINAL
+1. Resumen de cambios por fase con métricas antes/después (líneas,
    `!important`, colores hardcodeados, selectores por ID).
-2. Lista de selectores que dejaste sin tocar por riesgo, y por qué.
+2. Lista de selectores que dejaste sin tocar por riesgo y por qué.
 3. Instrucciones para probar y para revertir.
-4. Sugerencias de próximos pasos.
+4. Próximos pasos sugeridos.
 
-# CÓMO TRABAJAR
-Si algo es ambiguo o riesgoso, preguntame antes de actuar. No hagas cambios
-masivos de una sola vez: avanzá fase por fase y esperá mi confirmación.
+## CÓMO EMPEZAR
+Leé este archivo completo y seguilo al pie de la letra. Empezá SOLO por la
+Fase 0 (auditoría, sin modificar nada) y esperá mi confirmación antes de
+pasar a la siguiente.

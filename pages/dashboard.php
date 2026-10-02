@@ -41,7 +41,7 @@ $stmt = $conexion->query("SELECT r.fecha_asignacion,
                           FROM remitos r
                           JOIN sedes s ON r.id_sede = s.id_sede
                           JOIN localidades l ON s.id_localidad = l.id_localidad
-                          ORDER BY r.fecha_asignacion DESC
+                          ORDER BY r.fecha_asignacion DESC, r.id_remito DESC
                           LIMIT 5");
 $asignaciones_recientes = $stmt->fetchAll();
 

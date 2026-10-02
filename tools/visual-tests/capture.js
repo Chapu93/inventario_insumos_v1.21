@@ -306,11 +306,10 @@ async function run() {
             throw new Error(`[THEME MISMATCH] En ${targetUrl}: se esperaba "${theme}" pero tiene "${appliedTheme}"`);
           }
 
-          // Enmascaramiento de tabla de auditoría para determinismo
+          // Enmascaramiento de controles DataTables en auditoría para determinismo
           if (item.id === '10_auditoria') {
             await page.addStyleTag({
               content: `
-                #tablaAuditoria tbody { visibility: hidden !important; }
                 .dataTables_info, .dataTables_paginate { visibility: hidden !important; }
               `
             });
@@ -335,6 +334,29 @@ async function run() {
               document.querySelectorAll('#tablaUsuarios tbody tr td:nth-child(5)').forEach(td => {
                 td.textContent = '01/01/2026 00:00';
               });
+            });
+          }
+
+          // Estabilización de auditoría tras render de DataTables (filas y altura deterministas)
+          if (item.id === '10_auditoria') {
+            await page.evaluate(() => {
+              const tbody = document.querySelector('#tablaAuditoria tbody');
+              if (tbody) {
+                let rows = '';
+                for (let i = 0; i < 25; i++) {
+                  rows += `<tr>
+                    <td>01/01/2026 12:00:00</td>
+                    <td>admin (Superadmin)</td>
+                    <td><span class="badge bg-info">usuarios</span></td>
+                    <td><span class="badge bg-primary">LOGIN</span></td>
+                    <td>Inicio de sesión exitoso en el sistema</td>
+                    <td><span class="badge bg-success"><i class="fas fa-check"></i> Éxito</span></td>
+                    <td>127.0.0.1</td>
+                    <td><button type="button" class="btn btn-sm btn-outline-info btn-ver-detalles"><i class="fas fa-eye"></i></button></td>
+                  </tr>`;
+                }
+                tbody.innerHTML = rows;
+              }
             });
           }
 
@@ -449,11 +471,12 @@ async function run() {
         await page.waitForSelector('#modalConfirmacionSITIA.show', { timeout: 3000 });
         await page.screenshot({ path: path.join(OUTPUT_DIR, `state_modal_confirmacion_${theme}.png`), fullPage: false });
 
-        // 6. Select2 desplegado con scrollIntoView (en galería)
+        // 6. Select2 desplegado con scrollIntoView determinista (en galería)
         await gotoWithTheme('/tools/visual-tests/component-gallery.php');
         await page.evaluate(() => {
-          const sel = document.querySelector('#gallery_select2');
-          sel.scrollIntoView({ block: 'center' });
+          const container = document.querySelector('#gallery_select2').nextElementSibling;
+          const targetY = Math.round(container.getBoundingClientRect().top + window.scrollY - 200);
+          window.scrollTo(0, targetY);
           $('#gallery_select2').select2('open');
         });
         await page.waitForSelector('.select2-container--open', { timeout: 3000 });
