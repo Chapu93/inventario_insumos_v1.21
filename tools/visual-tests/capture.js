@@ -179,6 +179,38 @@ async function run() {
 
     const page = await browser.newPage();
 
+    // Intercepción de red para auditoría determinista
+    await page.setRequestInterception(true);
+    page.on('request', req => {
+      if (req.url().includes('auditoria_list_ssp.php')) {
+        const dummyData = [];
+        for (let i = 0; i < 25; i++) {
+          dummyData.push([
+            '01/01/2026 12:00:00',
+            'admin (Superadmin)',
+            '<span class="badge bg-info">usuarios</span>',
+            '<span class="badge bg-primary">LOGIN</span>',
+            'Inicio de sesión exitoso en el sistema',
+            '<span class="badge bg-success"><i class="fas fa-check"></i> Éxito</span>',
+            '127.0.0.1',
+            '<button type="button" class="btn btn-sm btn-outline-info btn-ver-detalles"><i class="fas fa-eye"></i></button>'
+          ]);
+        }
+        req.respond({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            draw: 1,
+            recordsTotal: 100,
+            recordsFiltered: 100,
+            data: dummyData
+          })
+        });
+      } else {
+        req.continue();
+      }
+    });
+
     // Registro de fallos de recursos sin lanzar excepciones en el listener
     const failedResources = [];
     page.on('response', res => {
@@ -306,14 +338,6 @@ async function run() {
             throw new Error(`[THEME MISMATCH] En ${targetUrl}: se esperaba "${theme}" pero tiene "${appliedTheme}"`);
           }
 
-          // Enmascaramiento de controles DataTables en auditoría para determinismo
-          if (item.id === '10_auditoria') {
-            await page.addStyleTag({
-              content: `
-                .dataTables_info, .dataTables_paginate { visibility: hidden !important; }
-              `
-            });
-          }
 
           // Espera DataTables si aplica
           if (item.hasDataTable) {
@@ -337,28 +361,6 @@ async function run() {
             });
           }
 
-          // Estabilización de auditoría tras render de DataTables (filas y altura deterministas)
-          if (item.id === '10_auditoria') {
-            await page.evaluate(() => {
-              const tbody = document.querySelector('#tablaAuditoria tbody');
-              if (tbody) {
-                let rows = '';
-                for (let i = 0; i < 25; i++) {
-                  rows += `<tr>
-                    <td>01/01/2026 12:00:00</td>
-                    <td>admin (Superadmin)</td>
-                    <td><span class="badge bg-info">usuarios</span></td>
-                    <td><span class="badge bg-primary">LOGIN</span></td>
-                    <td>Inicio de sesión exitoso en el sistema</td>
-                    <td><span class="badge bg-success"><i class="fas fa-check"></i> Éxito</span></td>
-                    <td>127.0.0.1</td>
-                    <td><button type="button" class="btn btn-sm btn-outline-info btn-ver-detalles"><i class="fas fa-eye"></i></button></td>
-                  </tr>`;
-                }
-                tbody.innerHTML = rows;
-              }
-            });
-          }
 
           // Verificación de dibujo en canvas de Chart.js
           if (item.id === '08_telecom_resumen') {
@@ -473,13 +475,18 @@ async function run() {
 
         // 6. Select2 desplegado con scrollIntoView determinista (en galería)
         await gotoWithTheme('/tools/visual-tests/component-gallery.php');
+        await page.waitForSelector('.select2-container', { timeout: 4000 });
         await page.evaluate(() => {
-          const container = document.querySelector('#gallery_select2').nextElementSibling;
-          const targetY = Math.round(container.getBoundingClientRect().top + window.scrollY - 200);
-          window.scrollTo(0, targetY);
+          window.scrollTo(0, 0);
+          const container = document.querySelector('.select2-container');
+          container.scrollIntoView({ block: 'center', behavior: 'instant' });
           $('#gallery_select2').select2('open');
         });
         await page.waitForSelector('.select2-container--open', { timeout: 3000 });
+        await page.waitForFunction(() => {
+          const d = document.querySelector('.select2-dropdown');
+          return d && window.getComputedStyle(d).display !== 'none';
+        }, { timeout: 3000 });
         await page.screenshot({ path: path.join(OUTPUT_DIR, `state_select2_open_${theme}.png`), fullPage: false });
 
         // 7. Tooltip abierto con scrollIntoView (en galería)
