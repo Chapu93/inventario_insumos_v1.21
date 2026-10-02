@@ -101,8 +101,14 @@ inventario_app/
 
 ## ✅ Patrones de Código a Seguir
 
-### Consistencia Visual y Estética
-- **Consistencia Visual del Proyecto**: Siempre que se cree un nuevo componente, página, modal, tabla o cualquier elemento de interfaz, se debe hacer respetando rigurosamente los estilos del proyecto (`public/css/style.css`, Bootstrap 5) para mantener la consistencia estética y visual del mismo. Y tambien la creacion de nuevos componentes se debe tener en coicideracion crear las modificaciones necesarias para que funcione con el modo oscuro.
+### Consistencia Visual y Estética (CSS Modular)
+- **Consistencia Visual del Proyecto**: Siempre que se cree un nuevo componente, página, modal, tabla o cualquier elemento de interfaz, se debe hacer respetando rigurosamente la arquitectura modular de CSS (`public/css/[0-9][0-9]-*.css`, cargada dinámicamente mediante `includes/css.php`) y Bootstrap 5.
+- **Guía de Estilos y Reglas Obligatorias**: Consultar y seguir estrictamente [CSS-GUIDELINES.md](CSS-GUIDELINES.md):
+  1. **Tokens**: Prohibido usar colores `#hex` directos en componentes; consumir variables semánticas `var(--sitia-*)` de `00-tokens.css`.
+  2. **Modo Oscuro**: Implementar soporte mediante tokens en `90-dark.css` sin nesting nativo y cumpliendo contraste WCAG AA.
+  3. **Especificidad**: Prohibido el uso de `!important` y selectores por ID (`#id`) para estilizar componentes; usar clases CSS semánticas.
+  4. **Z-Index**: Usar exclusivamente la escala centralizada `--sitia-z-*`, nunca valores numéricos arbitrarios.
+  5. **Responsabilidad Única**: Nuevos estilos deben ir en su módulo correspondiente, con sus media queries al final del archivo.
 
 ### Antes de crear algo nuevo, verificar si ya existe:
 ```php
