@@ -1,0 +1,417 @@
+/* ============================================================================
+   4. BOTONES Y GESTIÓN DE FOCO / HOVER (CONSOLIDADO Y ACCESIBLE)
+   ============================================================================ */
+.btn {
+    --bs-btn-border-radius: 0.25rem;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.btn-group .btn {
+    margin: 0 1px;
+}
+
+/* Supresión universal de halos y marcos residuales en botones al hacer clic con mouse */
+.btn:focus:not(:focus-visible),
+.btn-close:focus:not(:focus-visible),
+.nav-link:focus:not(:focus-visible),
+.dropdown-item:focus:not(:focus-visible),
+.btn:active:focus,
+.btn.show:focus,
+.btn-check:focus + .btn {
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Foco institucional verde SITIA accesible por teclado */
+.btn:focus-visible,
+.btn-close:focus-visible {
+    box-shadow: 0 0 0 0.25rem rgba(90, 147, 103, 0.25) !important;
+    outline: none !important;
+}
+
+/* Botón Primario */
+.btn-primary {
+    --bs-btn-color: var(--sitia-white);
+    --bs-btn-bg: var(--sitia-primary);
+    --bs-btn-border-color: var(--sitia-primary);
+    --bs-btn-hover-color: var(--sitia-white);
+    --bs-btn-hover-bg: var(--sitia-primary-hover);
+    --bs-btn-hover-border-color: var(--sitia-primary-hover);
+    --bs-btn-active-color: var(--sitia-white);
+    --bs-btn-active-bg: var(--sitia-primary-hover);
+    --bs-btn-active-border-color: var(--sitia-primary-hover);
+    background-color: var(--sitia-primary);
+    border-color: var(--sitia-primary);
+    color: var(--sitia-white);
+}
+
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary.active {
+    background-color: var(--sitia-primary-hover);
+    border-color: var(--sitia-primary-hover);
+    color: var(--sitia-white);
+}
+
+.btn-primary:focus:not(:focus-visible) {
+    background-color: var(--sitia-primary);
+    border-color: var(--sitia-primary);
+    color: var(--sitia-white);
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.btn-primary:disabled,
+.btn-primary.disabled {
+    background-color: var(--sitia-primary) !important;
+    border-color: var(--sitia-primary) !important;
+    color: var(--sitia-white) !important;
+    opacity: 0.65;
+}
+
+/* Botón Outline Primario */
+.btn-outline-primary {
+    --bs-btn-color: var(--sitia-primary);
+    --bs-btn-border-color: var(--sitia-primary);
+    --bs-btn-hover-color: var(--sitia-white);
+    --bs-btn-hover-bg: var(--sitia-primary);
+    --bs-btn-hover-border-color: var(--sitia-primary);
+    --bs-btn-active-color: var(--sitia-white);
+    --bs-btn-active-bg: var(--sitia-primary);
+    --bs-btn-active-border-color: var(--sitia-primary);
+    --bs-btn-focus-shadow-rgb: 90, 147, 103;
+    color: var(--sitia-primary);
+    border-color: var(--sitia-primary);
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:active,
+.btn-outline-primary.active {
+    background-color: var(--sitia-primary) !important;
+    color: var(--sitia-white) !important;
+    border-color: var(--sitia-primary) !important;
+}
+
+.btn-outline-primary:focus-visible {
+    background-color: transparent !important;
+    color: var(--sitia-primary) !important;
+    border-color: var(--sitia-primary) !important;
+    box-shadow: 0 0 0 0.25rem rgba(90, 147, 103, 0.25) !important;
+    outline: none !important;
+}
+
+.btn-outline-primary:focus:not(:focus-visible) {
+    background-color: transparent !important;
+    color: var(--sitia-primary) !important;
+    border-color: var(--sitia-primary) !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Botón Secundario */
+.btn-secondary {
+    background-color: var(--sitia-secondary);
+    border-color: var(--sitia-secondary-border);
+    color: var(--sitia-secondary-text);
+}
+
+.btn-secondary:hover,
+.btn-secondary:active,
+.btn-secondary.active {
+    background-color: var(--sitia-secondary-hover);
+    border-color: var(--sitia-primitive-sage-400);
+    color: var(--sitia-secondary-text);
+}
+
+.btn-secondary:focus:not(:focus-visible) {
+    background-color: var(--sitia-secondary);
+    border-color: var(--sitia-secondary-border);
+    color: var(--sitia-secondary-text);
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Botón Success */
+.btn-success {
+    --bs-btn-color: var(--sitia-white);
+    --bs-btn-bg: var(--sitia-success);
+    --bs-btn-border-color: var(--sitia-success);
+    --bs-btn-hover-color: var(--sitia-white);
+    --bs-btn-hover-bg: var(--sitia-success-hover);
+    --bs-btn-hover-border-color: var(--sitia-success-hover);
+    --bs-btn-active-color: var(--sitia-white);
+    --bs-btn-active-bg: var(--sitia-success-hover);
+    --bs-btn-active-border-color: var(--sitia-success-hover);
+    --bs-btn-disabled-color: var(--sitia-white);
+    --bs-btn-disabled-bg: var(--sitia-success);
+    --bs-btn-disabled-border-color: var(--sitia-success);
+    background-color: var(--sitia-success);
+    border-color: var(--sitia-success);
+    color: var(--sitia-white);
+}
+
+.btn-success:hover,
+.btn-success:active,
+.btn-success.active {
+    background-color: var(--sitia-success-hover);
+    border-color: var(--sitia-success-hover);
+    color: var(--sitia-white);
+}
+
+.btn-success:focus:not(:focus-visible) {
+    background-color: var(--sitia-success);
+    border-color: var(--sitia-success);
+    color: var(--sitia-white);
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.btn-success:disabled,
+.btn-success.disabled {
+    background-color: var(--sitia-success) !important;
+    border-color: var(--sitia-success) !important;
+    color: var(--sitia-white) !important;
+    opacity: 0.65;
+}
+
+/* Botón Danger */
+.btn-danger {
+    --bs-btn-color: var(--sitia-white);
+    --bs-btn-bg: var(--sitia-btn-danger-bg);
+    --bs-btn-border-color: var(--sitia-btn-danger-bg);
+    --bs-btn-hover-color: var(--sitia-white);
+    --bs-btn-hover-bg: var(--sitia-btn-danger-hover);
+    --bs-btn-hover-border-color: var(--sitia-btn-danger-active);
+    --bs-btn-active-color: var(--sitia-white);
+    --bs-btn-active-bg: var(--sitia-btn-danger-hover);
+    --bs-btn-active-border-color: var(--sitia-btn-danger-active);
+    --bs-btn-disabled-color: var(--sitia-white);
+    --bs-btn-disabled-bg: var(--sitia-btn-danger-bg);
+    --bs-btn-disabled-border-color: var(--sitia-btn-danger-bg);
+    background-color: var(--sitia-btn-danger-bg);
+    border-color: var(--sitia-btn-danger-bg);
+    color: var(--sitia-white);
+}
+
+.btn-danger:hover,
+.btn-danger:active,
+.btn-danger.active {
+    background-color: var(--sitia-btn-danger-hover);
+    border-color: var(--sitia-btn-danger-active);
+    color: var(--sitia-white);
+}
+
+.btn-danger:focus:not(:focus-visible) {
+    background-color: var(--sitia-btn-danger-bg);
+    border-color: var(--sitia-btn-danger-bg);
+    color: var(--sitia-white);
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Botón Info (Ver Insumos #4a9d95) */
+.btn-info {
+    --bs-btn-color: var(--sitia-white);
+    --bs-btn-bg: var(--sitia-btn-info-bg);
+    --bs-btn-border-color: var(--sitia-btn-info-bg);
+    --bs-btn-hover-color: var(--sitia-white);
+    --bs-btn-hover-bg: var(--sitia-btn-info-hover);
+    --bs-btn-hover-border-color: var(--sitia-btn-info-hover);
+    --bs-btn-active-color: var(--sitia-white);
+    --bs-btn-active-bg: var(--sitia-btn-info-hover);
+    --bs-btn-active-border-color: var(--sitia-btn-info-hover);
+    --bs-btn-disabled-color: var(--sitia-white);
+    --bs-btn-disabled-bg: var(--sitia-btn-info-bg);
+    --bs-btn-disabled-border-color: var(--sitia-btn-info-bg);
+    background-color: var(--sitia-btn-info-bg) !important;
+    border-color: var(--sitia-btn-info-bg) !important;
+    color: var(--sitia-white) !important;
+}
+
+.btn-info:hover,
+.btn-info:active,
+.btn-info.active {
+    background-color: var(--sitia-btn-info-hover) !important;
+    border-color: var(--sitia-btn-info-hover) !important;
+    color: var(--sitia-white) !important;
+}
+
+.btn-info:focus:not(:focus-visible) {
+    background-color: var(--sitia-btn-info-bg) !important;
+    border-color: var(--sitia-btn-info-bg) !important;
+    color: var(--sitia-white) !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Botón Warning (Ver Asignaciones #d9943f) */
+.btn-warning {
+    --bs-btn-color: var(--sitia-white);
+    --bs-btn-bg: var(--sitia-btn-warning-bg);
+    --bs-btn-border-color: var(--sitia-btn-warning-bg);
+    --bs-btn-hover-color: var(--sitia-white);
+    --bs-btn-hover-bg: var(--sitia-btn-warning-hover);
+    --bs-btn-hover-border-color: var(--sitia-btn-warning-hover);
+    --bs-btn-active-color: var(--sitia-white);
+    --bs-btn-active-bg: var(--sitia-btn-warning-hover);
+    --bs-btn-active-border-color: var(--sitia-btn-warning-hover);
+    --bs-btn-disabled-color: var(--sitia-white);
+    --bs-btn-disabled-bg: var(--sitia-btn-warning-bg);
+    --bs-btn-disabled-border-color: var(--sitia-btn-warning-bg);
+    background-color: var(--sitia-btn-warning-bg) !important;
+    border-color: var(--sitia-btn-warning-bg) !important;
+    color: var(--sitia-white) !important;
+}
+
+.btn-warning:hover,
+.btn-warning:active,
+.btn-warning.active {
+    background-color: var(--sitia-btn-warning-hover) !important;
+    border-color: var(--sitia-btn-warning-hover) !important;
+    color: var(--sitia-white) !important;
+}
+
+.btn-warning:focus:not(:focus-visible) {
+    background-color: var(--sitia-btn-warning-bg) !important;
+    border-color: var(--sitia-btn-warning-bg) !important;
+    color: var(--sitia-white) !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Botones Suaves de Acción */
+.btn-soft-warning {
+    background-color: var(--sitia-btn-soft-warning-bg) !important;
+    border-color: var(--sitia-btn-soft-warning-bg) !important;
+    color: var(--sitia-white) !important;
+    transition: all 0.2s ease-in-out;
+}
+.btn-soft-warning:hover,
+.btn-soft-warning:active {
+    background-color: var(--sitia-btn-soft-warning-hover) !important;
+    border-color: var(--sitia-btn-soft-warning-hover) !important;
+    color: var(--sitia-white) !important;
+}
+.btn-soft-warning:focus:not(:focus-visible) {
+    background-color: var(--sitia-btn-soft-warning-bg) !important;
+    border-color: var(--sitia-btn-soft-warning-bg) !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.btn-soft-success {
+    background-color: var(--sitia-success-border) !important;
+    border-color: var(--sitia-success-border) !important;
+    color: var(--sitia-white) !important;
+}
+.btn-soft-success:hover,
+.btn-soft-success:active {
+    background-color: var(--sitia-success-active) !important;
+    border-color: var(--sitia-success-active) !important;
+    color: var(--sitia-white) !important;
+}
+.btn-soft-success:focus:not(:focus-visible) {
+    background-color: var(--sitia-success-border) !important;
+    border-color: var(--sitia-success-border) !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.btn-soft-primary {
+    background-color: var(--sitia-btn-soft-primary-bg) !important;
+    border-color: var(--sitia-btn-soft-primary-bg) !important;
+    color: var(--sitia-white) !important;
+}
+.btn-soft-primary:hover,
+.btn-soft-primary:active {
+    background-color: var(--sitia-btn-soft-primary-hover) !important;
+    border-color: var(--sitia-btn-soft-primary-hover) !important;
+    color: var(--sitia-white) !important;
+}
+.btn-soft-primary:focus:not(:focus-visible) {
+    background-color: var(--sitia-btn-soft-primary-bg) !important;
+    border-color: var(--sitia-btn-soft-primary-bg) !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.btn-soft-secondary {
+    background-color: var(--sitia-btn-slate-bg) !important;
+    border-color: var(--sitia-btn-slate-bg) !important;
+    color: var(--sitia-white) !important;
+}
+.btn-soft-secondary:hover,
+.btn-soft-secondary:active {
+    background-color: var(--sitia-btn-slate-hover) !important;
+    border-color: var(--sitia-btn-slate-hover) !important;
+    color: var(--sitia-white) !important;
+}
+.btn-soft-secondary:focus:not(:focus-visible) {
+    background-color: var(--sitia-btn-slate-bg) !important;
+    border-color: var(--sitia-btn-slate-bg) !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Botón marrón claro pastel con fondo sólido e icono blanco */
+.btn-pastel-brown {
+    background-color: var(--sitia-btn-brown-bg) !important;
+    border-color: var(--sitia-btn-brown-bg) !important;
+    color: var(--sitia-white) !important;
+}
+.btn-pastel-brown:hover,
+.btn-pastel-brown:active {
+    background-color: var(--sitia-btn-brown-hover) !important;
+    border-color: var(--sitia-btn-brown-hover) !important;
+    color: var(--sitia-white) !important;
+}
+.btn-pastel-brown:focus:not(:focus-visible) {
+    background-color: var(--sitia-btn-brown-bg) !important;
+    border-color: var(--sitia-btn-brown-bg) !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Botón púrpura de Tarea Colaborativa */
+.btn-colaborativa {
+    background-color: var(--sitia-btn-purple-bg) !important;
+    border-color: var(--sitia-btn-purple-bg) !important;
+    color: var(--sitia-white) !important;
+}
+.btn-colaborativa:hover,
+.btn-colaborativa:active {
+    background-color: var(--sitia-btn-purple-hover) !important;
+    border-color: var(--sitia-btn-purple-hover) !important;
+    color: var(--sitia-white) !important;
+}
+.btn-colaborativa:focus:not(:focus-visible) {
+    background-color: var(--sitia-btn-purple-bg) !important;
+    border-color: var(--sitia-btn-purple-bg) !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Botón extra pequeño para comentarios */
+.btn-xs {
+    padding: 0.15rem 0.35rem;
+    font-size: 0.75rem;
+    line-height: 1.2;
+    border-radius: 0.2rem;
+}
+
+/* Opacidad y hover para botones de acción en tablas */
+.table .btn-group .btn {
+    opacity: 0.85;
+}
+
+.table .btn-group .btn:hover,
+.table .btn-group .btn:active {
+    opacity: 1;
+}
+
+.table .btn-group .btn:focus:not(:focus-visible) {
+    opacity: 0.85;
+    box-shadow: none !important;
+    outline: none !important;
+}
+

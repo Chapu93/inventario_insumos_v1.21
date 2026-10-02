@@ -1,0 +1,52 @@
+/* Badges específicos */
+.badge-tipo {
+    background-color: var(--sitia-surface-2) !important;
+    color: var(--sitia-text) !important;
+    border: 1px solid var(--sitia-border);
+}
+
+.badge-colaborativa {
+    background-color: var(--sitia-btn-purple-bg) !important;
+    color: var(--sitia-white) !important;
+    border: 1px solid var(--sitia-primitive-purple-400) !important;
+}
+
+/* Estados de SITIA (Modo Claro) */
+.estado-disponible {
+    background-color: var(--sitia-success) !important;
+    color: white !important;
+}
+
+.estado-asignado {
+    background-color: var(--sitia-warning) !important;
+    color: black !important;
+}
+
+.estado-parcial {
+    background-color: var(--sitia-primitive-amber-570) !important;
+    color: var(--sitia-white) !important;
+    border: 1px solid var(--sitia-primitive-amber-650) !important;
+}
+
+.estado-baja {
+    background-color: var(--sitia-danger) !important;
+    color: white !important;
+}
+
+.estado-activa {
+    background-color: var(--sitia-success) !important;
+    color: white !important;
+}
+
+.estado-devuelta {
+    background-color: var(--sitia-white) !important;
+    color: black !important;
+}
+
+.estado-anulado {
+    background-color: var(--sitia-btn-danger-bg) !important;
+    color: white !important;
+    font-weight: 600 !important;
+    border: 2px solid var(--sitia-primitive-red-650) !important;
+}
+

@@ -1,0 +1,55 @@
+/* ============================================================================
+   3. COMPONENTES BASE (TARJETAS, FILTROS, FORMULARIOS)
+   ============================================================================ */
+
+/* Tarjetas */
+.card {
+    --bs-card-bg: var(--sitia-surface-3);
+    --bs-card-border-color: transparent;
+    --bs-card-color: var(--sitia-text);
+    --bs-card-cap-bg: var(--sitia-surface-2);
+    --bs-card-cap-color: var(--sitia-text);
+    border: none;
+    border-radius: 10px;
+    background-color: var(--sitia-surface-3);
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.08);
+}
+
+.card-header {
+    background-color: var(--sitia-surface-2);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 10px 10px 0 0 !important;
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 1.5rem !important;
+}
+
+.card-header--success {
+    background-color: var(--sitia-alert-success-bg);
+    color: var(--sitia-alert-success-text);
+}
+
+.card-header--info {
+    background-color: var(--sitia-alert-info-bg);
+    color: var(--sitia-alert-info-text);
+}
+
+.card-header--danger {
+    background-color: var(--sitia-alert-danger-bg);
+    color: var(--sitia-alert-danger-text);
+}
+
+.card-header--warning {
+    background-color: var(--sitia-alert-warning-bg);
+    color: var(--sitia-alert-warning-text);
+}
+
+.card .list-group-item {
+    background-color: transparent;
+    color: var(--sitia-text);
+    border-color: var(--sitia-border);
+}
+

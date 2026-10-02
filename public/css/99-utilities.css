@@ -1,0 +1,43 @@
+/* Tooltips */
+.tooltip {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    z-index: var(--sitia-z-tooltip);
+}
+
+.tooltip .tooltip-inner {
+    background-color: var(--sitia-tooltip-bg) !important;
+    color: var(--sitia-white) !important;
+    padding: 8px 14px;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    border: none;
+}
+
+.tooltip.bs-tooltip-top .tooltip-arrow::before {
+    border-top-color: var(--sitia-tooltip-bg) !important;
+}
+
+.tooltip.bs-tooltip-bottom .tooltip-arrow::before {
+    border-bottom-color: var(--sitia-tooltip-bg) !important;
+}
+
+.tooltip.bs-tooltip-start .tooltip-arrow::before {
+    border-left-color: var(--sitia-tooltip-bg) !important;
+}
+
+.tooltip.bs-tooltip-end .tooltip-arrow::before {
+    border-right-color: var(--sitia-tooltip-bg) !important;
+}
+
+
+/* Nav Tabs (Pestañas) */
+.nav-tabs .nav-link {
+    color: var(--sitia-primary);
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--sitia-text);
+    font-weight: bold;
+    border-bottom-color: var(--sitia-primary) !important;
+}
+

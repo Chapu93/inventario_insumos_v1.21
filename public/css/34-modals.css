@@ -1,0 +1,57 @@
+/* Modales */
+.modal {
+    z-index: var(--sitia-z-modal);
+}
+
+.modal-backdrop {
+    z-index: var(--sitia-z-modal-backdrop);
+}
+
+#modalConfirmacionSITIA {
+    z-index: var(--sitia-z-modal-confirm);
+}
+
+.modal {
+    --bs-modal-bg: var(--sitia-surface-3);
+    --bs-modal-color: var(--sitia-text);
+    --bs-modal-border-color: transparent;
+    --bs-modal-header-border-color: var(--sitia-border);
+    --bs-modal-footer-border-color: var(--sitia-border);
+}
+
+.modal-content {
+    --bs-modal-bg: var(--sitia-surface-3);
+    --bs-modal-color: var(--sitia-text);
+    border-radius: 10px;
+    border: none;
+    background-color: var(--sitia-surface-3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.modal-header {
+    background-color: var(--sitia-surface-2);
+    border-radius: 10px 10px 0 0;
+    color: var(--sitia-text);
+}
+
+.modal-footer {
+    background-color: var(--sitia-surface-1);
+    border-top: 1px solid var(--sitia-border);
+    border-radius: 0 0 10px 10px;
+}
+
+.modal-backdrop.show {
+    opacity: 0.6 !important;
+}
+
+
+/* Animación Zoom-In moderna en Modales */
+.modal.fade .modal-dialog {
+    transform: scale(0.94);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+}
+
+.modal.show .modal-dialog {
+    transform: scale(1);
+}
+

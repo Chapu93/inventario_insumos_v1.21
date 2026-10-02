@@ -31,8 +31,8 @@
     <link href="<?php echo app_base_url(); ?>/public/vendor/select2/css/select2.min.css" rel="stylesheet">
     <link href="<?php echo app_base_url(); ?>/public/vendor/select2/css/select2-bootstrap-5-theme.min.css" rel="stylesheet">
     
-    <!-- Custom CSS -->
-    <link href="<?php echo app_base_url(); ?>/public/css/style.css?v=<?php echo filemtime(__DIR__ . '/../public/css/style.css'); ?>" rel="stylesheet">
+    <!-- Custom CSS (Modularizado) -->
+    <?php include __DIR__ . '/css.php'; ?>
 
     <!-- jQuery early to allow page scripts to run -->
     <script src="<?php echo app_base_url(); ?>/public/vendor/jquery/jquery-3.7.0.min.js"></script>

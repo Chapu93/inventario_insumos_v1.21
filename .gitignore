@@ -19,3 +19,4 @@ tools/visual-tests/captures/
 tools/.env
 tools/visual-tests/.env
 tools/visual-tests/*.tar.gz
+tools/*.bak

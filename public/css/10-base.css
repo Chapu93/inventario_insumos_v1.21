@@ -1,0 +1,77 @@
+/* ============================================================================
+   2. RESET, TIPOGRAFÍA & LAYOUT GENERAL
+   ============================================================================ */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Transición suave entre temas */
+body,
+.card,
+.modal-content,
+.sidebar,
+.app-footer,
+.table,
+.navbar,
+.form-control,
+.form-select {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+
+/* ============================================================================
+   9. MEDIA QUERIES, ANIMACIONES Y RESPONSIVE
+   ============================================================================ */
+
+/* Transiciones nativas entre páginas completas */
+@media (prefers-reduced-motion: no-preference) {
+    @view-transition {
+        navigation: auto;
+    }
+}
+
+/* Transición suave al cargar cualquier página */
+@keyframes pageFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Transición suave para pestañas de contenido */
+.tab-pane.fade.show.active {
+    animation: stepFadeIn 0.22s ease-out;
+}
+
+@keyframes stepFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #content > .container-fluid,
+    .tab-pane {
+        animation: none !important;
+    }
+}
+
+/* Responsive Density: Escala base para laptops y pantallas de baja altura */
+@media (max-width: 1400px), (max-height: 820px) {
+    html {
+        font-size: 14.45px; /* Aumentado un 5% adicional (de 13.75px a 14.45px, ~90% de escala) */
+    }
+
+    /* Títulos principales optimizados verticalmente */
+    h1 {
+        font-size: 1.6rem;
+        margin-bottom: 0.75rem !important;
+    }
+}

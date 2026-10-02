@@ -1,0 +1,58 @@
+/* Dashboard KPIs */
+.dashboard-card {
+    background-color: var(--sitia-surface-3);
+    color: var(--sitia-text);
+    padding: 1rem 1.25rem;
+    border-radius: var(--bs-border-radius);
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.12);
+    border: 1px solid var(--sitia-border);
+}
+
+.dashboard-card--primary {
+    background: var(--sitia-primary);
+    color: var(--sitia-white);
+}
+
+.dashboard-card--success {
+    background: var(--sitia-success);
+    color: var(--sitia-white);
+}
+
+.dashboard-card--warning {
+    background: var(--sitia-warning);
+    color: var(--sitia-primitive-gray-800);
+}
+
+.dashboard-card--info {
+    background: var(--sitia-info);
+    color: var(--sitia-white);
+}
+
+.dashboard-card--danger {
+    background: var(--sitia-danger);
+    color: var(--sitia-white);
+}
+
+.dashboard-card h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+
+/* Tarjetas del Dashboard compactas en pantallas reducidas */
+@media (max-width: 1400px), (max-height: 820px) {
+    .dashboard-card {
+        padding: 0.65rem 0.9rem;
+    }
+    .dashboard-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.15rem;
+    }
+    .dashboard-card p {
+        font-size: 0.85rem;
+    }
+    .dashboard-card .fa-2x {
+        font-size: 1.4rem;
+    }
+}

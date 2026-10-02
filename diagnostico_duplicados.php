@@ -418,7 +418,7 @@ function formatearHardware(array $i): string {
     <title>SITIA - Diagnóstico de Duplicados (Pre-10/08 vs Relevamiento)</title>
     <link href="<?php echo app_base_url(); ?>/public/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="<?php echo app_base_url(); ?>/public/vendor/fontawesome/css/all.min.css" rel="stylesheet">
-    <link href="<?php echo app_base_url(); ?>/public/css/style.css" rel="stylesheet">
+    <?php include __DIR__ . '/includes/css.php'; ?>
     <style>
         :root {
             --sitia-primary: #5a9367;

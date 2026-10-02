@@ -1,0 +1,181 @@
+/* Unificación de ancho de tablas al 100% y scroll */
+.dataTables_wrapper,
+.dataTables_scroll,
+.dataTables_scrollHead,
+.dataTables_scrollHeadInner,
+.dataTables_scrollHeadInner table,
+.dataTables_scrollBody,
+.dataTables_scrollBody table,
+table.dataTable,
+.table {
+    width: 100% !important;
+}
+
+.dataTables_scrollBody {
+    border-bottom: none !important;
+    overflow-x: hidden !important;
+}
+
+.dataTables_scrollBody:hover {
+    overflow-x: auto !important;
+}
+
+/* Alineación de controles DataTables en card-header a la derecha */
+.card-header .dataTables_length {
+    margin-left: auto !important;
+}
+.card-header:not(:has(.dataTables_length)) .dataTables_filter {
+    margin-left: auto !important;
+}
+
+.card-header h1,
+.card-header h2,
+.card-header h3,
+.card-header h4,
+.card-header h5,
+.card-header h6 {
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.dataTables_filter label,
+.dataTables_length label {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    margin-bottom: 0 !important;
+    font-size: 0.9rem !important;
+    font-weight: normal !important;
+}
+
+/* Estilo para los controles dentro del card-header */
+.card-header .dataTables_length select,
+.card-header .dataTables_filter input {
+    height: 30px !important;
+    padding: 0 0.5rem !important;
+    font-size: 0.85rem !important;
+    border-radius: 0.25rem !important;
+    border: 1px solid var(--sitia-border) !important;
+    background-color: var(--sitia-input-bg) !important;
+    color: var(--sitia-text);
+}
+
+.card-header .dataTables_length select {
+    width: auto !important;
+    padding-right: 1.75rem !important;
+}
+
+/* Controles de DataTables dentro del wrapper estándar */
+.dataTables_wrapper .dataTables_length select,
+.dataTables_wrapper .dataTables_filter input {
+    background-color: var(--sitia-input-bg);
+    border-color: var(--sitia-border);
+    color: var(--sitia-text);
+    border-radius: 6px;
+    outline: none;
+}
+
+.dataTables_wrapper .dataTables_length select:focus,
+.dataTables_wrapper .dataTables_filter input:focus {
+    border-color: var(--sitia-primary);
+    box-shadow: 0 0 0 0.25rem rgba(90, 147, 103, 0.25);
+}
+
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_length label,
+.dataTables_wrapper .dataTables_filter label {
+    color: var(--sitia-text);
+}
+
+/* Tablas borde a borde dentro del card-body */
+.card:has(table.datatable) .card-body,
+.card:has(.dataTables_wrapper) .card-body {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 0 !important;
+}
+
+.card-body table.datatable,
+.card-body table.dataTable,
+.card-body .dataTables_wrapper {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+.card-body .table th:first-child,
+.card-body .table td:first-child {
+    padding-left: 1.25rem !important;
+}
+.card-body .table th:last-child,
+.card-body .table td:last-child {
+    padding-right: 1.25rem !important;
+}
+
+.card-body .dataTables_info {
+    padding-left: 1.25rem !important;
+}
+.card-body .dataTables_paginate {
+    padding-right: 1.25rem !important;
+}
+
+.card:has(table.datatable) .card-body > .row:not(.dataTables_wrapper),
+.card:has(.dataTables_wrapper) .card-body > .row:not(.dataTables_wrapper) {
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+    padding-top: 1.25rem !important;
+}
+
+.card:has(table.datatable) .card-body > .alert,
+.card:has(.dataTables_wrapper) .card-body > .alert {
+    margin-left: 1.25rem !important;
+    margin-right: 1.25rem !important;
+}
+
+/* Tablas Striped */
+.card-body .table.table-striped > tbody > tr:nth-of-type(odd) > * {
+    --bs-table-accent-bg: var(--sitia-surface-3);
+}
+
+.card-body .table.table-striped > tbody > tr:nth-of-type(even) > * {
+    --bs-table-accent-bg: var(--sitia-surface-2);
+}
+
+.card-body .table.table-striped > tbody > tr:hover > * {
+    background-color: rgba(90, 147, 103, 0.06) !important;
+}
+
+/* Resaltado de fila al volver de editar un insumo con foco visual */
+@keyframes rowHighlightPulse {
+    0% {
+        background-color: rgba(90, 147, 103, 0.38) !important;
+        box-shadow: inset 0 0 0 2px var(--sitia-primary);
+    }
+    60% {
+        background-color: rgba(90, 147, 103, 0.20) !important;
+        box-shadow: inset 0 0 0 1px var(--sitia-primary);
+    }
+    100% {
+        background-color: transparent !important;
+        box-shadow: none;
+    }
+}
+
+.row-highlight-active,
+.row-highlight-active > td,
+.row-highlight-active > th {
+    animation: rowHighlightPulse 3.5s ease-out forwards !important;
+}
+
+/* Paginación */
+.pagination .page-link {
+    background-color: var(--sitia-surface-3);
+    border-color: var(--sitia-border);
+    color: var(--sitia-primary);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--sitia-primary);
+    border-color: var(--sitia-primary);
+    color: var(--sitia-white);
+}

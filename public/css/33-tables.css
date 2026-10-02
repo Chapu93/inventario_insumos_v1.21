@@ -1,0 +1,50 @@
+/* Tablas base */
+.table thead th {
+    background-color: var(--sitia-surface-2);
+    color: var(--sitia-text);
+    border-bottom: 2px solid var(--sitia-border);
+    font-weight: 600;
+    text-align: center !important;
+    vertical-align: middle;
+}
+
+.table tbody td {
+    text-align: center !important;
+    vertical-align: middle;
+    border-bottom-color: var(--sitia-border);
+}
+
+.table thead th:first-child,
+.table tbody td:first-child {
+    text-align: left !important;
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    margin-bottom: 0;
+}
+
+.table-responsive-inner {
+    width: 100%;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 0;
+}
+
+
+/* Tablas DataTables: mayor densidad vertical de información */
+@media (max-width: 1400px), (max-height: 820px) {
+    .table > :not(caption) > * > * {
+        padding: 0.45rem 0.6rem;
+    }
+    .table td, .table th {
+        font-size: 14px;
+    }
+
+    /* Badges y botones de acción en tablas */
+    .table .btn-sm {
+        padding: 0.2rem 0.45rem;
+        font-size: 0.8rem;
+    }
+}

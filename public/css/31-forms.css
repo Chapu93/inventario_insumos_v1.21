@@ -1,0 +1,91 @@
+/* Filtros Container */
+.filtros-container {
+    background-color: var(--sitia-surface-3);
+    padding: 1.5rem;
+    border-radius: var(--bs-border-radius);
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--sitia-border);
+    margin-bottom: 1.5rem;
+}
+
+.filtros-container .form-select,
+.filtros-container .form-control {
+    min-width: 150px;
+}
+
+/* Inputs Generales */
+.form-control,
+.form-select {
+    background-color: var(--sitia-input-bg);
+    color: var(--sitia-text);
+    border-color: var(--sitia-border);
+}
+
+.form-control:focus,
+.form-select:focus {
+    background-color: var(--sitia-input-bg);
+    color: var(--sitia-text);
+    border-color: var(--sitia-primary);
+    box-shadow: 0 0 0 0.25rem rgba(90, 147, 103, 0.25);
+}
+
+.form-control::placeholder {
+    color: var(--sitia-text-muted);
+}
+
+.form-control:disabled,
+.form-control[readonly],
+.form-select:disabled {
+    background-color: var(--sitia-surface-2) !important;
+    opacity: 0.8;
+}
+
+/* Checkboxes y Switches */
+.form-check-input:checked {
+    background-color: var(--sitia-primary);
+    border-color: var(--sitia-primary);
+}
+
+.form-check-input:focus {
+    border-color: var(--sitia-primary);
+    box-shadow: 0 0 0 0.25rem rgba(90, 147, 103, 0.25);
+}
+
+
+/* Alineación horizontal de cantidad en asignaciones */
+.cantidad-input {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+.cantidad-input label {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    white-space: nowrap;
+}
+.cantidad-input input {
+    margin: 0 !important;
+}
+
+
+/* Título de sección en Formularios */
+.section-title {
+    font-weight: 700;
+    font-size: 1.25rem;
+    border-bottom: 2px solid rgba(90, 147, 103, 0.2);
+    padding-bottom: 6px;
+    color: var(--sitia-text);
+}
+
+#paso1 .section-title {
+    text-align: center;
+}
+
+
+/* Breakpoint Móviles: Filtros */
+@media (max-width: 768px) {
+    .filtros-container .row > [class^="col-"] {
+        margin-bottom: 0.5rem;
+    }
+}

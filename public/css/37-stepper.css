@@ -1,0 +1,59 @@
+/* Stepper Asistente */
+.stepper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    font-weight: 500;
+}
+
+.stepper .step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--sitia-text);
+    opacity: 0.6;
+}
+
+.stepper .step.active {
+    opacity: 1;
+    color: var(--sitia-primary);
+    font-weight: 700;
+}
+
+.stepper .step.done {
+    opacity: 1;
+    color: var(--sitia-success);
+}
+
+.stepper .circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: var(--sitia-surface-2);
+    border: 2px solid currentColor;
+    font-size: 0.9rem;
+}
+
+.stepper .step.active .circle {
+    background-color: var(--sitia-primary);
+    color: var(--sitia-white);
+    border-color: var(--sitia-primary);
+}
+
+.stepper .step.done .circle {
+    background-color: var(--sitia-success);
+    color: var(--sitia-white);
+    border-color: var(--sitia-success);
+}
+
+.stepper .divider {
+    height: 2px;
+    background-color: var(--sitia-border);
+    flex-grow: 1;
+    max-width: 100px;
+}
+
