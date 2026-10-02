@@ -295,6 +295,7 @@ body,
 #content > .container-fluid {
     flex: 1 0 auto;
     padding: 1.5rem 2rem;
+    animation: pageFadeIn 0.22s ease-out;
 }
 
 #content.active,
@@ -432,7 +433,7 @@ html.sidebar-collapsed .sidebar {
 
 .navbar .navbar-text,
 .navbar .nav-link {
-    color: var(--sitia-text) !important;
+    color: var(--sitia-text);
 }
 
 .navbar-brand {
@@ -473,6 +474,11 @@ html.sidebar-collapsed .sidebar {
 
 /* Tarjetas */
 .card {
+    --bs-card-bg: var(--sitia-surface-3);
+    --bs-card-border-color: transparent;
+    --bs-card-color: var(--sitia-text);
+    --bs-card-cap-bg: var(--sitia-surface-2);
+    --bs-card-cap-color: var(--sitia-text);
     border: none;
     border-radius: 10px;
     background-color: var(--sitia-surface-3);
@@ -492,23 +498,23 @@ html.sidebar-collapsed .sidebar {
 }
 
 .card-header--success {
-    background-color: var(--sitia-alert-success-bg) !important;
-    color: var(--sitia-alert-success-text) !important;
+    background-color: var(--sitia-alert-success-bg);
+    color: var(--sitia-alert-success-text);
 }
 
 .card-header--info {
-    background-color: var(--sitia-alert-info-bg) !important;
-    color: var(--sitia-alert-info-text) !important;
+    background-color: var(--sitia-alert-info-bg);
+    color: var(--sitia-alert-info-text);
 }
 
 .card-header--danger {
-    background-color: var(--sitia-alert-danger-bg) !important;
-    color: var(--sitia-alert-danger-text) !important;
+    background-color: var(--sitia-alert-danger-bg);
+    color: var(--sitia-alert-danger-text);
 }
 
 .card-header--warning {
-    background-color: var(--sitia-alert-warning-bg) !important;
-    color: var(--sitia-alert-warning-text) !important;
+    background-color: var(--sitia-alert-warning-bg);
+    color: var(--sitia-alert-warning-text);
 }
 
 .card .list-group-item {
@@ -643,6 +649,15 @@ html.sidebar-collapsed .sidebar {
 
 /* Botón Outline Primario */
 .btn-outline-primary {
+    --bs-btn-color: var(--sitia-primary);
+    --bs-btn-border-color: var(--sitia-primary);
+    --bs-btn-hover-color: var(--sitia-white);
+    --bs-btn-hover-bg: var(--sitia-primary);
+    --bs-btn-hover-border-color: var(--sitia-primary);
+    --bs-btn-active-color: var(--sitia-white);
+    --bs-btn-active-bg: var(--sitia-primary);
+    --bs-btn-active-border-color: var(--sitia-primary);
+    --bs-btn-focus-shadow-rgb: 90, 147, 103;
     color: var(--sitia-primary);
     border-color: var(--sitia-primary);
 }
@@ -696,6 +711,18 @@ html.sidebar-collapsed .sidebar {
 
 /* Botón Success */
 .btn-success {
+    --bs-btn-color: var(--sitia-white);
+    --bs-btn-bg: var(--sitia-success);
+    --bs-btn-border-color: var(--sitia-success);
+    --bs-btn-hover-color: var(--sitia-white);
+    --bs-btn-hover-bg: var(--sitia-success-hover);
+    --bs-btn-hover-border-color: var(--sitia-success-hover);
+    --bs-btn-active-color: var(--sitia-white);
+    --bs-btn-active-bg: var(--sitia-success-hover);
+    --bs-btn-active-border-color: var(--sitia-success-hover);
+    --bs-btn-disabled-color: var(--sitia-white);
+    --bs-btn-disabled-bg: var(--sitia-success);
+    --bs-btn-disabled-border-color: var(--sitia-success);
     background-color: var(--sitia-success);
     border-color: var(--sitia-success);
     color: var(--sitia-white);
@@ -727,6 +754,18 @@ html.sidebar-collapsed .sidebar {
 
 /* Botón Danger */
 .btn-danger {
+    --bs-btn-color: var(--sitia-white);
+    --bs-btn-bg: var(--sitia-btn-danger-bg);
+    --bs-btn-border-color: var(--sitia-btn-danger-bg);
+    --bs-btn-hover-color: var(--sitia-white);
+    --bs-btn-hover-bg: var(--sitia-btn-danger-hover);
+    --bs-btn-hover-border-color: var(--sitia-btn-danger-active);
+    --bs-btn-active-color: var(--sitia-white);
+    --bs-btn-active-bg: var(--sitia-btn-danger-hover);
+    --bs-btn-active-border-color: var(--sitia-btn-danger-active);
+    --bs-btn-disabled-color: var(--sitia-white);
+    --bs-btn-disabled-bg: var(--sitia-btn-danger-bg);
+    --bs-btn-disabled-border-color: var(--sitia-btn-danger-bg);
     background-color: var(--sitia-btn-danger-bg);
     border-color: var(--sitia-btn-danger-bg);
     color: var(--sitia-white);
@@ -750,6 +789,18 @@ html.sidebar-collapsed .sidebar {
 
 /* Botón Info (Ver Insumos #4a9d95) */
 .btn-info {
+    --bs-btn-color: var(--sitia-white);
+    --bs-btn-bg: var(--sitia-btn-info-bg);
+    --bs-btn-border-color: var(--sitia-btn-info-bg);
+    --bs-btn-hover-color: var(--sitia-white);
+    --bs-btn-hover-bg: var(--sitia-btn-info-hover);
+    --bs-btn-hover-border-color: var(--sitia-btn-info-hover);
+    --bs-btn-active-color: var(--sitia-white);
+    --bs-btn-active-bg: var(--sitia-btn-info-hover);
+    --bs-btn-active-border-color: var(--sitia-btn-info-hover);
+    --bs-btn-disabled-color: var(--sitia-white);
+    --bs-btn-disabled-bg: var(--sitia-btn-info-bg);
+    --bs-btn-disabled-border-color: var(--sitia-btn-info-bg);
     background-color: var(--sitia-btn-info-bg) !important;
     border-color: var(--sitia-btn-info-bg) !important;
     color: var(--sitia-white) !important;
@@ -773,6 +824,18 @@ html.sidebar-collapsed .sidebar {
 
 /* Botón Warning (Ver Asignaciones #d9943f) */
 .btn-warning {
+    --bs-btn-color: var(--sitia-white);
+    --bs-btn-bg: var(--sitia-btn-warning-bg);
+    --bs-btn-border-color: var(--sitia-btn-warning-bg);
+    --bs-btn-hover-color: var(--sitia-white);
+    --bs-btn-hover-bg: var(--sitia-btn-warning-hover);
+    --bs-btn-hover-border-color: var(--sitia-btn-warning-hover);
+    --bs-btn-active-color: var(--sitia-white);
+    --bs-btn-active-bg: var(--sitia-btn-warning-hover);
+    --bs-btn-active-border-color: var(--sitia-btn-warning-hover);
+    --bs-btn-disabled-color: var(--sitia-white);
+    --bs-btn-disabled-bg: var(--sitia-btn-warning-bg);
+    --bs-btn-disabled-border-color: var(--sitia-btn-warning-bg);
     background-color: var(--sitia-btn-warning-bg) !important;
     border-color: var(--sitia-btn-warning-bg) !important;
     color: var(--sitia-white) !important;
@@ -1028,7 +1091,7 @@ table.dataTable,
     border-radius: 0.25rem !important;
     border: 1px solid var(--sitia-border) !important;
     background-color: var(--sitia-input-bg) !important;
-    color: var(--sitia-text) !important;
+    color: var(--sitia-text);
 }
 
 .card-header .dataTables_length select {
@@ -1329,7 +1392,17 @@ table.dataTable,
     z-index: var(--sitia-z-modal-confirm);
 }
 
+.modal {
+    --bs-modal-bg: var(--sitia-surface-3);
+    --bs-modal-color: var(--sitia-text);
+    --bs-modal-border-color: transparent;
+    --bs-modal-header-border-color: var(--sitia-border);
+    --bs-modal-footer-border-color: var(--sitia-border);
+}
+
 .modal-content {
+    --bs-modal-bg: var(--sitia-surface-3);
+    --bs-modal-color: var(--sitia-text);
     border-radius: 10px;
     border: none;
     background-color: var(--sitia-surface-3);
@@ -1355,7 +1428,7 @@ table.dataTable,
 /* Tooltips */
 .tooltip {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    z-index: var(--sitia-z-tooltip) !important;
+    z-index: var(--sitia-z-tooltip);
 }
 
 .tooltip .tooltip-inner {
@@ -2258,7 +2331,7 @@ table.dataTable,
     font-size: 1.25rem;
     border-bottom: 2px solid rgba(90, 147, 103, 0.2);
     padding-bottom: 6px;
-    color: var(--sitia-text) !important;
+    color: var(--sitia-text);
 }
 
 #paso1 .section-title {
@@ -2277,10 +2350,6 @@ table.dataTable,
 }
 
 /* Transición suave al cargar cualquier página */
-#content > .container-fluid {
-    animation: pageFadeIn 0.22s ease-out;
-}
-
 @keyframes pageFadeIn {
     from {
         opacity: 0;
