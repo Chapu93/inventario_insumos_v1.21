@@ -1,0 +1,182 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import pixelmatch from 'pixelmatch';
+import { PNG } from 'pngjs';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const BASELINE_DIR = process.argv[2] ? path.resolve(process.argv[2]) : path.join(__dirname, 'captures', 'baseline');
+const TARGET_DIR = process.argv[3] ? path.resolve(process.argv[3]) : path.join(__dirname, 'captures', 'current');
+const DIFF_DIR = path.join(__dirname, 'captures', 'diff');
+
+// Limpiar carpeta de diffs al inicio de la corrida
+if (fs.existsSync(DIFF_DIR)) {
+  fs.rmSync(DIFF_DIR, { recursive: true, force: true });
+}
+fs.mkdirSync(DIFF_DIR, { recursive: true });
+
+if (!fs.existsSync(BASELINE_DIR)) {
+  console.error(`\n❌ ERROR: No existe el directorio base: ${BASELINE_DIR}`);
+  process.exit(1);
+}
+if (!fs.existsSync(TARGET_DIR)) {
+  console.error(`\n❌ ERROR: No existe el directorio destino: ${TARGET_DIR}`);
+  process.exit(1);
+}
+
+const files = fs.readdirSync(BASELINE_DIR).filter(f => f.endsWith('.png'));
+console.log(`\n🔍 Comparando capturas pixel a pixel (Threshold: 0, includeAA: true):`);
+console.log(`  Base:   ${BASELINE_DIR}`);
+console.log(`  Actual: ${TARGET_DIR}\n`);
+
+// Alerta de capturas extra en la carpeta actual
+const targetFiles = fs.readdirSync(TARGET_DIR).filter(f => f.endsWith('.png'));
+const extraFiles = targetFiles.filter(f => !files.includes(f));
+if (extraFiles.length > 0) {
+  console.warn(`⚠️ [ARCHIVOS EXTRA] Existen ${extraFiles.length} capturas en ${TARGET_DIR} que no están en la línea base:`);
+  extraFiles.forEach(f => console.warn(`   + ${f}`));
+}
+
+// Comparación de metadatos (Commit y Versión de Chrome)
+const meta1Path = path.join(BASELINE_DIR, 'meta.json');
+const meta2Path = path.join(TARGET_DIR, 'meta.json');
+if (fs.existsSync(meta1Path) && fs.existsSync(meta2Path)) {
+  const m1 = JSON.parse(fs.readFileSync(meta1Path, 'utf-8'));
+  const m2 = JSON.parse(fs.readFileSync(meta2Path, 'utf-8'));
+  if (m1.chrome !== m2.chrome) {
+    console.warn(`⚠️ [CHROME MISMATCH] Línea base: ${m1.chrome} vs Corrida actual: ${m2.chrome}`);
+  }
+  if (m1.commit !== m2.commit) {
+    console.warn(`ℹ️ [GIT COMMIT] Línea base: ${m1.commit?.slice(0, 7)} -> Corrida actual: ${m2.commit?.slice(0, 7)}`);
+  }
+}
+
+let totalDiffPixels = 0;
+let hasCriticalErrors = false;
+const results = [];
+
+for (const file of files) {
+  const img1Path = path.join(BASELINE_DIR, file);
+  const img2Path = path.join(TARGET_DIR, file);
+
+  if (!fs.existsSync(img2Path)) {
+    results.push({ archivo: file, píxeles: 'N/A', diff_pct: 'N/A', estado: 'FALTA_CAPTURA' });
+    hasCriticalErrors = true;
+    continue;
+  }
+
+  const img1 = PNG.sync.read(fs.readFileSync(img1Path));
+  const img2 = PNG.sync.read(fs.readFileSync(img2Path));
+
+  // Manejo estricto de discrepancia de dimensiones sin crash
+  if (img1.width !== img2.width || img1.height !== img2.height) {
+    results.push({
+      archivo: file,
+      píxeles: 'N/A',
+      diff_pct: '100% (ERROR DIMENSIÓN)',
+      estado: 'DIMENSION_MISMATCH',
+      detalle: `Base: ${img1.width}x${img1.height}px vs Actual: ${img2.width}x${img2.height}px`
+    });
+    totalDiffPixels += (img1.width * img1.height);
+    hasCriticalErrors = true;
+    continue;
+  }
+
+  const { width, height } = img1;
+  const diff = new PNG({ width, height });
+
+  // Comparación 100% exacta con antialiasing incluido
+  const numDiffPixels = pixelmatch(img1.data, img2.data, diff.data, width, height, {
+    threshold: 0,
+    includeAA: true,
+    diffColor: [255, 0, 128] // Resaltado magenta
+  });
+
+  const totalPixels = width * height;
+  const diffPercent = ((numDiffPixels / totalPixels) * 100).toFixed(4);
+  totalDiffPixels += numDiffPixels;
+
+  if (numDiffPixels > 0) {
+    fs.writeFileSync(path.join(DIFF_DIR, file), PNG.sync.write(diff));
+  }
+
+  results.push({
+    archivo: file,
+    píxeles: numDiffPixels,
+    diff_pct: `${diffPercent}%`,
+    estado: numDiffPixels === 0 ? 'IDENTICO' : 'DIFERENCIA'
+  });
+}
+
+console.table(results);
+
+// Comparación estricta de computed-styles.json
+const styles1Path = path.join(BASELINE_DIR, 'computed-styles.json');
+const styles2Path = path.join(TARGET_DIR, 'computed-styles.json');
+const styleDiffs = [];
+
+if (fs.existsSync(styles1Path) && fs.existsSync(styles2Path)) {
+  const s1 = JSON.parse(fs.readFileSync(styles1Path, 'utf-8'));
+  const s2 = JSON.parse(fs.readFileSync(styles2Path, 'utf-8'));
+
+  // Detectar páginas o selectores ausentes o alterados
+  for (const pageKey of Object.keys(s1)) {
+    if (!s2[pageKey]) {
+      styleDiffs.push({ página: pageKey, selector: '*', propiedad: 'PAGE_MISSING', base: 'PRESENTE', actual: 'AUSENTE' });
+      continue;
+    }
+    for (const sel of Object.keys(s1[pageKey])) {
+      if (!s2[pageKey][sel]) {
+        styleDiffs.push({ página: pageKey, selector: sel, propiedad: 'SELECTOR_MISSING', base: 'PRESENTE', actual: 'AUSENTE' });
+        continue;
+      }
+      const p1 = s1[pageKey][sel];
+      const p2 = s2[pageKey][sel];
+      for (const prop of Object.keys(p1)) {
+        if (p1[prop] !== p2[prop]) {
+          styleDiffs.push({
+            página: pageKey,
+            selector: sel,
+            propiedad: prop,
+            base: p1[prop],
+            actual: p2[prop]
+          });
+        }
+      }
+    }
+  }
+
+  // Detectar selectores nuevos en la corrida actual que no estaban en la base
+  for (const pageKey of Object.keys(s2)) {
+    if (!s1[pageKey]) continue;
+    for (const sel of Object.keys(s2[pageKey])) {
+      if (!s1[pageKey][sel]) {
+        styleDiffs.push({ página: pageKey, selector: sel, propiedad: 'SELECTOR_EXTRA', base: 'AUSENTE', actual: 'PRESENTE' });
+      }
+    }
+  }
+}
+
+if (styleDiffs.length > 0) {
+  console.log('\n⚠️ [COMPUTED STYLES DIFF] Discrepancias en propiedades calculadas:');
+  console.table(styleDiffs);
+  fs.writeFileSync(path.join(DIFF_DIR, 'computed-styles-diff.json'), JSON.stringify(styleDiffs, null, 2));
+} else {
+  console.log('\n✅ [COMPUTED STYLES] Estilos calculados 100% idénticos.');
+}
+
+const summaryPath = path.join(DIFF_DIR, 'summary.json');
+fs.writeFileSync(summaryPath, JSON.stringify({ results, styleDiffs }, null, 2));
+
+console.log(`\n📊 Resumen de Comparación:`);
+console.log(`- Total de capturas evaluadas: ${files.length}`);
+console.log(`- Píxeles totales distintos: ${totalDiffPixels}`);
+console.log(`- Reporte detallado guardado en: ${summaryPath}`);
+
+if (totalDiffPixels === 0 && !hasCriticalErrors && styleDiffs.length === 0) {
+  console.log('\n🎉 VALIDACIÓN EXITOSA: Determinismo / Identidad total (0 píxeles de diferencia).');
+  process.exit(0);
+} else {
+  console.log(`\n❌ SE DETECTARON DISCREPANCIAS. Revisar imágenes marcadas en ${DIFF_DIR}`);
+  process.exit(1);
+}

@@ -1,0 +1,7 @@
+# Denegar acceso salvo peticiones locales (Apache 2.4)
+Require local
+
+# Bloquear archivo .env incluso desde localhost
+<FilesMatch "^\.env">
+    Require all denied
+</FilesMatch>

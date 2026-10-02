@@ -12,3 +12,10 @@ scratch/
 # Logs del sistema
 logs/*.log
 .aider*
+
+# Visual Regression Testing (SITIA)
+tools/visual-tests/node_modules/
+tools/visual-tests/captures/
+tools/.env
+tools/visual-tests/.env
+tools/visual-tests/*.tar.gz

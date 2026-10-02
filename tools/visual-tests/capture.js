@@ -1,0 +1,520 @@
+import puppeteer from 'puppeteer-core';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { execSync } from 'child_process';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// 1. Parser de argumentos con nombre (--mode <val>, --only <id>, --current)
+function parseArgs() {
+  const args = process.argv.slice(2);
+  const result = { mode: 'baseline', only: null };
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--mode' && i + 1 < args.length) {
+      result.mode = args[++i];
+    } else if (args[i].startsWith('--mode=')) {
+      result.mode = args[i].split('=')[1];
+    } else if (args[i] === '--current') {
+      result.mode = 'current';
+    } else if (args[i] === '--only' && i + 1 < args.length) {
+      result.only = args[++i];
+    } else if (args[i].startsWith('--only=')) {
+      result.only = args[i].split('=')[1];
+    }
+  }
+  return result;
+}
+
+const parsedArgs = parseArgs();
+const MODE = parsedArgs.mode;
+const ONLY_ID = parsedArgs.only;
+const OUTPUT_DIR = path.join(__dirname, 'captures', MODE);
+
+// 2. Parser seguro de .env (soporta valores con "=")
+function loadEnv(filePath) {
+  if (!fs.existsSync(filePath)) return {};
+  const lines = fs.readFileSync(filePath, 'utf-8').split('\n');
+  const env = {};
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const idx = trimmed.indexOf('=');
+    if (idx === -1) continue;
+    const key = trimmed.slice(0, idx).trim();
+    let val = trimmed.slice(idx + 1).trim();
+    if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+      val = val.slice(1, -1);
+    }
+    env[key] = val;
+  }
+  return env;
+}
+
+const fileEnv = Object.assign(
+  {},
+  loadEnv(path.join(__dirname, '../.env')),
+  loadEnv(path.join(__dirname, '.env'))
+);
+const BASE_URL = process.env.BASE_URL || fileEnv.BASE_URL || 'http://localhost/inventario_app';
+const USER = process.env.SITIA_TEST_USER || fileEnv.SITIA_TEST_USER;
+const PASS = process.env.SITIA_TEST_PASS || fileEnv.SITIA_TEST_PASS;
+
+if (!USER || !PASS) {
+  console.error('\n❌ ERROR CRÍTICO: Falta configurar credenciales de prueba.');
+  console.error('Debes definir SITIA_TEST_USER y SITIA_TEST_PASS en el entorno o en tools/.env / tools/visual-tests/.env\n');
+  process.exit(1);
+}
+
+// 3. Conteo de filas de base de datos para verificación de integridad
+function getDbCounts() {
+  const phpBin = '/opt/lampp/bin/php';
+  const phpCode = 'define("APP_INIT", true); require "includes/config.php"; $db = conectarDB(); echo json_encode(["sesiones" => (int)$db->query("SELECT count(*) FROM sesiones")->fetchColumn(), "auditoria" => (int)$db->query("SELECT count(*) FROM auditoria_acciones")->fetchColumn()]);';
+  const cmd = `${phpBin} -d display_errors=0 -r '${phpCode}'`;
+  try {
+    const out = execSync(cmd, { cwd: path.join(__dirname, '../..'), encoding: 'utf-8' });
+    const parsed = JSON.parse(out.trim());
+    if (typeof parsed.sesiones !== 'number' || typeof parsed.auditoria !== 'number') {
+      throw new Error(`Respuesta inválida: ${out}`);
+    }
+    return parsed;
+  } catch (e) {
+    console.error(`\n❌ ERROR al consultar conteo de BD: ${e.message}`);
+    throw e;
+  }
+}
+
+// 4. Validación de Git limpio en modo baseline (nunca en smoke ni pruebas)
+let currentCommit = 'unknown';
+try {
+  currentCommit = execSync('git rev-parse HEAD', { cwd: path.join(__dirname, '../..'), encoding: 'utf-8' }).trim();
+} catch (e) {}
+
+if (MODE.startsWith('baseline')) {
+  try {
+    const gitStatus = execSync('git status --porcelain', { cwd: path.join(__dirname, '../..'), encoding: 'utf-8' }).trim();
+    const dirty = gitStatus.split('\n').filter(l => l && !l.includes('tools/visual-tests') && !l.includes('refactor-css.md') && !l.includes('.gitignore'));
+    if (dirty.length > 0) {
+      console.error('\n❌ ERROR: Git tiene archivos modificados pendientes. La línea base requiere git limpio:');
+      dirty.forEach(l => console.error(`   ${l}`));
+      process.exit(1);
+    }
+  } catch (e) {
+    console.error('Error al verificar estado de Git:', e.message);
+  }
+}
+
+const VIEWPORTS = [
+  { name: 'desktop', width: 1440, height: 900 },
+  { name: 'tablet',  width: 768,  height: 1024 },
+  { name: 'mobile',  width: 375,  height: 812 }
+];
+
+const THEMES = ['light', 'dark'];
+
+// 12 Pantallas fijas con selectores esperados verificados
+const ALL_URLS = [
+  { id: '01_dashboard', path: '/pages/dashboard.php', expectedSelector: '#content, .dashboard-card' },
+  { id: '02_insumos_list', path: '/pages/insumos/listar.php', hasDataTable: true, expectedSelector: 'table.dataTable, .dataTables_wrapper' },
+  { id: '03_insumo_ver', path: '/pages/insumos/ver.php?id=3', expectedSelector: '.card, .badge.estado-disponible' },
+  { id: '04_insumo_agregar', path: '/pages/insumos/agregar_nueva.php', expectedSelector: '.stepper, form' },
+  { id: '05_pedidos_list', path: '/pages/pedidos/listar.php', hasDataTable: true, expectedSelector: 'table.dataTable, .dataTables_wrapper' },
+  { id: '06_asignaciones_list', path: '/pages/asignaciones/listar.php', hasDataTable: true, expectedSelector: 'table.dataTable, .dataTables_wrapper' },
+  { id: '07_telecom_telefonia', path: '/pages/admin/telecom_telefonia.php', hasDataTable: true, expectedSelector: 'table.dataTable, .dataTables_wrapper' },
+  { id: '08_telecom_resumen', path: '/pages/admin/telecom_resumen.php', expectedSelector: 'canvas#chartTiposConexion, .card' },
+  { id: '09_admin_usuarios', path: '/pages/admin/usuarios/listar.php', hasDataTable: true, expectedSelector: '#tablaUsuarios, .dataTables_wrapper' },
+  { id: '10_auditoria', path: '/pages/admin/auditoria.php', hasDataTable: true, expectedSelector: '#tablaAuditoria, .dataTables_wrapper' },
+  { id: '11_movimientos', path: '/pages/insumos/movimientos.php', hasDataTable: true, expectedSelector: 'table.dataTable, .dataTables_wrapper' },
+  { id: '12_gallery', path: '/tools/visual-tests/component-gallery.php', expectedSelector: '#gallery_select2, .stepper' }
+];
+
+// Filtrado por --only si se especificó
+const URLS = ONLY_ID ? ALL_URLS.filter(u => u.id === ONLY_ID || u.id.startsWith(ONLY_ID)) : ALL_URLS;
+if (ONLY_ID && URLS.length === 0) {
+  console.error(`\n❌ ERROR: No se encontró URL con ID "${ONLY_ID}". Disponibles: ${ALL_URLS.map(u => u.id).join(', ')}`);
+  process.exit(1);
+}
+
+async function run() {
+  console.log(`\n🚀 Iniciando runner de capturas en modo: "${MODE}" ${ONLY_ID ? `(Solo pantalla: ${ONLY_ID})` : ''}`);
+
+  // Registro de conteos antes de iniciar
+  const countsBefore = getDbCounts();
+  console.log(`[DB ANTES] Sesiones: ${countsBefore.sesiones} | Auditoría: ${countsBefore.auditoria}`);
+
+  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+
+  // Limpiar capturas viejas de OUTPUT_DIR
+  fs.readdirSync(OUTPUT_DIR).forEach(f => {
+    if (f.endsWith('.png') || f === 'computed-styles.json' || f === 'meta.json') {
+      fs.unlinkSync(path.join(OUTPUT_DIR, f));
+    }
+  });
+
+  const stylesPath = path.join(OUTPUT_DIR, 'computed-styles.json');
+  const computedStylesDump = {};
+
+  let browser = null;
+
+  try {
+    browser = await puppeteer.launch({
+      executablePath: '/usr/bin/google-chrome',
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu']
+    });
+
+    const chromeVersion = await browser.version();
+
+    // Guardar metadata de la corrida
+    const meta = {
+      mode: MODE,
+      commit: currentCommit,
+      fecha: new Date().toISOString(),
+      chrome: chromeVersion,
+      node: process.version,
+      usuario_prueba: USER,
+      pantalla_unica: ONLY_ID
+    };
+    fs.writeFileSync(path.join(OUTPUT_DIR, 'meta.json'), JSON.stringify(meta, null, 2));
+
+    const page = await browser.newPage();
+
+    // Registro de fallos de recursos sin lanzar excepciones en el listener
+    const failedResources = [];
+    page.on('response', res => {
+      const status = res.status();
+      const url = res.url();
+      if (url.includes('favicon') || url.endsWith('.map') || url.endsWith('.woff') || url.endsWith('.woff2') || url.endsWith('.ttf')) {
+        return;
+      }
+      if (status >= 400 && (url.endsWith('.css') || url.endsWith('.js') || url.includes('/public/'))) {
+        failedResources.push({ url, status });
+      }
+    });
+
+    page.on('pageerror', err => {
+      console.error(`[PAGE JS ERROR] ${err.message}`);
+    });
+
+    // Inyección global al inicio de cada documento
+    await page.evaluateOnNewDocument(() => {
+      // 1. Desactivar animaciones de Chart.js
+      let _chart = undefined;
+      Object.defineProperty(window, 'Chart', {
+        configurable: true,
+        enumerable: true,
+        get() { return _chart; },
+        set(cls) {
+          if (cls && cls.defaults) {
+            cls.defaults.animation = false;
+          }
+          _chart = cls;
+        }
+      });
+
+      // 2. CSS Anti-animación
+      function injectAntiAnim() {
+        try {
+          if (!document.getElementById('anti-animation-override')) {
+            const style = document.createElement('style');
+            style.id = 'anti-animation-override';
+            style.textContent = `
+              *, *::before, *::after {
+                transition: none !important;
+                animation: none !important;
+                caret-color: transparent !important;
+              }
+            `;
+            (document.head || document.documentElement).appendChild(style);
+          }
+        } catch (e) {}
+      }
+
+      injectAntiAnim();
+      document.addEventListener('DOMContentLoaded', injectAntiAnim);
+    });
+
+    // Login de solo lectura (único POST permitido)
+    console.log(`[AUTH] Iniciando sesión en ${BASE_URL} con usuario "${USER}"...`);
+    const loginRes = await page.goto(`${BASE_URL}/login.php`, { waitUntil: 'networkidle0' });
+    if (loginRes.status() !== 200) {
+      throw new Error(`[AUTH ERROR] login.php respondió con código HTTP ${loginRes.status()}`);
+    }
+    await page.type('input[name="username"]', USER);
+    await page.type('input[name="password"]', PASS);
+    await Promise.all([
+      page.click('button[type="submit"]'),
+      page.waitForNavigation({ waitUntil: 'networkidle0' })
+    ]);
+
+    if (page.url().includes('login.php')) {
+      throw new Error('[AUTH ERROR] Falló el login: la URL sigue siendo login.php. Verificá credenciales.');
+    }
+    console.log('[AUTH] Sesión autenticada.');
+
+    // Bucle de Capturas de Pantallas
+    for (const item of URLS) {
+      for (const theme of THEMES) {
+        for (const vp of VIEWPORTS) {
+          await page.setViewport({ width: vp.width, height: vp.height, deviceScaleFactor: 1 });
+          const targetUrl = `${BASE_URL}${item.path}`;
+
+          // Seteo explícito de tema en localStorage
+          await page.evaluate((t) => {
+            localStorage.setItem('sitia_tema', t);
+          }, theme);
+
+          const response = await page.goto(targetUrl, { waitUntil: 'networkidle0' });
+
+          // Verificación de recursos fallidos en el flujo principal
+          if (failedResources.length > 0) {
+            const errs = failedResources.map(r => `${r.url} (HTTP ${r.status})`).join(', ');
+            failedResources.length = 0;
+            throw new Error(`[RESOURCE ERROR] Fallaron recursos críticos en ${targetUrl}: ${errs}`);
+          }
+
+          if (response.status() !== 200) {
+            throw new Error(`[HTTP ERROR] ${targetUrl} respondió con código HTTP ${response.status()}`);
+          }
+          if (page.url().includes('login.php')) {
+            throw new Error(`[AUTH ERROR] Redirigido a login.php al acceder a ${targetUrl}. Sesión perdida.`);
+          }
+
+          const html = await page.content();
+          for (const errText of ['Fatal error:', 'Warning:', 'Notice:', 'Deprecated:', 'Parse error:']) {
+            if (html.includes(errText)) {
+              throw new Error(`[PHP ERROR DETECTED] Se detectó "${errText}" en ${targetUrl}`);
+            }
+          }
+
+          const hasSelector = await page.$(item.expectedSelector);
+          if (!hasSelector) {
+            throw new Error(`[DOM ERROR] No se encontró el selector esperado "${item.expectedSelector}" en ${targetUrl}`);
+          }
+
+          // Verificación de inyección de estilos anti-animación
+          const hasAntiAnim = await page.evaluate(() => !!document.getElementById('anti-animation-override'));
+          if (!hasAntiAnim) {
+            throw new Error(`[ANTI-ANIMATION ERROR] No se aplicó el estilo anti-animación en ${targetUrl}`);
+          }
+
+          await page.evaluateHandle('document.fonts.ready');
+
+          // Verificación estricta de tema aplicado
+          const appliedTheme = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
+          if (appliedTheme !== theme) {
+            throw new Error(`[THEME MISMATCH] En ${targetUrl}: se esperaba "${theme}" pero tiene "${appliedTheme}"`);
+          }
+
+          // Enmascaramiento de tabla de auditoría para determinismo
+          if (item.id === '10_auditoria') {
+            await page.addStyleTag({
+              content: `
+                #tablaAuditoria tbody { visibility: hidden !important; }
+                .dataTables_info, .dataTables_paginate { visibility: hidden !important; }
+              `
+            });
+          }
+
+          // Espera DataTables si aplica
+          if (item.hasDataTable) {
+            try {
+              await page.waitForFunction(() => {
+                const proc = document.querySelector('.dataTables_processing, .dt-processing');
+                return !proc || proc.style.display === 'none' || window.getComputedStyle(proc).display === 'none';
+              }, { timeout: 6000 });
+              await page.waitForSelector('table.dataTable tbody tr, table.datatable tbody tr', { timeout: 4000 });
+            } catch (e) {
+              console.warn(`[DATATABLES TIMEOUT] Advertencia: timeout o tabla vacía en ${targetUrl}`);
+            }
+          }
+
+          // Enmascaramiento de Último Acceso en usuarios/listar.php con JS tras render de DataTables
+          if (item.id === '09_admin_usuarios') {
+            await page.evaluate(() => {
+              document.querySelectorAll('#tablaUsuarios tbody tr td:nth-child(5)').forEach(td => {
+                td.textContent = '01/01/2026 00:00';
+              });
+            });
+          }
+
+          // Verificación de dibujo en canvas de Chart.js
+          if (item.id === '08_telecom_resumen') {
+            const canvasHasDrawnContent = await page.evaluate(() => {
+              const c = document.querySelector('canvas#chartTiposConexion');
+              if (!c) return false;
+              const ctx = c.getContext('2d');
+              const data = ctx.getImageData(0, 0, c.width, c.height).data;
+              for (let i = 3; i < data.length; i += 4) {
+                if (data[i] > 0) return true;
+              }
+              return false;
+            });
+            if (!canvasHasDrawnContent) {
+              throw new Error(`[CANVAS ERROR] El canvas #chartTiposConexion está completamente vacío en ${targetUrl}`);
+            }
+          }
+
+          const fileName = `${item.id}_${theme}_${vp.name}.png`;
+          const filePath = path.join(OUTPUT_DIR, fileName);
+          await page.screenshot({ path: filePath, fullPage: true });
+          console.log(`[CAPTURA] Guardada: ${fileName}`);
+
+          // Volcado incremental de estilos computados (en desktop)
+          if (vp.name === 'desktop') {
+            const styles = await page.evaluate(() => {
+              const selectors = ['.btn-primary', '.btn-secondary', '.card-header', '.table thead th', '.sidebar', '.form-control', '.badge.bg-success'];
+              const dump = {};
+              selectors.forEach(s => {
+                const el = document.querySelector(s);
+                if (el) {
+                  const cs = window.getComputedStyle(el);
+                  dump[s] = {
+                    color: cs.color,
+                    backgroundColor: cs.backgroundColor,
+                    borderColor: cs.borderColor,
+                    fontSize: cs.fontSize,
+                    padding: cs.padding,
+                    borderRadius: cs.borderRadius,
+                    boxShadow: cs.boxShadow
+                  };
+                }
+              });
+              return dump;
+            });
+            computedStylesDump[`${item.id}_${theme}`] = styles;
+            fs.writeFileSync(stylesPath, JSON.stringify(computedStylesDump, null, 2));
+          }
+        }
+      }
+    }
+
+    // -------------------------------------------------------------
+    // CAPTURA DE ESTADOS DE INTERACCIÓN EN AMBOS TEMAS (solo en corrida completa)
+    // -------------------------------------------------------------
+    if (!ONLY_ID) {
+      console.log('\n[INTERACCIÓN] Capturando estados dinámicos en Modo Claro y Oscuro...');
+
+      for (const theme of THEMES) {
+        const gotoWithTheme = async (relPath, vpWidth = 1440, vpHeight = 900) => {
+          await page.setViewport({ width: vpWidth, height: vpHeight, deviceScaleFactor: 1 });
+          await page.evaluate((t) => localStorage.setItem('sitia_tema', t), theme);
+          const res = await page.goto(`${BASE_URL}${relPath}`, { waitUntil: 'networkidle0' });
+          if (res.status() !== 200) throw new Error(`Fallo HTTP ${res.status()} en ${relPath}`);
+          const tApplied = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
+          if (tApplied !== theme) throw new Error(`THEME MISMATCH en estado (${relPath})`);
+        };
+
+        // 1. Sidebar colapsado en Desktop (1440x900)
+        await gotoWithTheme('/pages/dashboard.php');
+        await page.evaluate(() => document.documentElement.classList.add('sidebar-collapsed'));
+        await page.screenshot({ path: path.join(OUTPUT_DIR, `state_sidebar_desktop_collapsed_${theme}.png`), fullPage: false });
+
+        // 2. Sidebar en Tablet (768x1024)
+        await gotoWithTheme('/pages/dashboard.php', 768, 1024);
+        await page.screenshot({ path: path.join(OUTPUT_DIR, `state_sidebar_tablet_${theme}.png`), fullPage: false });
+
+        // 3. Drawer móvil abierto (375x812) - Falla si no existe toggle
+        await gotoWithTheme('/pages/dashboard.php', 375, 812);
+        const toggleBtn = await page.$('#btnToggleSidebar');
+        if (!toggleBtn) {
+          throw new Error('[SIDEBAR TOGGLE ERROR] No se encontró el botón #btnToggleSidebar en navbar.');
+        }
+        await toggleBtn.click();
+        await page.waitForFunction(() => {
+          const sb = document.querySelector('.sidebar');
+          if (!sb) return false;
+          const rect = sb.getBoundingClientRect();
+          return rect.left >= 0 && rect.width > 0;
+        }, { timeout: 3000 });
+        await page.screenshot({ path: path.join(OUTPUT_DIR, `state_sidebar_mobile_open_${theme}.png`), fullPage: false });
+
+        // 4. Modal Visor PDF abierto (en pedidos con tabla renderizada al fondo)
+        await gotoWithTheme('/pages/pedidos/listar.php');
+        await page.waitForSelector('table.dataTable tbody tr, table.datatable tbody tr', { timeout: 6000 });
+        await page.evaluate(() => {
+          const m = bootstrap.Modal.getOrCreateInstance(document.querySelector('#modalVisorPDF'));
+          m.show();
+        });
+        await page.waitForSelector('#modalVisorPDF.show', { timeout: 3000 });
+        await page.screenshot({ path: path.join(OUTPUT_DIR, `state_modal_pdf_${theme}.png`), fullPage: false });
+
+        // 5. Modal Confirmación abierto (en pedidos con tabla de fondo)
+        await gotoWithTheme('/pages/pedidos/listar.php');
+        await page.waitForSelector('table.dataTable tbody tr, table.datatable tbody tr', { timeout: 6000 });
+        await page.evaluate(() => {
+          const m = bootstrap.Modal.getOrCreateInstance(document.querySelector('#modalConfirmacionSITIA'));
+          m.show();
+        });
+        await page.waitForSelector('#modalConfirmacionSITIA.show', { timeout: 3000 });
+        await page.screenshot({ path: path.join(OUTPUT_DIR, `state_modal_confirmacion_${theme}.png`), fullPage: false });
+
+        // 6. Select2 desplegado con scrollIntoView (en galería)
+        await gotoWithTheme('/tools/visual-tests/component-gallery.php');
+        await page.evaluate(() => {
+          const sel = document.querySelector('#gallery_select2');
+          sel.scrollIntoView({ block: 'center' });
+          $('#gallery_select2').select2('open');
+        });
+        await page.waitForSelector('.select2-container--open', { timeout: 3000 });
+        await page.screenshot({ path: path.join(OUTPUT_DIR, `state_select2_open_${theme}.png`), fullPage: false });
+
+        // 7. Tooltip abierto con scrollIntoView (en galería)
+        await gotoWithTheme('/tools/visual-tests/component-gallery.php');
+        await page.evaluate(() => {
+          const el = document.querySelector('#tooltip_target');
+          el.scrollIntoView({ block: 'center' });
+          const tip = bootstrap.Tooltip.getOrCreateInstance(el);
+          tip.show();
+        });
+        await page.waitForSelector('.tooltip.show', { timeout: 3000 });
+        await page.screenshot({ path: path.join(OUTPUT_DIR, `state_tooltip_${theme}.png`), fullPage: false });
+
+        // 8. Hover en botón (moviendo mouse antes)
+        await gotoWithTheme('/tools/visual-tests/component-gallery.php');
+        await page.evaluate(() => document.querySelector('#test_btn_primary').scrollIntoView({ block: 'center' }));
+        await page.mouse.move(0, 0);
+        await page.hover('#test_btn_primary');
+        await page.screenshot({ path: path.join(OUTPUT_DIR, `state_button_hover_${theme}.png`), fullPage: false });
+
+        // 9. Focus con Tab real activando :focus-visible
+        await page.mouse.move(0, 0);
+        await page.focus('#test_focus_trigger');
+        await page.keyboard.press('Tab'); // Salta a #test_btn_outline
+        const isFocusVisible = await page.evaluate(() => {
+          const el = document.querySelector('#test_btn_outline');
+          return el && el === document.activeElement && el.matches(':focus-visible');
+        });
+        if (!isFocusVisible) {
+          console.warn(`[FOCUS ADVERTENCIA] :focus-visible no alteró propiedades medibles en #test_btn_outline (${theme})`);
+        }
+        await page.screenshot({ path: path.join(OUTPUT_DIR, `state_button_focus_${theme}.png`), fullPage: false });
+      }
+    }
+
+  } finally {
+    if (browser) {
+      await browser.close();
+      console.log('[BROWSER] Instancia de Chrome cerrada limpiamente.');
+    }
+  }
+
+  // Verificación de integridad en la base de datos (+1 en sesiones y auditoría)
+  const countsAfter = getDbCounts();
+  const diffSesiones = countsAfter.sesiones - countsBefore.sesiones;
+  const diffAuditoria = countsAfter.auditoria - countsBefore.auditoria;
+
+  console.log(`\n[DB DESPUÉS] Sesiones: ${countsAfter.sesiones} | Auditoría: ${countsAfter.auditoria}`);
+  console.log(`[DB DELTA] Sesiones: +${diffSesiones} | Auditoría: +${diffAuditoria}`);
+
+  if (diffSesiones !== 1 || diffAuditoria !== 1) {
+    throw new Error(`[DB INTEGRITY ERROR] Se esperaba exactamente delta +1/+1 pero se registró: Sesiones +${diffSesiones}, Auditoría +${diffAuditoria}`);
+  }
+
+  console.log(`\n✅ Proceso completado exitosamente en modo: "${MODE}"`);
+}
+
+run().catch(err => {
+  console.error('\n❌ [ERROR FATAL]', err.message);
+  process.exit(1);
+});
