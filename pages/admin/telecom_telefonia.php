@@ -68,7 +68,7 @@ if ($filtro_estado) {
     $params[] = $filtro_estado;
 }
 
-$sql .= " ORDER BY l.nombre_localidad, s.nombre_sede, t.tipo_linea";
+$sql .= " ORDER BY l.nombre_localidad, s.nombre_sede, t.tipo_linea, t.id_linea ASC";
 
 $stmt = $db->prepare($sql);
 $stmt->execute($params);

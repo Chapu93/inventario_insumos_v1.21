@@ -196,7 +196,7 @@ try {
                 $finalJoins
                 $whereSql
                 $groupBy
-                ORDER BY $orderBy $orderDir
+                ORDER BY $orderBy $orderDir, i.id_insumo ASC
                 LIMIT $start, $length";
     $stmt = $db->prepare($dataSql);
     $stmt->execute($params);

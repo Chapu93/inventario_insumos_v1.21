@@ -75,7 +75,7 @@ $sqlHist = "
     LEFT JOIN sedes s ON r.id_sede = s.id_sede
     LEFT JOIN areas a ON r.id_area = a.id_area
     WHERE d.id_insumo = ?
-    ORDER BY r.fecha_asignacion DESC
+    ORDER BY r.fecha_asignacion DESC, r.id_remito DESC
 ";
 $st = $db->prepare($sqlHist);
 $st->execute([$id]);
@@ -343,7 +343,7 @@ include '../../includes/header.php';
                                          JOIN zonas z ON l.id_zona = z.id_zona
                                          LEFT JOIN areas ar ON r.id_area = ar.id_area
                                          WHERE d.id_insumo = ? AND r.estado = 'Activa' AND d.cantidad_devuelta < d.cantidad
-                                         ORDER BY r.fecha_asignacion DESC");
+                                         ORDER BY r.fecha_asignacion DESC, r.id_remito DESC");
                 $stmtAct->execute([$id]);
                 $remActivas = $stmtAct->fetchAll();
                 if (!empty($remActivas)): ?>
