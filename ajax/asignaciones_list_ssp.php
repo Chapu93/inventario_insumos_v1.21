@@ -108,17 +108,20 @@ try {
                  $whereSql
                  GROUP BY r.id_remito";
 
-    // Total filtrado
-    $countSql = "SELECT COUNT(*) FROM ( $sqlGroup ) t";
-    $stmt = $db->prepare($countSql);
-    $stmt->execute($params);
-    $filtered = (int)$stmt->fetchColumn();
-
     // Estado HAVING
     $having = '';
     $extParams = $params;
     if ($filtro_estado === 'Activa') { $having = ' HAVING activas > 0'; }
     if ($filtro_estado === 'Devuelta') { $having = ' HAVING activas = 0'; }
+
+    // Total filtrado (debe incluir el HAVING para que la paginación sea exacta)
+    $countSql = "SELECT COUNT(*) FROM ( $sqlGroup $having ) t";
+    $stmt = $db->prepare($countSql);
+    $stmt->execute($extParams);
+    $filtered = (int)$stmt->fetchColumn();
+    if ($filtered > $total) {
+        $total = $filtered;
+    }
 
     // Page data
     // Orden por fecha más reciente como primario; agrega desempate por id_remito DESC
