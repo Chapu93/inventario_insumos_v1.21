@@ -473,7 +473,7 @@ async function run() {
         await page.waitForSelector('#modalConfirmacionSITIA.show', { timeout: 3000 });
         await page.screenshot({ path: path.join(OUTPUT_DIR, `state_modal_confirmacion_${theme}.png`), fullPage: false });
 
-        // 6. Select2 desplegado con scrollIntoView determinista (en galería)
+        // 6. Select2 desplegado con scroll determinista (en galería)
         await gotoWithTheme('/tools/visual-tests/component-gallery.php');
         await page.waitForSelector('.select2-container', { timeout: 4000 });
         await page.evaluate(() => {
@@ -487,17 +487,29 @@ async function run() {
           const d = document.querySelector('.select2-dropdown');
           return d && window.getComputedStyle(d).display !== 'none';
         }, { timeout: 3000 });
+        await page.evaluate(() => {
+          const inp = document.querySelector('.select2-search__field');
+          if (inp) {
+            inp.style.caretColor = 'transparent';
+            inp.style.transition = 'none';
+            inp.style.animation = 'none';
+          }
+        });
+        await new Promise(r => setTimeout(r, 200));
         await page.screenshot({ path: path.join(OUTPUT_DIR, `state_select2_open_${theme}.png`), fullPage: false });
 
-        // 7. Tooltip abierto con scrollIntoView (en galería)
+        // 7. Tooltip abierto con scroll determinista (en galería)
         await gotoWithTheme('/tools/visual-tests/component-gallery.php');
+        await page.waitForSelector('#tooltip_target', { timeout: 4000 });
         await page.evaluate(() => {
+          window.scrollTo(0, 0);
           const el = document.querySelector('#tooltip_target');
-          el.scrollIntoView({ block: 'center' });
+          el.scrollIntoView({ block: 'center', behavior: 'instant' });
           const tip = bootstrap.Tooltip.getOrCreateInstance(el);
           tip.show();
         });
         await page.waitForSelector('.tooltip.show', { timeout: 3000 });
+        await new Promise(r => setTimeout(r, 200));
         await page.screenshot({ path: path.join(OUTPUT_DIR, `state_tooltip_${theme}.png`), fullPage: false });
 
         // 8. Hover en botón (moviendo mouse antes)
