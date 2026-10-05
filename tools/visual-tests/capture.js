@@ -29,7 +29,21 @@ function parseArgs() {
 const parsedArgs = parseArgs();
 const MODE = parsedArgs.mode;
 const ONLY_ID = parsedArgs.only;
-const OUTPUT_DIR = path.join(__dirname, 'captures', MODE);
+
+// Cargar CSS original de git 502cad9 si estamos en modo A/B
+let originalCssContent = '';
+if (MODE === 'ab') {
+  try {
+    originalCssContent = execSync('git show 502cad9:public/css/style.css', {
+      cwd: path.join(__dirname, '../..'),
+      encoding: 'utf-8'
+    });
+    console.log(`[A/B] CSS original cargado desde git 502cad9:public/css/style.css (${originalCssContent.length} bytes).`);
+  } catch (e) {
+    console.error('❌ Error al obtener CSS original de git:', e.message);
+    process.exit(1);
+  }
+}
 
 // 2. Parser seguro de .env (soporta valores con "=")
 function loadEnv(filePath) {
@@ -142,17 +156,14 @@ async function run() {
   const countsBefore = getDbCounts();
   console.log(`[DB ANTES] Sesiones: ${countsBefore.sesiones} | Auditoría: ${countsBefore.auditoria}`);
 
-  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
-
-  // Limpiar capturas viejas de OUTPUT_DIR
-  fs.readdirSync(OUTPUT_DIR).forEach(f => {
-    if (f.endsWith('.png') || f === 'computed-styles.json' || f === 'meta.json') {
-      fs.unlinkSync(path.join(OUTPUT_DIR, f));
-    }
-  });
-
-  const stylesPath = path.join(OUTPUT_DIR, 'computed-styles.json');
-  const computedStylesDump = {};
+  const passes = (MODE === 'ab')
+    ? [
+        { id: 'ab_base', original: true, label: 'Pasada A (CSS Original git 502cad9)' },
+        { id: 'ab_current', original: false, label: 'Pasada B (CSS Modular Actual)' }
+      ]
+    : [
+        { id: MODE, original: false, label: `Modo ${MODE}` }
+      ];
 
   let browser = null;
 
@@ -164,25 +175,47 @@ async function run() {
     });
 
     const chromeVersion = await browser.version();
-
-    // Guardar metadata de la corrida
-    const meta = {
-      mode: MODE,
-      commit: currentCommit,
-      fecha: new Date().toISOString(),
-      chrome: chromeVersion,
-      node: process.version,
-      usuario_prueba: USER,
-      pantalla_unica: ONLY_ID
-    };
-    fs.writeFileSync(path.join(OUTPUT_DIR, 'meta.json'), JSON.stringify(meta, null, 2));
-
     const page = await browser.newPage();
+    await page.setCacheEnabled(false);
 
-    // Intercepción de red para auditoría determinista
+    let serveOriginalCss = false;
+
+    // Intercepción de red para modo A/B y auditoría determinista
     await page.setRequestInterception(true);
     page.on('request', req => {
-      if (req.url().includes('auditoria_list_ssp.php')) {
+      const url = req.url();
+
+      if (serveOriginalCss && url.includes('/public/css/')) {
+        const match = url.match(/\/public\/css\/([0-9]{2}-[^?#]+)/);
+        if (match) {
+          const filename = match[1];
+          if (filename.startsWith('00-tokens')) {
+            req.respond({
+              status: 200,
+              contentType: 'text/css',
+              headers: {
+                'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+                'Pragma': 'no-cache'
+              },
+              body: originalCssContent
+            });
+            return;
+          } else {
+            req.respond({
+              status: 200,
+              contentType: 'text/css',
+              headers: {
+                'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+                'Pragma': 'no-cache'
+              },
+              body: ''
+            });
+            return;
+          }
+        }
+      }
+
+      if (url.includes('auditoria_list_ssp.php')) {
         const dummyData = [];
         for (let i = 0; i < 25; i++) {
           dummyData.push([
@@ -284,255 +317,310 @@ async function run() {
     }
     console.log('[AUTH] Sesión autenticada.');
 
-    // Bucle de Capturas de Pantallas
-    for (const item of URLS) {
-      for (const theme of THEMES) {
-        for (const vp of VIEWPORTS) {
-          await page.setViewport({ width: vp.width, height: vp.height, deviceScaleFactor: 1 });
-          const targetUrl = `${BASE_URL}${item.path}`;
+    // Bucle de pasadas (1 pasada en modo normal, 2 pasadas en modo A/B)
+    for (const currentPass of passes) {
+      console.log(`\n=============================================================`);
+      console.log(`🎬 Ejecutando: ${currentPass.label} -> captures/${currentPass.id}`);
+      console.log(`=============================================================`);
 
-          // Seteo explícito de tema en localStorage
-          await page.evaluate((t) => {
-            localStorage.setItem('sitia_tema', t);
-          }, theme);
+      serveOriginalCss = currentPass.original;
+      const currentOutputDir = path.join(__dirname, 'captures', currentPass.id);
+      fs.mkdirSync(currentOutputDir, { recursive: true });
 
-          const response = await page.goto(targetUrl, { waitUntil: 'networkidle0' });
+      // Limpiar capturas viejas de esta pasada
+      fs.readdirSync(currentOutputDir).forEach(f => {
+        if (f.endsWith('.png') || f === 'computed-styles.json' || f === 'meta.json') {
+          fs.unlinkSync(path.join(currentOutputDir, f));
+        }
+      });
 
-          // Verificación de recursos fallidos en el flujo principal
-          if (failedResources.length > 0) {
-            const errs = failedResources.map(r => `${r.url} (HTTP ${r.status})`).join(', ');
-            failedResources.length = 0;
-            throw new Error(`[RESOURCE ERROR] Fallaron recursos críticos en ${targetUrl}: ${errs}`);
-          }
+      // Guardar metadata de la corrida
+      const meta = {
+        mode: currentPass.id,
+        label: currentPass.label,
+        original_css: currentPass.original,
+        commit: currentCommit,
+        fecha: new Date().toISOString(),
+        chrome: chromeVersion,
+        node: process.version,
+        usuario_prueba: USER,
+        pantalla_unica: ONLY_ID
+      };
+      fs.writeFileSync(path.join(currentOutputDir, 'meta.json'), JSON.stringify(meta, null, 2));
 
-          if (response.status() !== 200) {
-            throw new Error(`[HTTP ERROR] ${targetUrl} respondió con código HTTP ${response.status()}`);
-          }
-          if (page.url().includes('login.php')) {
-            throw new Error(`[AUTH ERROR] Redirigido a login.php al acceder a ${targetUrl}. Sesión perdida.`);
-          }
+      const stylesPath = path.join(currentOutputDir, 'computed-styles.json');
+      const computedStylesDump = {};
 
-          const html = await page.content();
-          for (const errText of ['Fatal error:', 'Warning:', 'Notice:', 'Deprecated:', 'Parse error:']) {
-            if (html.includes(errText)) {
-              throw new Error(`[PHP ERROR DETECTED] Se detectó "${errText}" en ${targetUrl}`);
+      // Bucle de Capturas de Pantallas
+      for (const item of URLS) {
+        for (const theme of THEMES) {
+          for (const vp of VIEWPORTS) {
+            await page.setViewport({ width: vp.width, height: vp.height, deviceScaleFactor: 1 });
+            const targetUrl = `${BASE_URL}${item.path}`;
+
+            // Seteo explícito de tema en localStorage
+            await page.evaluate((t) => {
+              localStorage.setItem('sitia_tema', t);
+            }, theme);
+
+            const response = await page.goto(targetUrl, { waitUntil: 'networkidle0' });
+
+            // Verificación de recursos fallidos en el flujo principal
+            if (failedResources.length > 0) {
+              const errs = failedResources.map(r => `${r.url} (HTTP ${r.status})`).join(', ');
+              failedResources.length = 0;
+              throw new Error(`[RESOURCE ERROR] Fallaron recursos críticos en ${targetUrl}: ${errs}`);
             }
-          }
 
-          const hasSelector = await page.$(item.expectedSelector);
-          if (!hasSelector) {
-            throw new Error(`[DOM ERROR] No se encontró el selector esperado "${item.expectedSelector}" en ${targetUrl}`);
-          }
-
-          // Verificación de inyección de estilos anti-animación
-          const hasAntiAnim = await page.evaluate(() => !!document.getElementById('anti-animation-override'));
-          if (!hasAntiAnim) {
-            throw new Error(`[ANTI-ANIMATION ERROR] No se aplicó el estilo anti-animación en ${targetUrl}`);
-          }
-
-          await page.evaluateHandle('document.fonts.ready');
-
-          // Verificación estricta de tema aplicado
-          const appliedTheme = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
-          if (appliedTheme !== theme) {
-            throw new Error(`[THEME MISMATCH] En ${targetUrl}: se esperaba "${theme}" pero tiene "${appliedTheme}"`);
-          }
-
-
-          // Espera DataTables si aplica
-          if (item.hasDataTable) {
-            try {
-              await page.waitForFunction(() => {
-                const proc = document.querySelector('.dataTables_processing, .dt-processing');
-                return !proc || proc.style.display === 'none' || window.getComputedStyle(proc).display === 'none';
-              }, { timeout: 6000 });
-              await page.waitForSelector('table.dataTable tbody tr, table.datatable tbody tr', { timeout: 4000 });
-            } catch (e) {
-              console.warn(`[DATATABLES TIMEOUT] Advertencia: timeout o tabla vacía en ${targetUrl}`);
+            if (response.status() !== 200) {
+              throw new Error(`[HTTP ERROR] ${targetUrl} respondió con código HTTP ${response.status()}`);
             }
-          }
+            if (page.url().includes('login.php')) {
+              throw new Error(`[AUTH ERROR] Redirigido a login.php al acceder a ${targetUrl}. Sesión perdida.`);
+            }
 
-          // Enmascaramiento de Último Acceso en usuarios/listar.php con JS tras render de DataTables
-          if (item.id === '09_admin_usuarios') {
-            await page.evaluate(() => {
-              document.querySelectorAll('#tablaUsuarios tbody tr td:nth-child(5)').forEach(td => {
-                td.textContent = '01/01/2026 00:00';
-              });
-            });
-          }
-
-
-          // Verificación de dibujo en canvas de Chart.js
-          if (item.id === '08_telecom_resumen') {
-            const canvasHasDrawnContent = await page.evaluate(() => {
-              const c = document.querySelector('canvas#chartTiposConexion');
-              if (!c) return false;
-              const ctx = c.getContext('2d');
-              const data = ctx.getImageData(0, 0, c.width, c.height).data;
-              for (let i = 3; i < data.length; i += 4) {
-                if (data[i] > 0) return true;
+            const html = await page.content();
+            for (const errText of ['Fatal error:', 'Warning:', 'Notice:', 'Deprecated:', 'Parse error:']) {
+              if (html.includes(errText)) {
+                throw new Error(`[PHP ERROR DETECTED] Se detectó "${errText}" en ${targetUrl}`);
               }
-              return false;
+            }
+
+            const hasSelector = await page.$(item.expectedSelector);
+            if (!hasSelector) {
+              throw new Error(`[DOM ERROR] No se encontró el selector esperado "${item.expectedSelector}" en ${targetUrl}`);
+            }
+
+            // Verificación de inyección de estilos anti-animación
+            const hasAntiAnim = await page.evaluate(() => !!document.getElementById('anti-animation-override'));
+            if (!hasAntiAnim) {
+              throw new Error(`[ANTI-ANIMATION ERROR] No se aplicó el estilo anti-animación en ${targetUrl}`);
+            }
+
+            await page.evaluateHandle('document.fonts.ready');
+
+            // Verificación estricta de tema aplicado
+            const appliedTheme = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
+            if (appliedTheme !== theme) {
+              throw new Error(`[THEME MISMATCH] En ${targetUrl}: se esperaba "${theme}" pero tiene "${appliedTheme}"`);
+            }
+
+            // Espera DataTables si aplica
+            if (item.hasDataTable) {
+              try {
+                await page.waitForFunction(() => {
+                  const proc = document.querySelector('.dataTables_processing, .dt-processing');
+                  return !proc || proc.style.display === 'none' || window.getComputedStyle(proc).display === 'none';
+                }, { timeout: 6000 });
+                await page.waitForSelector('table.dataTable tbody tr, table.datatable tbody tr', { timeout: 4000 });
+              } catch (e) {
+                console.warn(`[DATATABLES TIMEOUT] Advertencia: timeout o tabla vacía en ${targetUrl}`);
+              }
+            }
+
+            // Enmascaramiento de Último Acceso en usuarios/listar.php con JS tras render de DataTables
+            if (item.id === '09_admin_usuarios') {
+              await page.evaluate(() => {
+                document.querySelectorAll('#tablaUsuarios tbody tr td:nth-child(5)').forEach(td => {
+                  td.textContent = '01/01/2026 00:00';
+                });
+              });
+            }
+
+            // Estabilización de fechas dinámicas (date('Y-m-d'))
+            if (item.id === '04_insumo_agregar') {
+              await page.evaluate(() => {
+                const fAdq = document.querySelector('#fecha_adquisicion');
+                if (fAdq) fAdq.value = '2026-01-01';
+                const fAsig = document.querySelector('#fecha_asignacion');
+                if (fAsig) fAsig.value = '2026-01-01';
+              });
+            }
+            await page.evaluate(() => {
+              document.querySelectorAll('input[type="date"]').forEach(inp => {
+                if (inp.value) inp.value = '2026-01-01';
+              });
             });
-            if (!canvasHasDrawnContent) {
-              throw new Error(`[CANVAS ERROR] El canvas #chartTiposConexion está completamente vacío en ${targetUrl}`);
+
+            // Verificación de dibujo en canvas de Chart.js
+            if (item.id === '08_telecom_resumen') {
+              const canvasHasDrawnContent = await page.evaluate(() => {
+                const c = document.querySelector('canvas#chartTiposConexion');
+                if (!c) return false;
+                const ctx = c.getContext('2d');
+                const data = ctx.getImageData(0, 0, c.width, c.height).data;
+                for (let i = 3; i < data.length; i += 4) {
+                  if (data[i] > 0) return true;
+                }
+                return false;
+              });
+              if (!canvasHasDrawnContent) {
+                throw new Error(`[CANVAS ERROR] El canvas #chartTiposConexion está completamente vacío en ${targetUrl}`);
+              }
+            }
+
+            const fileName = `${item.id}_${theme}_${vp.name}.png`;
+            const filePath = path.join(currentOutputDir, fileName);
+            await page.screenshot({ path: filePath, fullPage: true });
+            console.log(`[CAPTURA] (${currentPass.id}) Guardada: ${fileName}`);
+
+            // Volcado incremental de estilos computados (en desktop)
+            if (vp.name === 'desktop') {
+              const styles = await page.evaluate(() => {
+                const selectors = ['.btn-primary', '.btn-secondary', '.card-header', '.table thead th', '.sidebar', '.form-control', '.badge.bg-success'];
+                const dump = {};
+                selectors.forEach(s => {
+                  const el = document.querySelector(s);
+                  if (el) {
+                    const cs = window.getComputedStyle(el);
+                    dump[s] = {
+                      color: cs.color,
+                      backgroundColor: cs.backgroundColor,
+                      borderColor: cs.borderColor,
+                      fontSize: cs.fontSize,
+                      padding: cs.padding,
+                      borderRadius: cs.borderRadius,
+                      boxShadow: cs.boxShadow
+                    };
+                  }
+                });
+                return dump;
+              });
+              computedStylesDump[`${item.id}_${theme}`] = styles;
+              fs.writeFileSync(stylesPath, JSON.stringify(computedStylesDump, null, 2));
             }
           }
+        }
+      }
 
-          const fileName = `${item.id}_${theme}_${vp.name}.png`;
-          const filePath = path.join(OUTPUT_DIR, fileName);
-          await page.screenshot({ path: filePath, fullPage: true });
-          console.log(`[CAPTURA] Guardada: ${fileName}`);
+      // CAPTURA DE ESTADOS DE INTERACCIÓN EN AMBOS TEMAS (solo en corrida completa)
+      if (!ONLY_ID) {
+        console.log(`\n[INTERACCIÓN] (${currentPass.id}) Capturando estados dinámicos en Modo Claro y Oscuro...`);
 
-          // Volcado incremental de estilos computados (en desktop)
-          if (vp.name === 'desktop') {
-            const styles = await page.evaluate(() => {
-              const selectors = ['.btn-primary', '.btn-secondary', '.card-header', '.table thead th', '.sidebar', '.form-control', '.badge.bg-success'];
-              const dump = {};
-              selectors.forEach(s => {
-                const el = document.querySelector(s);
-                if (el) {
-                  const cs = window.getComputedStyle(el);
-                  dump[s] = {
-                    color: cs.color,
-                    backgroundColor: cs.backgroundColor,
-                    borderColor: cs.borderColor,
-                    fontSize: cs.fontSize,
-                    padding: cs.padding,
-                    borderRadius: cs.borderRadius,
-                    boxShadow: cs.boxShadow
-                  };
-                }
-              });
-              return dump;
+        for (const theme of THEMES) {
+          const gotoWithTheme = async (relPath, vpWidth = 1440, vpHeight = 900) => {
+            await page.setViewport({ width: vpWidth, height: vpHeight, deviceScaleFactor: 1 });
+            await page.evaluate((t) => localStorage.setItem('sitia_tema', t), theme);
+            const res = await page.goto(`${BASE_URL}${relPath}`, { waitUntil: 'networkidle0' });
+            if (res.status() !== 200) throw new Error(`Fallo HTTP ${res.status()} en ${relPath}`);
+            await page.evaluateHandle('document.fonts.ready');
+            const tApplied = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
+            if (tApplied !== theme) throw new Error(`THEME MISMATCH en estado (${relPath})`);
+          };
+
+          // 1. Sidebar colapsado en Desktop (1440x900)
+          await gotoWithTheme('/pages/dashboard.php');
+          await page.evaluate(() => document.documentElement.classList.add('sidebar-collapsed'));
+          await page.screenshot({ path: path.join(currentOutputDir, `state_sidebar_desktop_collapsed_${theme}.png`), fullPage: false });
+
+          // 2. Sidebar en Tablet (768x1024)
+          await gotoWithTheme('/pages/dashboard.php', 768, 1024);
+          await page.screenshot({ path: path.join(currentOutputDir, `state_sidebar_tablet_${theme}.png`), fullPage: false });
+
+          // 3. Drawer móvil abierto (375x812) - Falla si no existe toggle
+          await gotoWithTheme('/pages/dashboard.php', 375, 812);
+          const toggleBtn = await page.$('#btnToggleSidebar');
+          if (!toggleBtn) {
+            throw new Error('[SIDEBAR TOGGLE ERROR] No se encontró el botón #btnToggleSidebar en navbar.');
+          }
+          await toggleBtn.click();
+          await page.waitForFunction(() => {
+            const sb = document.querySelector('.sidebar');
+            if (!sb) return false;
+            const rect = sb.getBoundingClientRect();
+            return rect.left >= 0 && rect.width > 0;
+          }, { timeout: 3000 });
+          await page.screenshot({ path: path.join(currentOutputDir, `state_sidebar_mobile_open_${theme}.png`), fullPage: false });
+
+          // 4. Modal Visor PDF abierto (en pedidos con tabla renderizada al fondo)
+          await gotoWithTheme('/pages/pedidos/listar.php');
+          await page.waitForSelector('table.dataTable tbody tr, table.datatable tbody tr', { timeout: 6000 });
+          await page.evaluate(() => {
+            return new Promise(resolve => {
+              const el = document.querySelector('#modalVisorPDF');
+              el.addEventListener('shown.bs.modal', () => resolve(), { once: true });
+              const m = bootstrap.Modal.getOrCreateInstance(el);
+              m.show();
             });
-            computedStylesDump[`${item.id}_${theme}`] = styles;
-            fs.writeFileSync(stylesPath, JSON.stringify(computedStylesDump, null, 2));
+          });
+          await new Promise(r => setTimeout(r, 150));
+          await page.screenshot({ path: path.join(currentOutputDir, `state_modal_pdf_${theme}.png`), fullPage: false });
+
+          // 5. Modal Confirmación abierto (en pedidos con tabla de fondo)
+          await gotoWithTheme('/pages/pedidos/listar.php');
+          await page.waitForSelector('table.dataTable tbody tr, table.datatable tbody tr', { timeout: 6000 });
+          await page.evaluate(() => {
+            return new Promise(resolve => {
+              const el = document.querySelector('#modalConfirmacionSITIA');
+              el.addEventListener('shown.bs.modal', () => resolve(), { once: true });
+              const m = bootstrap.Modal.getOrCreateInstance(el);
+              m.show();
+            });
+          });
+          await new Promise(r => setTimeout(r, 150));
+          await page.screenshot({ path: path.join(currentOutputDir, `state_modal_confirmacion_${theme}.png`), fullPage: false });
+
+          // 6. Select2 desplegado con scroll determinista (en galería)
+          await gotoWithTheme('/tools/visual-tests/component-gallery.php');
+          await page.waitForSelector('.select2-container', { timeout: 4000 });
+          await page.evaluate(() => {
+            window.scrollTo(0, 0);
+            const container = document.querySelector('.select2-container');
+            container.scrollIntoView({ block: 'center', behavior: 'instant' });
+            $('#gallery_select2').select2('open');
+          });
+          await page.waitForSelector('.select2-container--open', { timeout: 3000 });
+          await page.waitForFunction(() => {
+            const d = document.querySelector('.select2-dropdown');
+            return d && window.getComputedStyle(d).display !== 'none';
+          }, { timeout: 3000 });
+          await page.evaluate(() => {
+            const inp = document.querySelector('.select2-search__field');
+            if (inp) {
+              inp.style.caretColor = 'transparent';
+              inp.style.transition = 'none';
+              inp.style.animation = 'none';
+            }
+          });
+          await new Promise(r => setTimeout(r, 200));
+          await page.screenshot({ path: path.join(currentOutputDir, `state_select2_open_${theme}.png`), fullPage: false });
+
+          // 7. Tooltip abierto con scroll determinista (en galería)
+          await gotoWithTheme('/tools/visual-tests/component-gallery.php');
+          await page.waitForSelector('#tooltip_target', { timeout: 4000 });
+          await page.evaluate(() => {
+            window.scrollTo(0, 0);
+            const el = document.querySelector('#tooltip_target');
+            el.scrollIntoView({ block: 'center', behavior: 'instant' });
+            const tip = bootstrap.Tooltip.getOrCreateInstance(el);
+            tip.show();
+          });
+          await page.waitForSelector('.tooltip.show', { timeout: 3000 });
+          await new Promise(r => setTimeout(r, 200));
+          await page.screenshot({ path: path.join(currentOutputDir, `state_tooltip_${theme}.png`), fullPage: false });
+
+          // 8. Hover en botón (moviendo mouse antes)
+          await gotoWithTheme('/tools/visual-tests/component-gallery.php');
+          await page.evaluate(() => document.querySelector('#test_btn_primary').scrollIntoView({ block: 'center' }));
+          await page.mouse.move(0, 0);
+          await page.hover('#test_btn_primary');
+          await page.screenshot({ path: path.join(currentOutputDir, `state_button_hover_${theme}.png`), fullPage: false });
+
+          // 9. Focus con Tab real activando :focus-visible
+          await page.mouse.move(0, 0);
+          await page.focus('#test_focus_trigger');
+          await page.keyboard.press('Tab'); // Salta a #test_btn_outline
+          const isFocusVisible = await page.evaluate(() => {
+            const el = document.querySelector('#test_btn_outline');
+            return el && el === document.activeElement && el.matches(':focus-visible');
+          });
+          if (!isFocusVisible) {
+            console.warn(`[FOCUS ADVERTENCIA] :focus-visible no alteró propiedades medibles en #test_btn_outline (${theme})`);
           }
+          await page.screenshot({ path: path.join(currentOutputDir, `state_button_focus_${theme}.png`), fullPage: false });
         }
       }
-    }
-
-    // -------------------------------------------------------------
-    // CAPTURA DE ESTADOS DE INTERACCIÓN EN AMBOS TEMAS (solo en corrida completa)
-    // -------------------------------------------------------------
-    if (!ONLY_ID) {
-      console.log('\n[INTERACCIÓN] Capturando estados dinámicos en Modo Claro y Oscuro...');
-
-      for (const theme of THEMES) {
-        const gotoWithTheme = async (relPath, vpWidth = 1440, vpHeight = 900) => {
-          await page.setViewport({ width: vpWidth, height: vpHeight, deviceScaleFactor: 1 });
-          await page.evaluate((t) => localStorage.setItem('sitia_tema', t), theme);
-          const res = await page.goto(`${BASE_URL}${relPath}`, { waitUntil: 'networkidle0' });
-          if (res.status() !== 200) throw new Error(`Fallo HTTP ${res.status()} en ${relPath}`);
-          const tApplied = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
-          if (tApplied !== theme) throw new Error(`THEME MISMATCH en estado (${relPath})`);
-        };
-
-        // 1. Sidebar colapsado en Desktop (1440x900)
-        await gotoWithTheme('/pages/dashboard.php');
-        await page.evaluate(() => document.documentElement.classList.add('sidebar-collapsed'));
-        await page.screenshot({ path: path.join(OUTPUT_DIR, `state_sidebar_desktop_collapsed_${theme}.png`), fullPage: false });
-
-        // 2. Sidebar en Tablet (768x1024)
-        await gotoWithTheme('/pages/dashboard.php', 768, 1024);
-        await page.screenshot({ path: path.join(OUTPUT_DIR, `state_sidebar_tablet_${theme}.png`), fullPage: false });
-
-        // 3. Drawer móvil abierto (375x812) - Falla si no existe toggle
-        await gotoWithTheme('/pages/dashboard.php', 375, 812);
-        const toggleBtn = await page.$('#btnToggleSidebar');
-        if (!toggleBtn) {
-          throw new Error('[SIDEBAR TOGGLE ERROR] No se encontró el botón #btnToggleSidebar en navbar.');
-        }
-        await toggleBtn.click();
-        await page.waitForFunction(() => {
-          const sb = document.querySelector('.sidebar');
-          if (!sb) return false;
-          const rect = sb.getBoundingClientRect();
-          return rect.left >= 0 && rect.width > 0;
-        }, { timeout: 3000 });
-        await page.screenshot({ path: path.join(OUTPUT_DIR, `state_sidebar_mobile_open_${theme}.png`), fullPage: false });
-
-        // 4. Modal Visor PDF abierto (en pedidos con tabla renderizada al fondo)
-        await gotoWithTheme('/pages/pedidos/listar.php');
-        await page.waitForSelector('table.dataTable tbody tr, table.datatable tbody tr', { timeout: 6000 });
-        await page.evaluate(() => {
-          const m = bootstrap.Modal.getOrCreateInstance(document.querySelector('#modalVisorPDF'));
-          m.show();
-        });
-        await page.waitForSelector('#modalVisorPDF.show', { timeout: 3000 });
-        await page.screenshot({ path: path.join(OUTPUT_DIR, `state_modal_pdf_${theme}.png`), fullPage: false });
-
-        // 5. Modal Confirmación abierto (en pedidos con tabla de fondo)
-        await gotoWithTheme('/pages/pedidos/listar.php');
-        await page.waitForSelector('table.dataTable tbody tr, table.datatable tbody tr', { timeout: 6000 });
-        await page.evaluate(() => {
-          const m = bootstrap.Modal.getOrCreateInstance(document.querySelector('#modalConfirmacionSITIA'));
-          m.show();
-        });
-        await page.waitForSelector('#modalConfirmacionSITIA.show', { timeout: 3000 });
-        await page.screenshot({ path: path.join(OUTPUT_DIR, `state_modal_confirmacion_${theme}.png`), fullPage: false });
-
-        // 6. Select2 desplegado con scroll determinista (en galería)
-        await gotoWithTheme('/tools/visual-tests/component-gallery.php');
-        await page.waitForSelector('.select2-container', { timeout: 4000 });
-        await page.evaluate(() => {
-          window.scrollTo(0, 0);
-          const container = document.querySelector('.select2-container');
-          container.scrollIntoView({ block: 'center', behavior: 'instant' });
-          $('#gallery_select2').select2('open');
-        });
-        await page.waitForSelector('.select2-container--open', { timeout: 3000 });
-        await page.waitForFunction(() => {
-          const d = document.querySelector('.select2-dropdown');
-          return d && window.getComputedStyle(d).display !== 'none';
-        }, { timeout: 3000 });
-        await page.evaluate(() => {
-          const inp = document.querySelector('.select2-search__field');
-          if (inp) {
-            inp.style.caretColor = 'transparent';
-            inp.style.transition = 'none';
-            inp.style.animation = 'none';
-          }
-        });
-        await new Promise(r => setTimeout(r, 200));
-        await page.screenshot({ path: path.join(OUTPUT_DIR, `state_select2_open_${theme}.png`), fullPage: false });
-
-        // 7. Tooltip abierto con scroll determinista (en galería)
-        await gotoWithTheme('/tools/visual-tests/component-gallery.php');
-        await page.waitForSelector('#tooltip_target', { timeout: 4000 });
-        await page.evaluate(() => {
-          window.scrollTo(0, 0);
-          const el = document.querySelector('#tooltip_target');
-          el.scrollIntoView({ block: 'center', behavior: 'instant' });
-          const tip = bootstrap.Tooltip.getOrCreateInstance(el);
-          tip.show();
-        });
-        await page.waitForSelector('.tooltip.show', { timeout: 3000 });
-        await new Promise(r => setTimeout(r, 200));
-        await page.screenshot({ path: path.join(OUTPUT_DIR, `state_tooltip_${theme}.png`), fullPage: false });
-
-        // 8. Hover en botón (moviendo mouse antes)
-        await gotoWithTheme('/tools/visual-tests/component-gallery.php');
-        await page.evaluate(() => document.querySelector('#test_btn_primary').scrollIntoView({ block: 'center' }));
-        await page.mouse.move(0, 0);
-        await page.hover('#test_btn_primary');
-        await page.screenshot({ path: path.join(OUTPUT_DIR, `state_button_hover_${theme}.png`), fullPage: false });
-
-        // 9. Focus con Tab real activando :focus-visible
-        await page.mouse.move(0, 0);
-        await page.focus('#test_focus_trigger');
-        await page.keyboard.press('Tab'); // Salta a #test_btn_outline
-        const isFocusVisible = await page.evaluate(() => {
-          const el = document.querySelector('#test_btn_outline');
-          return el && el === document.activeElement && el.matches(':focus-visible');
-        });
-        if (!isFocusVisible) {
-          console.warn(`[FOCUS ADVERTENCIA] :focus-visible no alteró propiedades medibles en #test_btn_outline (${theme})`);
-        }
-        await page.screenshot({ path: path.join(OUTPUT_DIR, `state_button_focus_${theme}.png`), fullPage: false });
-      }
-    }
+    } // Fin bucle de pasadas
 
   } finally {
     if (browser) {

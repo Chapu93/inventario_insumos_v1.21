@@ -5,8 +5,19 @@ import pixelmatch from 'pixelmatch';
 import { PNG } from 'pngjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const BASELINE_DIR = process.argv[2] ? path.resolve(process.argv[2]) : path.join(__dirname, 'captures', 'baseline');
-const TARGET_DIR = process.argv[3] ? path.resolve(process.argv[3]) : path.join(__dirname, 'captures', 'current');
+let BASELINE_DIR = path.join(__dirname, 'captures', 'baseline');
+let TARGET_DIR = path.join(__dirname, 'captures', 'current');
+
+if (process.argv[2] === '--mode' && process.argv[3] === 'ab') {
+  BASELINE_DIR = path.join(__dirname, 'captures', 'ab_base');
+  TARGET_DIR = path.join(__dirname, 'captures', 'ab_current');
+} else if (process.argv[2] === 'ab') {
+  BASELINE_DIR = path.join(__dirname, 'captures', 'ab_base');
+  TARGET_DIR = path.join(__dirname, 'captures', 'ab_current');
+} else {
+  if (process.argv[2]) BASELINE_DIR = path.resolve(process.argv[2]);
+  if (process.argv[3]) TARGET_DIR = path.resolve(process.argv[3]);
+}
 const DIFF_DIR = path.join(__dirname, 'captures', 'diff');
 
 // Limpiar carpeta de diffs al inicio de la corrida
