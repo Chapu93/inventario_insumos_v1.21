@@ -215,6 +215,22 @@
     --sitia-alert-warning-bg: var(--sitia-primitive-amber-100);
     --sitia-alert-warning-text: var(--sitia-primitive-amber-900);
 
+    /* Sombras y Elevaciones */
+    --sitia-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.08);
+    --sitia-shadow-dropdown: 0 6px 20px rgba(0, 0, 0, 0.1);
+    --sitia-shadow-modal: 0 10px 30px rgba(0, 0, 0, 0.35);
+
+    /* Foco Select2 */
+    --sitia-focus-ring-select2: 0 0 0 2px rgba(90, 147, 103, 0.18);
+
+    /* Resaltado de Filas DataTables */
+    --sitia-table-row-hover: rgba(90, 147, 103, 0.06);
+    --sitia-table-pulse-start: rgba(90, 147, 103, 0.38);
+    --sitia-table-pulse-mid: rgba(90, 147, 103, 0.20);
+
+    /* Separadores y Bordes Institucionales */
+    --sitia-border-brand-subtle: rgba(90, 147, 103, 0.2);
+
     /* ========================================================================
        CAPA 3: ESCALA CENTRAL DE Z-INDEX
        ======================================================================== */
