@@ -14,14 +14,28 @@
     --sitia-danger: var(--sitia-primitive-red-200); /* #f7aaaa */
     --sitia-info: var(--sitia-primitive-cyan-200); /* #a2dfe6 */
 
+    /* Tokens de Contenido / Texto sobre Componentes (On-Colors Modo Oscuro) */
+    --sitia-on-primary: var(--sitia-primitive-sage-900); /* #1e2522 */
+    --sitia-on-secondary: var(--sitia-text);
+    --sitia-on-success: var(--sitia-primitive-sage-900); /* #1e2522 */
+    --sitia-on-warning: var(--sitia-primitive-amber-950); /* #3b2408 */
+    --sitia-on-danger: var(--sitia-primitive-sage-900); /* #1e2522 */
+    --sitia-on-info: var(--sitia-primitive-cyan-950); /* #1a3a37 */
+
+    /* Reutilización retrocompatible de nombres antiguos sin duplicación */
+    --sitia-btn-dark-text: var(--sitia-on-primary);
+    --sitia-btn-warning-text: var(--sitia-on-warning);
+    --sitia-btn-info-text: var(--sitia-on-info);
+
+    /* Anillos de Foco (Modo Oscuro) */
+    --sitia-focus-ring: 0 0 0 0.25rem rgba(161, 212, 177, 0.25);
+    --sitia-focus-ring-control: 0 0 0 0.25rem rgba(90, 147, 103, 0.25);
+
     /* Variantes de Botones Soft / Pastel en Modo Oscuro */
-    --sitia-btn-dark-text: var(--sitia-primitive-sage-900); /* #1e2522 */
     --sitia-btn-warning-bg: var(--sitia-primitive-amber-350); /* #e5ac6b */
     --sitia-btn-warning-hover: var(--sitia-primitive-amber-300); /* #f2bd83 */
-    --sitia-btn-warning-text: var(--sitia-primitive-amber-950); /* #3b2408 */
     --sitia-btn-info-bg: var(--sitia-primitive-cyan-350); /* #63b3ab */
     --sitia-btn-info-hover: var(--sitia-primitive-cyan-300); /* #79c5bd */
-    --sitia-btn-info-text: var(--sitia-primitive-cyan-950); /* #1a3a37 */
     --sitia-btn-danger-bg: var(--sitia-primitive-red-200); /* #f7aaaa */
     --sitia-btn-danger-hover: var(--sitia-primitive-red-300); /* #f9c2c2 */
     --sitia-btn-soft-primary-bg: var(--sitia-primitive-green-700); /* #4e8351 */
@@ -309,7 +323,7 @@
         background-color: transparent !important;
         color: var(--sitia-primary) !important;
         border-color: var(--sitia-primary) !important;
-        box-shadow: 0 0 0 0.25rem rgba(161, 212, 177, 0.25) !important;
+        box-shadow: var(--sitia-focus-ring) !important;
         outline: none !important;
     }
 [data-theme="dark"] .btn-outline-primary:focus:not(:focus-visible) {

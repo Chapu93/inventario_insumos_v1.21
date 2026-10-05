@@ -141,7 +141,15 @@
     --sitia-secondary: var(--sitia-primitive-sage-300); /* #9bb7a2: Consistente con --bs-secondary-rgb */
     --sitia-secondary-hover: var(--sitia-primitive-sage-350); /* #8eab96 */
     --sitia-secondary-border: var(--sitia-primitive-sage-350);
-    --sitia-secondary-text: var(--sitia-primitive-sage-950); /* #0f1a12 */
+    --sitia-on-primary: var(--sitia-primitive-white);
+    --sitia-on-secondary: var(--sitia-primitive-sage-950); /* #0f1a12 */
+    --sitia-on-success: var(--sitia-primitive-white);
+    --sitia-on-warning: var(--sitia-primitive-white);
+    --sitia-on-danger: var(--sitia-primitive-white);
+    --sitia-on-info: var(--sitia-primitive-white);
+    --sitia-secondary-text: var(--sitia-on-secondary);
+    --sitia-focus-ring: 0 0 0 0.25rem rgba(90, 147, 103, 0.25);
+    --sitia-focus-ring-control: 0 0 0 0.25rem rgba(90, 147, 103, 0.25);
     --sitia-success: var(--sitia-primitive-green-500);
     --sitia-success-hover: var(--sitia-primitive-green-650);
     --sitia-success-active: var(--sitia-primitive-green-900);

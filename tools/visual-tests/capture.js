@@ -538,12 +538,13 @@ async function run() {
           await page.evaluate(() => {
             return new Promise(resolve => {
               const el = document.querySelector('#modalVisorPDF');
+              el.classList.remove('fade');
               el.addEventListener('shown.bs.modal', () => resolve(), { once: true });
               const m = bootstrap.Modal.getOrCreateInstance(el);
               m.show();
             });
           });
-          await new Promise(r => setTimeout(r, 150));
+          await new Promise(r => setTimeout(r, 250));
           await page.screenshot({ path: path.join(currentOutputDir, `state_modal_pdf_${theme}.png`), fullPage: false });
 
           // 5. Modal Confirmación abierto (en pedidos con tabla de fondo)
@@ -552,12 +553,13 @@ async function run() {
           await page.evaluate(() => {
             return new Promise(resolve => {
               const el = document.querySelector('#modalConfirmacionSITIA');
+              el.classList.remove('fade');
               el.addEventListener('shown.bs.modal', () => resolve(), { once: true });
               const m = bootstrap.Modal.getOrCreateInstance(el);
               m.show();
             });
           });
-          await new Promise(r => setTimeout(r, 150));
+          await new Promise(r => setTimeout(r, 250));
           await page.screenshot({ path: path.join(currentOutputDir, `state_modal_confirmacion_${theme}.png`), fullPage: false });
 
           // 6. Select2 desplegado con scroll determinista (en galería)

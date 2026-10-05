@@ -34,7 +34,7 @@ html.sidebar-collapsed #content {
     color: var(--sitia-white);
     position: fixed;
     height: 100vh;
-    z-index: 1000;
+    z-index: var(--sitia-z-sidebar);
     overflow-y: auto;
     overflow-x: hidden;
     transition: all 0.3s;

@@ -23,26 +23,30 @@
 }
 
 /* Foco institucional verde SITIA accesible por teclado */
-.btn:focus-visible,
+.btn:focus-visible {
+    box-shadow: var(--sitia-focus-ring) !important;
+    outline: none !important;
+}
+
 .btn-close:focus-visible {
-    box-shadow: 0 0 0 0.25rem rgba(90, 147, 103, 0.25) !important;
+    box-shadow: var(--sitia-focus-ring-control) !important;
     outline: none !important;
 }
 
 /* Botón Primario */
 .btn-primary {
-    --bs-btn-color: var(--sitia-white);
+    --bs-btn-color: var(--sitia-on-primary);
     --bs-btn-bg: var(--sitia-primary);
     --bs-btn-border-color: var(--sitia-primary);
-    --bs-btn-hover-color: var(--sitia-white);
+    --bs-btn-hover-color: var(--sitia-on-primary);
     --bs-btn-hover-bg: var(--sitia-primary-hover);
     --bs-btn-hover-border-color: var(--sitia-primary-hover);
-    --bs-btn-active-color: var(--sitia-white);
+    --bs-btn-active-color: var(--sitia-on-primary);
     --bs-btn-active-bg: var(--sitia-primary-hover);
     --bs-btn-active-border-color: var(--sitia-primary-hover);
     background-color: var(--sitia-primary);
     border-color: var(--sitia-primary);
-    color: var(--sitia-white);
+    color: var(--sitia-on-primary);
 }
 
 .btn-primary:hover,
@@ -50,13 +54,13 @@
 .btn-primary.active {
     background-color: var(--sitia-primary-hover);
     border-color: var(--sitia-primary-hover);
-    color: var(--sitia-white);
+    color: var(--sitia-on-primary);
 }
 
 .btn-primary:focus:not(:focus-visible) {
     background-color: var(--sitia-primary);
     border-color: var(--sitia-primary);
-    color: var(--sitia-white);
+    color: var(--sitia-on-primary);
     box-shadow: none !important;
     outline: none !important;
 }
@@ -65,7 +69,7 @@
 .btn-primary.disabled {
     background-color: var(--sitia-primary) !important;
     border-color: var(--sitia-primary) !important;
-    color: var(--sitia-white) !important;
+    color: var(--sitia-on-primary) !important;
     opacity: 0.65;
 }
 
@@ -73,10 +77,10 @@
 .btn-outline-primary {
     --bs-btn-color: var(--sitia-primary);
     --bs-btn-border-color: var(--sitia-primary);
-    --bs-btn-hover-color: var(--sitia-white);
+    --bs-btn-hover-color: var(--sitia-on-primary);
     --bs-btn-hover-bg: var(--sitia-primary);
     --bs-btn-hover-border-color: var(--sitia-primary);
-    --bs-btn-active-color: var(--sitia-white);
+    --bs-btn-active-color: var(--sitia-on-primary);
     --bs-btn-active-bg: var(--sitia-primary);
     --bs-btn-active-border-color: var(--sitia-primary);
     --bs-btn-focus-shadow-rgb: 90, 147, 103;
@@ -88,7 +92,7 @@
 .btn-outline-primary:active,
 .btn-outline-primary.active {
     background-color: var(--sitia-primary) !important;
-    color: var(--sitia-white) !important;
+    color: var(--sitia-on-primary) !important;
     border-color: var(--sitia-primary) !important;
 }
 
@@ -96,7 +100,7 @@
     background-color: transparent !important;
     color: var(--sitia-primary) !important;
     border-color: var(--sitia-primary) !important;
-    box-shadow: 0 0 0 0.25rem rgba(90, 147, 103, 0.25) !important;
+    box-shadow: var(--sitia-focus-ring) !important;
     outline: none !important;
 }
 
@@ -133,21 +137,21 @@
 
 /* Botón Success */
 .btn-success {
-    --bs-btn-color: var(--sitia-white);
+    --bs-btn-color: var(--sitia-on-success);
     --bs-btn-bg: var(--sitia-success);
     --bs-btn-border-color: var(--sitia-success);
-    --bs-btn-hover-color: var(--sitia-white);
+    --bs-btn-hover-color: var(--sitia-on-success);
     --bs-btn-hover-bg: var(--sitia-success-hover);
     --bs-btn-hover-border-color: var(--sitia-success-hover);
-    --bs-btn-active-color: var(--sitia-white);
+    --bs-btn-active-color: var(--sitia-on-success);
     --bs-btn-active-bg: var(--sitia-success-hover);
     --bs-btn-active-border-color: var(--sitia-success-hover);
-    --bs-btn-disabled-color: var(--sitia-white);
+    --bs-btn-disabled-color: var(--sitia-on-success);
     --bs-btn-disabled-bg: var(--sitia-success);
     --bs-btn-disabled-border-color: var(--sitia-success);
     background-color: var(--sitia-success);
     border-color: var(--sitia-success);
-    color: var(--sitia-white);
+    color: var(--sitia-on-success);
 }
 
 .btn-success:hover,
@@ -155,13 +159,13 @@
 .btn-success.active {
     background-color: var(--sitia-success-hover);
     border-color: var(--sitia-success-hover);
-    color: var(--sitia-white);
+    color: var(--sitia-on-success);
 }
 
 .btn-success:focus:not(:focus-visible) {
     background-color: var(--sitia-success);
     border-color: var(--sitia-success);
-    color: var(--sitia-white);
+    color: var(--sitia-on-success);
     box-shadow: none !important;
     outline: none !important;
 }
@@ -170,27 +174,27 @@
 .btn-success.disabled {
     background-color: var(--sitia-success) !important;
     border-color: var(--sitia-success) !important;
-    color: var(--sitia-white) !important;
+    color: var(--sitia-on-success) !important;
     opacity: 0.65;
 }
 
 /* Botón Danger */
 .btn-danger {
-    --bs-btn-color: var(--sitia-white);
+    --bs-btn-color: var(--sitia-on-danger);
     --bs-btn-bg: var(--sitia-btn-danger-bg);
     --bs-btn-border-color: var(--sitia-btn-danger-bg);
-    --bs-btn-hover-color: var(--sitia-white);
+    --bs-btn-hover-color: var(--sitia-on-danger);
     --bs-btn-hover-bg: var(--sitia-btn-danger-hover);
     --bs-btn-hover-border-color: var(--sitia-btn-danger-active);
-    --bs-btn-active-color: var(--sitia-white);
+    --bs-btn-active-color: var(--sitia-on-danger);
     --bs-btn-active-bg: var(--sitia-btn-danger-hover);
     --bs-btn-active-border-color: var(--sitia-btn-danger-active);
-    --bs-btn-disabled-color: var(--sitia-white);
+    --bs-btn-disabled-color: var(--sitia-on-danger);
     --bs-btn-disabled-bg: var(--sitia-btn-danger-bg);
     --bs-btn-disabled-border-color: var(--sitia-btn-danger-bg);
     background-color: var(--sitia-btn-danger-bg);
     border-color: var(--sitia-btn-danger-bg);
-    color: var(--sitia-white);
+    color: var(--sitia-on-danger);
 }
 
 .btn-danger:hover,
@@ -198,34 +202,34 @@
 .btn-danger.active {
     background-color: var(--sitia-btn-danger-hover);
     border-color: var(--sitia-btn-danger-active);
-    color: var(--sitia-white);
+    color: var(--sitia-on-danger);
 }
 
 .btn-danger:focus:not(:focus-visible) {
     background-color: var(--sitia-btn-danger-bg);
     border-color: var(--sitia-btn-danger-bg);
-    color: var(--sitia-white);
+    color: var(--sitia-on-danger);
     box-shadow: none !important;
     outline: none !important;
 }
 
 /* Botón Info (Ver Insumos #4a9d95) */
 .btn-info {
-    --bs-btn-color: var(--sitia-white);
+    --bs-btn-color: var(--sitia-on-info);
     --bs-btn-bg: var(--sitia-btn-info-bg);
     --bs-btn-border-color: var(--sitia-btn-info-bg);
-    --bs-btn-hover-color: var(--sitia-white);
+    --bs-btn-hover-color: var(--sitia-on-info);
     --bs-btn-hover-bg: var(--sitia-btn-info-hover);
     --bs-btn-hover-border-color: var(--sitia-btn-info-hover);
-    --bs-btn-active-color: var(--sitia-white);
+    --bs-btn-active-color: var(--sitia-on-info);
     --bs-btn-active-bg: var(--sitia-btn-info-hover);
     --bs-btn-active-border-color: var(--sitia-btn-info-hover);
-    --bs-btn-disabled-color: var(--sitia-white);
+    --bs-btn-disabled-color: var(--sitia-on-info);
     --bs-btn-disabled-bg: var(--sitia-btn-info-bg);
     --bs-btn-disabled-border-color: var(--sitia-btn-info-bg);
     background-color: var(--sitia-btn-info-bg) !important;
     border-color: var(--sitia-btn-info-bg) !important;
-    color: var(--sitia-white) !important;
+    color: var(--sitia-on-info) !important;
 }
 
 .btn-info:hover,
@@ -233,34 +237,34 @@
 .btn-info.active {
     background-color: var(--sitia-btn-info-hover) !important;
     border-color: var(--sitia-btn-info-hover) !important;
-    color: var(--sitia-white) !important;
+    color: var(--sitia-on-info) !important;
 }
 
 .btn-info:focus:not(:focus-visible) {
     background-color: var(--sitia-btn-info-bg) !important;
     border-color: var(--sitia-btn-info-bg) !important;
-    color: var(--sitia-white) !important;
+    color: var(--sitia-on-info) !important;
     box-shadow: none !important;
     outline: none !important;
 }
 
 /* Botón Warning (Ver Asignaciones #d9943f) */
 .btn-warning {
-    --bs-btn-color: var(--sitia-white);
+    --bs-btn-color: var(--sitia-on-warning);
     --bs-btn-bg: var(--sitia-btn-warning-bg);
     --bs-btn-border-color: var(--sitia-btn-warning-bg);
-    --bs-btn-hover-color: var(--sitia-white);
+    --bs-btn-hover-color: var(--sitia-on-warning);
     --bs-btn-hover-bg: var(--sitia-btn-warning-hover);
     --bs-btn-hover-border-color: var(--sitia-btn-warning-hover);
-    --bs-btn-active-color: var(--sitia-white);
+    --bs-btn-active-color: var(--sitia-on-warning);
     --bs-btn-active-bg: var(--sitia-btn-warning-hover);
     --bs-btn-active-border-color: var(--sitia-btn-warning-hover);
-    --bs-btn-disabled-color: var(--sitia-white);
+    --bs-btn-disabled-color: var(--sitia-on-warning);
     --bs-btn-disabled-bg: var(--sitia-btn-warning-bg);
     --bs-btn-disabled-border-color: var(--sitia-btn-warning-bg);
     background-color: var(--sitia-btn-warning-bg) !important;
     border-color: var(--sitia-btn-warning-bg) !important;
-    color: var(--sitia-white) !important;
+    color: var(--sitia-on-warning) !important;
 }
 
 .btn-warning:hover,
@@ -268,13 +272,13 @@
 .btn-warning.active {
     background-color: var(--sitia-btn-warning-hover) !important;
     border-color: var(--sitia-btn-warning-hover) !important;
-    color: var(--sitia-white) !important;
+    color: var(--sitia-on-warning) !important;
 }
 
 .btn-warning:focus:not(:focus-visible) {
     background-color: var(--sitia-btn-warning-bg) !important;
     border-color: var(--sitia-btn-warning-bg) !important;
-    color: var(--sitia-white) !important;
+    color: var(--sitia-on-warning) !important;
     box-shadow: none !important;
     outline: none !important;
 }
@@ -283,14 +287,14 @@
 .btn-soft-warning {
     background-color: var(--sitia-btn-soft-warning-bg) !important;
     border-color: var(--sitia-btn-soft-warning-bg) !important;
-    color: var(--sitia-white) !important;
+    color: var(--sitia-primitive-white) !important;
     transition: all 0.2s ease-in-out;
 }
 .btn-soft-warning:hover,
 .btn-soft-warning:active {
     background-color: var(--sitia-btn-soft-warning-hover) !important;
     border-color: var(--sitia-btn-soft-warning-hover) !important;
-    color: var(--sitia-white) !important;
+    color: var(--sitia-primitive-white) !important;
 }
 .btn-soft-warning:focus:not(:focus-visible) {
     background-color: var(--sitia-btn-soft-warning-bg) !important;
@@ -302,13 +306,13 @@
 .btn-soft-success {
     background-color: var(--sitia-success-border) !important;
     border-color: var(--sitia-success-border) !important;
-    color: var(--sitia-white) !important;
+    color: var(--sitia-primitive-white) !important;
 }
 .btn-soft-success:hover,
 .btn-soft-success:active {
     background-color: var(--sitia-success-active) !important;
     border-color: var(--sitia-success-active) !important;
-    color: var(--sitia-white) !important;
+    color: var(--sitia-primitive-white) !important;
 }
 .btn-soft-success:focus:not(:focus-visible) {
     background-color: var(--sitia-success-border) !important;
@@ -320,13 +324,13 @@
 .btn-soft-primary {
     background-color: var(--sitia-btn-soft-primary-bg) !important;
     border-color: var(--sitia-btn-soft-primary-bg) !important;
-    color: var(--sitia-white) !important;
+    color: var(--sitia-primitive-white) !important;
 }
 .btn-soft-primary:hover,
 .btn-soft-primary:active {
     background-color: var(--sitia-btn-soft-primary-hover) !important;
     border-color: var(--sitia-btn-soft-primary-hover) !important;
-    color: var(--sitia-white) !important;
+    color: var(--sitia-primitive-white) !important;
 }
 .btn-soft-primary:focus:not(:focus-visible) {
     background-color: var(--sitia-btn-soft-primary-bg) !important;
@@ -338,13 +342,13 @@
 .btn-soft-secondary {
     background-color: var(--sitia-btn-slate-bg) !important;
     border-color: var(--sitia-btn-slate-bg) !important;
-    color: var(--sitia-white) !important;
+    color: var(--sitia-primitive-white) !important;
 }
 .btn-soft-secondary:hover,
 .btn-soft-secondary:active {
     background-color: var(--sitia-btn-slate-hover) !important;
     border-color: var(--sitia-btn-slate-hover) !important;
-    color: var(--sitia-white) !important;
+    color: var(--sitia-primitive-white) !important;
 }
 .btn-soft-secondary:focus:not(:focus-visible) {
     background-color: var(--sitia-btn-slate-bg) !important;
@@ -357,13 +361,13 @@
 .btn-pastel-brown {
     background-color: var(--sitia-btn-brown-bg) !important;
     border-color: var(--sitia-btn-brown-bg) !important;
-    color: var(--sitia-white) !important;
+    color: var(--sitia-primitive-white) !important;
 }
 .btn-pastel-brown:hover,
 .btn-pastel-brown:active {
     background-color: var(--sitia-btn-brown-hover) !important;
     border-color: var(--sitia-btn-brown-hover) !important;
-    color: var(--sitia-white) !important;
+    color: var(--sitia-primitive-white) !important;
 }
 .btn-pastel-brown:focus:not(:focus-visible) {
     background-color: var(--sitia-btn-brown-bg) !important;
@@ -376,13 +380,13 @@
 .btn-colaborativa {
     background-color: var(--sitia-btn-purple-bg) !important;
     border-color: var(--sitia-btn-purple-bg) !important;
-    color: var(--sitia-white) !important;
+    color: var(--sitia-primitive-white) !important;
 }
 .btn-colaborativa:hover,
 .btn-colaborativa:active {
     background-color: var(--sitia-btn-purple-hover) !important;
     border-color: var(--sitia-btn-purple-hover) !important;
-    color: var(--sitia-white) !important;
+    color: var(--sitia-primitive-white) !important;
 }
 .btn-colaborativa:focus:not(:focus-visible) {
     background-color: var(--sitia-btn-purple-bg) !important;
