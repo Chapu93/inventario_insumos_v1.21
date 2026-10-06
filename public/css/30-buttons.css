@@ -257,25 +257,40 @@
     --bs-btn-disabled-color: var(--sitia-on-warning);
     --bs-btn-disabled-bg: var(--sitia-btn-warning-bg);
     --bs-btn-disabled-border-color: var(--sitia-btn-warning-bg);
-    background-color: var(--sitia-btn-warning-bg) !important;
-    border-color: var(--sitia-btn-warning-bg) !important;
+    --bs-btn-disabled-opacity: 0.65;
+    background-color: var(--sitia-btn-warning-bg);
+    border-color: var(--sitia-btn-warning-bg);
     color: var(--sitia-on-warning) !important;
 }
 
 .btn-warning:hover,
 .btn-warning:active,
 .btn-warning.active {
-    background-color: var(--sitia-btn-warning-hover) !important;
-    border-color: var(--sitia-btn-warning-hover) !important;
+    background-color: var(--sitia-btn-warning-hover);
+    border-color: var(--sitia-btn-warning-hover);
+    color: var(--sitia-on-warning) !important;
+}
+
+.btn-warning:focus-visible {
+    background-color: var(--sitia-btn-warning-bg);
+    border-color: var(--sitia-btn-warning-bg);
     color: var(--sitia-on-warning) !important;
 }
 
 .btn-warning:focus:not(:focus-visible) {
-    background-color: var(--sitia-btn-warning-bg) !important;
-    border-color: var(--sitia-btn-warning-bg) !important;
+    background-color: var(--sitia-btn-warning-bg);
+    border-color: var(--sitia-btn-warning-bg);
     color: var(--sitia-on-warning) !important;
-    box-shadow: none !important;
-    outline: none !important;
+    box-shadow: none;
+    outline: none;
+}
+
+.btn-warning:disabled,
+.btn-warning.disabled {
+    background-color: var(--sitia-btn-warning-bg);
+    border-color: var(--sitia-btn-warning-bg);
+    color: var(--sitia-on-warning) !important;
+    opacity: 0.65;
 }
 
 /* Botones Suaves de Acción */
