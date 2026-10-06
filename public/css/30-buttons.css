@@ -207,25 +207,40 @@
     --bs-btn-disabled-color: var(--sitia-on-info);
     --bs-btn-disabled-bg: var(--sitia-btn-info-bg);
     --bs-btn-disabled-border-color: var(--sitia-btn-info-bg);
-    background-color: var(--sitia-btn-info-bg) !important;
-    border-color: var(--sitia-btn-info-bg) !important;
-    color: var(--sitia-on-info) !important;
+    --bs-btn-disabled-opacity: 0.65;
+    background-color: var(--sitia-btn-info-bg);
+    border-color: var(--sitia-btn-info-bg);
+    color: var(--sitia-on-info);
 }
 
 .btn-info:hover,
 .btn-info:active,
 .btn-info.active {
-    background-color: var(--sitia-btn-info-hover) !important;
-    border-color: var(--sitia-btn-info-hover) !important;
-    color: var(--sitia-on-info) !important;
+    background-color: var(--sitia-btn-info-hover);
+    border-color: var(--sitia-btn-info-hover);
+    color: var(--sitia-on-info);
+}
+
+.btn-info:focus-visible {
+    background-color: var(--sitia-btn-info-bg);
+    border-color: var(--sitia-btn-info-bg);
+    color: var(--sitia-on-info);
 }
 
 .btn-info:focus:not(:focus-visible) {
-    background-color: var(--sitia-btn-info-bg) !important;
-    border-color: var(--sitia-btn-info-bg) !important;
-    color: var(--sitia-on-info) !important;
-    box-shadow: none !important;
-    outline: none !important;
+    background-color: var(--sitia-btn-info-bg);
+    border-color: var(--sitia-btn-info-bg);
+    color: var(--sitia-on-info);
+    box-shadow: none;
+    outline: none;
+}
+
+.btn-info:disabled,
+.btn-info.disabled {
+    background-color: var(--sitia-btn-info-bg);
+    border-color: var(--sitia-btn-info-bg);
+    color: var(--sitia-on-info);
+    opacity: 0.65;
 }
 
 /* Botón Warning (Ver Asignaciones #d9943f) */
