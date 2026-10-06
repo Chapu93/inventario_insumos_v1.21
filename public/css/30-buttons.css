@@ -135,8 +135,8 @@
     background-color: var(--sitia-secondary);
     border-color: var(--sitia-secondary-border);
     color: var(--sitia-secondary-text);
-    box-shadow: none !important;
-    outline: none !important;
+    box-shadow: none;
+    outline: none;
 }
 
 /* Botón Success */
