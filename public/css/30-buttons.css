@@ -189,8 +189,8 @@
     background-color: var(--sitia-btn-danger-bg);
     border-color: var(--sitia-btn-danger-bg);
     color: var(--sitia-on-danger);
-    box-shadow: none !important;
-    outline: none !important;
+    box-shadow: none;
+    outline: none;
 }
 
 /* Botón Info (Ver Insumos #4a9d95) */
