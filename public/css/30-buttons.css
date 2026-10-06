@@ -44,6 +44,10 @@
     --bs-btn-active-color: var(--sitia-on-primary);
     --bs-btn-active-bg: var(--sitia-primary-hover);
     --bs-btn-active-border-color: var(--sitia-primary-hover);
+    --bs-btn-disabled-color: var(--sitia-on-primary);
+    --bs-btn-disabled-bg: var(--sitia-primary);
+    --bs-btn-disabled-border-color: var(--sitia-primary);
+    --bs-btn-disabled-opacity: 0.65;
     background-color: var(--sitia-primary);
     border-color: var(--sitia-primary);
     color: var(--sitia-on-primary);
@@ -61,15 +65,15 @@
     background-color: var(--sitia-primary);
     border-color: var(--sitia-primary);
     color: var(--sitia-on-primary);
-    box-shadow: none !important;
-    outline: none !important;
+    box-shadow: none;
+    outline: none;
 }
 
 .btn-primary:disabled,
 .btn-primary.disabled {
-    background-color: var(--sitia-primary) !important;
-    border-color: var(--sitia-primary) !important;
-    color: var(--sitia-on-primary) !important;
+    background-color: var(--sitia-primary);
+    border-color: var(--sitia-primary);
+    color: var(--sitia-on-primary);
     opacity: 0.65;
 }
 
