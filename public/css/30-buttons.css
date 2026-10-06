@@ -158,15 +158,15 @@
     background-color: var(--sitia-success);
     border-color: var(--sitia-success);
     color: var(--sitia-on-success);
-    box-shadow: none !important;
-    outline: none !important;
+    box-shadow: none;
+    outline: none;
 }
 
 .btn-success:disabled,
 .btn-success.disabled {
-    background-color: var(--sitia-success) !important;
-    border-color: var(--sitia-success) !important;
-    color: var(--sitia-on-success) !important;
+    background-color: var(--sitia-success);
+    border-color: var(--sitia-success);
+    color: var(--sitia-on-success);
     opacity: 0.65;
 }
 
