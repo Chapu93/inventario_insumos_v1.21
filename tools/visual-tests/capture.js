@@ -530,6 +530,11 @@ async function run() {
             await page.evaluateHandle('document.fonts.ready');
             const tApplied = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
             if (tApplied !== theme) throw new Error(`THEME MISMATCH en estado (${relPath})`);
+            await page.evaluate(() => {
+              if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+              window.scrollTo(0, 0);
+              document.querySelectorAll('.table-responsive').forEach(el => { el.scrollTop = 0; el.scrollLeft = 0; });
+            });
           };
 
           // 1. Sidebar colapsado en Desktop (1440x900)
