@@ -137,18 +137,6 @@
 
 /* Botón Success */
 .btn-success {
-    --bs-btn-color: var(--sitia-on-success);
-    --bs-btn-bg: var(--sitia-success);
-    --bs-btn-border-color: var(--sitia-success);
-    --bs-btn-hover-color: var(--sitia-on-success);
-    --bs-btn-hover-bg: var(--sitia-success-hover);
-    --bs-btn-hover-border-color: var(--sitia-success-hover);
-    --bs-btn-active-color: var(--sitia-on-success);
-    --bs-btn-active-bg: var(--sitia-success-hover);
-    --bs-btn-active-border-color: var(--sitia-success-hover);
-    --bs-btn-disabled-color: var(--sitia-on-success);
-    --bs-btn-disabled-bg: var(--sitia-success);
-    --bs-btn-disabled-border-color: var(--sitia-success);
     background-color: var(--sitia-success);
     border-color: var(--sitia-success);
     color: var(--sitia-on-success);
@@ -180,18 +168,6 @@
 
 /* Botón Danger */
 .btn-danger {
-    --bs-btn-color: var(--sitia-on-danger);
-    --bs-btn-bg: var(--sitia-btn-danger-bg);
-    --bs-btn-border-color: var(--sitia-btn-danger-bg);
-    --bs-btn-hover-color: var(--sitia-on-danger);
-    --bs-btn-hover-bg: var(--sitia-btn-danger-hover);
-    --bs-btn-hover-border-color: var(--sitia-btn-danger-active);
-    --bs-btn-active-color: var(--sitia-on-danger);
-    --bs-btn-active-bg: var(--sitia-btn-danger-hover);
-    --bs-btn-active-border-color: var(--sitia-btn-danger-active);
-    --bs-btn-disabled-color: var(--sitia-on-danger);
-    --bs-btn-disabled-bg: var(--sitia-btn-danger-bg);
-    --bs-btn-disabled-border-color: var(--sitia-btn-danger-bg);
     background-color: var(--sitia-btn-danger-bg);
     border-color: var(--sitia-btn-danger-bg);
     color: var(--sitia-on-danger);

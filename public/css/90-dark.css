@@ -39,13 +39,13 @@
     --sitia-btn-danger-bg: var(--sitia-primitive-red-200); /* #f7aaaa */
     --sitia-btn-danger-hover: var(--sitia-primitive-red-300); /* #f9c2c2 */
     --sitia-btn-soft-primary-bg: var(--sitia-primitive-green-700); /* #4e8351 */
-    --sitia-btn-soft-primary-hover: var(--sitia-primitive-green-920); /* #1a6d2c */
+    --sitia-btn-soft-primary-hover: #3e6a41;
     --sitia-btn-soft-warning-bg: var(--sitia-primitive-amber-750); /* #d1970b */
     --sitia-btn-soft-warning-hover: var(--sitia-primitive-amber-800); /* #b88408 */
     --sitia-btn-slate-bg: var(--sitia-primitive-slate-500); /* #6c7781 */
     --sitia-btn-slate-hover: var(--sitia-primitive-slate-700); /* #565f67 */
     --sitia-btn-purple-bg: var(--sitia-primitive-purple-400); /* #9b78db */
-    --sitia-btn-purple-hover: var(--sitia-primitive-purple-600); /* #835dc2 */
+    --sitia-btn-purple-hover: var(--sitia-primitive-purple-700); /* #7d5bbf */
 
     /* Superficies Claras dentro del Modo Oscuro (Dim/Sage Extra Claro) */
     --sitia-surface-1: var(--sitia-primitive-sage-550); /* #6b8077: Cabeceras principales, modales y dropdowns */
@@ -282,8 +282,8 @@
     }
 [data-theme="dark"] .btn-soft-primary:hover,
 [data-theme="dark"] .btn-soft-primary:active {
-        background-color: var(--sitia-primitive-green-800) !important;
-        border-color: var(--sitia-primitive-green-800) !important;
+        background-color: var(--sitia-btn-soft-primary-hover) !important;
+        border-color: var(--sitia-btn-soft-primary-hover) !important;
     }
 [data-theme="dark"] .btn-soft-primary:focus:not(:focus-visible) {
         background-color: var(--sitia-btn-soft-primary-bg) !important;

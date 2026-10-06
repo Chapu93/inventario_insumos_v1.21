@@ -171,7 +171,7 @@ async function run() {
     browser = await puppeteer.launch({
       executablePath: '/usr/bin/google-chrome',
       headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu']
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu', '--hide-scrollbars']
     });
 
     const chromeVersion = await browser.version();
@@ -289,12 +289,16 @@ async function run() {
             const style = document.createElement('style');
             style.id = 'anti-animation-override';
             style.textContent = `
-              *, *::before, *::after {
+              *, *::before, *::after, .btn, .form-control, .form-select, .form-check-input {
                 transition: none !important;
                 animation: none !important;
                 caret-color: transparent !important;
-                -webkit-font-smoothing: antialiased !important;
-                -moz-osx-font-smoothing: grayscale !important;
+              }
+              html, body, * {
+                scrollbar-width: none !important;
+              }
+              ::-webkit-scrollbar {
+                display: none !important;
               }
               .modal.fade, .modal.fade .modal-dialog {
                 transition: none !important;
@@ -344,7 +348,7 @@ async function run() {
 
       // Limpiar capturas viejas de esta pasada
       fs.readdirSync(currentOutputDir).forEach(f => {
-        if (f.endsWith('.png') || f === 'computed-styles.json' || f === 'meta.json') {
+        if (f.endsWith('.png') || f === 'computed-styles.json' || f === 'computed-buttons.json' || f === 'meta.json') {
           fs.unlinkSync(path.join(currentOutputDir, f));
         }
       });
@@ -511,9 +515,10 @@ async function run() {
         }
       }
 
-      // CAPTURA DE ESTADOS DE INTERACCIÓN EN AMBOS TEMAS (solo en corrida completa)
-      if (!ONLY_ID) {
+      // CAPTURA DE ESTADOS DE INTERACCIÓN EN AMBOS TEMAS (en corrida completa o --only 12_gallery)
+      if (!ONLY_ID || ONLY_ID === '12_gallery') {
         console.log(`\n[INTERACCIÓN] (${currentPass.id}) Capturando estados dinámicos en Modo Claro y Oscuro...`);
+        const computedButtonsDump = {};
 
         for (const theme of THEMES) {
           const gotoWithTheme = async (relPath, vpWidth = 1440, vpHeight = 900) => {
@@ -655,7 +660,101 @@ async function run() {
             console.warn(`[FOCUS ADVERTENCIA] :focus-visible no alteró propiedades medibles en #test_btn_outline (${theme})`);
           }
           await page.screenshot({ path: path.join(currentOutputDir, `state_button_focus_${theme}.png`), fullPage: false });
+
+          // Helper para capturar elemento con foco y su anillo (box-shadow) sin ruido externo
+          const captureFocusedElement = async (selector, filename) => {
+            await page.evaluate((sel) => document.querySelector(sel).scrollIntoView({ block: 'center', behavior: 'instant' }), selector);
+            await page.focus(selector);
+            await new Promise(r => setTimeout(r, 100));
+            const el = await page.$(selector);
+            const box = await el.boundingBox();
+            const pad = 12;
+            const clip = {
+              x: Math.max(0, Math.round(box.x - pad)),
+              y: Math.max(0, Math.round(box.y - pad)),
+              width: Math.round(box.width + (pad * 2)),
+              height: Math.round(box.height + (pad * 2))
+            };
+            await page.screenshot({ path: path.join(currentOutputDir, filename), clip });
+          };
+
+          // 10. Focus en .form-control
+          await captureFocusedElement('#test_focus_form_control', `state_focus_form_control_${theme}.png`);
+
+          // 11. Focus en .form-select
+          await captureFocusedElement('#test_focus_form_select', `state_focus_form_select_${theme}.png`);
+
+          // 12. Focus en .form-check-input (checkbox)
+          await captureFocusedElement('#test_focus_form_check', `state_focus_form_check_${theme}.png`);
+
+          // 13. Focus en .form-check-input (switch)
+          await captureFocusedElement('#test_focus_form_switch', `state_focus_form_switch_${theme}.png`);
+
+          // 14. Focus en buscador de DataTables
+          await captureFocusedElement('.dataTables_filter input', `state_focus_datatables_search_${theme}.png`);
+
+          // 15. Focus en select de longitud de DataTables
+          await captureFocusedElement('.dataTables_length select', `state_focus_datatables_length_${theme}.png`);
+
+          // 16. Matriz de Botones (Paso 2): 16 variantes x 5 estados x tema con CDP
+          console.log(`[MATRIZ BOTONES] (${currentPass.id}) Midiendo 16 variantes x 5 estados (${theme})...`);
+          const client = await page.target().createCDPSession();
+          await client.send('DOM.enable');
+          await client.send('CSS.enable');
+          const doc = await client.send('DOM.getDocument');
+
+          const BUTTON_VARIANTS = [
+            { id: 'primary', selector: '#btn_matrix_primary' },
+            { id: 'outline-primary', selector: '#btn_matrix_outline_primary' },
+            { id: 'secondary', selector: '#btn_matrix_secondary' },
+            { id: 'success', selector: '#btn_matrix_success' },
+            { id: 'danger', selector: '#btn_matrix_danger' },
+            { id: 'info', selector: '#btn_matrix_info' },
+            { id: 'warning', selector: '#btn_matrix_warning' },
+            { id: 'soft-primary', selector: '#btn_matrix_soft_primary' },
+            { id: 'soft-success', selector: '#btn_matrix_soft_success' },
+            { id: 'soft-warning', selector: '#btn_matrix_soft_warning' },
+            { id: 'soft-secondary', selector: '#btn_matrix_soft_secondary' },
+            { id: 'pastel-brown', selector: '#btn_matrix_pastel_brown' },
+            { id: 'colaborativa', selector: '#btn_matrix_colaborativa' },
+            { id: 'btn-close', selector: '#btn_matrix_btn_close' },
+            { id: 'btn-sm', selector: '#btn_matrix_btn_sm' },
+            { id: 'table-btn-group', selector: '#btn_matrix_table_btn_group' }
+          ];
+          const BUTTON_STATES = ['normal', 'hover', 'active', 'disabled', 'focus-visible'];
+
+          computedButtonsDump[theme] = {};
+
+          for (const variant of BUTTON_VARIANTS) {
+            const node = await client.send('DOM.querySelector', { nodeId: doc.root.nodeId, selector: variant.selector });
+            if (!node || !node.nodeId) {
+              throw new Error(`[MATRIZ ERROR] Selector no encontrado en galería: ${variant.selector}`);
+            }
+            computedButtonsDump[theme][variant.id] = {};
+            for (const state of BUTTON_STATES) {
+              const pseudos = state === 'normal' ? [] : [state];
+              await client.send('CSS.forcePseudoState', { nodeId: node.nodeId, forcedPseudoClasses: pseudos });
+              const styles = await page.evaluate((sel) => {
+                const el = document.querySelector(sel);
+                if (!el) throw new Error(`[MATRIZ ERROR] Elemento no encontrado en evaluación: ${sel}`);
+                const cs = window.getComputedStyle(el);
+                return {
+                  backgroundColor: cs.backgroundColor,
+                  color: cs.color,
+                  borderColor: cs.borderColor,
+                  boxShadow: cs.boxShadow,
+                  outline: cs.outline,
+                  opacity: cs.opacity
+                };
+              }, variant.selector);
+              computedButtonsDump[theme][variant.id][state] = styles;
+              await client.send('CSS.forcePseudoState', { nodeId: node.nodeId, forcedPseudoClasses: [] });
+            }
+          }
+          await client.detach();
         }
+
+        fs.writeFileSync(path.join(currentOutputDir, 'computed-buttons.json'), JSON.stringify(computedButtonsDump, null, 2));
       }
     } // Fin bucle de pasadas
 

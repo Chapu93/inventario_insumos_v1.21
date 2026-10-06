@@ -29,6 +29,7 @@ require_once __DIR__ . '/../../includes/config.php';
     <link href="<?php echo app_base_url(); ?>/public/vendor/fontawesome/css/all.min.css" rel="stylesheet" />
     <link href="<?php echo app_base_url(); ?>/public/vendor/select2/css/select2.min.css" rel="stylesheet">
     <link href="<?php echo app_base_url(); ?>/public/vendor/select2/css/select2-bootstrap-5-theme.min.css" rel="stylesheet">
+    <link href="<?php echo app_base_url(); ?>/public/vendor/datatables/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     
     <!-- Carga de CSS: Fase 6 (css.php) o style.css directo con filemtime -->
     <?php
@@ -63,27 +64,154 @@ require_once __DIR__ . '/../../includes/config.php';
                     </div>
                 </section>
 
-                <!-- 2. BOTONES Y ESTADOS -->
+                <!-- 2. BOTONES Y ESTADOS (MATRIZ COMPLETA DE VARIANTES Y ESTADOS) -->
                 <section class="card mb-4">
-                    <div class="card-header"><h5>2. Botones (Variantes, Outline, Soft y Estados)</h5></div>
-                    <div class="card-body d-flex flex-wrap gap-2 align-items-center">
-                        <button type="button" class="btn btn-primary" id="test_focus_trigger">Focus Trigger</button>
-                        <button type="button" class="btn btn-outline-primary" id="test_btn_outline">Outline Target</button>
-                        <button type="button" class="btn btn-primary" id="test_btn_primary">Primary Normal</button>
-                        <button type="button" class="btn btn-primary active">Primary Active</button>
-                        <button type="button" class="btn btn-primary disabled">Primary Disabled</button>
-                        <button type="button" class="btn btn-secondary">Secondary</button>
-                        <button type="button" class="btn btn-success">Success</button>
-                        <button type="button" class="btn btn-danger">Danger</button>
-                        <button type="button" class="btn btn-warning">Warning</button>
-                        <button type="button" class="btn btn-info">Info</button>
-                        <button type="button" class="btn btn-outline-secondary">Outline Secondary</button>
-                        <button type="button" class="btn btn-soft-primary">Soft Primary</button>
-                        <button type="button" class="btn btn-soft-success">Soft Success</button>
-                        <button type="button" class="btn btn-soft-warning">Soft Warning</button>
-                        <button type="button" class="btn btn-soft-secondary">Soft Secondary</button>
-                        <button type="button" class="btn btn-pastel-brown">Pastel Brown</button>
-                        <button type="button" class="btn btn-colaborativa">Colaborativa</button>
+                    <div class="card-header"><h5>2. Botones (Matriz de Variantes x Estados x Temas)</h5></div>
+                    <div class="card-body">
+                        <!-- Botones clave para tests de interacción existentes -->
+                        <div class="d-flex flex-wrap gap-2 align-items-center mb-4 pb-3 border-bottom">
+                            <button type="button" class="btn btn-primary" id="test_focus_trigger">Focus Trigger</button>
+                            <button type="button" class="btn btn-outline-primary" id="test_btn_outline">Outline Target</button>
+                            <button type="button" class="btn btn-primary" id="test_btn_primary">Primary Normal</button>
+                        </div>
+
+                        <!-- Matriz Completa de Variantes x Estados -->
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm align-middle text-center mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="text-start">Variante</th>
+                                        <th>Normal (Target CDP)</th>
+                                        <th>Hover</th>
+                                        <th>Active</th>
+                                        <th>Disabled</th>
+                                        <th>Focus Visible</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="text-start fw-bold">Primary</td>
+                                        <td><button type="button" class="btn btn-primary" id="btn_matrix_primary">Primary</button></td>
+                                        <td><button type="button" class="btn btn-primary">Hover</button></td>
+                                        <td><button type="button" class="btn btn-primary active">Active</button></td>
+                                        <td><button type="button" class="btn btn-primary disabled" disabled>Disabled</button></td>
+                                        <td><button type="button" class="btn btn-primary">Focus</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-bold">Outline Primary</td>
+                                        <td><button type="button" class="btn btn-outline-primary" id="btn_matrix_outline_primary">Outline Primary</button></td>
+                                        <td><button type="button" class="btn btn-outline-primary">Hover</button></td>
+                                        <td><button type="button" class="btn btn-outline-primary active">Active</button></td>
+                                        <td><button type="button" class="btn btn-outline-primary disabled" disabled>Disabled</button></td>
+                                        <td><button type="button" class="btn btn-outline-primary">Focus</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-bold">Secondary</td>
+                                        <td><button type="button" class="btn btn-secondary" id="btn_matrix_secondary">Secondary</button></td>
+                                        <td><button type="button" class="btn btn-secondary">Hover</button></td>
+                                        <td><button type="button" class="btn btn-secondary active">Active</button></td>
+                                        <td><button type="button" class="btn btn-secondary disabled" disabled>Disabled</button></td>
+                                        <td><button type="button" class="btn btn-secondary">Focus</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-bold">Success</td>
+                                        <td><button type="button" class="btn btn-success" id="btn_matrix_success">Success</button></td>
+                                        <td><button type="button" class="btn btn-success">Hover</button></td>
+                                        <td><button type="button" class="btn btn-success active">Active</button></td>
+                                        <td><button type="button" class="btn btn-success disabled" disabled>Disabled</button></td>
+                                        <td><button type="button" class="btn btn-success">Focus</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-bold">Danger</td>
+                                        <td><button type="button" class="btn btn-danger" id="btn_matrix_danger">Danger</button></td>
+                                        <td><button type="button" class="btn btn-danger">Hover</button></td>
+                                        <td><button type="button" class="btn btn-danger active">Active</button></td>
+                                        <td><button type="button" class="btn btn-danger disabled" disabled>Disabled</button></td>
+                                        <td><button type="button" class="btn btn-danger">Focus</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-bold">Info</td>
+                                        <td><button type="button" class="btn btn-info" id="btn_matrix_info">Info</button></td>
+                                        <td><button type="button" class="btn btn-info">Hover</button></td>
+                                        <td><button type="button" class="btn btn-info active">Active</button></td>
+                                        <td><button type="button" class="btn btn-info disabled" disabled>Disabled</button></td>
+                                        <td><button type="button" class="btn btn-info">Focus</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-bold">Warning</td>
+                                        <td><button type="button" class="btn btn-warning" id="btn_matrix_warning">Warning</button></td>
+                                        <td><button type="button" class="btn btn-warning">Hover</button></td>
+                                        <td><button type="button" class="btn btn-warning active">Active</button></td>
+                                        <td><button type="button" class="btn btn-warning disabled" disabled>Disabled</button></td>
+                                        <td><button type="button" class="btn btn-warning">Focus</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-bold">Soft Primary</td>
+                                        <td><button type="button" class="btn btn-soft-primary" id="btn_matrix_soft_primary">Soft Primary</button></td>
+                                        <td><button type="button" class="btn btn-soft-primary">Hover</button></td>
+                                        <td><button type="button" class="btn btn-soft-primary active">Active</button></td>
+                                        <td><button type="button" class="btn btn-soft-primary disabled" disabled>Disabled</button></td>
+                                        <td><button type="button" class="btn btn-soft-primary">Focus</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-bold">Soft Success</td>
+                                        <td><button type="button" class="btn btn-soft-success" id="btn_matrix_soft_success">Soft Success</button></td>
+                                        <td><button type="button" class="btn btn-soft-success">Hover</button></td>
+                                        <td><button type="button" class="btn btn-soft-success active">Active</button></td>
+                                        <td><button type="button" class="btn btn-soft-success disabled" disabled>Disabled</button></td>
+                                        <td><button type="button" class="btn btn-soft-success">Focus</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-bold">Soft Warning</td>
+                                        <td><button type="button" class="btn btn-soft-warning" id="btn_matrix_soft_warning">Soft Warning</button></td>
+                                        <td><button type="button" class="btn btn-soft-warning">Hover</button></td>
+                                        <td><button type="button" class="btn btn-soft-warning active">Active</button></td>
+                                        <td><button type="button" class="btn btn-soft-warning disabled" disabled>Disabled</button></td>
+                                        <td><button type="button" class="btn btn-soft-warning">Focus</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-bold">Soft Secondary</td>
+                                        <td><button type="button" class="btn btn-soft-secondary" id="btn_matrix_soft_secondary">Soft Secondary</button></td>
+                                        <td><button type="button" class="btn btn-soft-secondary">Hover</button></td>
+                                        <td><button type="button" class="btn btn-soft-secondary active">Active</button></td>
+                                        <td><button type="button" class="btn btn-soft-secondary disabled" disabled>Disabled</button></td>
+                                        <td><button type="button" class="btn btn-soft-secondary">Focus</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-bold">Pastel Brown</td>
+                                        <td><button type="button" class="btn btn-pastel-brown" id="btn_matrix_pastel_brown">Pastel Brown</button></td>
+                                        <td><button type="button" class="btn btn-pastel-brown">Hover</button></td>
+                                        <td><button type="button" class="btn btn-pastel-brown active">Active</button></td>
+                                        <td><button type="button" class="btn btn-pastel-brown disabled" disabled>Disabled</button></td>
+                                        <td><button type="button" class="btn btn-pastel-brown">Focus</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-bold">Colaborativa</td>
+                                        <td><button type="button" class="btn btn-colaborativa" id="btn_matrix_colaborativa">Colaborativa</button></td>
+                                        <td><button type="button" class="btn btn-colaborativa">Hover</button></td>
+                                        <td><button type="button" class="btn btn-colaborativa active">Active</button></td>
+                                        <td><button type="button" class="btn btn-colaborativa disabled" disabled>Disabled</button></td>
+                                        <td><button type="button" class="btn btn-colaborativa">Focus</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-bold">Btn Close</td>
+                                        <td><button type="button" class="btn-close" id="btn_matrix_btn_close" aria-label="Close"></button></td>
+                                        <td><button type="button" class="btn-close" aria-label="Close"></button></td>
+                                        <td><button type="button" class="btn-close active" aria-label="Close"></button></td>
+                                        <td><button type="button" class="btn-close disabled" disabled aria-label="Close"></button></td>
+                                        <td><button type="button" class="btn-close" aria-label="Close"></button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-bold">Small (.btn-sm)</td>
+                                        <td><button type="button" class="btn btn-primary btn-sm" id="btn_matrix_btn_sm">Primary Small</button></td>
+                                        <td><button type="button" class="btn btn-primary btn-sm">Hover</button></td>
+                                        <td><button type="button" class="btn btn-primary btn-sm active">Active</button></td>
+                                        <td><button type="button" class="btn btn-primary btn-sm disabled" disabled>Disabled</button></td>
+                                        <td><button type="button" class="btn btn-primary btn-sm">Focus</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </section>
 
@@ -123,18 +251,26 @@ require_once __DIR__ . '/../../includes/config.php';
                     <div class="card-header"><h5>5. Formularios, Validación e Input-Groups</h5></div>
                     <div class="card-body row g-3">
                         <div class="col-md-3">
-                            <label class="form-label">Normal</label>
-                            <input type="text" class="form-control" value="Texto normal">
+                            <label class="form-label">Normal (.form-control)</label>
+                            <input type="text" class="form-control" id="test_focus_form_control" value="Texto normal">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Válido (.is-valid)</label>
-                            <input type="text" class="form-control is-valid" value="Dato correcto">
-                            <div class="valid-feedback">Campo validado</div>
+                            <label class="form-label">Select (.form-select)</label>
+                            <select class="form-select" id="test_focus_form_select">
+                                <option value="1">Opción 1</option>
+                                <option value="2">Opción 2</option>
+                            </select>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Inválido (.is-invalid)</label>
-                            <input type="text" class="form-control is-invalid" value="Dato incorrecto">
-                            <div class="invalid-feedback">Error en el dato</div>
+                            <label class="form-label">Check & Switch (.form-check-input)</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="test_focus_form_check" checked>
+                                <label class="form-check-label" for="test_focus_form_check">Checkbox</label>
+                            </div>
+                            <div class="form-check form-switch mt-1">
+                                <input class="form-check-input" type="checkbox" id="test_focus_form_switch" checked>
+                                <label class="form-check-label" for="test_focus_form_switch">Switch</label>
+                            </div>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Deshabilitado</label>
@@ -185,17 +321,18 @@ require_once __DIR__ . '/../../includes/config.php';
                     </div>
                 </section>
 
-                <!-- 7. TABLA DE MUESTRA -->
+                <!-- 7. TABLA DE MUESTRA (CON DATATABLES Y BTN-GROUP) -->
                 <section class="card mb-4">
-                    <div class="card-header"><h5>7. Tablas (Base, Striped y Hover)</h5></div>
-                    <div class="card-body p-0">
-                        <table class="table table-striped table-hover mb-0">
+                    <div class="card-header"><h5>7. Tablas (Base, Striped, Hover, DataTables y .btn-group)</h5></div>
+                    <div class="card-body">
+                        <table class="table table-striped table-hover align-middle mb-0" id="gallery_table">
                             <thead>
                                 <tr>
                                     <th>ID</th>
                                     <th>Insumo</th>
                                     <th>Categoría</th>
                                     <th>Estado</th>
+                                    <th>Acciones (.table .btn-group .btn)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -204,12 +341,72 @@ require_once __DIR__ . '/../../includes/config.php';
                                     <td>Notebook Lenovo ThinkPad</td>
                                     <td>Equipos</td>
                                     <td><span class="badge estado-disponible">Disponible</span></td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-sm btn-primary" id="btn_matrix_table_btn_group">Editar</button>
+                                            <button type="button" class="btn btn-sm btn-secondary">Ver</button>
+                                        </div>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td>2</td>
-                                    <td>Impresora HP LaserJet</td>
+                                    <td>Impresora HP LaserJet Pro</td>
                                     <td>Impresión</td>
                                     <td><span class="badge estado-asignado">Asignado</span></td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-sm btn-primary">Editar</button>
+                                            <button type="button" class="btn btn-sm btn-secondary">Ver</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>Monitor Dell 24 Pulgadas</td>
+                                    <td>Pantallas</td>
+                                    <td><span class="badge estado-disponible">Disponible</span></td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-sm btn-primary">Editar</button>
+                                            <button type="button" class="btn btn-sm btn-secondary">Ver</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>Switch Cisco Catalyst 24P</td>
+                                    <td>Redes</td>
+                                    <td><span class="badge estado-activa">Activo</span></td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-sm btn-primary">Editar</button>
+                                            <button type="button" class="btn btn-sm btn-secondary">Ver</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td>Router MikroTik RB4011</td>
+                                    <td>Redes</td>
+                                    <td><span class="badge estado-activa">Activo</span></td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-sm btn-primary">Editar</button>
+                                            <button type="button" class="btn btn-sm btn-secondary">Ver</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>6</td>
+                                    <td>Scanner Fujitsu fi-7160</td>
+                                    <td>Digitalización</td>
+                                    <td><span class="badge estado-parcial">Mantenimiento</span></td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-sm btn-primary">Editar</button>
+                                            <button type="button" class="btn btn-sm btn-secondary">Ver</button>
+                                        </div>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -246,6 +443,8 @@ require_once __DIR__ . '/../../includes/config.php';
     <script src="<?php echo app_base_url(); ?>/public/vendor/jquery/jquery-3.7.0.min.js"></script>
     <script src="<?php echo app_base_url(); ?>/public/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="<?php echo app_base_url(); ?>/public/vendor/select2/js/select2.min.js"></script>
+    <script src="<?php echo app_base_url(); ?>/public/vendor/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="<?php echo app_base_url(); ?>/public/vendor/datatables/js/dataTables.bootstrap5.min.js"></script>
     
     <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -255,6 +454,17 @@ require_once __DIR__ . '/../../includes/config.php';
         $('#gallery_select2').select2({
             theme: 'bootstrap-5'
         });
+
+        if (window.jQuery.fn.DataTable) {
+            $('#gallery_table').DataTable({
+                pageLength: 5,
+                lengthMenu: [5, 10, 25],
+                language: {
+                    search: "Buscar:",
+                    lengthMenu: "Mostrar _MENU_ registros"
+                }
+            });
+        }
 
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         tooltipTriggerList.map(function(el) {

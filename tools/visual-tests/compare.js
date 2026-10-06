@@ -176,15 +176,78 @@ if (styleDiffs.length > 0) {
   console.log('\n✅ [COMPUTED STYLES] Estilos calculados 100% idénticos.');
 }
 
+// Comparación estricta de computed-buttons.json (Matriz de botones)
+const buttons1Path = path.join(BASELINE_DIR, 'computed-buttons.json');
+const buttons2Path = path.join(TARGET_DIR, 'computed-buttons.json');
+const buttonDiffs = [];
+
+if (fs.existsSync(buttons1Path) && fs.existsSync(buttons2Path)) {
+  const b1 = JSON.parse(fs.readFileSync(buttons1Path, 'utf-8'));
+  const b2 = JSON.parse(fs.readFileSync(buttons2Path, 'utf-8'));
+
+  for (const theme of Object.keys(b1)) {
+    if (!b2[theme]) {
+      buttonDiffs.push({ tema: theme, variante: '*', estado: '*', propiedad: 'THEME_MISSING', base: 'PRESENTE', actual: 'AUSENTE' });
+      continue;
+    }
+    for (const variant of Object.keys(b1[theme])) {
+      if (!b2[theme][variant]) {
+        buttonDiffs.push({ tema: theme, variante: variant, estado: '*', propiedad: 'VARIANT_MISSING', base: 'PRESENTE', actual: 'AUSENTE' });
+        continue;
+      }
+      for (const state of Object.keys(b1[theme][variant])) {
+        if (!b2[theme][variant][state]) {
+          buttonDiffs.push({ tema: theme, variante: variant, estado: state, propiedad: 'STATE_MISSING', base: 'PRESENTE', actual: 'AUSENTE' });
+          continue;
+        }
+        const props1 = b1[theme][variant][state];
+        const props2 = b2[theme][variant][state];
+        for (const prop of ['backgroundColor', 'color', 'borderColor', 'boxShadow', 'outline', 'opacity']) {
+          if (props1[prop] !== props2[prop]) {
+            buttonDiffs.push({
+              tema: theme,
+              variante: variant,
+              estado: state,
+              propiedad: prop,
+              base: props1[prop],
+              actual: props2[prop]
+            });
+          }
+        }
+      }
+    }
+  }
+
+  // Detectar variantes extras en la corrida actual
+  for (const theme of Object.keys(b2)) {
+    if (!b1[theme]) continue;
+    for (const variant of Object.keys(b2[theme])) {
+      if (!b1[theme][variant]) {
+        buttonDiffs.push({ tema: theme, variante: variant, estado: '*', propiedad: 'VARIANT_EXTRA', base: 'AUSENTE', actual: 'PRESENTE' });
+      }
+    }
+  }
+} else if (fs.existsSync(buttons2Path) && !fs.existsSync(buttons1Path)) {
+  console.warn('⚠️ [MATRIZ DE BOTONES] computed-buttons.json presente en actual pero ausente en base.');
+}
+
+if (buttonDiffs.length > 0) {
+  console.log('\n⚠️ [MATRIZ DE BOTONES DIFF] Discrepancias en matriz de botones:');
+  console.table(buttonDiffs);
+  fs.writeFileSync(path.join(DIFF_DIR, 'computed-buttons-diff.json'), JSON.stringify(buttonDiffs, null, 2));
+} else if (fs.existsSync(buttons1Path) && fs.existsSync(buttons2Path)) {
+  console.log('\n✅ [MATRIZ DE BOTONES] 16 variantes x 5 estados x 2 temas 100% idénticos (0 diferencias).');
+}
+
 const summaryPath = path.join(DIFF_DIR, 'summary.json');
-fs.writeFileSync(summaryPath, JSON.stringify({ results, styleDiffs }, null, 2));
+fs.writeFileSync(summaryPath, JSON.stringify({ results, styleDiffs, buttonDiffs }, null, 2));
 
 console.log(`\n📊 Resumen de Comparación:`);
 console.log(`- Total de capturas evaluadas: ${files.length}`);
 console.log(`- Píxeles totales distintos: ${totalDiffPixels}`);
 console.log(`- Reporte detallado guardado en: ${summaryPath}`);
 
-if (totalDiffPixels === 0 && !hasCriticalErrors && styleDiffs.length === 0) {
+if (totalDiffPixels === 0 && !hasCriticalErrors && styleDiffs.length === 0 && buttonDiffs.length === 0) {
   console.log('\n🎉 VALIDACIÓN EXITOSA: Determinismo / Identidad total (0 píxeles de diferencia).');
   process.exit(0);
 } else {
