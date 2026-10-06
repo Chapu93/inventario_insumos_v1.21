@@ -95,25 +95,25 @@
 .btn-outline-primary:hover,
 .btn-outline-primary:active,
 .btn-outline-primary.active {
-    background-color: var(--sitia-primary) !important;
-    color: var(--sitia-on-primary) !important;
-    border-color: var(--sitia-primary) !important;
+    background-color: var(--sitia-primary);
+    color: var(--sitia-on-primary);
+    border-color: var(--sitia-primary);
 }
 
 .btn-outline-primary:focus-visible {
-    background-color: transparent !important;
-    color: var(--sitia-primary) !important;
-    border-color: var(--sitia-primary) !important;
-    box-shadow: var(--sitia-focus-ring) !important;
-    outline: none !important;
+    background-color: transparent;
+    color: var(--sitia-primary);
+    border-color: var(--sitia-primary);
+    box-shadow: var(--sitia-focus-ring);
+    outline: none;
 }
 
 .btn-outline-primary:focus:not(:focus-visible) {
-    background-color: transparent !important;
-    color: var(--sitia-primary) !important;
-    border-color: var(--sitia-primary) !important;
-    box-shadow: none !important;
-    outline: none !important;
+    background-color: transparent;
+    color: var(--sitia-primary);
+    border-color: var(--sitia-primary);
+    box-shadow: none;
+    outline: none;
 }
 
 /* Botón Secundario */
