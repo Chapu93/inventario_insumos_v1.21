@@ -295,22 +295,52 @@
 
 /* Botones Suaves de Acción */
 .btn-soft-warning {
-    background-color: var(--sitia-btn-soft-warning-bg) !important;
-    border-color: var(--sitia-btn-soft-warning-bg) !important;
-    color: var(--sitia-primitive-white) !important;
+    --bs-btn-color: var(--sitia-primitive-white);
+    --bs-btn-bg: var(--sitia-btn-soft-warning-bg);
+    --bs-btn-border-color: var(--sitia-btn-soft-warning-bg);
+    --bs-btn-hover-color: var(--sitia-primitive-white);
+    --bs-btn-hover-bg: var(--sitia-btn-soft-warning-hover);
+    --bs-btn-hover-border-color: var(--sitia-btn-soft-warning-hover);
+    --bs-btn-active-color: var(--sitia-primitive-white);
+    --bs-btn-active-bg: var(--sitia-btn-soft-warning-hover);
+    --bs-btn-active-border-color: var(--sitia-btn-soft-warning-hover);
+    --bs-btn-disabled-color: var(--sitia-primitive-white);
+    --bs-btn-disabled-bg: var(--sitia-btn-soft-warning-bg);
+    --bs-btn-disabled-border-color: var(--sitia-btn-soft-warning-bg);
+    background-color: var(--sitia-btn-soft-warning-bg);
+    border-color: var(--sitia-btn-soft-warning-bg);
+    color: var(--sitia-primitive-white);
     transition: all 0.2s ease-in-out;
 }
 .btn-soft-warning:hover,
 .btn-soft-warning:active {
-    background-color: var(--sitia-btn-soft-warning-hover) !important;
-    border-color: var(--sitia-btn-soft-warning-hover) !important;
-    color: var(--sitia-primitive-white) !important;
+    background-color: var(--sitia-btn-soft-warning-hover);
+    border-color: var(--sitia-btn-soft-warning-hover);
+    color: var(--sitia-primitive-white);
+}
+.btn-soft-warning.active {
+    background-color: var(--sitia-btn-soft-warning-bg);
+    border-color: var(--sitia-btn-soft-warning-bg);
+    color: var(--sitia-primitive-white);
+}
+.btn-soft-warning:focus-visible {
+    background-color: var(--sitia-btn-soft-warning-bg);
+    border-color: var(--sitia-btn-soft-warning-bg);
+    color: var(--sitia-primitive-white);
 }
 .btn-soft-warning:focus:not(:focus-visible) {
-    background-color: var(--sitia-btn-soft-warning-bg) !important;
-    border-color: var(--sitia-btn-soft-warning-bg) !important;
-    box-shadow: none !important;
-    outline: none !important;
+    background-color: var(--sitia-btn-soft-warning-bg);
+    border-color: var(--sitia-btn-soft-warning-bg);
+    color: var(--sitia-primitive-white);
+    box-shadow: none;
+    outline: none;
+}
+.btn-soft-warning:disabled,
+.btn-soft-warning.disabled {
+    background-color: var(--sitia-btn-soft-warning-bg);
+    border-color: var(--sitia-btn-soft-warning-bg);
+    color: var(--sitia-primitive-white);
+    opacity: 0.65;
 }
 
 .btn-soft-success {
