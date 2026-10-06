@@ -489,21 +489,51 @@
 
 /* Botón marrón claro pastel con fondo sólido e icono blanco */
 .btn-pastel-brown {
-    background-color: var(--sitia-btn-brown-bg) !important;
-    border-color: var(--sitia-btn-brown-bg) !important;
-    color: var(--sitia-primitive-white) !important;
+    --bs-btn-color: var(--sitia-primitive-white);
+    --bs-btn-bg: var(--sitia-btn-brown-bg);
+    --bs-btn-border-color: var(--sitia-btn-brown-bg);
+    --bs-btn-hover-color: var(--sitia-primitive-white);
+    --bs-btn-hover-bg: var(--sitia-btn-brown-hover);
+    --bs-btn-hover-border-color: var(--sitia-btn-brown-hover);
+    --bs-btn-active-color: var(--sitia-primitive-white);
+    --bs-btn-active-bg: var(--sitia-btn-brown-hover);
+    --bs-btn-active-border-color: var(--sitia-btn-brown-hover);
+    --bs-btn-disabled-color: var(--sitia-primitive-white);
+    --bs-btn-disabled-bg: var(--sitia-btn-brown-bg);
+    --bs-btn-disabled-border-color: var(--sitia-btn-brown-bg);
+    background-color: var(--sitia-btn-brown-bg);
+    border-color: var(--sitia-btn-brown-bg);
+    color: var(--sitia-primitive-white);
 }
 .btn-pastel-brown:hover,
 .btn-pastel-brown:active {
-    background-color: var(--sitia-btn-brown-hover) !important;
-    border-color: var(--sitia-btn-brown-hover) !important;
-    color: var(--sitia-primitive-white) !important;
+    background-color: var(--sitia-btn-brown-hover);
+    border-color: var(--sitia-btn-brown-hover);
+    color: var(--sitia-primitive-white);
+}
+.btn-pastel-brown.active {
+    background-color: var(--sitia-btn-brown-bg);
+    border-color: var(--sitia-btn-brown-bg);
+    color: var(--sitia-primitive-white);
+}
+.btn-pastel-brown:focus-visible {
+    background-color: var(--sitia-btn-brown-bg);
+    border-color: var(--sitia-btn-brown-bg);
+    color: var(--sitia-primitive-white);
 }
 .btn-pastel-brown:focus:not(:focus-visible) {
-    background-color: var(--sitia-btn-brown-bg) !important;
-    border-color: var(--sitia-btn-brown-bg) !important;
-    box-shadow: none !important;
-    outline: none !important;
+    background-color: var(--sitia-btn-brown-bg);
+    border-color: var(--sitia-btn-brown-bg);
+    color: var(--sitia-primitive-white);
+    box-shadow: none;
+    outline: none;
+}
+.btn-pastel-brown:disabled,
+.btn-pastel-brown.disabled {
+    background-color: var(--sitia-btn-brown-bg);
+    border-color: var(--sitia-btn-brown-bg);
+    color: var(--sitia-primitive-white);
+    opacity: 0.65;
 }
 
 /* Botón púrpura de Tarea Colaborativa */
