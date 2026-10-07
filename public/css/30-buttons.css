@@ -37,6 +37,7 @@
 
 /* Botón Primario */
 .btn-primary {
+    font-weight: var(--sitia-btn-primary-font-weight, inherit);
     --bs-btn-color: var(--sitia-on-primary);
     --bs-btn-bg: var(--sitia-primary);
     --bs-btn-border-color: var(--sitia-primary);
@@ -60,6 +61,12 @@
 .btn-primary.active {
     background-color: var(--sitia-primary-hover);
     border-color: var(--sitia-primary-hover);
+    color: var(--sitia-on-primary);
+}
+
+.btn-primary:focus-visible {
+    background-color: var(--sitia-btn-primary-focus-bg);
+    border-color: var(--sitia-btn-primary-focus-border);
     color: var(--sitia-on-primary);
 }
 

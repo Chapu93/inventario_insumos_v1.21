@@ -24,6 +24,9 @@
 
     /* Reutilización retrocompatible de nombres antiguos sin duplicación */
     --sitia-btn-dark-text: var(--sitia-on-primary);
+    --sitia-btn-primary-font-weight: 600;
+    --sitia-btn-primary-focus-bg: var(--sitia-primary);
+    --sitia-btn-primary-focus-border: var(--sitia-primary);
     --sitia-btn-warning-text: var(--sitia-on-warning);
     --sitia-btn-info-text: var(--sitia-on-info);
 
@@ -91,26 +94,6 @@
         outline: none !important;
     }
 
-[data-theme="dark"] .btn-primary {
-        background-color: var(--sitia-primary) !important;
-        border-color: var(--sitia-primary) !important;
-        color: var(--sitia-btn-dark-text) !important;
-        font-weight: 600;
-    }
-[data-theme="dark"] .btn-primary:hover,
-[data-theme="dark"] .btn-primary:active,
-[data-theme="dark"] .btn-primary.active {
-        background-color: var(--sitia-primary-hover) !important;
-        border-color: var(--sitia-primary-hover) !important;
-        color: var(--sitia-btn-dark-text) !important;
-    }
-[data-theme="dark"] .btn-primary:focus:not(:focus-visible) {
-        background-color: var(--sitia-primary) !important;
-        border-color: var(--sitia-primary) !important;
-        color: var(--sitia-btn-dark-text) !important;
-        box-shadow: none !important;
-        outline: none !important;
-    }
 
 [data-theme="dark"] .btn-secondary {
         background-color: var(--sitia-secondary) !important;

@@ -154,6 +154,9 @@
     --sitia-white: var(--sitia-primitive-white);
 
     /* Variantes de Botones Soft / Pastel (Modo Claro) */
+    --sitia-btn-primary-font-weight: inherit;
+    --sitia-btn-primary-focus-bg: var(--sitia-primary-hover);
+    --sitia-btn-primary-focus-border: var(--sitia-primary-hover);
     --sitia-btn-warning-bg: var(--sitia-primitive-amber-550);
     --sitia-btn-warning-hover: var(--sitia-primitive-amber-700);
     --sitia-btn-info-bg: var(--sitia-primitive-cyan-600);
