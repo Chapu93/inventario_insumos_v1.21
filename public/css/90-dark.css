@@ -39,6 +39,12 @@
     --sitia-btn-outline-secondary-hover-color: var(--sitia-text);
     --sitia-btn-outline-secondary-hover-border: var(--sitia-border);
     --sitia-btn-outline-secondary-focus-color: var(--sitia-text-muted);
+    --sitia-btn-outline-success-color: var(--sitia-success);
+    --sitia-btn-outline-success-border: var(--sitia-success);
+    --sitia-btn-outline-success-hover-bg: rgba(157, 226, 185, 0.15);
+    --sitia-btn-outline-success-hover-color: var(--sitia-success);
+    --sitia-btn-outline-success-hover-border: var(--sitia-success);
+    --sitia-btn-outline-success-focus-color: var(--sitia-success);
     --sitia-btn-warning-text: var(--sitia-on-warning);
     --sitia-btn-info-text: var(--sitia-on-info);
     --sitia-secondary-hover-border: var(--sitia-secondary-hover);
@@ -152,24 +158,6 @@
         background-color: var(--sitia-primary) !important;
         color: var(--sitia-btn-dark-text) !important;
         border-color: var(--sitia-primary) !important;
-    }
-
-[data-theme="dark"] .btn-outline-success {
-        color: var(--sitia-success) !important;
-        border-color: var(--sitia-success) !important;
-    }
-[data-theme="dark"] .btn-outline-success:hover,
-[data-theme="dark"] .btn-outline-success:active,
-[data-theme="dark"] .btn-outline-success.active {
-        background-color: rgba(157, 226, 185, 0.15) !important;
-        color: var(--sitia-success) !important;
-    }
-[data-theme="dark"] .btn-outline-success:focus:not(:focus-visible) {
-        background-color: transparent !important;
-        color: var(--sitia-success) !important;
-        border-color: var(--sitia-success) !important;
-        box-shadow: none !important;
-        outline: none !important;
     }
 
 [data-theme="dark"] .btn-outline-danger {

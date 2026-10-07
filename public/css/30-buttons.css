@@ -252,6 +252,33 @@ input.btn.btn-outline-primary:focus-visible,
     opacity: 0.65;
 }
 
+/* Botón Outline Success */
+.btn-outline-success {
+    color: var(--sitia-btn-outline-success-color) !important;
+    border-color: var(--sitia-btn-outline-success-border) !important;
+}
+
+.btn-outline-success:hover,
+.btn.btn-outline-success:active,
+.btn-outline-success:active,
+.btn-outline-success.active {
+    background-color: var(--sitia-btn-outline-success-hover-bg) !important;
+    color: var(--sitia-btn-outline-success-hover-color) !important;
+    border-color: var(--sitia-btn-outline-success-hover-border) !important;
+}
+
+.btn-outline-success:focus-visible {
+    color: var(--sitia-btn-outline-success-focus-color) !important;
+}
+
+.btn-outline-success:focus:not(:focus-visible) {
+    background-color: transparent !important;
+    color: var(--sitia-btn-outline-success-color) !important;
+    border-color: var(--sitia-btn-outline-success-border) !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
 /* Botón Danger */
 .btn-danger {
     --bs-btn-color: var(--sitia-on-danger);
