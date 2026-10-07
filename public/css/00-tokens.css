@@ -170,6 +170,12 @@
     --sitia-btn-secondary-dropdown-bg: #565e64;
     --sitia-btn-secondary-dropdown-border: #51585e;
     --sitia-btn-secondary-dropdown-color: var(--sitia-primitive-white);
+    --sitia-btn-success-active-bg: #146c43;
+    --sitia-btn-success-active-border: #13653f;
+    --sitia-btn-success-active-color: var(--sitia-primitive-white);
+    --sitia-btn-success-focus-bg: #157347;
+    --sitia-btn-success-focus-border: #146c43;
+    --sitia-btn-success-focus-color: var(--sitia-primitive-white);
 
     /* Variantes de Botones Soft / Pastel (Modo Claro) */
     --sitia-btn-warning-bg: var(--sitia-primitive-amber-550);

@@ -176,17 +176,30 @@
 
 /* Botón Success */
 .btn-success {
+    font-weight: var(--sitia-btn-font-weight, 400);
     background-color: var(--sitia-success);
     border-color: var(--sitia-success);
     color: var(--sitia-on-success);
 }
 
 .btn-success:hover,
-.btn-success:active,
 .btn-success.active {
     background-color: var(--sitia-success-hover);
     border-color: var(--sitia-success-hover);
     color: var(--sitia-on-success);
+}
+
+.btn-success:active,
+.btn.btn-success:active {
+    background-color: var(--sitia-btn-success-active-bg);
+    border-color: var(--sitia-btn-success-active-border);
+    color: var(--sitia-btn-success-active-color);
+}
+
+.btn-success:focus-visible {
+    background-color: var(--sitia-btn-success-focus-bg);
+    border-color: var(--sitia-btn-success-focus-border);
+    color: var(--sitia-btn-success-focus-color);
 }
 
 .btn-success:focus:not(:focus-visible) {

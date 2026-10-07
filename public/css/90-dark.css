@@ -10,6 +10,7 @@
     --sitia-secondary-border: var(--sitia-secondary);
     --sitia-secondary-text: var(--sitia-text);
     --sitia-success: var(--sitia-primitive-green-300); /* #9de2b9 */
+    --sitia-success-hover: var(--sitia-primitive-sage-880); /* #b1ebd0 */
     --sitia-warning: var(--sitia-primitive-amber-200); /* #f4dd9e */
     --sitia-danger: var(--sitia-primitive-red-200); /* #f7aaaa */
     --sitia-info: var(--sitia-primitive-cyan-200); /* #a2dfe6 */
@@ -42,6 +43,12 @@
     --sitia-btn-secondary-dropdown-bg: var(--sitia-secondary);
     --sitia-btn-secondary-dropdown-border: var(--sitia-secondary);
     --sitia-btn-secondary-dropdown-color: var(--sitia-text);
+    --sitia-btn-success-active-bg: var(--sitia-success-hover);
+    --sitia-btn-success-active-border: var(--sitia-success-hover);
+    --sitia-btn-success-active-color: var(--sitia-on-success);
+    --sitia-btn-success-focus-bg: var(--sitia-success);
+    --sitia-btn-success-focus-border: var(--sitia-success);
+    --sitia-btn-success-focus-color: var(--sitia-on-success);
 
     /* Anillos de Foco (Modo Oscuro) */
     --sitia-focus-ring: 0 0 0 0.25rem rgba(161, 212, 177, 0.25);
@@ -106,27 +113,6 @@
         outline: none !important;
     }
 
-
-[data-theme="dark"] .btn-success {
-        background-color: var(--sitia-success) !important;
-        border-color: var(--sitia-success) !important;
-        color: var(--sitia-btn-dark-text) !important;
-        font-weight: 600;
-    }
-[data-theme="dark"] .btn-success:hover,
-[data-theme="dark"] .btn-success:active,
-[data-theme="dark"] .btn-success.active {
-        background-color: var(--sitia-primitive-sage-880) !important;
-        border-color: var(--sitia-primitive-sage-880) !important;
-        color: var(--sitia-btn-dark-text) !important;
-    }
-[data-theme="dark"] .btn-success:focus:not(:focus-visible) {
-        background-color: var(--sitia-success) !important;
-        border-color: var(--sitia-success) !important;
-        color: var(--sitia-btn-dark-text) !important;
-        box-shadow: none !important;
-        outline: none !important;
-    }
 
 [data-theme="dark"] .btn-warning {
         background-color: var(--sitia-btn-warning-bg) !important;
