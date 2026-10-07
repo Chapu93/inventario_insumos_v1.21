@@ -308,12 +308,14 @@
     --bs-btn-disabled-opacity: 0.65;
     background-color: var(--sitia-btn-warning-bg);
     border-color: var(--sitia-btn-warning-bg);
+    font-weight: var(--sitia-btn-font-weight, 400);
     /* NOTA: Se preserva !important en color de texto para mantener compatibilidad determinista con utilidades como .text-dark presentes en la línea base (502cad9) */
     color: var(--sitia-on-warning) !important;
 }
 
 .btn-warning:hover,
 .btn-warning:active,
+.btn.btn-warning:active,
 .btn-warning.active {
     background-color: var(--sitia-btn-warning-hover);
     border-color: var(--sitia-btn-warning-hover);
@@ -340,6 +342,13 @@
     border-color: var(--sitia-btn-warning-bg);
     color: var(--sitia-on-warning) !important;
     opacity: 0.65;
+}
+
+.btn-warning.text-white,
+.btn-warning.text-white:hover,
+.btn-warning.text-white:active,
+.btn-warning.text-white:focus {
+    color: var(--sitia-primitive-white) !important;
 }
 
 /* Botones Suaves de Acción */

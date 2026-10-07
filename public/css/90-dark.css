@@ -114,33 +114,6 @@
     }
 
 
-[data-theme="dark"] .btn-warning {
-        background-color: var(--sitia-btn-warning-bg) !important;
-        border-color: var(--sitia-btn-warning-bg) !important;
-        color: var(--sitia-btn-warning-text) !important;
-        font-weight: 600;
-    }
-[data-theme="dark"] .btn-warning.text-white {
-        color: var(--sitia-white) !important;
-    }
-[data-theme="dark"] .btn-warning:hover,
-[data-theme="dark"] .btn-warning:active,
-[data-theme="dark"] .btn-warning.active {
-        background-color: var(--sitia-btn-warning-hover) !important;
-        border-color: var(--sitia-btn-warning-hover) !important;
-        color: var(--sitia-btn-warning-text) !important;
-    }
-[data-theme="dark"] .btn-warning.text-white:hover {
-        color: var(--sitia-white) !important;
-    }
-[data-theme="dark"] .btn-warning:focus:not(:focus-visible) {
-        background-color: var(--sitia-btn-warning-bg) !important;
-        border-color: var(--sitia-btn-warning-bg) !important;
-        color: var(--sitia-btn-warning-text) !important;
-        box-shadow: none !important;
-        outline: none !important;
-    }
-
 [data-theme="dark"] .btn-danger {
         background-color: var(--sitia-danger) !important;
         border-color: var(--sitia-danger) !important;
