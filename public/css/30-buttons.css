@@ -133,11 +133,23 @@
 }
 
 .btn-secondary:hover,
-.btn-secondary:active,
 .btn-secondary.active {
     background-color: var(--sitia-secondary-hover);
-    border-color: var(--sitia-primitive-sage-400);
+    border-color: var(--sitia-secondary-hover-border);
     color: var(--sitia-secondary-text);
+}
+
+.btn-secondary:active,
+.btn.btn-secondary:active {
+    background-color: var(--sitia-btn-secondary-active-bg);
+    border-color: var(--sitia-btn-secondary-active-border);
+    color: var(--sitia-btn-secondary-active-color);
+}
+
+.btn-secondary:focus-visible {
+    background-color: var(--sitia-btn-secondary-focus-bg);
+    border-color: var(--sitia-btn-secondary-focus-border);
+    color: var(--sitia-btn-secondary-focus-color);
 }
 
 .btn-secondary:focus:not(:focus-visible) {
@@ -146,6 +158,20 @@
     color: var(--sitia-secondary-text);
     box-shadow: none;
     outline: none;
+}
+
+.btn-secondary:disabled,
+.btn-secondary.disabled {
+    background-color: var(--sitia-btn-secondary-disabled-bg);
+    border-color: var(--sitia-btn-secondary-disabled-border);
+    color: var(--sitia-btn-secondary-disabled-color);
+}
+
+.show > .btn-secondary.dropdown-toggle,
+.btn-secondary.show {
+    background-color: var(--sitia-btn-secondary-dropdown-bg);
+    border-color: var(--sitia-btn-secondary-dropdown-border);
+    color: var(--sitia-btn-secondary-dropdown-color);
 }
 
 /* Botón Success */

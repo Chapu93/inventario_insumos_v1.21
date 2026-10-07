@@ -157,6 +157,19 @@
     --sitia-btn-font-weight: 400;
     --sitia-btn-primary-focus-bg: var(--sitia-primary-hover);
     --sitia-btn-primary-focus-border: var(--sitia-primary-hover);
+    --sitia-secondary-hover-border: var(--sitia-primitive-sage-400);
+    --sitia-btn-secondary-active-bg: #565e64;
+    --sitia-btn-secondary-active-border: #51585e;
+    --sitia-btn-secondary-active-color: var(--sitia-primitive-white);
+    --sitia-btn-secondary-focus-bg: #5c636a;
+    --sitia-btn-secondary-focus-border: #565e64;
+    --sitia-btn-secondary-focus-color: var(--sitia-primitive-white);
+    --sitia-btn-secondary-disabled-bg: #6c757d;
+    --sitia-btn-secondary-disabled-border: #6c757d;
+    --sitia-btn-secondary-disabled-color: var(--sitia-primitive-white);
+    --sitia-btn-secondary-dropdown-bg: #565e64;
+    --sitia-btn-secondary-dropdown-border: #51585e;
+    --sitia-btn-secondary-dropdown-color: var(--sitia-primitive-white);
 
     /* Variantes de Botones Soft / Pastel (Modo Claro) */
     --sitia-btn-warning-bg: var(--sitia-primitive-amber-550);

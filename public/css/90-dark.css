@@ -7,7 +7,7 @@
     --sitia-primary-hover: var(--sitia-primitive-sage-850); /* #b4e0c2 */
     --sitia-secondary: var(--sitia-primitive-sage-500); /* #7e8f89 */
     --sitia-secondary-hover: var(--sitia-primitive-sage-520); /* #8fa09a */
-    --sitia-secondary-border: var(--sitia-primitive-sage-520);
+    --sitia-secondary-border: var(--sitia-secondary);
     --sitia-secondary-text: var(--sitia-text);
     --sitia-success: var(--sitia-primitive-green-300); /* #9de2b9 */
     --sitia-warning: var(--sitia-primitive-amber-200); /* #f4dd9e */
@@ -29,6 +29,19 @@
     --sitia-btn-primary-focus-border: var(--sitia-primary);
     --sitia-btn-warning-text: var(--sitia-on-warning);
     --sitia-btn-info-text: var(--sitia-on-info);
+    --sitia-secondary-hover-border: var(--sitia-secondary-hover);
+    --sitia-btn-secondary-active-bg: var(--sitia-secondary-hover);
+    --sitia-btn-secondary-active-border: var(--sitia-secondary-hover);
+    --sitia-btn-secondary-active-color: var(--sitia-text);
+    --sitia-btn-secondary-focus-bg: var(--sitia-secondary);
+    --sitia-btn-secondary-focus-border: var(--sitia-secondary);
+    --sitia-btn-secondary-focus-color: var(--sitia-text);
+    --sitia-btn-secondary-disabled-bg: var(--sitia-secondary);
+    --sitia-btn-secondary-disabled-border: var(--sitia-secondary);
+    --sitia-btn-secondary-disabled-color: var(--sitia-text);
+    --sitia-btn-secondary-dropdown-bg: var(--sitia-secondary);
+    --sitia-btn-secondary-dropdown-border: var(--sitia-secondary);
+    --sitia-btn-secondary-dropdown-color: var(--sitia-text);
 
     /* Anillos de Foco (Modo Oscuro) */
     --sitia-focus-ring: 0 0 0 0.25rem rgba(161, 212, 177, 0.25);
@@ -93,26 +106,6 @@
         outline: none !important;
     }
 
-
-[data-theme="dark"] .btn-secondary {
-        background-color: var(--sitia-secondary) !important;
-        border-color: var(--sitia-secondary) !important;
-        color: var(--sitia-text) !important;
-    }
-[data-theme="dark"] .btn-secondary:hover,
-[data-theme="dark"] .btn-secondary:active,
-[data-theme="dark"] .btn-secondary.active {
-        background-color: var(--sitia-secondary-hover) !important;
-        border-color: var(--sitia-secondary-hover) !important;
-        color: var(--sitia-text) !important;
-    }
-[data-theme="dark"] .btn-secondary:focus:not(:focus-visible) {
-        background-color: var(--sitia-secondary) !important;
-        border-color: var(--sitia-secondary) !important;
-        color: var(--sitia-text) !important;
-        box-shadow: none !important;
-        outline: none !important;
-    }
 
 [data-theme="dark"] .btn-success {
         background-color: var(--sitia-success) !important;

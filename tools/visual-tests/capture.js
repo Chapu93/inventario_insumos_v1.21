@@ -603,7 +603,8 @@ async function run() {
               m.show();
             });
           });
-          await new Promise(r => setTimeout(r, 450));
+          await page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
+          await new Promise(r => setTimeout(r, 600));
           await page.screenshot({ path: path.join(currentOutputDir, `state_modal_confirmacion_${theme}.png`), fullPage: false });
 
           // 6. Select2 desplegado con scroll determinista (en galería)
