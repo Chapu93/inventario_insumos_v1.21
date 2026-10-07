@@ -190,6 +190,15 @@
     --sitia-btn-danger-active-border: #a52834;
     --sitia-btn-danger-focus-bg: var(--sitia-primitive-red-700);
     --sitia-btn-danger-focus-border: var(--sitia-primitive-red-800);
+    --sitia-btn-light-bg: #f8f9fa;
+    --sitia-btn-light-border: #f8f9fa;
+    --sitia-btn-light-color: #000;
+    --sitia-btn-light-hover-bg: #d3d4d5;
+    --sitia-btn-light-hover-border: #c6c7c8;
+    --sitia-btn-light-active-bg: #c6c7c8;
+    --sitia-btn-light-active-border: rgb(186, 187, 188);
+    --sitia-btn-light-focus-bg: #d3d4d5;
+    --sitia-btn-light-focus-border: #c6c7c8;
     --sitia-btn-soft-primary-bg: var(--sitia-primitive-green-400);
     --sitia-btn-soft-primary-hover: var(--sitia-primitive-green-700);
     --sitia-btn-soft-warning-bg: var(--sitia-primitive-amber-400);

@@ -67,6 +67,15 @@
     --sitia-btn-danger-active-border: var(--sitia-primitive-red-300);
     --sitia-btn-danger-focus-bg: var(--sitia-primitive-red-200);
     --sitia-btn-danger-focus-border: var(--sitia-primitive-red-200);
+    --sitia-btn-light-bg: var(--sitia-surface-1);
+    --sitia-btn-light-border: var(--sitia-border);
+    --sitia-btn-light-color: var(--sitia-text);
+    --sitia-btn-light-hover-bg: var(--sitia-surface-2);
+    --sitia-btn-light-hover-border: var(--sitia-border);
+    --sitia-btn-light-active-bg: var(--sitia-surface-2);
+    --sitia-btn-light-active-border: var(--sitia-border);
+    --sitia-btn-light-focus-bg: var(--sitia-surface-1);
+    --sitia-btn-light-focus-border: var(--sitia-border);
     --sitia-btn-soft-primary-bg: var(--sitia-primitive-green-700); /* #4e8351 */
     --sitia-btn-soft-primary-hover: #3e6a41;
     --sitia-btn-soft-warning-bg: var(--sitia-primitive-amber-750); /* #d1970b */
@@ -119,26 +128,6 @@
         outline: none !important;
     }
 
-
-[data-theme="dark"] .btn-light {
-        background-color: var(--sitia-surface-1) !important;
-        border-color: var(--sitia-border) !important;
-        color: var(--sitia-text) !important;
-    }
-[data-theme="dark"] .btn-light:hover,
-[data-theme="dark"] .btn-light:active,
-[data-theme="dark"] .btn-light.active {
-        background-color: var(--sitia-surface-2) !important;
-        border-color: var(--sitia-border) !important;
-        color: var(--sitia-text) !important;
-    }
-[data-theme="dark"] .btn-light:focus:not(:focus-visible) {
-        background-color: var(--sitia-surface-1) !important;
-        border-color: var(--sitia-border) !important;
-        color: var(--sitia-text) !important;
-        box-shadow: none !important;
-        outline: none !important;
-    }
 
 /* Botones Suaves en Modo Oscuro */
 [data-theme="dark"] .btn-soft-warning {

@@ -328,6 +328,62 @@
     opacity: 0.65;
 }
 
+/* Botón Light */
+.btn-light {
+    --bs-btn-color: var(--sitia-btn-light-color);
+    --bs-btn-bg: var(--sitia-btn-light-bg);
+    --bs-btn-border-color: var(--sitia-btn-light-border);
+    --bs-btn-hover-color: var(--sitia-btn-light-color);
+    --bs-btn-hover-bg: var(--sitia-btn-light-hover-bg);
+    --bs-btn-hover-border-color: var(--sitia-btn-light-hover-border);
+    --bs-btn-active-color: var(--sitia-btn-light-color);
+    --bs-btn-active-bg: var(--sitia-btn-light-active-bg);
+    --bs-btn-active-border-color: var(--sitia-btn-light-active-border);
+    --bs-btn-disabled-color: var(--sitia-btn-light-color);
+    --bs-btn-disabled-bg: var(--sitia-btn-light-bg);
+    --bs-btn-disabled-border-color: var(--sitia-btn-light-border);
+    --bs-btn-disabled-opacity: 0.65;
+    background-color: var(--sitia-btn-light-bg);
+    border-color: var(--sitia-btn-light-border);
+    color: var(--sitia-btn-light-color);
+}
+
+.btn-light:hover {
+    background-color: var(--sitia-btn-light-hover-bg);
+    border-color: var(--sitia-btn-light-hover-border);
+    color: var(--sitia-btn-light-color);
+}
+
+.btn-light:active,
+.btn.btn-light:active,
+.btn-light.active {
+    background-color: var(--sitia-btn-light-active-bg);
+    border-color: var(--sitia-btn-light-active-border);
+    color: var(--sitia-btn-light-color);
+}
+
+.btn-light:focus-visible {
+    background-color: var(--sitia-btn-light-focus-bg);
+    border-color: var(--sitia-btn-light-focus-border);
+    color: var(--sitia-btn-light-color);
+}
+
+.btn-light:focus:not(:focus-visible) {
+    background-color: var(--sitia-btn-light-bg);
+    border-color: var(--sitia-btn-light-border);
+    color: var(--sitia-btn-light-color);
+    box-shadow: none;
+    outline: none;
+}
+
+.btn-light:disabled,
+.btn-light.disabled {
+    background-color: var(--sitia-btn-light-bg);
+    border-color: var(--sitia-btn-light-border);
+    color: var(--sitia-btn-light-color);
+    opacity: 0.65;
+}
+
 /* Botón Warning (Ver Asignaciones #d9943f) */
 .btn-warning {
     --bs-btn-color: var(--sitia-on-warning);
