@@ -51,6 +51,12 @@
     --sitia-btn-outline-danger-hover-color: var(--sitia-danger);
     --sitia-btn-outline-danger-hover-border: var(--sitia-danger);
     --sitia-btn-outline-danger-focus-color: var(--sitia-danger);
+    --sitia-btn-outline-warning-color: var(--sitia-warning);
+    --sitia-btn-outline-warning-border: var(--sitia-warning);
+    --sitia-btn-outline-warning-hover-bg: rgba(244, 221, 158, 0.15);
+    --sitia-btn-outline-warning-hover-color: var(--sitia-warning);
+    --sitia-btn-outline-warning-hover-border: var(--sitia-warning);
+    --sitia-btn-outline-warning-focus-color: var(--sitia-warning);
     --sitia-btn-warning-text: var(--sitia-on-warning);
     --sitia-btn-info-text: var(--sitia-on-info);
     --sitia-secondary-hover-border: var(--sitia-secondary-hover);
@@ -164,23 +170,6 @@
         background-color: var(--sitia-primary) !important;
         color: var(--sitia-btn-dark-text) !important;
         border-color: var(--sitia-primary) !important;
-    }
-[data-theme="dark"] .btn-outline-warning {
-        color: var(--sitia-warning) !important;
-        border-color: var(--sitia-warning) !important;
-    }
-[data-theme="dark"] .btn-outline-warning:hover,
-[data-theme="dark"] .btn-outline-warning:active,
-[data-theme="dark"] .btn-outline-warning.active {
-        background-color: rgba(244, 221, 158, 0.15) !important;
-        color: var(--sitia-warning) !important;
-    }
-[data-theme="dark"] .btn-outline-warning:focus:not(:focus-visible) {
-        background-color: transparent !important;
-        color: var(--sitia-warning) !important;
-        border-color: var(--sitia-warning) !important;
-        box-shadow: none !important;
-        outline: none !important;
     }
 
 /* Badges y Estados en Modo Oscuro (Estilo translúcido premium) */

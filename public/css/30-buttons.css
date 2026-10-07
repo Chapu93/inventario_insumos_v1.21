@@ -532,6 +532,33 @@ input.btn.btn-outline-primary:focus-visible,
     color: var(--sitia-primitive-white) !important;
 }
 
+/* Botón Outline Warning */
+.btn-outline-warning {
+    color: var(--sitia-btn-outline-warning-color) !important;
+    border-color: var(--sitia-btn-outline-warning-border) !important;
+}
+
+.btn-outline-warning:hover,
+.btn.btn-outline-warning:active,
+.btn-outline-warning:active,
+.btn-outline-warning.active {
+    background-color: var(--sitia-btn-outline-warning-hover-bg) !important;
+    color: var(--sitia-btn-outline-warning-hover-color) !important;
+    border-color: var(--sitia-btn-outline-warning-hover-border) !important;
+}
+
+.btn-outline-warning:focus-visible {
+    color: var(--sitia-btn-outline-warning-focus-color) !important;
+}
+
+.btn-outline-warning:focus:not(:focus-visible) {
+    background-color: transparent !important;
+    color: var(--sitia-btn-outline-warning-color) !important;
+    border-color: var(--sitia-btn-outline-warning-border) !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
 /* Botones Suaves de Acción */
 .btn-soft-warning {
     --bs-btn-color: var(--sitia-primitive-white);

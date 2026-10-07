@@ -180,6 +180,12 @@
     --sitia-btn-outline-danger-hover-color: var(--sitia-primitive-white);
     --sitia-btn-outline-danger-hover-border: #dc3545;
     --sitia-btn-outline-danger-focus-color: var(--sitia-primitive-white);
+    --sitia-btn-outline-warning-color: #ffc107;
+    --sitia-btn-outline-warning-border: #ffc107;
+    --sitia-btn-outline-warning-hover-bg: #ffc107;
+    --sitia-btn-outline-warning-hover-color: #000;
+    --sitia-btn-outline-warning-hover-border: #ffc107;
+    --sitia-btn-outline-warning-focus-color: #000;
     --sitia-secondary-hover-border: var(--sitia-primitive-sage-400);
     --sitia-btn-secondary-active-bg: #565e64;
     --sitia-btn-secondary-active-border: #51585e;
