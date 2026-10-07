@@ -16,7 +16,6 @@
 
     /* Neutros y Grises */
     --sitia-primitive-gray-100: #f8f9fa;
-    --sitia-primitive-gray-200: #e9ecef;
     --sitia-primitive-gray-300: #dee2e6;
     --sitia-primitive-gray-600: #6c757d;
     --sitia-primitive-gray-700: #525659;
@@ -37,7 +36,6 @@
     --sitia-primitive-green-650: #4e9c70;
     --sitia-primitive-green-700: #4e8351;
     --sitia-primitive-green-750: #44633f;
-    --sitia-primitive-green-800: #3d7b5f;
     --sitia-primitive-green-850: #28a745;
     --sitia-primitive-green-900: #218838;
     --sitia-primitive-green-920: #1a6d2c;
@@ -75,10 +73,8 @@
     --sitia-primitive-cyan-250: #8bcbd3;
     --sitia-primitive-cyan-300: #79c5bd;
     --sitia-primitive-cyan-350: #63b3ab;
-    --sitia-primitive-cyan-400: #4a9b8c;
     --sitia-primitive-cyan-500: #4aa79b;
     --sitia-primitive-cyan-600: #4a9d95;
-    --sitia-primitive-cyan-700: #3b8b82;
     --sitia-primitive-cyan-800: #3b827b;
     --sitia-primitive-cyan-900: #084298;
     --sitia-primitive-cyan-950: #1a3a37;
@@ -91,7 +87,6 @@
     --sitia-primitive-amber-300: #f2bd83;
     --sitia-primitive-amber-350: #e5ac6b;
     --sitia-primitive-amber-400: #e6ad12;
-    --sitia-primitive-amber-450: #d4a03c;
     --sitia-primitive-amber-500: #e3a542;
     --sitia-primitive-amber-550: #d9943f;
     --sitia-primitive-amber-570: #d99221;
@@ -109,7 +104,6 @@
     --sitia-primitive-red-200: #f7aaaa;
     --sitia-primitive-red-250: #ea9696;
     --sitia-primitive-red-300: #f9c2c2;
-    --sitia-primitive-red-400: #c9544a;
     --sitia-primitive-red-500: #dc3545;
     --sitia-primitive-red-600: #cc0000;
     --sitia-primitive-red-650: #c82333;
@@ -130,7 +124,6 @@
     --sitia-primitive-tooltip-bg: #3b443e;
 
     /* KPI Degradados */
-    --sitia-primitive-kpi-start: #ff512f;
     --sitia-primitive-kpi-end: #dd2476;
 
     /* ========================================================================
@@ -155,11 +148,8 @@
     --sitia-success-active: var(--sitia-primitive-green-900);
     --sitia-success-border: var(--sitia-primitive-green-850);
     --sitia-warning: var(--sitia-primitive-amber-500);
-    --sitia-warning-hover: var(--sitia-primitive-amber-700);
     --sitia-danger: var(--sitia-primitive-red-600);
-    --sitia-danger-hover: var(--sitia-primitive-red-700);
     --sitia-info: var(--sitia-primitive-cyan-500);
-    --sitia-info-hover: var(--sitia-primitive-cyan-700);
 
     --sitia-white: var(--sitia-primitive-white);
 
@@ -186,7 +176,6 @@
     --sitia-surface-1: var(--sitia-primitive-green-150); /* #d1ded4: Cabeceras modales, thead */
     --sitia-surface-2: var(--sitia-primitive-green-100); /* #dbe7e0: Cabeceras tarjetas, alternate rows */
     --sitia-surface-3: var(--sitia-primitive-green-50);  /* #e6efe9: Fondo general body */
-    --sitia-surface-card: var(--sitia-primitive-white);
     --sitia-input-bg: var(--sitia-primitive-white);
 
     --sitia-text: var(--sitia-primitive-gray-900); /* #1f2430 */
@@ -203,7 +192,6 @@
 
     /* Tooltip */
     --sitia-tooltip-bg: var(--sitia-primitive-tooltip-bg);
-    --sitia-tooltip-color: var(--sitia-primitive-white);
 
     /* Alertas Modo Claro */
     --sitia-alert-success-bg: var(--sitia-primitive-green-200);
