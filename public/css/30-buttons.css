@@ -336,6 +336,33 @@ input.btn.btn-outline-primary:focus-visible,
     opacity: 0.65;
 }
 
+/* Botón Outline Danger */
+.btn-outline-danger {
+    color: var(--sitia-btn-outline-danger-color) !important;
+    border-color: var(--sitia-btn-outline-danger-border) !important;
+}
+
+.btn-outline-danger:hover,
+.btn.btn-outline-danger:active,
+.btn-outline-danger:active,
+.btn-outline-danger.active {
+    background-color: var(--sitia-btn-outline-danger-hover-bg) !important;
+    color: var(--sitia-btn-outline-danger-hover-color) !important;
+    border-color: var(--sitia-btn-outline-danger-hover-border) !important;
+}
+
+.btn-outline-danger:focus-visible {
+    color: var(--sitia-btn-outline-danger-focus-color) !important;
+}
+
+.btn-outline-danger:focus:not(:focus-visible) {
+    background-color: transparent !important;
+    color: var(--sitia-btn-outline-danger-color) !important;
+    border-color: var(--sitia-btn-outline-danger-border) !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
 /* Botón Info (Ver Insumos #4a9d95) */
 .btn-info {
     --bs-btn-color: var(--sitia-on-info);

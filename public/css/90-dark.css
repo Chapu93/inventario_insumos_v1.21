@@ -45,6 +45,12 @@
     --sitia-btn-outline-success-hover-color: var(--sitia-success);
     --sitia-btn-outline-success-hover-border: var(--sitia-success);
     --sitia-btn-outline-success-focus-color: var(--sitia-success);
+    --sitia-btn-outline-danger-color: var(--sitia-danger);
+    --sitia-btn-outline-danger-border: var(--sitia-danger);
+    --sitia-btn-outline-danger-hover-bg: rgba(247, 170, 170, 0.15);
+    --sitia-btn-outline-danger-hover-color: var(--sitia-danger);
+    --sitia-btn-outline-danger-hover-border: var(--sitia-danger);
+    --sitia-btn-outline-danger-focus-color: var(--sitia-danger);
     --sitia-btn-warning-text: var(--sitia-on-warning);
     --sitia-btn-info-text: var(--sitia-on-info);
     --sitia-secondary-hover-border: var(--sitia-secondary-hover);
@@ -159,25 +165,6 @@
         color: var(--sitia-btn-dark-text) !important;
         border-color: var(--sitia-primary) !important;
     }
-
-[data-theme="dark"] .btn-outline-danger {
-        color: var(--sitia-danger) !important;
-        border-color: var(--sitia-danger) !important;
-    }
-[data-theme="dark"] .btn-outline-danger:hover,
-[data-theme="dark"] .btn-outline-danger:active,
-[data-theme="dark"] .btn-outline-danger.active {
-        background-color: rgba(247, 170, 170, 0.15) !important;
-        color: var(--sitia-danger) !important;
-    }
-[data-theme="dark"] .btn-outline-danger:focus:not(:focus-visible) {
-        background-color: transparent !important;
-        color: var(--sitia-danger) !important;
-        border-color: var(--sitia-danger) !important;
-        box-shadow: none !important;
-        outline: none !important;
-    }
-
 [data-theme="dark"] .btn-outline-warning {
         color: var(--sitia-warning) !important;
         border-color: var(--sitia-warning) !important;
