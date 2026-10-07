@@ -176,6 +176,7 @@
     --sitia-surface-1: var(--sitia-primitive-green-150); /* #d1ded4: Cabeceras modales, thead */
     --sitia-surface-2: var(--sitia-primitive-green-100); /* #dbe7e0: Cabeceras tarjetas, alternate rows */
     --sitia-surface-3: var(--sitia-primitive-green-50);  /* #e6efe9: Fondo general body */
+    --sitia-surface-card: var(--sitia-primitive-white);
     --sitia-input-bg: var(--sitia-primitive-white);
 
     --sitia-text: var(--sitia-primitive-gray-900); /* #1f2430 */
