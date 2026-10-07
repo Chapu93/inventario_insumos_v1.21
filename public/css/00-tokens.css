@@ -184,7 +184,12 @@
     --sitia-btn-info-hover: var(--sitia-primitive-cyan-800);
     --sitia-btn-danger-bg: var(--sitia-primitive-red-500);
     --sitia-btn-danger-hover: var(--sitia-primitive-red-700);
+    --sitia-btn-danger-hover-border: var(--sitia-primitive-red-800);
     --sitia-btn-danger-active: var(--sitia-primitive-red-800);
+    --sitia-btn-danger-active-bg: var(--sitia-primitive-red-800);
+    --sitia-btn-danger-active-border: #a52834;
+    --sitia-btn-danger-focus-bg: var(--sitia-primitive-red-700);
+    --sitia-btn-danger-focus-border: var(--sitia-primitive-red-800);
     --sitia-btn-soft-primary-bg: var(--sitia-primitive-green-400);
     --sitia-btn-soft-primary-hover: var(--sitia-primitive-green-700);
     --sitia-btn-soft-warning-bg: var(--sitia-primitive-amber-400);

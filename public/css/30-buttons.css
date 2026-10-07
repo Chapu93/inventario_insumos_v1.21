@@ -220,16 +220,42 @@
 
 /* Botón Danger */
 .btn-danger {
+    --bs-btn-color: var(--sitia-on-danger);
+    --bs-btn-bg: var(--sitia-btn-danger-bg);
+    --bs-btn-border-color: var(--sitia-btn-danger-bg);
+    --bs-btn-hover-color: var(--sitia-on-danger);
+    --bs-btn-hover-bg: var(--sitia-btn-danger-hover);
+    --bs-btn-hover-border-color: var(--sitia-btn-danger-hover-border);
+    --bs-btn-active-color: var(--sitia-on-danger);
+    --bs-btn-active-bg: var(--sitia-btn-danger-active-bg);
+    --bs-btn-active-border-color: var(--sitia-btn-danger-active-border);
+    --bs-btn-disabled-color: var(--sitia-on-danger);
+    --bs-btn-disabled-bg: var(--sitia-btn-danger-bg);
+    --bs-btn-disabled-border-color: var(--sitia-btn-danger-bg);
+    --bs-btn-disabled-opacity: 0.65;
     background-color: var(--sitia-btn-danger-bg);
     border-color: var(--sitia-btn-danger-bg);
     color: var(--sitia-on-danger);
+    font-weight: var(--sitia-btn-font-weight, 400);
 }
 
 .btn-danger:hover,
-.btn-danger:active,
 .btn-danger.active {
     background-color: var(--sitia-btn-danger-hover);
     border-color: var(--sitia-btn-danger-active);
+    color: var(--sitia-on-danger);
+}
+
+.btn-danger:active,
+.btn.btn-danger:active {
+    background-color: var(--sitia-btn-danger-active-bg);
+    border-color: var(--sitia-btn-danger-active-border);
+    color: var(--sitia-on-danger);
+}
+
+.btn-danger:focus-visible {
+    background-color: var(--sitia-btn-danger-focus-bg);
+    border-color: var(--sitia-btn-danger-focus-border);
     color: var(--sitia-on-danger);
 }
 
@@ -239,6 +265,14 @@
     color: var(--sitia-on-danger);
     box-shadow: none;
     outline: none;
+}
+
+.btn-danger:disabled,
+.btn-danger.disabled {
+    background-color: var(--sitia-btn-danger-bg);
+    border-color: var(--sitia-btn-danger-bg);
+    color: var(--sitia-on-danger);
+    opacity: 0.65;
 }
 
 /* Botón Info (Ver Insumos #4a9d95) */

@@ -61,6 +61,12 @@
     --sitia-btn-info-hover: var(--sitia-primitive-cyan-300); /* #79c5bd */
     --sitia-btn-danger-bg: var(--sitia-primitive-red-200); /* #f7aaaa */
     --sitia-btn-danger-hover: var(--sitia-primitive-red-300); /* #f9c2c2 */
+    --sitia-btn-danger-hover-border: var(--sitia-primitive-red-300);
+    --sitia-btn-danger-active: var(--sitia-primitive-red-300);
+    --sitia-btn-danger-active-bg: var(--sitia-primitive-red-300);
+    --sitia-btn-danger-active-border: var(--sitia-primitive-red-300);
+    --sitia-btn-danger-focus-bg: var(--sitia-primitive-red-200);
+    --sitia-btn-danger-focus-border: var(--sitia-primitive-red-200);
     --sitia-btn-soft-primary-bg: var(--sitia-primitive-green-700); /* #4e8351 */
     --sitia-btn-soft-primary-hover: #3e6a41;
     --sitia-btn-soft-warning-bg: var(--sitia-primitive-amber-750); /* #d1970b */
@@ -113,27 +119,6 @@
         outline: none !important;
     }
 
-
-[data-theme="dark"] .btn-danger {
-        background-color: var(--sitia-danger) !important;
-        border-color: var(--sitia-danger) !important;
-        color: var(--sitia-btn-dark-text) !important;
-        font-weight: 600;
-    }
-[data-theme="dark"] .btn-danger:hover,
-[data-theme="dark"] .btn-danger:active,
-[data-theme="dark"] .btn-danger.active {
-        background-color: var(--sitia-primitive-red-300) !important;
-        border-color: var(--sitia-primitive-red-300) !important;
-        color: var(--sitia-btn-dark-text) !important;
-    }
-[data-theme="dark"] .btn-danger:focus:not(:focus-visible) {
-        background-color: var(--sitia-danger) !important;
-        border-color: var(--sitia-danger) !important;
-        color: var(--sitia-btn-dark-text) !important;
-        box-shadow: none !important;
-        outline: none !important;
-    }
 
 [data-theme="dark"] .btn-info {
         background-color: var(--sitia-btn-info-bg) !important;
