@@ -306,7 +306,6 @@ async function run() {
               }
               .modal-backdrop, .modal-backdrop.fade, .modal-backdrop.show {
                 transition: none !important;
-                opacity: 0.6 !important;
               }
             `;
             (document.head || document.documentElement).appendChild(style);

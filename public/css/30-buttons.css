@@ -11,6 +11,7 @@
 }
 
 /* Supresión universal de halos y marcos residuales en botones al hacer clic con mouse */
+/* NOTA: Se preservan !important para prevalecer deterministamente sobre reglas de foco de alta especificidad de Bootstrap 5 (.btn-check:focus + .btn, .btn:active:focus) */
 .btn:focus:not(:focus-visible),
 .btn-close:focus:not(:focus-visible),
 .nav-link:focus:not(:focus-visible),
@@ -23,6 +24,7 @@
 }
 
 /* Foco institucional verde SITIA accesible por teclado */
+/* NOTA: Se preservan !important para garantizar que el anillo institucional prevalezca sobre box-shadow por defecto de Bootstrap 5 en foco por teclado */
 .btn:focus-visible {
     box-shadow: var(--sitia-focus-ring) !important;
     outline: none !important;
@@ -260,6 +262,7 @@
     --bs-btn-disabled-opacity: 0.65;
     background-color: var(--sitia-btn-warning-bg);
     border-color: var(--sitia-btn-warning-bg);
+    /* NOTA: Se preserva !important en color de texto para mantener compatibilidad determinista con utilidades como .text-dark presentes en la línea base (502cad9) */
     color: var(--sitia-on-warning) !important;
 }
 
@@ -603,6 +606,7 @@
     opacity: 1;
 }
 
+/* NOTA: Se preservan !important para neutralizar completamente los halos de foco residuales sobre las variantes de botones dentro de tablas */
 .table .btn-group .btn:focus:not(:focus-visible) {
     opacity: 0.85;
     box-shadow: none !important;
