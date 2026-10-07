@@ -209,6 +209,54 @@ require_once __DIR__ . '/../../includes/config.php';
                                         <td><button type="button" class="btn btn-primary btn-sm disabled" disabled>Disabled</button></td>
                                         <td><button type="button" class="btn btn-primary btn-sm">Focus</button></td>
                                     </tr>
+                                    <tr>
+                                        <td class="text-start fw-bold">Light</td>
+                                        <td><button type="button" class="btn btn-light" id="btn_matrix_light">Light</button></td>
+                                        <td><button type="button" class="btn btn-light">Hover</button></td>
+                                        <td><button type="button" class="btn btn-light active">Active</button></td>
+                                        <td><button type="button" class="btn btn-light disabled" disabled>Disabled</button></td>
+                                        <td><button type="button" class="btn btn-light">Focus</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-bold">Outline Secondary</td>
+                                        <td><button type="button" class="btn btn-outline-secondary" id="btn_matrix_outline_secondary">Outline Secondary</button></td>
+                                        <td><button type="button" class="btn btn-outline-secondary">Hover</button></td>
+                                        <td><button type="button" class="btn btn-outline-secondary active">Active</button></td>
+                                        <td><button type="button" class="btn btn-outline-secondary disabled" disabled>Disabled</button></td>
+                                        <td><button type="button" class="btn btn-outline-secondary">Focus</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-bold">Outline Success</td>
+                                        <td><button type="button" class="btn btn-outline-success" id="btn_matrix_outline_success">Outline Success</button></td>
+                                        <td><button type="button" class="btn btn-outline-success">Hover</button></td>
+                                        <td><button type="button" class="btn btn-outline-success active">Active</button></td>
+                                        <td><button type="button" class="btn btn-outline-success disabled" disabled>Disabled</button></td>
+                                        <td><button type="button" class="btn btn-outline-success">Focus</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-bold">Outline Danger</td>
+                                        <td><button type="button" class="btn btn-outline-danger" id="btn_matrix_outline_danger">Outline Danger</button></td>
+                                        <td><button type="button" class="btn btn-outline-danger">Hover</button></td>
+                                        <td><button type="button" class="btn btn-outline-danger active">Active</button></td>
+                                        <td><button type="button" class="btn btn-outline-danger disabled" disabled>Disabled</button></td>
+                                        <td><button type="button" class="btn btn-outline-danger">Focus</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-bold">Outline Warning</td>
+                                        <td><button type="button" class="btn btn-outline-warning" id="btn_matrix_outline_warning">Outline Warning</button></td>
+                                        <td><button type="button" class="btn btn-outline-warning">Hover</button></td>
+                                        <td><button type="button" class="btn btn-outline-warning active">Active</button></td>
+                                        <td><button type="button" class="btn btn-outline-warning disabled" disabled>Disabled</button></td>
+                                        <td><button type="button" class="btn btn-outline-warning">Focus</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-bold">Sidebar Toggle</td>
+                                        <td><button type="button" class="btn btn-sidebar-toggle" id="btn_matrix_sidebar_toggle"><i class="fas fa-bars"></i></button></td>
+                                        <td><button type="button" class="btn btn-sidebar-toggle"><i class="fas fa-bars"></i></button></td>
+                                        <td><button type="button" class="btn btn-sidebar-toggle active"><i class="fas fa-bars"></i></button></td>
+                                        <td><button type="button" class="btn btn-sidebar-toggle disabled" disabled><i class="fas fa-bars"></i></button></td>
+                                        <td><button type="button" class="btn btn-sidebar-toggle"><i class="fas fa-bars"></i></button></td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>

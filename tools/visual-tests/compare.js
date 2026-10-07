@@ -180,10 +180,12 @@ if (styleDiffs.length > 0) {
 const buttons1Path = path.join(BASELINE_DIR, 'computed-buttons.json');
 const buttons2Path = path.join(TARGET_DIR, 'computed-buttons.json');
 const buttonDiffs = [];
+let b1 = null;
+let b2 = null;
 
 if (fs.existsSync(buttons1Path) && fs.existsSync(buttons2Path)) {
-  const b1 = JSON.parse(fs.readFileSync(buttons1Path, 'utf-8'));
-  const b2 = JSON.parse(fs.readFileSync(buttons2Path, 'utf-8'));
+  b1 = JSON.parse(fs.readFileSync(buttons1Path, 'utf-8'));
+  b2 = JSON.parse(fs.readFileSync(buttons2Path, 'utf-8'));
 
   for (const theme of Object.keys(b1)) {
     if (!b2[theme]) {
@@ -236,7 +238,8 @@ if (buttonDiffs.length > 0) {
   console.table(buttonDiffs);
   fs.writeFileSync(path.join(DIFF_DIR, 'computed-buttons-diff.json'), JSON.stringify(buttonDiffs, null, 2));
 } else if (fs.existsSync(buttons1Path) && fs.existsSync(buttons2Path)) {
-  console.log('\n✅ [MATRIZ DE BOTONES] 16 variantes x 5 estados x 2 temas 100% idénticos (0 diferencias).');
+  const totalVariants = Object.keys(b1.light || {}).length;
+  console.log(`\n✅ [MATRIZ DE BOTONES] ${totalVariants} variantes x 5 estados x 2 temas 100% idénticos (0 diferencias).`);
 }
 
 const summaryPath = path.join(DIFF_DIR, 'summary.json');

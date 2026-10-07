@@ -700,8 +700,8 @@ async function run() {
           // 15. Focus en select de longitud de DataTables
           await captureFocusedElement('.dataTables_length select', `state_focus_datatables_length_${theme}.png`);
 
-          // 16. Matriz de Botones (Paso 2): 16 variantes x 5 estados x tema con CDP
-          console.log(`[MATRIZ BOTONES] (${currentPass.id}) Midiendo 16 variantes x 5 estados (${theme})...`);
+          // 16. Matriz de Botones (Paso 2): 22 variantes x 5 estados x tema con CDP
+          console.log(`[MATRIZ BOTONES] (${currentPass.id}) Midiendo 22 variantes x 5 estados (${theme})...`);
           const client = await page.target().createCDPSession();
           await client.send('DOM.enable');
           await client.send('CSS.enable');
@@ -723,7 +723,13 @@ async function run() {
             { id: 'colaborativa', selector: '#btn_matrix_colaborativa' },
             { id: 'btn-close', selector: '#btn_matrix_btn_close' },
             { id: 'btn-sm', selector: '#btn_matrix_btn_sm' },
-            { id: 'table-btn-group', selector: '#btn_matrix_table_btn_group' }
+            { id: 'table-btn-group', selector: '#btn_matrix_table_btn_group' },
+            { id: 'btn-light', selector: '#btn_matrix_light' },
+            { id: 'outline-secondary', selector: '#btn_matrix_outline_secondary' },
+            { id: 'outline-success', selector: '#btn_matrix_outline_success' },
+            { id: 'outline-danger', selector: '#btn_matrix_outline_danger' },
+            { id: 'outline-warning', selector: '#btn_matrix_outline_warning' },
+            { id: 'sidebar-toggle', selector: '#btn_matrix_sidebar_toggle' }
           ];
           const BUTTON_STATES = ['normal', 'hover', 'active', 'disabled', 'focus-visible'];
 
