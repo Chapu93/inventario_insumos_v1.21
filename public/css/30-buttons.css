@@ -181,6 +181,33 @@ input.btn.btn-outline-primary:focus-visible,
     color: var(--sitia-btn-secondary-dropdown-color);
 }
 
+/* Botón Outline Secundario */
+.btn-outline-secondary {
+    color: var(--sitia-btn-outline-secondary-color) !important;
+    border-color: var(--sitia-btn-outline-secondary-border) !important;
+}
+
+.btn-outline-secondary:hover,
+.btn.btn-outline-secondary:active,
+.btn-outline-secondary:active,
+.btn-outline-secondary.active {
+    background-color: var(--sitia-btn-outline-secondary-hover-bg) !important;
+    color: var(--sitia-btn-outline-secondary-hover-color) !important;
+    border-color: var(--sitia-btn-outline-secondary-hover-border) !important;
+}
+
+.btn-outline-secondary:focus-visible {
+    color: var(--sitia-btn-outline-secondary-focus-color) !important;
+}
+
+.btn-outline-secondary:focus:not(:focus-visible) {
+    background-color: transparent !important;
+    color: var(--sitia-btn-outline-secondary-color) !important;
+    border-color: var(--sitia-btn-outline-secondary-border) !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
 /* Botón Success */
 .btn-success {
     font-weight: var(--sitia-btn-font-weight, 400);

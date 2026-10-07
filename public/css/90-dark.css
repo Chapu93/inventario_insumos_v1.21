@@ -33,6 +33,12 @@
     --sitia-btn-outline-primary-hover-border: var(--sitia-primary);
     --sitia-btn-outline-primary-disabled-color: var(--sitia-primary);
     --sitia-btn-outline-primary-disabled-border: var(--sitia-primary);
+    --sitia-btn-outline-secondary-color: var(--sitia-text-muted);
+    --sitia-btn-outline-secondary-border: var(--sitia-border);
+    --sitia-btn-outline-secondary-hover-bg: rgba(255, 255, 255, 0.05);
+    --sitia-btn-outline-secondary-hover-color: var(--sitia-text);
+    --sitia-btn-outline-secondary-hover-border: var(--sitia-border);
+    --sitia-btn-outline-secondary-focus-color: var(--sitia-text-muted);
     --sitia-btn-warning-text: var(--sitia-on-warning);
     --sitia-btn-info-text: var(--sitia-on-info);
     --sitia-secondary-hover-border: var(--sitia-secondary-hover);
@@ -135,25 +141,6 @@
         outline: none !important;
     }
 
-
-/* Estilos outline atenuados en Modo Oscuro */
-[data-theme="dark"] .btn-outline-secondary {
-        color: var(--sitia-text-muted) !important;
-        border-color: var(--sitia-border) !important;
-    }
-[data-theme="dark"] .btn-outline-secondary:hover,
-[data-theme="dark"] .btn-outline-secondary:active,
-[data-theme="dark"] .btn-outline-secondary.active {
-        background-color: rgba(255, 255, 255, 0.05) !important;
-        color: var(--sitia-text) !important;
-    }
-[data-theme="dark"] .btn-outline-secondary:focus:not(:focus-visible) {
-        background-color: transparent !important;
-        color: var(--sitia-text-muted) !important;
-        border-color: var(--sitia-border) !important;
-        box-shadow: none !important;
-        outline: none !important;
-    }
 
 [data-theme="dark"] .btn-sidebar-toggle {
         background-color: var(--sitia-surface-2) !important;
