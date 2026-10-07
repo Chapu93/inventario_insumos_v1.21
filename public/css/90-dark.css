@@ -78,6 +78,8 @@
     --sitia-btn-light-focus-border: var(--sitia-border);
     --sitia-btn-soft-primary-bg: var(--sitia-primitive-green-700); /* #4e8351 */
     --sitia-btn-soft-primary-hover: #3e6a41;
+    --sitia-btn-soft-success-bg: var(--sitia-success-active);
+    --sitia-btn-soft-success-hover: var(--sitia-primitive-green-920);
     --sitia-btn-soft-warning-bg: var(--sitia-primitive-amber-750); /* #d1970b */
     --sitia-btn-soft-warning-hover: var(--sitia-primitive-amber-800); /* #b88408 */
     --sitia-btn-slate-bg: var(--sitia-primitive-slate-500); /* #6c7781 */
@@ -128,71 +130,6 @@
         outline: none !important;
     }
 
-
-/* Botones Suaves en Modo Oscuro */
-[data-theme="dark"] .btn-soft-warning {
-        background-color: var(--sitia-btn-soft-warning-bg) !important;
-        border-color: var(--sitia-btn-soft-warning-bg) !important;
-        color: var(--sitia-white) !important;
-    }
-[data-theme="dark"] .btn-soft-warning:hover,
-[data-theme="dark"] .btn-soft-warning:active {
-        background-color: var(--sitia-btn-soft-warning-hover) !important;
-        border-color: var(--sitia-btn-soft-warning-hover) !important;
-    }
-[data-theme="dark"] .btn-soft-warning:focus:not(:focus-visible) {
-        background-color: var(--sitia-btn-soft-warning-bg) !important;
-        box-shadow: none !important;
-        outline: none !important;
-    }
-
-[data-theme="dark"] .btn-soft-success {
-        background-color: var(--sitia-success-active) !important;
-        border-color: var(--sitia-success-active) !important;
-        color: var(--sitia-white) !important;
-    }
-[data-theme="dark"] .btn-soft-success:hover,
-[data-theme="dark"] .btn-soft-success:active {
-        background-color: var(--sitia-primitive-green-920) !important;
-        border-color: var(--sitia-primitive-green-920) !important;
-    }
-[data-theme="dark"] .btn-soft-success:focus:not(:focus-visible) {
-        background-color: var(--sitia-success-active) !important;
-        box-shadow: none !important;
-        outline: none !important;
-    }
-
-[data-theme="dark"] .btn-soft-primary {
-        background-color: var(--sitia-btn-soft-primary-bg) !important;
-        border-color: var(--sitia-btn-soft-primary-bg) !important;
-        color: var(--sitia-white) !important;
-    }
-[data-theme="dark"] .btn-soft-primary:hover,
-[data-theme="dark"] .btn-soft-primary:active {
-        background-color: var(--sitia-btn-soft-primary-hover) !important;
-        border-color: var(--sitia-btn-soft-primary-hover) !important;
-    }
-[data-theme="dark"] .btn-soft-primary:focus:not(:focus-visible) {
-        background-color: var(--sitia-btn-soft-primary-bg) !important;
-        box-shadow: none !important;
-        outline: none !important;
-    }
-
-[data-theme="dark"] .btn-soft-secondary {
-        background-color: var(--sitia-btn-slate-bg) !important;
-        border-color: var(--sitia-btn-slate-bg) !important;
-        color: var(--sitia-white) !important;
-    }
-[data-theme="dark"] .btn-soft-secondary:hover,
-[data-theme="dark"] .btn-soft-secondary:active {
-        background-color: var(--sitia-primitive-slate-700) !important;
-        border-color: var(--sitia-primitive-slate-700) !important;
-    }
-[data-theme="dark"] .btn-soft-secondary:focus:not(:focus-visible) {
-        background-color: var(--sitia-btn-slate-bg) !important;
-        box-shadow: none !important;
-        outline: none !important;
-    }
 
 /* Estilos outline atenuados en Modo Oscuro */
 [data-theme="dark"] .btn-outline-primary {

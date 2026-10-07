@@ -464,7 +464,8 @@
     transition: all 0.2s ease-in-out;
 }
 .btn-soft-warning:hover,
-.btn-soft-warning:active {
+.btn-soft-warning:active,
+.btn.btn-soft-warning:active {
     background-color: var(--sitia-btn-soft-warning-hover);
     border-color: var(--sitia-btn-soft-warning-hover);
     color: var(--sitia-primitive-white);
@@ -496,48 +497,49 @@
 
 .btn-soft-success {
     --bs-btn-color: var(--sitia-primitive-white);
-    --bs-btn-bg: var(--sitia-success-border);
-    --bs-btn-border-color: var(--sitia-success-border);
+    --bs-btn-bg: var(--sitia-btn-soft-success-bg);
+    --bs-btn-border-color: var(--sitia-btn-soft-success-bg);
     --bs-btn-hover-color: var(--sitia-primitive-white);
-    --bs-btn-hover-bg: var(--sitia-success-active);
-    --bs-btn-hover-border-color: var(--sitia-success-active);
+    --bs-btn-hover-bg: var(--sitia-btn-soft-success-hover);
+    --bs-btn-hover-border-color: var(--sitia-btn-soft-success-hover);
     --bs-btn-active-color: var(--sitia-primitive-white);
-    --bs-btn-active-bg: var(--sitia-success-active);
-    --bs-btn-active-border-color: var(--sitia-success-active);
+    --bs-btn-active-bg: var(--sitia-btn-soft-success-hover);
+    --bs-btn-active-border-color: var(--sitia-btn-soft-success-hover);
     --bs-btn-disabled-color: var(--sitia-primitive-white);
-    --bs-btn-disabled-bg: var(--sitia-success-border);
-    --bs-btn-disabled-border-color: var(--sitia-success-border);
-    background-color: var(--sitia-success-border);
-    border-color: var(--sitia-success-border);
+    --bs-btn-disabled-bg: var(--sitia-btn-soft-success-bg);
+    --bs-btn-disabled-border-color: var(--sitia-btn-soft-success-bg);
+    background-color: var(--sitia-btn-soft-success-bg);
+    border-color: var(--sitia-btn-soft-success-bg);
     color: var(--sitia-primitive-white);
 }
 .btn-soft-success:hover,
-.btn-soft-success:active {
-    background-color: var(--sitia-success-active);
-    border-color: var(--sitia-success-active);
+.btn-soft-success:active,
+.btn.btn-soft-success:active {
+    background-color: var(--sitia-btn-soft-success-hover);
+    border-color: var(--sitia-btn-soft-success-hover);
     color: var(--sitia-primitive-white);
 }
 .btn-soft-success.active {
-    background-color: var(--sitia-success-border);
-    border-color: var(--sitia-success-border);
+    background-color: var(--sitia-btn-soft-success-bg);
+    border-color: var(--sitia-btn-soft-success-bg);
     color: var(--sitia-primitive-white);
 }
 .btn-soft-success:focus-visible {
-    background-color: var(--sitia-success-border);
-    border-color: var(--sitia-success-border);
+    background-color: var(--sitia-btn-soft-success-bg);
+    border-color: var(--sitia-btn-soft-success-bg);
     color: var(--sitia-primitive-white);
 }
 .btn-soft-success:focus:not(:focus-visible) {
-    background-color: var(--sitia-success-border);
-    border-color: var(--sitia-success-border);
+    background-color: var(--sitia-btn-soft-success-bg);
+    border-color: var(--sitia-btn-soft-success-bg);
     color: var(--sitia-primitive-white);
     box-shadow: none;
     outline: none;
 }
 .btn-soft-success:disabled,
 .btn-soft-success.disabled {
-    background-color: var(--sitia-success-border);
-    border-color: var(--sitia-success-border);
+    background-color: var(--sitia-btn-soft-success-bg);
+    border-color: var(--sitia-btn-soft-success-bg);
     color: var(--sitia-primitive-white);
     opacity: 0.65;
 }
@@ -560,7 +562,8 @@
     color: var(--sitia-primitive-white);
 }
 .btn-soft-primary:hover,
-.btn-soft-primary:active {
+.btn-soft-primary:active,
+.btn.btn-soft-primary:active {
     background-color: var(--sitia-btn-soft-primary-hover);
     border-color: var(--sitia-btn-soft-primary-hover);
     color: var(--sitia-primitive-white);
@@ -608,7 +611,8 @@
     color: var(--sitia-primitive-white);
 }
 .btn-soft-secondary:hover,
-.btn-soft-secondary:active {
+.btn-soft-secondary:active,
+.btn.btn-soft-secondary:active {
     background-color: var(--sitia-btn-slate-hover);
     border-color: var(--sitia-btn-slate-hover);
     color: var(--sitia-primitive-white);

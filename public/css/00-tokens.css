@@ -201,6 +201,8 @@
     --sitia-btn-light-focus-border: #c6c7c8;
     --sitia-btn-soft-primary-bg: var(--sitia-primitive-green-400);
     --sitia-btn-soft-primary-hover: var(--sitia-primitive-green-700);
+    --sitia-btn-soft-success-bg: var(--sitia-success-border);
+    --sitia-btn-soft-success-hover: var(--sitia-success-active);
     --sitia-btn-soft-warning-bg: var(--sitia-primitive-amber-400);
     --sitia-btn-soft-warning-hover: var(--sitia-primitive-amber-600);
     --sitia-btn-slate-bg: var(--sitia-primitive-slate-400);
