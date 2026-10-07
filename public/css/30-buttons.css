@@ -90,31 +90,38 @@
 .btn-outline-primary {
     --bs-btn-color: var(--sitia-primary);
     --bs-btn-border-color: var(--sitia-primary);
-    --bs-btn-hover-color: var(--sitia-on-primary);
-    --bs-btn-hover-bg: var(--sitia-primary);
-    --bs-btn-hover-border-color: var(--sitia-primary);
-    --bs-btn-active-color: var(--sitia-on-primary);
-    --bs-btn-active-bg: var(--sitia-primary);
-    --bs-btn-active-border-color: var(--sitia-primary);
+    --bs-btn-hover-color: var(--sitia-btn-outline-primary-hover-color);
+    --bs-btn-hover-bg: var(--sitia-btn-outline-primary-hover-bg);
+    --bs-btn-hover-border-color: var(--sitia-btn-outline-primary-hover-border);
+    --bs-btn-active-color: var(--sitia-btn-outline-primary-hover-color);
+    --bs-btn-active-bg: var(--sitia-btn-outline-primary-hover-bg);
+    --bs-btn-active-border-color: var(--sitia-btn-outline-primary-hover-border);
+    --bs-btn-disabled-color: var(--sitia-btn-outline-primary-disabled-color);
+    --bs-btn-disabled-border-color: var(--sitia-btn-outline-primary-disabled-border);
     --bs-btn-focus-shadow-rgb: 90, 147, 103;
     color: var(--sitia-primary);
     border-color: var(--sitia-primary);
 }
 
 .btn-outline-primary:hover,
+.btn.btn-outline-primary:active,
 .btn-outline-primary:active,
 .btn-outline-primary.active {
-    background-color: var(--sitia-primary);
-    color: var(--sitia-on-primary);
-    border-color: var(--sitia-primary);
+    background-color: var(--sitia-btn-outline-primary-hover-bg);
+    color: var(--sitia-btn-outline-primary-hover-color);
+    border-color: var(--sitia-btn-outline-primary-hover-border);
 }
 
+button.btn.btn-outline-primary:focus-visible,
+a.btn.btn-outline-primary:focus-visible,
+input.btn.btn-outline-primary:focus-visible,
+.btn.btn-outline-primary:focus-visible,
 .btn-outline-primary:focus-visible {
     background-color: transparent;
     color: var(--sitia-primary);
     border-color: var(--sitia-primary);
-    box-shadow: var(--sitia-focus-ring);
-    outline: none;
+    box-shadow: var(--sitia-focus-ring) !important;
+    outline: none !important;
 }
 
 .btn-outline-primary:focus:not(:focus-visible) {

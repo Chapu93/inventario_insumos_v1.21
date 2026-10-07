@@ -157,6 +157,11 @@
     --sitia-btn-font-weight: 400;
     --sitia-btn-primary-focus-bg: var(--sitia-primary-hover);
     --sitia-btn-primary-focus-border: var(--sitia-primary-hover);
+    --sitia-btn-outline-primary-hover-bg: var(--sitia-primary);
+    --sitia-btn-outline-primary-hover-color: var(--sitia-primitive-white);
+    --sitia-btn-outline-primary-hover-border: var(--sitia-primary);
+    --sitia-btn-outline-primary-disabled-color: #0d6efd;
+    --sitia-btn-outline-primary-disabled-border: #0d6efd;
     --sitia-secondary-hover-border: var(--sitia-primitive-sage-400);
     --sitia-btn-secondary-active-bg: #565e64;
     --sitia-btn-secondary-active-border: #51585e;
