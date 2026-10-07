@@ -292,27 +292,30 @@
     --bs-btn-disabled-opacity: 0.65;
     background-color: var(--sitia-btn-info-bg);
     border-color: var(--sitia-btn-info-bg);
-    color: var(--sitia-on-info);
+    /* NOTA: Se preserva !important en color de texto para mantener compatibilidad determinista con utilidades como .text-white presentes en la línea base (502cad9) */
+    color: var(--sitia-on-info) !important;
+    font-weight: var(--sitia-btn-font-weight, 400);
 }
 
 .btn-info:hover,
 .btn-info:active,
+.btn.btn-info:active,
 .btn-info.active {
     background-color: var(--sitia-btn-info-hover);
     border-color: var(--sitia-btn-info-hover);
-    color: var(--sitia-on-info);
+    color: var(--sitia-on-info) !important;
 }
 
 .btn-info:focus-visible {
     background-color: var(--sitia-btn-info-bg);
     border-color: var(--sitia-btn-info-bg);
-    color: var(--sitia-on-info);
+    color: var(--sitia-on-info) !important;
 }
 
 .btn-info:focus:not(:focus-visible) {
     background-color: var(--sitia-btn-info-bg);
     border-color: var(--sitia-btn-info-bg);
-    color: var(--sitia-on-info);
+    color: var(--sitia-on-info) !important;
     box-shadow: none;
     outline: none;
 }
@@ -321,7 +324,7 @@
 .btn-info.disabled {
     background-color: var(--sitia-btn-info-bg);
     border-color: var(--sitia-btn-info-bg);
-    color: var(--sitia-on-info);
+    color: var(--sitia-on-info) !important;
     opacity: 0.65;
 }
 
