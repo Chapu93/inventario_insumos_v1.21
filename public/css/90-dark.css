@@ -24,7 +24,7 @@
 
     /* Reutilización retrocompatible de nombres antiguos sin duplicación */
     --sitia-btn-dark-text: var(--sitia-on-primary);
-    --sitia-btn-primary-font-weight: 600;
+    --sitia-btn-font-weight: 600;
     --sitia-btn-primary-focus-bg: var(--sitia-primary);
     --sitia-btn-primary-focus-border: var(--sitia-primary);
     --sitia-btn-warning-text: var(--sitia-on-warning);
@@ -54,7 +54,6 @@
     --sitia-surface-1: var(--sitia-primitive-sage-550); /* #6b8077: Cabeceras principales, modales y dropdowns */
     --sitia-surface-2: var(--sitia-primitive-sage-600); /* #60736b: Tarjetas, inputs y thead */
     --sitia-surface-3: var(--sitia-primitive-sage-700); /* #556860: Fondo general del Body */
-    --sitia-surface-card: var(--sitia-surface-2);
 
     --sitia-text: var(--sitia-primitive-sage-100); /* #f4f7f5: Texto muy claro con buen contraste */
     --sitia-text-muted: var(--sitia-primitive-sage-200); /* #dbe5e0: Texto secundario suave */

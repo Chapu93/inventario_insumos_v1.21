@@ -66,7 +66,10 @@ require_once __DIR__ . '/../../includes/config.php';
 
                 <!-- 2. BOTONES Y ESTADOS (MATRIZ COMPLETA DE VARIANTES Y ESTADOS) -->
                 <section class="card mb-4">
-                    <div class="card-header"><h5>2. Botones (Matriz de Variantes x Estados x Temas)</h5></div>
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">2. Botones (Matriz de Variantes x Estados x Temas)</h5>
+                        <button type="button" class="btn btn-primary btn-sm" id="btn_primary_in_card_header">Header Action</button>
+                    </div>
                     <div class="card-body">
                         <!-- Botones clave para tests de interacción existentes -->
                         <div class="d-flex flex-wrap gap-2 align-items-center mb-4 pb-3 border-bottom">
@@ -81,7 +84,7 @@ require_once __DIR__ . '/../../includes/config.php';
                                 <thead class="table-light">
                                     <tr>
                                         <th class="text-start">Variante</th>
-                                        <th>Normal (Target CDP)</th>
+                                        <th>Normal (Target CDP) <button type="button" class="btn btn-primary btn-xs ms-1" id="btn_primary_in_th">TH Action</button></th>
                                         <th>Hover</th>
                                         <th>Active</th>
                                         <th>Disabled</th>

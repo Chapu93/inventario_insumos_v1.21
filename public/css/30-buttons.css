@@ -37,7 +37,7 @@
 
 /* Botón Primario */
 .btn-primary {
-    font-weight: var(--sitia-btn-primary-font-weight, inherit);
+    font-weight: var(--sitia-btn-font-weight, 400);
     --bs-btn-color: var(--sitia-on-primary);
     --bs-btn-bg: var(--sitia-primary);
     --bs-btn-border-color: var(--sitia-primary);

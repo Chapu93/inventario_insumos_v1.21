@@ -153,10 +153,12 @@
 
     --sitia-white: var(--sitia-primitive-white);
 
-    /* Variantes de Botones Soft / Pastel (Modo Claro) */
-    --sitia-btn-primary-font-weight: inherit;
+    /* Tokens Base de Botones */
+    --sitia-btn-font-weight: 400;
     --sitia-btn-primary-focus-bg: var(--sitia-primary-hover);
     --sitia-btn-primary-focus-border: var(--sitia-primary-hover);
+
+    /* Variantes de Botones Soft / Pastel (Modo Claro) */
     --sitia-btn-warning-bg: var(--sitia-primitive-amber-550);
     --sitia-btn-warning-hover: var(--sitia-primitive-amber-700);
     --sitia-btn-info-bg: var(--sitia-primitive-cyan-600);
@@ -179,7 +181,6 @@
     --sitia-surface-1: var(--sitia-primitive-green-150); /* #d1ded4: Cabeceras modales, thead */
     --sitia-surface-2: var(--sitia-primitive-green-100); /* #dbe7e0: Cabeceras tarjetas, alternate rows */
     --sitia-surface-3: var(--sitia-primitive-green-50);  /* #e6efe9: Fondo general body */
-    --sitia-surface-card: var(--sitia-primitive-white);
     --sitia-input-bg: var(--sitia-primitive-white);
 
     --sitia-text: var(--sitia-primitive-gray-900); /* #1f2430 */

@@ -204,7 +204,11 @@ if (fs.existsSync(buttons1Path) && fs.existsSync(buttons2Path)) {
         }
         const props1 = b1[theme][variant][state];
         const props2 = b2[theme][variant][state];
-        for (const prop of ['backgroundColor', 'color', 'borderColor', 'boxShadow', 'outline', 'opacity']) {
+        for (const prop of [
+          'backgroundColor', 'color', 'borderColor', 'boxShadow', 'outline', 'opacity',
+          'fontWeight', 'borderTopWidth', 'borderTopStyle', 'textDecorationLine',
+          'textShadow', 'filter', 'backgroundImage'
+        ]) {
           if (props1[prop] !== props2[prop]) {
             buttonDiffs.push({
               tema: theme,
