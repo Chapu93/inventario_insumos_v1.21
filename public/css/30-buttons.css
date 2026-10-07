@@ -35,6 +35,10 @@
     outline: none !important;
 }
 
+.btn-close {
+    filter: var(--sitia-btn-close-filter);
+}
+
 /* Botón Primario */
 .btn-primary {
     font-weight: var(--sitia-btn-font-weight, 400);

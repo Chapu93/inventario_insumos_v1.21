@@ -193,6 +193,7 @@
     --sitia-btn-sidebar-toggle-disabled-border: var(--sitia-text);
     --sitia-btn-sidebar-toggle-focus-visible-bg: transparent;
     --sitia-btn-sidebar-toggle-focus-visible-border: transparent;
+    --sitia-btn-close-filter: none;
     --sitia-secondary-hover-border: var(--sitia-primitive-sage-400);
     --sitia-btn-secondary-active-bg: #565e64;
     --sitia-btn-secondary-active-border: #51585e;

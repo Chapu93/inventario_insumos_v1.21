@@ -64,6 +64,7 @@
     --sitia-btn-sidebar-toggle-disabled-border: var(--sitia-border);
     --sitia-btn-sidebar-toggle-focus-visible-bg: var(--sitia-surface-2);
     --sitia-btn-sidebar-toggle-focus-visible-border: var(--sitia-border);
+    --sitia-btn-close-filter: invert(1) grayscale(100%) brightness(200%);
     --sitia-btn-warning-text: var(--sitia-on-warning);
     --sitia-btn-info-text: var(--sitia-on-info);
     --sitia-secondary-hover-border: var(--sitia-secondary-hover);
@@ -292,9 +293,6 @@
     }
 [data-theme="dark"] .modal-footer {
         border-top: 1px solid var(--sitia-border) !important;
-    }
-[data-theme="dark"] .btn-close {
-        filter: invert(1) grayscale(100%) brightness(200%);
     }
 
 /* Inputs deshabilitados */
