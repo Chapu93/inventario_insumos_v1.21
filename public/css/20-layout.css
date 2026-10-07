@@ -62,9 +62,29 @@ html.sidebar-collapsed .sidebar {
 
 .btn-sidebar-toggle:hover,
 .btn-sidebar-toggle:focus {
-    background-color: var(--sitia-primary);
-    color: var(--sitia-white);
-    border-color: var(--sitia-primary);
+    background-color: var(--sitia-primary) !important;
+    color: var(--sitia-on-primary) !important;
+    border-color: var(--sitia-primary) !important;
+}
+
+.btn-sidebar-toggle:active,
+.btn-sidebar-toggle.active,
+.btn.btn-sidebar-toggle:active,
+.btn.btn-sidebar-toggle.active {
+    background-color: var(--sitia-btn-sidebar-toggle-active-bg) !important;
+    color: var(--sitia-btn-sidebar-toggle-active-color) !important;
+    border-color: var(--sitia-btn-sidebar-toggle-active-border) !important;
+}
+
+.btn-sidebar-toggle:disabled,
+.btn-sidebar-toggle.disabled {
+    background-color: var(--sitia-btn-sidebar-toggle-disabled-bg) !important;
+    border-color: var(--sitia-btn-sidebar-toggle-disabled-border) !important;
+}
+
+.btn-sidebar-toggle:focus-visible {
+    background-color: var(--sitia-btn-sidebar-toggle-focus-visible-bg) !important;
+    border-color: var(--sitia-btn-sidebar-toggle-focus-visible-border) !important;
 }
 
 .sidebar-header {

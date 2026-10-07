@@ -57,6 +57,13 @@
     --sitia-btn-outline-warning-hover-color: var(--sitia-warning);
     --sitia-btn-outline-warning-hover-border: var(--sitia-warning);
     --sitia-btn-outline-warning-focus-color: var(--sitia-warning);
+    --sitia-btn-sidebar-toggle-active-bg: var(--sitia-surface-2);
+    --sitia-btn-sidebar-toggle-active-color: var(--sitia-text);
+    --sitia-btn-sidebar-toggle-active-border: var(--sitia-border);
+    --sitia-btn-sidebar-toggle-disabled-bg: var(--sitia-surface-2);
+    --sitia-btn-sidebar-toggle-disabled-border: var(--sitia-border);
+    --sitia-btn-sidebar-toggle-focus-visible-bg: var(--sitia-surface-2);
+    --sitia-btn-sidebar-toggle-focus-visible-border: var(--sitia-border);
     --sitia-btn-warning-text: var(--sitia-on-warning);
     --sitia-btn-info-text: var(--sitia-on-info);
     --sitia-secondary-hover-border: var(--sitia-secondary-hover);
@@ -157,19 +164,6 @@
         opacity: 0.88;
         box-shadow: none !important;
         outline: none !important;
-    }
-
-
-[data-theme="dark"] .btn-sidebar-toggle {
-        background-color: var(--sitia-surface-2) !important;
-        border-color: var(--sitia-border) !important;
-        color: var(--sitia-text) !important;
-    }
-[data-theme="dark"] .btn-sidebar-toggle:hover,
-[data-theme="dark"] .btn-sidebar-toggle:focus {
-        background-color: var(--sitia-primary) !important;
-        color: var(--sitia-btn-dark-text) !important;
-        border-color: var(--sitia-primary) !important;
     }
 
 /* Badges y Estados en Modo Oscuro (Estilo translúcido premium) */

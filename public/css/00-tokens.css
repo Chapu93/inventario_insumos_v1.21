@@ -186,6 +186,13 @@
     --sitia-btn-outline-warning-hover-color: #000;
     --sitia-btn-outline-warning-hover-border: #ffc107;
     --sitia-btn-outline-warning-focus-color: #000;
+    --sitia-btn-sidebar-toggle-active-bg: transparent;
+    --sitia-btn-sidebar-toggle-active-color: var(--sitia-text);
+    --sitia-btn-sidebar-toggle-active-border: var(--sitia-text);
+    --sitia-btn-sidebar-toggle-disabled-bg: transparent;
+    --sitia-btn-sidebar-toggle-disabled-border: var(--sitia-text);
+    --sitia-btn-sidebar-toggle-focus-visible-bg: transparent;
+    --sitia-btn-sidebar-toggle-focus-visible-border: transparent;
     --sitia-secondary-hover-border: var(--sitia-primitive-sage-400);
     --sitia-btn-secondary-active-bg: #565e64;
     --sitia-btn-secondary-active-border: #51585e;
