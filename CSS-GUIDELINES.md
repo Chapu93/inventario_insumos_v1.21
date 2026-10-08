@@ -22,6 +22,7 @@ public/css/
 ├── 36-kpi.css           # Tarjetas KPI de estadísticas y métricas del dashboard
 ├── 37-stepper.css       # Asistentes por pasos (stepper)
 ├── 38-pdf-viewer.css    # Visor integrado de documentos y remitos PDF
+├── 39-alerts.css        # Alertas institucionales y variables nativas de Bootstrap
 ├── 50-select2.css       # Integración con librería Select2 y tema Bootstrap 5
 ├── 51-datatables.css    # Integración con librería DataTables
 ├── 90-dark.css          # Redefinición de tokens de modo oscuro y excepciones mínimas

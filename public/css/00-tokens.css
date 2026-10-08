@@ -275,15 +275,36 @@
     /* Tooltip */
     --sitia-tooltip-bg: var(--sitia-primitive-tooltip-bg);
 
-    /* Alertas Modo Claro */
-    --sitia-alert-success-bg: var(--sitia-primitive-green-200);
-    --sitia-alert-success-text: var(--sitia-primitive-green-950);
-    --sitia-alert-info-bg: var(--sitia-primitive-cyan-100);
-    --sitia-alert-info-text: var(--sitia-primitive-cyan-900);
-    --sitia-alert-danger-bg: var(--sitia-primitive-red-100);
-    --sitia-alert-danger-text: var(--sitia-primitive-red-900);
-    --sitia-alert-warning-bg: var(--sitia-primitive-amber-100);
-    --sitia-alert-warning-text: var(--sitia-primitive-amber-900);
+    /* Cabeceras de Tarjetas (.card-header--*) */
+    --sitia-card-header-success-bg: var(--sitia-primitive-green-200);
+    --sitia-card-header-success-text: var(--sitia-primitive-green-950);
+    --sitia-card-header-info-bg: var(--sitia-primitive-cyan-100);
+    --sitia-card-header-info-text: var(--sitia-primitive-cyan-900);
+    --sitia-card-header-danger-bg: var(--sitia-primitive-red-100);
+    --sitia-card-header-danger-text: var(--sitia-primitive-red-900);
+    --sitia-card-header-warning-bg: var(--sitia-primitive-amber-100);
+    --sitia-card-header-warning-text: var(--sitia-primitive-amber-900);
+
+    /* Alertas Semánticas */
+    --sitia-alert-success-bg: var(--bs-success-bg-subtle);
+    --sitia-alert-success-border: var(--bs-success-border-subtle);
+    --sitia-alert-success-color: var(--bs-success-text-emphasis);
+
+    --sitia-alert-warning-bg: var(--bs-warning-bg-subtle);
+    --sitia-alert-warning-border: var(--bs-warning-border-subtle);
+    --sitia-alert-warning-color: var(--bs-warning-text-emphasis);
+
+    --sitia-alert-danger-bg: var(--bs-danger-bg-subtle);
+    --sitia-alert-danger-border: var(--bs-danger-border-subtle);
+    --sitia-alert-danger-color: var(--bs-danger-text-emphasis);
+
+    --sitia-alert-info-bg: var(--bs-info-bg-subtle);
+    --sitia-alert-info-border: var(--bs-info-border-subtle);
+    --sitia-alert-info-color: var(--bs-info-text-emphasis);
+
+    --sitia-alert-light-bg: var(--bs-light-bg-subtle);
+    --sitia-alert-light-border: var(--bs-light-border-subtle);
+    --sitia-alert-light-color: var(--bs-light-text-emphasis);
 
     /* Sombras y Elevaciones */
     --sitia-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.08);

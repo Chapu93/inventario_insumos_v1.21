@@ -28,23 +28,23 @@
 }
 
 .card-header--success {
-    background-color: var(--sitia-alert-success-bg);
-    color: var(--sitia-alert-success-text);
+    background-color: var(--sitia-card-header-success-bg);
+    color: var(--sitia-card-header-success-text);
 }
 
 .card-header--info {
-    background-color: var(--sitia-alert-info-bg);
-    color: var(--sitia-alert-info-text);
+    background-color: var(--sitia-card-header-info-bg);
+    color: var(--sitia-card-header-info-text);
 }
 
 .card-header--danger {
-    background-color: var(--sitia-alert-danger-bg);
-    color: var(--sitia-alert-danger-text);
+    background-color: var(--sitia-card-header-danger-bg);
+    color: var(--sitia-card-header-danger-text);
 }
 
 .card-header--warning {
-    background-color: var(--sitia-alert-warning-bg);
-    color: var(--sitia-alert-warning-text);
+    background-color: var(--sitia-card-header-warning-bg);
+    color: var(--sitia-card-header-warning-text);
 }
 
 .card .list-group-item {

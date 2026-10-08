@@ -189,6 +189,27 @@
     --sitia-badge-anulado-border: rgba(247, 170, 170, 0.35);
     --sitia-badge-anulado-border-width: 1px;
 
+    /* Redefinición de tokens de Alertas en Modo Oscuro */
+    --sitia-alert-success-bg: rgba(140, 214, 169, 0.15);
+    --sitia-alert-success-border: rgba(140, 214, 169, 0.3);
+    --sitia-alert-success-color: var(--sitia-primitive-green-350);
+
+    --sitia-alert-warning-bg: rgba(238, 208, 131, 0.15);
+    --sitia-alert-warning-border: rgba(238, 208, 131, 0.3);
+    --sitia-alert-warning-color: var(--sitia-primitive-amber-280);
+
+    --sitia-alert-danger-bg: rgba(234, 150, 150, 0.15);
+    --sitia-alert-danger-border: rgba(234, 150, 150, 0.3);
+    --sitia-alert-danger-color: var(--sitia-primitive-red-250);
+
+    --sitia-alert-info-bg: rgba(139, 203, 211, 0.15);
+    --sitia-alert-info-border: rgba(139, 203, 211, 0.3);
+    --sitia-alert-info-color: var(--sitia-primitive-cyan-250);
+
+    --sitia-alert-light-bg: var(--sitia-surface-2);
+    --sitia-alert-light-border: var(--sitia-border);
+    --sitia-alert-light-color: var(--sitia-text);
+
     /* Mapeo Bootstrap en Modo Oscuro */
     --bs-primary: var(--sitia-primary);
     --bs-body-bg: var(--sitia-surface-3);
@@ -283,33 +304,6 @@
     }
 [data-theme="dark"] .dropdown-divider {
         border-color: var(--sitia-border);
-    }
-
-/* Alertas atenuadas */
-[data-theme="dark"] .alert-success {
-        background-color: rgba(140, 214, 169, 0.15) !important;
-        border-color: rgba(140, 214, 169, 0.3) !important;
-        color: var(--sitia-primitive-green-350) !important;
-    }
-[data-theme="dark"] .alert-warning {
-        background-color: rgba(238, 208, 131, 0.15) !important;
-        border-color: rgba(238, 208, 131, 0.3) !important;
-        color: var(--sitia-primitive-amber-280) !important;
-    }
-[data-theme="dark"] .alert-danger {
-        background-color: rgba(234, 150, 150, 0.15) !important;
-        border-color: rgba(234, 150, 150, 0.3) !important;
-        color: var(--sitia-primitive-red-250) !important;
-    }
-[data-theme="dark"] .alert-info {
-        background-color: rgba(139, 203, 211, 0.15) !important;
-        border-color: rgba(139, 203, 211, 0.3) !important;
-        color: var(--sitia-primitive-cyan-250) !important;
-    }
-[data-theme="dark"] .alert-light {
-        background-color: var(--sitia-surface-2) !important;
-        border-color: var(--sitia-border) !important;
-        color: var(--sitia-text) !important;
     }
 
 /* Modales en Modo Oscuro */

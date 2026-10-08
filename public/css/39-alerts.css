@@ -1,0 +1,33 @@
+/* ============================================================================
+   39-ALERTS.CSS - Alertas de SITIA gobernadas por variables Bootstrap y tokens
+   ============================================================================ */
+
+.alert-success {
+    --bs-alert-color: var(--sitia-alert-success-color);
+    --bs-alert-bg: var(--sitia-alert-success-bg);
+    --bs-alert-border-color: var(--sitia-alert-success-border);
+}
+
+.alert-warning {
+    --bs-alert-color: var(--sitia-alert-warning-color);
+    --bs-alert-bg: var(--sitia-alert-warning-bg);
+    --bs-alert-border-color: var(--sitia-alert-warning-border);
+}
+
+.alert-danger {
+    --bs-alert-color: var(--sitia-alert-danger-color);
+    --bs-alert-bg: var(--sitia-alert-danger-bg);
+    --bs-alert-border-color: var(--sitia-alert-danger-border);
+}
+
+.alert-info {
+    --bs-alert-color: var(--sitia-alert-info-color);
+    --bs-alert-bg: var(--sitia-alert-info-bg);
+    --bs-alert-border-color: var(--sitia-alert-info-border);
+}
+
+.alert-light {
+    --bs-alert-color: var(--sitia-alert-light-color);
+    --bs-alert-bg: var(--sitia-alert-light-bg);
+    --bs-alert-border-color: var(--sitia-alert-light-border);
+}
