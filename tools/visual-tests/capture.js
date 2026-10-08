@@ -519,6 +519,7 @@ async function run() {
         console.log(`\n[INTERACCIÓN] (${currentPass.id}) Capturando estados dinámicos en Modo Claro y Oscuro...`);
         const computedButtonsDump = {};
         const computedBadgesDump = {};
+        const computedAlertsDump = {};
 
         for (const theme of THEMES) {
           const gotoWithTheme = async (relPath, vpWidth = 1440, vpHeight = 900) => {
@@ -822,10 +823,38 @@ async function run() {
             }, variant.selector);
             computedBadgesDump[theme][variant.id] = styles;
           }
+
+          // 18. Matriz de Alertas: 5 variantes x 2 temas
+          console.log(`[MATRIZ ALERTAS] (${currentPass.id}) Midiendo 5 variantes (${theme})...`);
+          const ALERT_VARIANTS = [
+            { id: 'success', selector: '#alert_matrix_success' },
+            { id: 'warning', selector: '#alert_matrix_warning' },
+            { id: 'danger', selector: '#alert_matrix_danger' },
+            { id: 'info', selector: '#alert_matrix_info' },
+            { id: 'light', selector: '#alert_matrix_light' }
+          ];
+
+          computedAlertsDump[theme] = {};
+          for (const variant of ALERT_VARIANTS) {
+            const styles = await page.evaluate((sel) => {
+              const el = document.querySelector(sel);
+              if (!el) throw new Error(`[MATRIZ ERROR] Selector de alerta no encontrado: ${sel}`);
+              const cs = window.getComputedStyle(el);
+              return {
+                backgroundColor: cs.backgroundColor,
+                color: cs.color,
+                borderColor: cs.borderColor,
+                borderTopWidth: cs.borderTopWidth,
+                borderTopStyle: cs.borderTopStyle
+              };
+            }, variant.selector);
+            computedAlertsDump[theme][variant.id] = styles;
+          }
         }
 
         fs.writeFileSync(path.join(currentOutputDir, 'computed-buttons.json'), JSON.stringify(computedButtonsDump, null, 2));
         fs.writeFileSync(path.join(currentOutputDir, 'computed-badges.json'), JSON.stringify(computedBadgesDump, null, 2));
+        fs.writeFileSync(path.join(currentOutputDir, 'computed-alerts.json'), JSON.stringify(computedAlertsDump, null, 2));
       }
     } // Fin bucle de pasadas
 

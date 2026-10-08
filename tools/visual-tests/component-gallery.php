@@ -374,10 +374,11 @@ require_once __DIR__ . '/../../includes/config.php';
                 <section class="card mb-4">
                     <div class="card-header"><h5>4. Alertas</h5></div>
                     <div class="card-body">
-                        <div class="alert alert-success mb-2">Alerta Success de prueba</div>
-                        <div class="alert alert-warning mb-2">Alerta Warning de prueba</div>
-                        <div class="alert alert-danger mb-2">Alerta Danger de prueba</div>
-                        <div class="alert alert-info mb-0">Alerta Info de prueba</div>
+                        <div class="alert alert-success mb-2" id="alert_matrix_success">Alerta Success de prueba</div>
+                        <div class="alert alert-warning mb-2" id="alert_matrix_warning">Alerta Warning de prueba</div>
+                        <div class="alert alert-danger mb-2" id="alert_matrix_danger">Alerta Danger de prueba</div>
+                        <div class="alert alert-info mb-2" id="alert_matrix_info">Alerta Info de prueba</div>
+                        <div class="alert alert-light mb-0" id="alert_matrix_light">Alerta Light de prueba</div>
                     </div>
                 </section>
 
