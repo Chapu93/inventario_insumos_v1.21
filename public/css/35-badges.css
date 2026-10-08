@@ -1,3 +1,7 @@
+/* ============================================================================
+   35-BADGES.CSS - Badges y Estados de SITIA gobernados por tokens semánticos
+   ============================================================================ */
+
 /* Badges específicos */
 .badge-tipo {
     background-color: var(--sitia-surface-2) !important;
@@ -6,47 +10,89 @@
 }
 
 .badge-colaborativa {
-    background-color: var(--sitia-btn-purple-bg) !important;
-    color: var(--sitia-primitive-white) !important;
-    border: 1px solid var(--sitia-primitive-purple-400) !important;
+    background-color: var(--sitia-badge-colaborativa-bg) !important;
+    color: var(--sitia-badge-colaborativa-color) !important;
+    border: 1px solid var(--sitia-badge-colaborativa-border) !important;
 }
 
-/* Estados de SITIA (Modo Claro) */
-.estado-disponible {
-    background-color: var(--sitia-success) !important;
-    color: var(--sitia-primitive-white) !important;
+/* Badges estándar de Bootstrap (.badge.bg-*) */
+.badge.bg-primary {
+    background-color: var(--sitia-badge-primary-bg) !important;
+    color: var(--sitia-badge-primary-color) !important;
+    border: var(--sitia-badge-border-width) var(--sitia-badge-border-style) var(--sitia-badge-primary-border) !important;
+}
+
+.badge.bg-secondary {
+    background-color: var(--sitia-badge-secondary-bg) !important;
+    color: var(--sitia-badge-secondary-color) !important;
+    border: var(--sitia-badge-border-width) var(--sitia-badge-border-style) var(--sitia-badge-secondary-border) !important;
+}
+
+.badge.bg-success {
+    background-color: var(--sitia-badge-success-bg) !important;
+    color: var(--sitia-badge-success-color) !important;
+    border: var(--sitia-badge-border-width) var(--sitia-badge-border-style) var(--sitia-badge-success-border) !important;
+}
+
+.badge.bg-danger {
+    background-color: var(--sitia-badge-danger-bg) !important;
+    color: var(--sitia-badge-danger-color) !important;
+    border: var(--sitia-badge-border-width) var(--sitia-badge-border-style) var(--sitia-badge-danger-border) !important;
+}
+
+.badge.bg-warning {
+    background-color: var(--sitia-badge-warning-bg) !important;
+    color: var(--sitia-badge-warning-color) !important;
+    border: var(--sitia-badge-border-width) var(--sitia-badge-border-style) var(--sitia-badge-warning-border) !important;
+}
+
+.badge.bg-info {
+    background-color: var(--sitia-badge-info-bg) !important;
+    color: var(--sitia-badge-info-color) !important;
+    border: var(--sitia-badge-border-width) var(--sitia-badge-border-style) var(--sitia-badge-info-border) !important;
+}
+
+.badge.bg-dark {
+    background-color: var(--sitia-badge-dark-bg) !important;
+    color: var(--sitia-badge-dark-color) !important;
+    border: var(--sitia-badge-border-width) var(--sitia-badge-border-style) var(--sitia-badge-dark-border) !important;
+}
+
+/* Estados de SITIA */
+.estado-disponible,
+.estado-activa {
+    background-color: var(--sitia-badge-success-bg) !important;
+    color: var(--sitia-badge-success-color) !important;
+    border: var(--sitia-badge-border-width) var(--sitia-badge-border-style) var(--sitia-badge-success-border) !important;
 }
 
 .estado-asignado {
-    background-color: var(--sitia-warning) !important;
-    color: var(--sitia-primitive-black) !important;
+    background-color: var(--sitia-badge-warning-bg) !important;
+    color: var(--sitia-badge-asignado-color) !important;
+    border: var(--sitia-badge-border-width) var(--sitia-badge-border-style) var(--sitia-badge-asignado-border) !important;
 }
 
 .estado-parcial {
-    background-color: var(--sitia-primitive-amber-570) !important;
-    color: var(--sitia-primitive-white) !important;
-    border: 1px solid var(--sitia-primitive-amber-650) !important;
+    background-color: var(--sitia-badge-parcial-bg) !important;
+    color: var(--sitia-badge-parcial-color) !important;
+    border: 1px solid var(--sitia-badge-parcial-border) !important;
 }
 
 .estado-baja {
-    background-color: var(--sitia-danger) !important;
-    color: var(--sitia-primitive-white) !important;
-}
-
-.estado-activa {
-    background-color: var(--sitia-success) !important;
-    color: var(--sitia-primitive-white) !important;
+    background-color: var(--sitia-badge-danger-bg) !important;
+    color: var(--sitia-badge-danger-color) !important;
+    border: var(--sitia-badge-border-width) var(--sitia-badge-border-style) var(--sitia-badge-danger-border) !important;
 }
 
 .estado-devuelta {
-    background-color: var(--sitia-primitive-white) !important;
-    color: var(--sitia-primitive-black) !important;
+    background-color: var(--sitia-badge-devuelta-bg) !important;
+    color: var(--sitia-badge-devuelta-color) !important;
+    border: var(--sitia-badge-border-width) var(--sitia-badge-border-style) var(--sitia-badge-devuelta-border) !important;
 }
 
 .estado-anulado {
-    background-color: var(--sitia-btn-danger-bg) !important;
-    color: var(--sitia-primitive-white) !important;
+    background-color: var(--sitia-badge-anulado-bg) !important;
+    color: var(--sitia-badge-danger-color) !important;
     font-weight: 600 !important;
-    border: 2px solid var(--sitia-primitive-red-650) !important;
+    border: var(--sitia-badge-anulado-border-width) solid var(--sitia-badge-anulado-border) !important;
 }
-

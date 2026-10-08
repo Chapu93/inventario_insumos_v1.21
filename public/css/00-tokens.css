@@ -318,6 +318,59 @@
     --sitia-icon-search-focus: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='16' height='16' fill='none' stroke='%235a9367' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");
 
     /* ========================================================================
+       TOKENS SEMÁNTICOS DE COMPONENTES: BADGES Y ESTADOS
+       ======================================================================== */
+    --sitia-badge-border-width: 0px;
+    --sitia-badge-border-style: none;
+
+    --sitia-badge-primary-bg: var(--sitia-primary);
+    --sitia-badge-primary-color: var(--sitia-primitive-white);
+    --sitia-badge-primary-border: currentcolor;
+
+    --sitia-badge-secondary-bg: var(--sitia-secondary);
+    --sitia-badge-secondary-color: var(--sitia-primitive-white);
+    --sitia-badge-secondary-border: currentcolor;
+
+    --sitia-badge-success-bg: var(--sitia-success);
+    --sitia-badge-success-color: var(--sitia-primitive-white);
+    --sitia-badge-success-border: currentcolor;
+
+    --sitia-badge-danger-bg: var(--sitia-danger);
+    --sitia-badge-danger-color: var(--sitia-primitive-white);
+    --sitia-badge-danger-border: currentcolor;
+
+    --sitia-badge-warning-bg: var(--sitia-warning);
+    --sitia-badge-warning-color: var(--sitia-primitive-white);
+    --sitia-badge-warning-border: currentcolor;
+
+    --sitia-badge-info-bg: var(--sitia-info);
+    --sitia-badge-info-color: var(--sitia-primitive-white);
+    --sitia-badge-info-border: currentcolor;
+
+    --sitia-badge-dark-bg: var(--sitia-primitive-gray-800);
+    --sitia-badge-dark-color: var(--sitia-primitive-white);
+    --sitia-badge-dark-border: currentcolor;
+
+    --sitia-badge-colaborativa-bg: var(--sitia-btn-purple-bg);
+    --sitia-badge-colaborativa-color: var(--sitia-primitive-white);
+    --sitia-badge-colaborativa-border: var(--sitia-primitive-purple-400);
+
+    --sitia-badge-parcial-bg: var(--sitia-primitive-amber-570);
+    --sitia-badge-parcial-color: var(--sitia-primitive-white);
+    --sitia-badge-parcial-border: var(--sitia-primitive-amber-650);
+
+    --sitia-badge-asignado-color: var(--sitia-primitive-black);
+    --sitia-badge-asignado-border: currentcolor;
+
+    --sitia-badge-devuelta-bg: var(--sitia-primitive-white);
+    --sitia-badge-devuelta-color: var(--sitia-primitive-black);
+    --sitia-badge-devuelta-border: currentcolor;
+
+    --sitia-badge-anulado-bg: var(--sitia-primitive-red-500);
+    --sitia-badge-anulado-border: var(--sitia-primitive-red-650);
+    --sitia-badge-anulado-border-width: 2px;
+
+    /* ========================================================================
        MAPEO DIRECTO A BOOTSTRAP 5
        ======================================================================== */
     --bs-primary: var(--sitia-primary);
