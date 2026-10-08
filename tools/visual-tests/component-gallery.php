@@ -447,26 +447,66 @@ require_once __DIR__ . '/../../includes/config.php';
                 <section class="row g-3 mb-4">
                     <div class="col-md-3">
                         <div class="card">
-                            <div class="card-header card-header--success">Success Header</div>
+                            <div class="card-header card-header--success" id="gallery_header_success">Success Header</div>
                             <div class="card-body"><p class="mb-0">Contenido</p></div>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="card">
-                            <div class="card-header card-header--info">Info Header</div>
+                            <div class="card-header card-header--info" id="gallery_header_info">Info Header</div>
                             <div class="card-body"><p class="mb-0">Contenido</p></div>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="card">
-                            <div class="card-header card-header--warning">Warning Header</div>
+                            <div class="card-header card-header--warning" id="gallery_header_warning">Warning Header</div>
                             <div class="card-body"><p class="mb-0">Contenido</p></div>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="card">
-                            <div class="card-header card-header--danger">Danger Header</div>
+                            <div class="card-header card-header--danger" id="gallery_header_danger">Danger Header</div>
                             <div class="card-body"><p class="mb-0">Contenido</p></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 6b. TARJETAS DE KPI Y ESTADÍSTICAS (DASHBOARD) -->
+                <section class="row g-3 mb-4" id="gallery_kpi_section">
+                    <div class="col-md-2 col-6">
+                        <div class="dashboard-card" id="gallery_kpi_base">
+                            <h3>10</h3>
+                            <p class="mb-0">Base</p>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="dashboard-card dashboard-card--primary" id="gallery_kpi_primary">
+                            <h3>25</h3>
+                            <p class="mb-0">Primary</p>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="dashboard-card dashboard-card--success" id="gallery_kpi_success">
+                            <h3>40</h3>
+                            <p class="mb-0">Success</p>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="dashboard-card dashboard-card--info" id="gallery_kpi_info">
+                            <h3>18</h3>
+                            <p class="mb-0">Info</p>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="dashboard-card dashboard-card--warning" id="gallery_kpi_warning">
+                            <h3>7</h3>
+                            <p class="mb-0">Warning</p>
+                        </div>
+                    </div>
+                    <div class="col-md-2 col-6">
+                        <div class="dashboard-card dashboard-card--danger" id="gallery_kpi_danger">
+                            <h3>3</h3>
+                            <p class="mb-0">Danger</p>
                         </div>
                     </div>
                 </section>

@@ -523,6 +523,7 @@ async function run() {
         const computedModalsDump = {};
         const computedDropdownsDump = {};
         const computedFormsDump = {};
+        const computedCardsDump = {};
 
         for (const theme of THEMES) {
           const gotoWithTheme = async (relPath, vpWidth = 1440, vpHeight = 900) => {
@@ -955,6 +956,59 @@ async function run() {
             };
           });
           computedFormsDump[theme] = formsStyles;
+
+          // 21. Tarjetas temáticas y KPI (Dashboard)
+          console.log(`[MATRIZ TARJETAS Y KPI] (${currentPass.id}) Midiendo elementos (${theme})...`);
+          const cardsStyles = await page.evaluate(() => {
+            const hSuccess = document.querySelector('#gallery_header_success');
+            const hInfo = document.querySelector('#gallery_header_info');
+            const hWarning = document.querySelector('#gallery_header_warning');
+            const hDanger = document.querySelector('#gallery_header_danger');
+
+            const kBase = document.querySelector('#gallery_kpi_base');
+            const kPrimary = document.querySelector('#gallery_kpi_primary');
+            const kSuccess = document.querySelector('#gallery_kpi_success');
+            const kInfo = document.querySelector('#gallery_kpi_info');
+            const kWarning = document.querySelector('#gallery_kpi_warning');
+            const kDanger = document.querySelector('#gallery_kpi_danger');
+
+            if (!hSuccess || !hInfo || !hWarning || !hDanger || !kBase || !kPrimary || !kSuccess || !kInfo || !kWarning || !kDanger) {
+              throw new Error('[TARJETAS Y KPI ERROR] Elementos no encontrados en galería');
+            }
+
+            const getHeaderStyle = (el) => {
+              const cs = window.getComputedStyle(el);
+              return {
+                backgroundColor: cs.backgroundColor,
+                color: cs.color,
+                borderBottomColor: cs.borderBottomColor
+              };
+            };
+
+            const getKpiStyle = (el) => {
+              const cs = window.getComputedStyle(el);
+              return {
+                backgroundColor: cs.backgroundColor,
+                color: cs.color,
+                borderLeftColor: cs.borderLeftColor,
+                borderLeftWidth: cs.borderLeftWidth
+              };
+            };
+
+            return {
+              header_success: getHeaderStyle(hSuccess),
+              header_info: getHeaderStyle(hInfo),
+              header_warning: getHeaderStyle(hWarning),
+              header_danger: getHeaderStyle(hDanger),
+              kpi_base: getKpiStyle(kBase),
+              kpi_primary: getKpiStyle(kPrimary),
+              kpi_success: getKpiStyle(kSuccess),
+              kpi_info: getKpiStyle(kInfo),
+              kpi_warning: getKpiStyle(kWarning),
+              kpi_danger: getKpiStyle(kDanger)
+            };
+          });
+          computedCardsDump[theme] = cardsStyles;
         }
 
         fs.writeFileSync(path.join(currentOutputDir, 'computed-buttons.json'), JSON.stringify(computedButtonsDump, null, 2));
@@ -963,6 +1017,7 @@ async function run() {
         fs.writeFileSync(path.join(currentOutputDir, 'computed-modals.json'), JSON.stringify(computedModalsDump, null, 2));
         fs.writeFileSync(path.join(currentOutputDir, 'computed-dropdowns.json'), JSON.stringify(computedDropdownsDump, null, 2));
         fs.writeFileSync(path.join(currentOutputDir, 'computed-forms.json'), JSON.stringify(computedFormsDump, null, 2));
+        fs.writeFileSync(path.join(currentOutputDir, 'computed-cards.json'), JSON.stringify(computedCardsDump, null, 2));
       }
     } // Fin bucle de pasadas
 

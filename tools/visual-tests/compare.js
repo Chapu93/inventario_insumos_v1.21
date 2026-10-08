@@ -533,15 +533,72 @@ if (formsDiffs.length > 0) {
   console.log(`\n✅ [FORMULARIOS] Computed styles de formularios 100% idénticos (0 diferencias).`);
 }
 
+// Comparación estricta de computed-cards.json (Tarjetas y KPI)
+const cards1Path = path.join(BASELINE_DIR, 'computed-cards.json');
+const cards2Path = path.join(TARGET_DIR, 'computed-cards.json');
+const cardsDiffs = [];
+let card1 = null;
+let card2 = null;
+
+if (fs.existsSync(cards1Path) && fs.existsSync(cards2Path)) {
+  card1 = JSON.parse(fs.readFileSync(cards1Path, 'utf-8'));
+  card2 = JSON.parse(fs.readFileSync(cards2Path, 'utf-8'));
+
+  for (const theme of Object.keys(card1)) {
+    if (!card2[theme]) {
+      cardsDiffs.push({ tema: theme, parte: '*', propiedad: 'THEME_MISSING', base: 'PRESENTE', actual: 'AUSENTE' });
+      continue;
+    }
+    for (const part of Object.keys(card1[theme])) {
+      if (!card2[theme][part]) {
+        cardsDiffs.push({ tema: theme, parte: part, propiedad: 'PART_MISSING', base: 'PRESENTE', actual: 'AUSENTE' });
+        continue;
+      }
+      const props1 = card1[theme][part];
+      const props2 = card2[theme][part];
+      for (const prop of ['backgroundColor', 'borderColor', 'color', 'borderBottomColor', 'borderLeftColor', 'borderLeftWidth']) {
+        if (props1[prop] !== undefined && props2[prop] !== undefined && props1[prop] !== props2[prop]) {
+          cardsDiffs.push({
+            tema: theme,
+            parte: part,
+            propiedad: prop,
+            base: props1[prop],
+            actual: props2[prop]
+          });
+        }
+      }
+    }
+  }
+
+  for (const theme of Object.keys(card2)) {
+    if (!card1[theme]) continue;
+    for (const part of Object.keys(card2[theme])) {
+      if (!card1[theme][part]) {
+        cardsDiffs.push({ tema: theme, parte: part, propiedad: 'PART_EXTRA', base: 'AUSENTE', actual: 'PRESENTE' });
+      }
+    }
+  }
+} else if (fs.existsSync(cards2Path) && !fs.existsSync(cards1Path)) {
+  console.warn('⚠️ [TARJETAS Y KPI] computed-cards.json presente en actual pero ausente en base.');
+}
+
+if (cardsDiffs.length > 0) {
+  console.log('\n⚠️ [MATRIZ DE TARJETAS Y KPI DIFF] Discrepancias en tarjetas y KPI:');
+  console.table(cardsDiffs);
+  fs.writeFileSync(path.join(DIFF_DIR, 'computed-cards-diff.json'), JSON.stringify(cardsDiffs, null, 2));
+} else if (fs.existsSync(cards1Path) && fs.existsSync(cards2Path)) {
+  console.log(`\n✅ [TARJETAS Y KPI] Computed styles de tarjetas y KPI 100% idénticos (0 diferencias).`);
+}
+
 const summaryPath = path.join(DIFF_DIR, 'summary.json');
-fs.writeFileSync(summaryPath, JSON.stringify({ results, styleDiffs, buttonDiffs, badgeDiffs, alertDiffs, modalDiffs, dropdownDiffs, formsDiffs }, null, 2));
+fs.writeFileSync(summaryPath, JSON.stringify({ results, styleDiffs, buttonDiffs, badgeDiffs, alertDiffs, modalDiffs, dropdownDiffs, formsDiffs, cardsDiffs }, null, 2));
 
 console.log(`\n📊 Resumen de Comparación:`);
 console.log(`- Total de capturas evaluadas: ${files.length}`);
 console.log(`- Píxeles totales distintos: ${totalDiffPixels}`);
 console.log(`- Reporte detallado guardado en: ${summaryPath}`);
 
-if (totalDiffPixels === 0 && !hasCriticalErrors && styleDiffs.length === 0 && buttonDiffs.length === 0 && badgeDiffs.length === 0 && alertDiffs.length === 0 && modalDiffs.length === 0 && dropdownDiffs.length === 0 && formsDiffs.length === 0) {
+if (totalDiffPixels === 0 && !hasCriticalErrors && styleDiffs.length === 0 && buttonDiffs.length === 0 && badgeDiffs.length === 0 && alertDiffs.length === 0 && modalDiffs.length === 0 && dropdownDiffs.length === 0 && formsDiffs.length === 0 && cardsDiffs.length === 0) {
   console.log('\n🎉 VALIDACIÓN EXITOSA: Determinismo / Identidad total (0 píxeles de diferencia).');
   process.exit(0);
 } else {
