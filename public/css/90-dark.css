@@ -57,6 +57,7 @@
     --sitia-btn-outline-warning-hover-color: var(--sitia-warning);
     --sitia-btn-outline-warning-hover-border: var(--sitia-warning);
     --sitia-btn-outline-warning-focus-color: var(--sitia-warning);
+    --sitia-btn-outline-warning-focus-bg: var(--sitia-primitive-amber-450);
     --sitia-btn-sidebar-toggle-active-bg: var(--sitia-surface-2);
     --sitia-btn-sidebar-toggle-active-color: var(--sitia-text);
     --sitia-btn-sidebar-toggle-active-border: var(--sitia-border);

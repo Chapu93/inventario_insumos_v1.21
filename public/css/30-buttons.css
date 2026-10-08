@@ -577,29 +577,42 @@ input.btn.btn-outline-primary:focus-visible,
 
 /* Botón Outline Warning */
 .btn-outline-warning {
-    color: var(--sitia-btn-outline-warning-color) !important;
-    border-color: var(--sitia-btn-outline-warning-border) !important;
+    --bs-btn-color: var(--sitia-btn-outline-warning-color);
+    --bs-btn-border-color: var(--sitia-btn-outline-warning-border);
+    --bs-btn-hover-color: var(--sitia-btn-outline-warning-hover-color);
+    --bs-btn-hover-bg: var(--sitia-btn-outline-warning-hover-bg);
+    --bs-btn-hover-border-color: var(--sitia-btn-outline-warning-hover-border);
+    --bs-btn-active-color: var(--sitia-btn-outline-warning-hover-color);
+    --bs-btn-active-bg: var(--sitia-btn-outline-warning-hover-bg);
+    --bs-btn-active-border-color: var(--sitia-btn-outline-warning-hover-border);
+    --bs-btn-disabled-color: var(--sitia-btn-outline-warning-color);
+    --bs-btn-disabled-border-color: var(--sitia-btn-outline-warning-border);
+    --bs-btn-focus-shadow-rgb: 255, 193, 7;
+    color: var(--sitia-btn-outline-warning-color);
+    border-color: var(--sitia-btn-outline-warning-border);
 }
 
 .btn-outline-warning:hover,
 .btn.btn-outline-warning:active,
 .btn-outline-warning:active,
 .btn-outline-warning.active {
-    background-color: var(--sitia-btn-outline-warning-hover-bg) !important;
-    color: var(--sitia-btn-outline-warning-hover-color) !important;
-    border-color: var(--sitia-btn-outline-warning-hover-border) !important;
+    background-color: var(--sitia-btn-outline-warning-hover-bg);
+    color: var(--sitia-btn-outline-warning-hover-color);
+    border-color: var(--sitia-btn-outline-warning-hover-border);
 }
 
 .btn-outline-warning:focus-visible {
-    color: var(--sitia-btn-outline-warning-focus-color) !important;
+    color: var(--sitia-btn-outline-warning-focus-color);
+    border-color: var(--sitia-btn-outline-warning-border);
+    background-color: var(--sitia-btn-outline-warning-focus-bg);
 }
 
 .btn-outline-warning:focus:not(:focus-visible) {
-    background-color: transparent !important;
-    color: var(--sitia-btn-outline-warning-color) !important;
-    border-color: var(--sitia-btn-outline-warning-border) !important;
-    box-shadow: none !important;
-    outline: none !important;
+    background-color: transparent;
+    color: var(--sitia-btn-outline-warning-color);
+    border-color: var(--sitia-btn-outline-warning-border);
+    box-shadow: none;
+    outline: none;
 }
 
 /* Botones Suaves de Acción */
