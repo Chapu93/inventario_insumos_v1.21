@@ -522,6 +522,7 @@ async function run() {
         const computedAlertsDump = {};
         const computedModalsDump = {};
         const computedDropdownsDump = {};
+        const computedFormsDump = {};
 
         for (const theme of THEMES) {
           const gotoWithTheme = async (relPath, vpWidth = 1440, vpHeight = 900) => {
@@ -905,6 +906,55 @@ async function run() {
             };
           });
           computedDropdownsDump[theme] = dropdownStyles;
+
+          // 20. Formularios e Inputs: disabled, readonly, input-group-text, file-selector-button
+          console.log(`[MATRIZ FORMULARIOS] (${currentPass.id}) Midiendo elementos (${theme})...`);
+          const formsStyles = await page.evaluate(() => {
+            const inputDisabled = document.querySelector('#gallery_input_disabled');
+            const selectDisabled = document.querySelector('#gallery_select_disabled');
+            const inputReadonly = document.querySelector('#gallery_input_readonly');
+            const inputGroupText = document.querySelector('#gallery_input_group_text');
+            const fileInput = document.querySelector('#gallery_file_input');
+
+            if (!inputDisabled || !selectDisabled || !inputReadonly || !inputGroupText || !fileInput) {
+              throw new Error('[FORMULARIOS ERROR] Elementos no encontrados en galería');
+            }
+
+            const csInputDis = window.getComputedStyle(inputDisabled);
+            const csSelectDis = window.getComputedStyle(selectDisabled);
+            const csInputRo = window.getComputedStyle(inputReadonly);
+            const csIgText = window.getComputedStyle(inputGroupText);
+            const csFileBtn = window.getComputedStyle(fileInput, '::file-selector-button');
+
+            return {
+              input_disabled: {
+                backgroundColor: csInputDis.backgroundColor,
+                color: csInputDis.color,
+                opacity: csInputDis.opacity
+              },
+              select_disabled: {
+                backgroundColor: csSelectDis.backgroundColor,
+                color: csSelectDis.color,
+                opacity: csSelectDis.opacity
+              },
+              input_readonly: {
+                backgroundColor: csInputRo.backgroundColor,
+                color: csInputRo.color,
+                opacity: csInputRo.opacity
+              },
+              input_group_text: {
+                backgroundColor: csIgText.backgroundColor,
+                color: csIgText.color,
+                borderColor: csIgText.borderColor
+              },
+              file_button: {
+                backgroundColor: csFileBtn.backgroundColor,
+                color: csFileBtn.color,
+                borderColor: csFileBtn.borderColor
+              }
+            };
+          });
+          computedFormsDump[theme] = formsStyles;
         }
 
         fs.writeFileSync(path.join(currentOutputDir, 'computed-buttons.json'), JSON.stringify(computedButtonsDump, null, 2));
@@ -912,6 +962,7 @@ async function run() {
         fs.writeFileSync(path.join(currentOutputDir, 'computed-alerts.json'), JSON.stringify(computedAlertsDump, null, 2));
         fs.writeFileSync(path.join(currentOutputDir, 'computed-modals.json'), JSON.stringify(computedModalsDump, null, 2));
         fs.writeFileSync(path.join(currentOutputDir, 'computed-dropdowns.json'), JSON.stringify(computedDropdownsDump, null, 2));
+        fs.writeFileSync(path.join(currentOutputDir, 'computed-forms.json'), JSON.stringify(computedFormsDump, null, 2));
       }
     } // Fin bucle de pasadas
 

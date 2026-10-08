@@ -409,13 +409,27 @@ require_once __DIR__ . '/../../includes/config.php';
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Deshabilitado</label>
-                            <input type="text" class="form-control" disabled value="Deshabilitado">
+                            <label class="form-label">Input Deshabilitado</label>
+                            <input type="text" class="form-control" id="gallery_input_disabled" disabled value="Deshabilitado">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Select Deshabilitado</label>
+                            <select class="form-select" id="gallery_select_disabled" disabled>
+                                <option selected>Select deshabilitado</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Input Readonly</label>
+                            <input type="text" class="form-control" id="gallery_input_readonly" readonly value="Solo lectura">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Selector de Archivos (.form-control)</label>
+                            <input type="file" class="form-control" id="gallery_file_input">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Input Group</label>
                             <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-tag"></i></span>
+                                <span class="input-group-text" id="gallery_input_group_text"><i class="fas fa-tag"></i></span>
                                 <input type="text" class="form-control" placeholder="Prefijo">
                             </div>
                         </div>

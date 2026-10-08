@@ -476,15 +476,72 @@ if (dropdownDiffs.length > 0) {
   console.log(`\n✅ [DROPDOWNS] Computed styles de dropdowns 100% idénticos (0 diferencias).`);
 }
 
+// Comparación estricta de computed-forms.json (Formularios e Inputs)
+const forms1Path = path.join(BASELINE_DIR, 'computed-forms.json');
+const forms2Path = path.join(TARGET_DIR, 'computed-forms.json');
+const formsDiffs = [];
+let form1 = null;
+let form2 = null;
+
+if (fs.existsSync(forms1Path) && fs.existsSync(forms2Path)) {
+  form1 = JSON.parse(fs.readFileSync(forms1Path, 'utf-8'));
+  form2 = JSON.parse(fs.readFileSync(forms2Path, 'utf-8'));
+
+  for (const theme of Object.keys(form1)) {
+    if (!form2[theme]) {
+      formsDiffs.push({ tema: theme, parte: '*', propiedad: 'THEME_MISSING', base: 'PRESENTE', actual: 'AUSENTE' });
+      continue;
+    }
+    for (const part of Object.keys(form1[theme])) {
+      if (!form2[theme][part]) {
+        formsDiffs.push({ tema: theme, parte: part, propiedad: 'PART_MISSING', base: 'PRESENTE', actual: 'AUSENTE' });
+        continue;
+      }
+      const props1 = form1[theme][part];
+      const props2 = form2[theme][part];
+      for (const prop of ['backgroundColor', 'borderColor', 'color', 'opacity']) {
+        if (props1[prop] !== undefined && props2[prop] !== undefined && props1[prop] !== props2[prop]) {
+          formsDiffs.push({
+            tema: theme,
+            parte: part,
+            propiedad: prop,
+            base: props1[prop],
+            actual: props2[prop]
+          });
+        }
+      }
+    }
+  }
+
+  for (const theme of Object.keys(form2)) {
+    if (!form1[theme]) continue;
+    for (const part of Object.keys(form2[theme])) {
+      if (!form1[theme][part]) {
+        formsDiffs.push({ tema: theme, parte: part, propiedad: 'PART_EXTRA', base: 'AUSENTE', actual: 'PRESENTE' });
+      }
+    }
+  }
+} else if (fs.existsSync(forms2Path) && !fs.existsSync(forms1Path)) {
+  console.warn('⚠️ [FORMULARIOS] computed-forms.json presente en actual pero ausente en base.');
+}
+
+if (formsDiffs.length > 0) {
+  console.log('\n⚠️ [MATRIZ DE FORMULARIOS DIFF] Discrepancias en formularios:');
+  console.table(formsDiffs);
+  fs.writeFileSync(path.join(DIFF_DIR, 'computed-forms-diff.json'), JSON.stringify(formsDiffs, null, 2));
+} else if (fs.existsSync(forms1Path) && fs.existsSync(forms2Path)) {
+  console.log(`\n✅ [FORMULARIOS] Computed styles de formularios 100% idénticos (0 diferencias).`);
+}
+
 const summaryPath = path.join(DIFF_DIR, 'summary.json');
-fs.writeFileSync(summaryPath, JSON.stringify({ results, styleDiffs, buttonDiffs, badgeDiffs, alertDiffs, modalDiffs, dropdownDiffs }, null, 2));
+fs.writeFileSync(summaryPath, JSON.stringify({ results, styleDiffs, buttonDiffs, badgeDiffs, alertDiffs, modalDiffs, dropdownDiffs, formsDiffs }, null, 2));
 
 console.log(`\n📊 Resumen de Comparación:`);
 console.log(`- Total de capturas evaluadas: ${files.length}`);
 console.log(`- Píxeles totales distintos: ${totalDiffPixels}`);
 console.log(`- Reporte detallado guardado en: ${summaryPath}`);
 
-if (totalDiffPixels === 0 && !hasCriticalErrors && styleDiffs.length === 0 && buttonDiffs.length === 0 && badgeDiffs.length === 0 && alertDiffs.length === 0 && modalDiffs.length === 0 && dropdownDiffs.length === 0) {
+if (totalDiffPixels === 0 && !hasCriticalErrors && styleDiffs.length === 0 && buttonDiffs.length === 0 && badgeDiffs.length === 0 && alertDiffs.length === 0 && modalDiffs.length === 0 && dropdownDiffs.length === 0 && formsDiffs.length === 0) {
   console.log('\n🎉 VALIDACIÓN EXITOSA: Determinismo / Identidad total (0 píxeles de diferencia).');
   process.exit(0);
 } else {
