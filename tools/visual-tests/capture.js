@@ -701,8 +701,8 @@ async function run() {
           // 15. Focus en select de longitud de DataTables
           await captureFocusedElement('.dataTables_length select', `state_focus_datatables_length_${theme}.png`);
 
-          // 16. Matriz de Botones (Paso 2): 24 variantes x 5 estados x tema con CDP
-          console.log(`[MATRIZ BOTONES] (${currentPass.id}) Midiendo 24 variantes x 5 estados (${theme})...`);
+          // 16. Matriz de Botones (Paso 2): 34 variantes x 5 estados x tema con CDP
+          console.log(`[MATRIZ BOTONES] (${currentPass.id}) Midiendo 34 variantes x 5 estados (${theme})...`);
           const client = await page.target().createCDPSession();
           await client.send('DOM.enable');
           await client.send('CSS.enable');
@@ -732,7 +732,17 @@ async function run() {
             { id: 'outline-warning', selector: '#btn_matrix_outline_warning' },
             { id: 'sidebar-toggle', selector: '#btn_matrix_sidebar_toggle' },
             { id: 'primary-in-card-header', selector: '#btn_primary_in_card_header' },
-            { id: 'primary-in-th', selector: '#btn_primary_in_th' }
+            { id: 'primary-in-th', selector: '#btn_primary_in_th' },
+            { id: 'info-text-white', selector: '#btn_matrix_info_text_white' },
+            { id: 'light-text-primary', selector: '#btn_matrix_light_text_primary' },
+            { id: 'link-text-danger', selector: '#btn_matrix_link_text_danger' },
+            { id: 'link-text-muted', selector: '#btn_matrix_link_text_muted' },
+            { id: 'outline-danger-border-opacity-25', selector: '#btn_matrix_outline_danger_border_opacity_25' },
+            { id: 'secondary-text-muted', selector: '#btn_matrix_secondary_text_muted' },
+            { id: 'secondary-text-white', selector: '#btn_matrix_secondary_text_white' },
+            { id: 'success-text-white', selector: '#btn_matrix_success_text_white' },
+            { id: 'warning-text-dark', selector: '#btn_matrix_warning_text_dark' },
+            { id: 'warning-text-white', selector: '#btn_matrix_warning_text_white' }
           ];
           const BUTTON_STATES = ['normal', 'hover', 'active', 'disabled', 'focus-visible'];
 

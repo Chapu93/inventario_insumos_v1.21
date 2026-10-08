@@ -260,6 +260,87 @@ require_once __DIR__ . '/../../includes/config.php';
                                         <td><button type="button" class="btn btn-sidebar-toggle disabled" disabled><i class="fas fa-bars"></i></button></td>
                                         <td><button type="button" class="btn btn-sidebar-toggle"><i class="fas fa-bars"></i></button></td>
                                     </tr>
+                                    <!-- Combinaciones de Botones con Utilidades Bootstrap -->
+                                    <tr>
+                                        <td class="text-start fw-bold">Info + text-white</td>
+                                        <td><button type="button" class="btn btn-info text-white" id="btn_matrix_info_text_white">Info</button></td>
+                                        <td><button type="button" class="btn btn-info text-white">Hover</button></td>
+                                        <td><button type="button" class="btn btn-info text-white active">Active</button></td>
+                                        <td><button type="button" class="btn btn-info text-white disabled" disabled>Disabled</button></td>
+                                        <td><button type="button" class="btn btn-info text-white">Focus</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-bold">Light + text-primary</td>
+                                        <td><button type="button" class="btn btn-light text-primary" id="btn_matrix_light_text_primary">Light</button></td>
+                                        <td><button type="button" class="btn btn-light text-primary">Hover</button></td>
+                                        <td><button type="button" class="btn btn-light text-primary active">Active</button></td>
+                                        <td><button type="button" class="btn btn-light text-primary disabled" disabled>Disabled</button></td>
+                                        <td><button type="button" class="btn btn-light text-primary">Focus</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-bold">Link + text-danger</td>
+                                        <td><button type="button" class="btn btn-link text-danger" id="btn_matrix_link_text_danger">Link</button></td>
+                                        <td><button type="button" class="btn btn-link text-danger">Hover</button></td>
+                                        <td><button type="button" class="btn btn-link text-danger active">Active</button></td>
+                                        <td><button type="button" class="btn btn-link text-danger disabled" disabled>Disabled</button></td>
+                                        <td><button type="button" class="btn btn-link text-danger">Focus</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-bold">Link + text-muted</td>
+                                        <td><button type="button" class="btn btn-link text-muted" id="btn_matrix_link_text_muted">Link</button></td>
+                                        <td><button type="button" class="btn btn-link text-muted">Hover</button></td>
+                                        <td><button type="button" class="btn btn-link text-muted active">Active</button></td>
+                                        <td><button type="button" class="btn btn-link text-muted disabled" disabled>Disabled</button></td>
+                                        <td><button type="button" class="btn btn-link text-muted">Focus</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-bold">Outline Danger + border-opacity-25</td>
+                                        <td><button type="button" class="btn btn-outline-danger border-opacity-25" id="btn_matrix_outline_danger_border_opacity_25">Danger</button></td>
+                                        <td><button type="button" class="btn btn-outline-danger border-opacity-25">Hover</button></td>
+                                        <td><button type="button" class="btn btn-outline-danger border-opacity-25 active">Active</button></td>
+                                        <td><button type="button" class="btn btn-outline-danger border-opacity-25 disabled" disabled>Disabled</button></td>
+                                        <td><button type="button" class="btn btn-outline-danger border-opacity-25">Focus</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-bold">Secondary + text-muted</td>
+                                        <td><button type="button" class="btn btn-secondary text-muted" id="btn_matrix_secondary_text_muted">Secondary</button></td>
+                                        <td><button type="button" class="btn btn-secondary text-muted">Hover</button></td>
+                                        <td><button type="button" class="btn btn-secondary text-muted active">Active</button></td>
+                                        <td><button type="button" class="btn btn-secondary text-muted disabled" disabled>Disabled</button></td>
+                                        <td><button type="button" class="btn btn-secondary text-muted">Focus</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-bold">Secondary + text-white</td>
+                                        <td><button type="button" class="btn btn-secondary text-white" id="btn_matrix_secondary_text_white">Secondary</button></td>
+                                        <td><button type="button" class="btn btn-secondary text-white">Hover</button></td>
+                                        <td><button type="button" class="btn btn-secondary text-white active">Active</button></td>
+                                        <td><button type="button" class="btn btn-secondary text-white disabled" disabled>Disabled</button></td>
+                                        <td><button type="button" class="btn btn-secondary text-white">Focus</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-bold">Success + text-white</td>
+                                        <td><button type="button" class="btn btn-success text-white" id="btn_matrix_success_text_white">Success</button></td>
+                                        <td><button type="button" class="btn btn-success text-white">Hover</button></td>
+                                        <td><button type="button" class="btn btn-success text-white active">Active</button></td>
+                                        <td><button type="button" class="btn btn-success text-white disabled" disabled>Disabled</button></td>
+                                        <td><button type="button" class="btn btn-success text-white">Focus</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-bold">Warning + text-dark</td>
+                                        <td><button type="button" class="btn btn-warning text-dark" id="btn_matrix_warning_text_dark">Warning</button></td>
+                                        <td><button type="button" class="btn btn-warning text-dark">Hover</button></td>
+                                        <td><button type="button" class="btn btn-warning text-dark active">Active</button></td>
+                                        <td><button type="button" class="btn btn-warning text-dark disabled" disabled>Disabled</button></td>
+                                        <td><button type="button" class="btn btn-warning text-dark">Focus</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-start fw-bold">Warning + text-white</td>
+                                        <td><button type="button" class="btn btn-warning text-white" id="btn_matrix_warning_text_white">Warning</button></td>
+                                        <td><button type="button" class="btn btn-warning text-white">Hover</button></td>
+                                        <td><button type="button" class="btn btn-warning text-white active">Active</button></td>
+                                        <td><button type="button" class="btn btn-warning text-white disabled" disabled>Disabled</button></td>
+                                        <td><button type="button" class="btn btn-warning text-white">Focus</button></td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>

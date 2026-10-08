@@ -167,6 +167,24 @@
         outline: none !important;
     }
 
+/* Prevalencia determinista de color en modo oscuro sobre utilidades de texto */
+[data-theme="dark"] .btn-secondary {
+    color: var(--sitia-secondary-text) !important;
+}
+
+[data-theme="dark"] .btn-success {
+    color: var(--sitia-on-success) !important;
+}
+
+[data-theme="dark"] .btn-light {
+    color: var(--sitia-btn-light-color) !important;
+}
+
+[data-theme="dark"] .btn-warning:active,
+[data-theme="dark"] .btn-warning.active {
+    color: var(--sitia-on-warning) !important;
+}
+
 /* Badges y Estados en Modo Oscuro (Estilo translúcido premium) */
 [data-theme="dark"] .estado-disponible,
 [data-theme="dark"] .estado-activa,
