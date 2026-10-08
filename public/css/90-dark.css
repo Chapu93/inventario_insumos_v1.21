@@ -23,8 +23,6 @@
     --sitia-on-danger: var(--sitia-primitive-sage-900); /* #1e2522 */
     --sitia-on-info: var(--sitia-primitive-cyan-950); /* #1a3a37 */
 
-    /* Reutilización retrocompatible de nombres antiguos sin duplicación */
-    --sitia-btn-dark-text: var(--sitia-on-primary);
     --sitia-btn-font-weight: 600;
     --sitia-btn-primary-focus-bg: var(--sitia-primary);
     --sitia-btn-primary-focus-border: var(--sitia-primary);
@@ -65,8 +63,6 @@
     --sitia-btn-sidebar-toggle-focus-visible-bg: var(--sitia-surface-2);
     --sitia-btn-sidebar-toggle-focus-visible-border: var(--sitia-border);
     --sitia-btn-close-filter: invert(1) grayscale(100%) brightness(200%);
-    --sitia-btn-warning-text: var(--sitia-on-warning);
-    --sitia-btn-info-text: var(--sitia-on-info);
     --sitia-secondary-hover-border: var(--sitia-secondary-hover);
     --sitia-btn-secondary-active-bg: var(--sitia-secondary-hover);
     --sitia-btn-secondary-active-border: var(--sitia-secondary-hover);
