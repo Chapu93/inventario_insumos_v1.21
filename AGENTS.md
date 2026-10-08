@@ -102,13 +102,14 @@ inventario_app/
 ## ✅ Patrones de Código a Seguir
 
 ### Consistencia Visual y Estética (CSS Modular)
-- **Consistencia Visual del Proyecto**: Siempre que se cree un nuevo componente, página, modal, tabla o cualquier elemento de interfaz, se debe hacer respetando rigurosamente la arquitectura modular de CSS (`public/css/[0-9][0-9]-*.css`, cargada dinámicamente mediante `includes/css.php`) y Bootstrap 5.
-- **Guía de Estilos y Reglas Obligatorias**: Consultar y seguir estrictamente [CSS-GUIDELINES.md](CSS-GUIDELINES.md):
-  1. **Tokens**: Prohibido usar colores `#hex` directos en componentes; consumir variables semánticas `var(--sitia-*)` de `00-tokens.css`.
-  2. **Modo Oscuro**: Implementar soporte mediante tokens en `90-dark.css` sin nesting nativo y cumpliendo contraste WCAG AA.
-  3. **Especificidad**: Prohibido el uso de `!important` y selectores por ID (`#id`) para estilizar componentes; usar clases CSS semánticas.
-  4. **Z-Index**: Usar exclusivamente la escala centralizada `--sitia-z-*`, nunca valores numéricos arbitrarios.
-  5. **Responsabilidad Única**: Nuevos estilos deben ir en su módulo correspondiente, con sus media queries al final del archivo.
+- **Consistencia Visual del Proyecto**: Todo componente, página, modal, tabla o elemento de UI debe respetar la arquitectura modular de CSS (`public/css/[0-9][0-9]-*.css`, cargada por `includes/css.php`) y Bootstrap 5.
+- **Guía Obligatoria**: Consultar siempre [CSS-GUIDELINES.md](CSS-GUIDELINES.md) antes de alterar estilos. Reglas clave inviolables:
+  1. **Capas de Tokens**: Consumir variables semánticas `var(--sitia-*)` u `on-*` (`--sitia-on-*`). Prohibido usar colores `#hex` directos fuera de `00-tokens.css`.
+  2. **Modo Oscuro sin Reglas Duplicadas**: Modo oscuro funciona **únicamente redefiniendo tokens** en la raíz `[data-theme="dark"]` de `90-dark.css`. Prohibido crear reglas por componente en dark mode salvo las 4 excepciones de prevalencia documentadas.
+  3. **Especificidad y Cero IDs**: Prohibido estilizar por `#id` (reservados para JS/PHP). Prohibido `!important` en nuevas reglas (usar variables Bootstrap `--bs-*` y justificar cualquier excepción con comentario).
+  4. **Z-Index**: Usar exclusivamente la escala centralizada `--sitia-z-*`.
+  5. **Nuevos Componentes/Botones**: Registrar siempre en `component-gallery.php` y en la matriz de `capture.js`.
+  6. **Flujo de Verificación**: Correr `bash tools/css-metrics.sh` (0 tokens sin `var()`) y la suite A/B (`capture.js --mode ab`) con 0 diferencias antes de dar por cerrada cualquier tarea.
 
 ### Antes de crear algo nuevo, verificar si ya existe:
 ```php

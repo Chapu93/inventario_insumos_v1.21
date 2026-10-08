@@ -163,7 +163,27 @@
         outline: none !important;
     }
 
-/* Prevalencia determinista de color en modo oscuro sobre utilidades de texto */
+/* ==========================================================================
+   Excepciones de prevalencia sobre utilidades de Bootstrap
+   --------------------------------------------------------------------------
+   En la línea base (502cad9), las variantes bajo [data-theme="dark"] tenían
+   color con !important (especificidad 0,2,0) que prevalecía sobre utilidades
+   como .text-white / .text-dark (especificidad 0,1,0). Para preservar 100% de
+   identidad determinista en modo oscuro sin alterar las utilidades en modo
+   claro, se mantienen estas 4 declaraciones de color exclusivas para dark mode.
+
+   Cobertura verificada frente a las 10 combinaciones auditadas en vistas/AJAX:
+   1. .btn-secondary + .text-white (ajax/tareas_list_ssp.php) -> fija --sitia-secondary-text
+   2. .btn-secondary + .text-muted (pages/admin/telecom_internet.php) -> compatible
+   3. .btn-success + .text-white (ajax/insumos_list_ssp.php, pages/pedidos/ver.php) -> fija --sitia-on-success
+   4. .btn-light + .text-primary (includes/footer.php) -> fija --sitia-btn-light-color
+   5. .btn-warning + .text-white (pages/admin/catalogo_hardware.php) -> :active/.active fija --sitia-on-warning
+   6. .btn-warning + .text-dark (pages/insumos/duplicados_varios.php, ajax/pedidos_list_ssp.php) -> compatible
+   7. .btn-info + .text-white (pages/insumos/listar.php, ajax/relevamientos_list_ssp.php) -> compatible
+   8. .btn-link + .text-danger (includes/header.php) -> compatible
+   9. .btn-link + .text-muted (includes/header.php, modal_nuevo_hardware.php) -> compatible
+   10. .btn-outline-danger + .border-opacity-25 (pages/pedidos/preparar.php) -> compatible
+   ========================================================================== */
 [data-theme="dark"] .btn-secondary {
     color: var(--sitia-secondary-text) !important;
 }

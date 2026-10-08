@@ -6,136 +6,124 @@ Esta guía establece las convenciones arquitectónicas, metodológicas y operati
 
 ## 1. Arquitectura y Orden de Carga
 
-Los estilos residen en `public/css/` divididos en módulos numerados con responsabilidad única. Se cargan de forma dinámica en orden alfabético estricto mediante [includes/css.php](file:///opt/lampp/htdocs/inventario_app/includes/css.php), que aplica cache-busting automático (`?v=filemtime`). **No utilizar `@import`**.
+Los estilos residen en `public/css/` divididos en módulos numerados con responsabilidad única. Se cargan de forma dinámica en orden alfabético estricto mediante [includes/css.php](file:///opt/lampp/htdocs/inventario_app/includes/css.php), que aplica cache-busting automático (`?v=filemtime`). **Prohibido `@import`** y archivos genéricos (`misc.css`, `varios.css`).
 
 ```
 public/css/
-├── 00-tokens.css        # Primitivos, semánticos, componentes y escala de z-index
+├── 00-tokens.css        # Primitivos, semánticos, on-*, componentes y escala z-index
 ├── 10-base.css          # Reset, tipografía global, transiciones de tema y motion reduce
-├── 20-layout.css        # Wrapper, sidebar, navbar, footer y responsive layout
-├── 30-buttons.css       # Botones institucionales, focos accesibles y botones suaves
-├── 31-forms.css         # Controles de formulario, switches, filtros y sección títulos
-├── 32-cards.css         # Tarjetas base y variantes temáticas
-├── 33-tables.css        # Estilos generales de tablas y densidad de filas
+├── 20-layout.css        # Wrapper, sidebar, navbar, footer y layout responsive
+├── 30-buttons.css       # Botones institucionales, focos accesibles y variantes soft
+├── 31-forms.css         # Controles de formulario, switches, filtros y títulos de sección
+├── 32-cards.css         # Tarjetas base y contenedores visuales
+├── 33-tables.css        # Tablas institucionales y densidad de filas
 ├── 34-modals.css        # Modales de confirmación, backdrops y animación zoom-in
-├── 35-badges.css        # Badges de estado de insumos y asignaciones
-├── 36-kpi.css           # Tarjetas KPI de estadísticas y panel de control
-├── 37-stepper.css       # Asistentes de pasos y stepper
-├── 38-pdf-viewer.css    # Visor integrado de documentos PDF
-├── 50-select2.css       # Integración visual con librería Select2 y tema Bootstrap 5
-├── 51-datatables.css    # Integración visual con librería DataTables
-├── 90-dark.css          # Tokens de modo oscuro y excepciones mínimas sin nesting
-└── 99-utilities.css     # Clases utilitarias y overlays (tooltips, tabs)
+├── 35-badges.css        # Badges de estado de insumos, tareas y asignaciones
+├── 36-kpi.css           # Tarjetas KPI de estadísticas y métricas del dashboard
+├── 37-stepper.css       # Asistentes por pasos (stepper)
+├── 38-pdf-viewer.css    # Visor integrado de documentos y remitos PDF
+├── 50-select2.css       # Integración con librería Select2 y tema Bootstrap 5
+├── 51-datatables.css    # Integración con librería DataTables
+├── 90-dark.css          # Redefinición de tokens de modo oscuro y excepciones mínimas
+└── 99-utilities.css     # Clases utilitarias institucionales y overlays
 ```
 
-> **Regla de Oro:** Cada archivo tiene una única responsabilidad. Está estrictamente prohibido crear archivos genéricos como "varios.css" o "misc.css".
+---
+
+## 2. Tokens en Capas
+
+El sistema de tokens de `00-tokens.css` se organiza en 4 niveles jerárquicos estrictos:
+
+1. **Primitivos (`--sitia-primitive-*`)**: Colores y valores brutos de marca (p. ej. `--sitia-primitive-green-500`, `--sitia-primitive-sage-700`). Prohibido consumirlos directamente en vistas o componentes.
+2. **Semánticos (`--sitia-*`)**: Roles funcionales de interfaz (`--sitia-primary`, `--sitia-surface-1/2/3`, `--sitia-text`, `--sitia-border`).
+3. **Tokens de Contenido (`--sitia-on-*`)**: Contrastes accesibles garantizados para texto/icono sobre cada superficie o variante (`--sitia-on-primary`, `--sitia-on-secondary`, `--sitia-on-success`, `--sitia-on-warning`, `--sitia-on-danger`, `--sitia-on-info`).
+4. **De Componente (`--sitia-[componente]-*`)**: Tokens específicos atados a propiedades de un elemento (`--sitia-btn-*-bg`, `--sitia-card-*`, `--sitia-tooltip-bg`). Consumen siempre tokens semánticos u `on-*`.
 
 ---
 
-## 2. Reglas de Tokens y Colores
+## 3. Reglas de Calidad y Prohibiciones Estrictas
 
-1. **Cero colores hexadecimales en componentes**: Ningún archivo fuera de `00-tokens.css` y el bloque raíz de `90-dark.css` debe contener valores hexadecimales (`#hex`) directos.
-2. **Jerarquía de capas**:
-   - **Primitivos**: Paleta base de la marca (`--sitia-primitive-green-*`, `--sitia-primitive-sage-*`, etc.).
-   - **Semánticos**: Roles de la interfaz (`--sitia-primary`, `--sitia-surface-1`, `--sitia-text`, `--sitia-border`).
-   - **Componentes**: Variables atadas a elementos específicos (`--sitia-btn-*`, `--sitia-tooltip-bg`).
-3. **Uso en componentes**: Consumir siempre variables semánticas:
-   ```css
-   /* Correcto */
-   .mi-tarjeta {
-       background-color: var(--sitia-surface-3);
-       border: 1px solid var(--sitia-border);
-       color: var(--sitia-text);
-   }
-
-   /* Prohibido */
-   .mi-tarjeta {
-       background-color: #ffffff;
-       border: 1px solid #dee2e6;
-   }
-   ```
+1. **Cero colores `#hex` fuera de tokens**: Ningún archivo fuera de `00-tokens.css` y el bloque `[data-theme="dark"]` raíz de `90-dark.css` puede contener valores `#hex` directos.
+2. **Prohibido `!important` en nuevas reglas**: 
+   - Todo uso de `!important` debe estar debidamente justificado con un comentario explicativo.
+   - En componentes Bootstrap, alimentar las variables nativas (`--bs-btn-*`, `--bs-card-*`) en lugar de forzar con `!important`.
+3. **Prohibidos selectores por ID (`#id`) para estilos**:
+   - Los IDs están reservados exclusivamente para hooks de JavaScript y PHP.
+   - Todo estilo de componente debe aplicarse mediante clases semánticas (`.mi-componente`).
 
 ---
 
-## 3. Especificidad y Prohibiciones
+## 4. Modo Oscuro: Solo Redefinir Tokens
 
-1. **Prohibido `!important` en nuevas reglas**: 
-   - `!important` solo se admite en utilidades de una sola propiedad o cuando sea técnicamente indispensable para vencer reglas inline inyectadas por librerías de terceros (DataTables/Select2).
-   - Cualquier uso debe documentarse con un comentario explicativo.
-2. **Prohibidos selectores por ID para estilos**:
-   - Los IDs (`#mi-elemento`) están reservados para ganchos de JavaScript/PHP.
-   - Todo estilo debe declararse mediante clases CSS (`.mi-elemento`).
-   - Solo se conservan selectores por ID existentes por razones de compatibilidad estricta ya documentada (`#content`, `#modalVisorPDF`).
-3. **Variables nativas de Bootstrap 5**:
-   - Siempre que se personalice un componente de Bootstrap, usar sus variables nativas (`--bs-card-*`, `--bs-modal-*`, `--bs-btn-*`, `--bs-table-*`) antes de sobrescribir selectores hijos profundos.
+1. **Sin reglas duplicadas por componente**: Los componentes en `30-buttons.css`, `32-cards.css`, etc., se estilizan consumiendo variables (`var(--sitia-*)`). No deben existir bloques `.mi-componente` repetidos dentro de `90-dark.css`.
+2. **Redefinición en la raíz**: `90-dark.css` solo debe redefinir el valor de los tokens en el bloque raíz `[data-theme="dark"] { ... }`.
+3. **Sin CSS Nesting Nativo**: Prohibido anidar selectores dentro de `[data-theme="dark"] { ... }`.
+4. **Contraste WCAG AA**: Todo par de texto y fondo en modo oscuro debe cumplir la pauta WCAG AA (ratio mínimo 4.5:1 para texto normal, 3.0:1 para elementos de interfaz y texto grande).
 
 ---
 
-## 4. Modo Oscuro
+## 5. Excepciones Documentadas
 
-1. **Basado en Variables**: El modo oscuro se activa mediante el atributo `[data-theme="dark"]` en el elemento `<html>`.
-2. **Sin CSS Nesting Nativo**: No anidar bloques dentro de `[data-theme="dark"] { ... }`.
-   - La redefinición de tokens se hace en la raíz:
-     ```css
-     [data-theme="dark"] {
-         --sitia-primary: var(--sitia-primitive-green-300);
-         --sitia-surface-3: var(--sitia-primitive-sage-700);
-         --sitia-text: var(--sitia-primitive-sage-50);
-     }
-     ```
-   - Si un componente requiere una excepción explícita que una variable no cubre, usar selector de nivel superior con prefijo:
-     ```css
-     [data-theme="dark"] .mi-componente {
-         border-color: var(--sitia-border);
-     }
-     ```
-3. **Contraste Accesible**: Todo nuevo par de texto y fondo en modo oscuro debe cumplir la pauta WCAG AA (ratio mínimo 4.5:1 para texto normal, 3.0:1 para texto grande o elementos de interfaz).
+Existen dos categorías exclusivas de excepciones admitidas en la arquitectura:
+
+1. **Excepciones de prevalencia sobre utilidades de Bootstrap** (en `90-dark.css`):
+   - 4 declaraciones de color con `!important` (`.btn-secondary`, `.btn-success`, `.btn-light`, `.btn-warning:active/.active`) requeridas para reproducir el comportamiento de la línea base frente a utilidades como `.text-white` y `.text-dark` en dark mode, manteniendo el modo claro intacto.
+2. **Selectores de estilo inline `[style*="#..."]`**:
+   - Utilizados puntualmente en `33-tables.css` y `20-layout.css` para neutralizar colores inline inyectados dinámicamente por librerías externas o vistas legadas cuando opera el modo oscuro.
 
 ---
 
-## 5. Breakpoints y Responsive
+## 6. Procedimiento para Agregar Componente, Color o Variante de Botón
 
-Alineados estrictamente con la cuadrícula de Bootstrap 5 para evitar colisiones:
+1. **Tokens**: Definir las variables necesarias en `00-tokens.css` (modo claro) y redefinirlas en `90-dark.css` (modo oscuro).
+2. **Implementación modular**:
+   - Para un nuevo botón, definir la variante en `30-buttons.css` mapeando las variables de Bootstrap (`--bs-btn-bg`, `--bs-btn-color`, `--bs-btn-border-color`, `--bs-btn-hover-*`, `--bs-btn-active-*`).
+   - Para un nuevo módulo, crear `public/css/XX-nombre.css` y colocar sus media queries al final del archivo.
+3. **Galería**: Añadir el elemento con sus 5 estados (`normal`, `hover`, `active`, `disabled`, `focus`) en [tools/visual-tests/component-gallery.php](file:///opt/lampp/htdocs/inventario_app/tools/visual-tests/component-gallery.php).
+4. **Matriz CDP**: Registrar el selector en el arreglo `BUTTON_VARIANTS` de [tools/visual-tests/capture.js](file:///opt/lampp/htdocs/inventario_app/tools/visual-tests/capture.js).
 
-| Breakpoint | Consulta Media | Uso en SITIA |
+---
+
+## 7. Breakpoints y Escala de Z-Index
+
+### Breakpoints Responsive (Bootstrap 5)
+| Breakpoint | Media Query | Propósito en SITIA |
 |---|---|---|
-| **Móviles pequeños** | `@media (max-width: 768px)` | Dispositivos móviles y tablets en formato vertical |
-| **Tablets / Lg-down** | `@media (max-width: 991.98px)` | Ocultamiento de sidebar y navegación colapsada |
-| **Escritorio / Lg-up** | `@media (min-width: 992px)` | Barra lateral visible y estructura fija de contenido |
-| **Laptops / HD Density**| `@media (max-width: 1400px), (max-height: 820px)` | Densidad vertical (padding compactos en tablas, cards y navbar) |
+| **Mobile** | `@media (max-width: 768px)` | Dispositivos móviles y tablets verticales |
+| **Tablet / Lg-down** | `@media (max-width: 991.98px)` | Ocultamiento de sidebar y barra de navegación colapsada |
+| **Desktop / Lg-up** | `@media (min-width: 992px)` | Sidebar expandida y layout fijo de escritorio |
+| **Laptop HD Density** | `@media (max-width: 1400px), (max-height: 820px)` | Densidad vertical compacta para laptops (1366x768) |
 
-- **Regla de `max-height`**: Solo se permite en consultas de *densidad vertical* para optimizar pantallas laptop HD (1366x768). Prohibido usar `max-height` para alterar anchos de layout horizontal.
-- **Ubicación de Media Queries**: Las reglas responsive de un componente se colocan al final de su propio archivo modular.
+*Prohibido usar `max-height` para alterar anchos de layout horizontal.*
 
----
-
-## 6. Escala Centralizada de Z-Index
-
-Nunca escribir valores numéricos arbitrarios de `z-index` (como `9999` o `99999`). Utilizar siempre la escala semántica de `00-tokens.css`:
-
+### Escala Semántica de Z-Index (`00-tokens.css`)
+Nunca usar números mágicos arbitrarios (`999`, `9999`). Utilizar la escala:
 ```css
-:root {
-    --sitia-z-dropdown: 1000;
-    --sitia-z-sticky: 1020;
-    --sitia-z-fixed: 1030;
-    --sitia-z-modal-backdrop: 1050;
-    --sitia-z-modal: 1055;
-    --sitia-z-modal-confirm: 1060;
-    --sitia-z-modal-pdf: 1070;
-    --sitia-z-popover: 1080;
-    --sitia-z-tooltip: 1090;
-    --sitia-z-toast: 1100;
-}
+--sitia-z-dropdown: 1000;
+--sitia-z-sticky: 1020;
+--sitia-z-fixed: 1030;
+--sitia-z-modal-backdrop: 1050;
+--sitia-z-modal: 1055;
+--sitia-z-modal-confirm: 1060;
+--sitia-z-modal-pdf: 1070;
+--sitia-z-popover: 1080;
+--sitia-z-tooltip: 1090;
+--sitia-z-toast: 1100;
 ```
 
 ---
 
-## 7. Procedimiento para Nuevos Componentes
+## 8. Flujo Obligatorio de Verificación
 
-1. **Crear archivo**: Si el componente representa una entidad nueva, crear `public/css/XX-nombre.css` (donde `XX` representa su posición lógica en la cascada, entre 30 y 49).
-2. **Definir tokens**: Si requiere colores o métricas nuevas, agregarlos primero a `00-tokens.css` (modo claro) y `90-dark.css` (modo oscuro).
-3. **Estructurar estilos**:
-   - Usar nombres de clase semánticos (`.card-mi-modulo`, `.badge-mi-estado`).
-   - Consumir tokens `var(--sitia-*)`.
-   - Ubicar sus media queries específicas al final de ese archivo.
-4. **Verificación visual**: Cargar la página y verificar en tema claro y oscuro que no haya saltos de diseño ni alertas en consola.
+Antes de confirmar cualquier cambio de CSS, ejecutar:
+1. **Métricas de calidad**:
+   ```bash
+   bash tools/css-metrics.sh
+   ```
+   Verificar que no haya `!important` en comentarios, que el total se mantenga bajo control y que **Tokens SITIA sin referencia `var()` sea 0**.
+2. **Suite Visual A/B y Matriz CDP**:
+   ```bash
+   node tools/visual-tests/capture.js --mode ab
+   node tools/visual-tests/compare.js --mode ab
+   ```
+   El resultado debe ser estrictamente **0 diferencias** (102 capturas y matriz completa idénticas al píxel).
