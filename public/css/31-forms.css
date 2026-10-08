@@ -33,11 +33,35 @@
     color: var(--sitia-text-muted);
 }
 
+/* Inputs Deshabilitados y Readonly */
 .form-control:disabled,
-.form-control[readonly],
 .form-select:disabled {
-    background-color: var(--sitia-surface-2) !important;
+    background-color: var(--sitia-input-disabled-bg);
+    color: var(--sitia-input-disabled-color);
     opacity: 0.8;
+}
+
+.form-control[readonly] {
+    background-color: var(--sitia-surface-2);
+    opacity: 0.8;
+}
+
+/* Input Group Text */
+.input-group-text {
+    background-color: var(--sitia-input-group-bg);
+    color: var(--sitia-input-group-color);
+    border-color: var(--sitia-input-group-border);
+}
+
+/* Selector de Archivos (File Input Button) */
+.form-control::file-selector-button {
+    background-color: var(--sitia-file-btn-bg);
+    color: var(--sitia-file-btn-color);
+    border-color: var(--sitia-file-btn-border);
+}
+
+.form-control:hover:not(:disabled):not([readonly])::file-selector-button {
+    background-color: var(--sitia-file-btn-hover-bg);
 }
 
 /* Checkboxes y Switches */

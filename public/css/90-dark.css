@@ -231,6 +231,17 @@
     --sitia-dropdown-link-hover-bg: var(--sitia-table-hover);
     --sitia-dropdown-divider: var(--sitia-border);
 
+    /* Redefinición de tokens de Formularios en Modo Oscuro */
+    --sitia-input-disabled-bg: var(--sitia-surface-3);
+    --sitia-input-disabled-color: var(--sitia-text-muted);
+    --sitia-input-group-bg: var(--sitia-surface-1);
+    --sitia-input-group-color: var(--sitia-text);
+    --sitia-input-group-border: var(--sitia-border);
+    --sitia-file-btn-bg: var(--sitia-surface-1);
+    --sitia-file-btn-color: var(--sitia-text);
+    --sitia-file-btn-border: var(--sitia-border);
+    --sitia-file-btn-hover-bg: var(--sitia-surface-2);
+
     /* Mapeo Bootstrap en Modo Oscuro */
     --bs-primary: var(--sitia-primary);
     --bs-body-bg: var(--sitia-surface-3);
@@ -310,13 +321,6 @@
         border-color: var(--sitia-border) !important;
     }
 
-/* Inputs deshabilitados */
-[data-theme="dark"] .form-control:disabled,
-[data-theme="dark"] .form-select:disabled {
-        color: var(--sitia-text-muted) !important;
-        background-color: var(--sitia-surface-3) !important;
-    }
-
 /* Redefinición de dashboard-card en Modo Oscuro */
 [data-theme="dark"] .dashboard-card {
         background-color: var(--sitia-surface-2) !important;
@@ -368,21 +372,6 @@
         background-color: rgba(74, 155, 140, 0.15) !important;
         color: var(--sitia-info) !important;
         border: 1px solid rgba(74, 155, 140, 0.35) !important;
-    }
-
-/* Input group text y selector de archivos */
-[data-theme="dark"] .input-group-text {
-        background-color: var(--sitia-surface-1) !important;
-        border-color: var(--sitia-border) !important;
-        color: var(--sitia-text) !important;
-    }
-[data-theme="dark"] .form-control::file-selector-button {
-        background-color: var(--sitia-surface-1) !important;
-        color: var(--sitia-text) !important;
-        border-color: var(--sitia-border) !important;
-    }
-[data-theme="dark"] .form-control:hover::file-selector-button {
-        background-color: var(--sitia-surface-2) !important;
     }
 
 /* Adaptabilidad del texto de comentarios */
