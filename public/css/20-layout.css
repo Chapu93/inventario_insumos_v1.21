@@ -47,6 +47,18 @@ html.sidebar-collapsed .sidebar {
 
 /* Botón Toggle Sidebar */
 .btn-sidebar-toggle {
+    --bs-btn-color: var(--sitia-text);
+    --bs-btn-bg: var(--sitia-surface-2);
+    --bs-btn-border-color: var(--sitia-border);
+    --bs-btn-hover-color: var(--sitia-on-primary);
+    --bs-btn-hover-bg: var(--sitia-primary);
+    --bs-btn-hover-border-color: var(--sitia-primary);
+    --bs-btn-active-color: var(--sitia-btn-sidebar-toggle-active-color);
+    --bs-btn-active-bg: var(--sitia-btn-sidebar-toggle-active-bg);
+    --bs-btn-active-border-color: var(--sitia-btn-sidebar-toggle-active-border);
+    --bs-btn-disabled-color: var(--sitia-text);
+    --bs-btn-disabled-bg: var(--sitia-btn-sidebar-toggle-disabled-bg);
+    --bs-btn-disabled-border-color: var(--sitia-btn-sidebar-toggle-disabled-border);
     border: 1px solid var(--sitia-border);
     color: var(--sitia-text);
     background-color: var(--sitia-surface-2);
@@ -62,29 +74,30 @@ html.sidebar-collapsed .sidebar {
 
 .btn-sidebar-toggle:hover,
 .btn-sidebar-toggle:focus {
-    background-color: var(--sitia-primary) !important;
-    color: var(--sitia-on-primary) !important;
-    border-color: var(--sitia-primary) !important;
+    background-color: var(--sitia-primary);
+    color: var(--sitia-on-primary);
+    border-color: var(--sitia-primary);
 }
 
 .btn-sidebar-toggle:active,
 .btn-sidebar-toggle.active,
 .btn.btn-sidebar-toggle:active,
 .btn.btn-sidebar-toggle.active {
-    background-color: var(--sitia-btn-sidebar-toggle-active-bg) !important;
-    color: var(--sitia-btn-sidebar-toggle-active-color) !important;
-    border-color: var(--sitia-btn-sidebar-toggle-active-border) !important;
+    background-color: var(--sitia-btn-sidebar-toggle-active-bg);
+    color: var(--sitia-btn-sidebar-toggle-active-color);
+    border-color: var(--sitia-btn-sidebar-toggle-active-border);
 }
 
 .btn-sidebar-toggle:disabled,
 .btn-sidebar-toggle.disabled {
-    background-color: var(--sitia-btn-sidebar-toggle-disabled-bg) !important;
-    border-color: var(--sitia-btn-sidebar-toggle-disabled-border) !important;
+    background-color: var(--sitia-btn-sidebar-toggle-disabled-bg);
+    border-color: var(--sitia-btn-sidebar-toggle-disabled-border);
 }
 
 .btn-sidebar-toggle:focus-visible {
-    background-color: var(--sitia-btn-sidebar-toggle-focus-visible-bg) !important;
-    border-color: var(--sitia-btn-sidebar-toggle-focus-visible-border) !important;
+    color: var(--sitia-text);
+    background-color: var(--sitia-btn-sidebar-toggle-focus-visible-bg);
+    border-color: var(--sitia-btn-sidebar-toggle-focus-visible-border);
 }
 
 .sidebar-header {
@@ -147,6 +160,7 @@ html.sidebar-collapsed .sidebar {
     font-size: 0.9rem;
 }
 
+/* Prevalece sobre el hover/active de navegación legada */
 .sidebar .components li ul li a.active {
     background: rgba(255, 255, 255, 0.1) !important;
     color: var(--sitia-white);
@@ -163,11 +177,12 @@ html.sidebar-collapsed .sidebar {
     border-radius: 0 2px 2px 0;
 }
 
+/* Oculta la flecha indicadora nativa de Bootstrap en elementos de layout personalizados */
 .dropdown-toggle::after {
     display: none !important;
 }
 
-/* Top Navbar */
+/* Top Navbar: Prevalece sobre la clase utilitaria .bg-light de Bootstrap */
 .navbar.bg-light {
     background-color: var(--sitia-surface-2) !important;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
@@ -178,6 +193,7 @@ html.sidebar-collapsed .sidebar {
     color: var(--sitia-text);
 }
 
+/* Prevalece sobre el color por defecto de .navbar-brand en Bootstrap */
 .navbar-brand {
     font-weight: bold;
     color: var(--sitia-primary) !important;
@@ -221,6 +237,7 @@ html.sidebar-collapsed .sidebar {
     border-radius: 50%;
     border: 1px solid var(--sitia-border);
     background-color: var(--sitia-surface-2);
+    /* Prevalece sobre estilos de color por defecto en enlaces */
     color: var(--sitia-text) !important;
     transition: all 0.25s ease-in-out;
     text-decoration: none;
@@ -245,6 +262,7 @@ html.sidebar-collapsed .sidebar {
 .btn-notificaciones:focus-visible {
     background-color: var(--sitia-surface-2);
     border-color: var(--sitia-border);
+    /* Neutraliza halos de foco residuales en botón de icono circular */
     box-shadow: none !important;
     outline: none !important;
 }
@@ -261,6 +279,7 @@ html.sidebar-collapsed .sidebar {
 }
 
 .btn-notificaciones.has-unread i {
+    /* Color prioritario para campanita con alertas pendientes */
     color: var(--sitia-primary) !important;
     animation: bellShake 3.5s infinite ease-in-out;
     transform-origin: top center;
@@ -298,7 +317,7 @@ html.sidebar-collapsed .sidebar {
         padding: 0.85rem 1.25rem;
     }
 
-    /* Reducción vertical de Navbar y Cabecera Sidebar */
+    /* Reducción vertical compacta prevaleciendo sobre min-height de Bootstrap */
     .navbar.navbar-expand-lg {
         min-height: 56px !important;
     }
