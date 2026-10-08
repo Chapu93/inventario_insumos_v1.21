@@ -318,6 +318,15 @@
     --sitia-modal-footer-color: var(--sitia-text);
     --sitia-modal-footer-border: var(--sitia-border);
 
+    /* Dropdowns Semánticos */
+    --sitia-dropdown-bg: var(--sitia-surface-3);
+    --sitia-dropdown-color: var(--sitia-text);
+    --sitia-dropdown-border: var(--bs-border-color-translucent);
+    --sitia-dropdown-link-color: var(--sitia-text);
+    --sitia-dropdown-link-hover-color: var(--sitia-text);
+    --sitia-dropdown-link-hover-bg: var(--bs-tertiary-bg);
+    --sitia-dropdown-divider: var(--bs-border-color-translucent);
+
     /* Sombras y Elevaciones */
     --sitia-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.08);
     --sitia-shadow-dropdown: 0 6px 20px rgba(0, 0, 0, 0.1);
