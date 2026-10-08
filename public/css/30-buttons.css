@@ -368,29 +368,42 @@ input.btn.btn-outline-primary:focus-visible,
 
 /* Botón Outline Danger */
 .btn-outline-danger {
-    color: var(--sitia-btn-outline-danger-color) !important;
-    border-color: var(--sitia-btn-outline-danger-border) !important;
+    --bs-btn-color: var(--sitia-btn-outline-danger-color);
+    --bs-btn-border-color: var(--sitia-btn-outline-danger-border);
+    --bs-btn-hover-color: var(--sitia-btn-outline-danger-hover-color);
+    --bs-btn-hover-bg: var(--sitia-btn-outline-danger-hover-bg);
+    --bs-btn-hover-border-color: var(--sitia-btn-outline-danger-hover-border);
+    --bs-btn-active-color: var(--sitia-btn-outline-danger-hover-color);
+    --bs-btn-active-bg: var(--sitia-btn-outline-danger-hover-bg);
+    --bs-btn-active-border-color: var(--sitia-btn-outline-danger-hover-border);
+    --bs-btn-disabled-color: var(--sitia-btn-outline-danger-color);
+    --bs-btn-disabled-border-color: var(--sitia-btn-outline-danger-border);
+    --bs-btn-focus-shadow-rgb: 220, 53, 69;
+    color: var(--sitia-btn-outline-danger-color);
+    border-color: var(--sitia-btn-outline-danger-border);
 }
 
 .btn-outline-danger:hover,
 .btn.btn-outline-danger:active,
 .btn-outline-danger:active,
 .btn-outline-danger.active {
-    background-color: var(--sitia-btn-outline-danger-hover-bg) !important;
-    color: var(--sitia-btn-outline-danger-hover-color) !important;
-    border-color: var(--sitia-btn-outline-danger-hover-border) !important;
+    background-color: var(--sitia-btn-outline-danger-hover-bg);
+    color: var(--sitia-btn-outline-danger-hover-color);
+    border-color: var(--sitia-btn-outline-danger-hover-border);
 }
 
 .btn-outline-danger:focus-visible {
-    color: var(--sitia-btn-outline-danger-focus-color) !important;
+    color: var(--sitia-btn-outline-danger-focus-color);
+    border-color: var(--sitia-btn-outline-danger-border);
+    background-color: var(--sitia-btn-outline-danger-focus-bg);
 }
 
 .btn-outline-danger:focus:not(:focus-visible) {
-    background-color: transparent !important;
-    color: var(--sitia-btn-outline-danger-color) !important;
-    border-color: var(--sitia-btn-outline-danger-border) !important;
-    box-shadow: none !important;
-    outline: none !important;
+    background-color: transparent;
+    color: var(--sitia-btn-outline-danger-color);
+    border-color: var(--sitia-btn-outline-danger-border);
+    box-shadow: none;
+    outline: none;
 }
 
 /* Botón Info (Ver Insumos #4a9d95) */

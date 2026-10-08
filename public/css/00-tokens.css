@@ -176,12 +176,13 @@
     --sitia-btn-outline-success-hover-border: var(--sitia-primitive-green-780);
     --sitia-btn-outline-success-focus-color: var(--sitia-primitive-white);
     --sitia-btn-outline-success-focus-bg: var(--sitia-primitive-green-780);
-    --sitia-btn-outline-danger-color: #dc3545;
-    --sitia-btn-outline-danger-border: #dc3545;
-    --sitia-btn-outline-danger-hover-bg: #dc3545;
+    --sitia-btn-outline-danger-color: var(--sitia-primitive-red-500);
+    --sitia-btn-outline-danger-border: var(--sitia-primitive-red-500);
+    --sitia-btn-outline-danger-hover-bg: var(--sitia-primitive-red-500);
     --sitia-btn-outline-danger-hover-color: var(--sitia-primitive-white);
-    --sitia-btn-outline-danger-hover-border: #dc3545;
+    --sitia-btn-outline-danger-hover-border: var(--sitia-primitive-red-500);
     --sitia-btn-outline-danger-focus-color: var(--sitia-primitive-white);
+    --sitia-btn-outline-danger-focus-bg: var(--sitia-primitive-red-500);
     --sitia-btn-outline-warning-color: #ffc107;
     --sitia-btn-outline-warning-border: #ffc107;
     --sitia-btn-outline-warning-hover-bg: #ffc107;

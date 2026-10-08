@@ -50,6 +50,7 @@
     --sitia-btn-outline-danger-hover-color: var(--sitia-danger);
     --sitia-btn-outline-danger-hover-border: var(--sitia-danger);
     --sitia-btn-outline-danger-focus-color: var(--sitia-danger);
+    --sitia-btn-outline-danger-focus-bg: var(--sitia-primitive-red-500);
     --sitia-btn-outline-warning-color: var(--sitia-warning);
     --sitia-btn-outline-warning-border: var(--sitia-warning);
     --sitia-btn-outline-warning-hover-bg: rgba(244, 221, 158, 0.15);
