@@ -36,6 +36,7 @@
     --sitia-primitive-green-650: #4e9c70;
     --sitia-primitive-green-700: #4e8351;
     --sitia-primitive-green-750: #44633f;
+    --sitia-primitive-green-780: #198754;
     --sitia-primitive-green-850: #28a745;
     --sitia-primitive-green-900: #218838;
     --sitia-primitive-green-920: #1a6d2c;
@@ -168,12 +169,13 @@
     --sitia-btn-outline-secondary-hover-color: var(--sitia-primitive-white);
     --sitia-btn-outline-secondary-hover-border: #6c757d;
     --sitia-btn-outline-secondary-focus-color: var(--sitia-primitive-white);
-    --sitia-btn-outline-success-color: #198754;
-    --sitia-btn-outline-success-border: #198754;
-    --sitia-btn-outline-success-hover-bg: #198754;
+    --sitia-btn-outline-success-color: var(--sitia-primitive-green-780);
+    --sitia-btn-outline-success-border: var(--sitia-primitive-green-780);
+    --sitia-btn-outline-success-hover-bg: var(--sitia-primitive-green-780);
     --sitia-btn-outline-success-hover-color: var(--sitia-primitive-white);
-    --sitia-btn-outline-success-hover-border: #198754;
+    --sitia-btn-outline-success-hover-border: var(--sitia-primitive-green-780);
     --sitia-btn-outline-success-focus-color: var(--sitia-primitive-white);
+    --sitia-btn-outline-success-focus-bg: var(--sitia-primitive-green-780);
     --sitia-btn-outline-danger-color: #dc3545;
     --sitia-btn-outline-danger-border: #dc3545;
     --sitia-btn-outline-danger-hover-bg: #dc3545;

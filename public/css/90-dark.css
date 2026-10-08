@@ -43,6 +43,7 @@
     --sitia-btn-outline-success-hover-color: var(--sitia-success);
     --sitia-btn-outline-success-hover-border: var(--sitia-success);
     --sitia-btn-outline-success-focus-color: var(--sitia-success);
+    --sitia-btn-outline-success-focus-bg: var(--sitia-primitive-green-780);
     --sitia-btn-outline-danger-color: var(--sitia-danger);
     --sitia-btn-outline-danger-border: var(--sitia-danger);
     --sitia-btn-outline-danger-hover-bg: rgba(247, 170, 170, 0.15);

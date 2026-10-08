@@ -271,29 +271,42 @@ input.btn.btn-outline-primary:focus-visible,
 
 /* Botón Outline Success */
 .btn-outline-success {
-    color: var(--sitia-btn-outline-success-color) !important;
-    border-color: var(--sitia-btn-outline-success-border) !important;
+    --bs-btn-color: var(--sitia-btn-outline-success-color);
+    --bs-btn-border-color: var(--sitia-btn-outline-success-border);
+    --bs-btn-hover-color: var(--sitia-btn-outline-success-hover-color);
+    --bs-btn-hover-bg: var(--sitia-btn-outline-success-hover-bg);
+    --bs-btn-hover-border-color: var(--sitia-btn-outline-success-hover-border);
+    --bs-btn-active-color: var(--sitia-btn-outline-success-hover-color);
+    --bs-btn-active-bg: var(--sitia-btn-outline-success-hover-bg);
+    --bs-btn-active-border-color: var(--sitia-btn-outline-success-hover-border);
+    --bs-btn-disabled-color: var(--sitia-btn-outline-success-color);
+    --bs-btn-disabled-border-color: var(--sitia-btn-outline-success-border);
+    --bs-btn-focus-shadow-rgb: 25, 135, 84;
+    color: var(--sitia-btn-outline-success-color);
+    border-color: var(--sitia-btn-outline-success-border);
 }
 
 .btn-outline-success:hover,
 .btn.btn-outline-success:active,
 .btn-outline-success:active,
 .btn-outline-success.active {
-    background-color: var(--sitia-btn-outline-success-hover-bg) !important;
-    color: var(--sitia-btn-outline-success-hover-color) !important;
-    border-color: var(--sitia-btn-outline-success-hover-border) !important;
+    background-color: var(--sitia-btn-outline-success-hover-bg);
+    color: var(--sitia-btn-outline-success-hover-color);
+    border-color: var(--sitia-btn-outline-success-hover-border);
 }
 
 .btn-outline-success:focus-visible {
-    color: var(--sitia-btn-outline-success-focus-color) !important;
+    color: var(--sitia-btn-outline-success-focus-color);
+    border-color: var(--sitia-btn-outline-success-border);
+    background-color: var(--sitia-btn-outline-success-focus-bg);
 }
 
 .btn-outline-success:focus:not(:focus-visible) {
-    background-color: transparent !important;
-    color: var(--sitia-btn-outline-success-color) !important;
-    border-color: var(--sitia-btn-outline-success-border) !important;
-    box-shadow: none !important;
-    outline: none !important;
+    background-color: transparent;
+    color: var(--sitia-btn-outline-success-color);
+    border-color: var(--sitia-btn-outline-success-border);
+    box-shadow: none;
+    outline: none;
 }
 
 /* Botón Danger */
