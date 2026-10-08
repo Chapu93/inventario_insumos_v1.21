@@ -187,29 +187,42 @@ input.btn.btn-outline-primary:focus-visible,
 
 /* Botón Outline Secundario */
 .btn-outline-secondary {
-    color: var(--sitia-btn-outline-secondary-color) !important;
-    border-color: var(--sitia-btn-outline-secondary-border) !important;
+    --bs-btn-color: var(--sitia-btn-outline-secondary-color);
+    --bs-btn-border-color: var(--sitia-btn-outline-secondary-border);
+    --bs-btn-hover-color: var(--sitia-btn-outline-secondary-hover-color);
+    --bs-btn-hover-bg: var(--sitia-btn-outline-secondary-hover-bg);
+    --bs-btn-hover-border-color: var(--sitia-btn-outline-secondary-hover-border);
+    --bs-btn-active-color: var(--sitia-btn-outline-secondary-hover-color);
+    --bs-btn-active-bg: var(--sitia-btn-outline-secondary-hover-bg);
+    --bs-btn-active-border-color: var(--sitia-btn-outline-secondary-hover-border);
+    --bs-btn-disabled-color: var(--sitia-btn-outline-secondary-color);
+    --bs-btn-disabled-border-color: var(--sitia-btn-outline-secondary-border);
+    --bs-btn-focus-shadow-rgb: 108, 117, 125;
+    color: var(--sitia-btn-outline-secondary-color);
+    border-color: var(--sitia-btn-outline-secondary-border);
 }
 
 .btn-outline-secondary:hover,
 .btn.btn-outline-secondary:active,
 .btn-outline-secondary:active,
 .btn-outline-secondary.active {
-    background-color: var(--sitia-btn-outline-secondary-hover-bg) !important;
-    color: var(--sitia-btn-outline-secondary-hover-color) !important;
-    border-color: var(--sitia-btn-outline-secondary-hover-border) !important;
+    background-color: var(--sitia-btn-outline-secondary-hover-bg);
+    color: var(--sitia-btn-outline-secondary-hover-color);
+    border-color: var(--sitia-btn-outline-secondary-hover-border);
 }
 
 .btn-outline-secondary:focus-visible {
-    color: var(--sitia-btn-outline-secondary-focus-color) !important;
+    color: var(--sitia-btn-outline-secondary-focus-color);
+    border-color: var(--sitia-btn-outline-secondary-border);
+    background-color: var(--sitia-primitive-gray-600);
 }
 
 .btn-outline-secondary:focus:not(:focus-visible) {
-    background-color: transparent !important;
-    color: var(--sitia-btn-outline-secondary-color) !important;
-    border-color: var(--sitia-btn-outline-secondary-border) !important;
-    box-shadow: none !important;
-    outline: none !important;
+    background-color: transparent;
+    color: var(--sitia-btn-outline-secondary-color);
+    border-color: var(--sitia-btn-outline-secondary-border);
+    box-shadow: none;
+    outline: none;
 }
 
 /* Botón Success */
