@@ -362,15 +362,72 @@ if (alertDiffs.length > 0) {
   console.log(`\n✅ [MATRIZ DE ALERTAS] ${totalAlertVariants} variantes x 2 temas 100% idénticos (0 diferencias).`);
 }
 
+// Comparación estricta de computed-modals.json (Modales)
+const modals1Path = path.join(BASELINE_DIR, 'computed-modals.json');
+const modals2Path = path.join(TARGET_DIR, 'computed-modals.json');
+const modalDiffs = [];
+let mod1 = null;
+let mod2 = null;
+
+if (fs.existsSync(modals1Path) && fs.existsSync(modals2Path)) {
+  mod1 = JSON.parse(fs.readFileSync(modals1Path, 'utf-8'));
+  mod2 = JSON.parse(fs.readFileSync(modals2Path, 'utf-8'));
+
+  for (const theme of Object.keys(mod1)) {
+    if (!mod2[theme]) {
+      modalDiffs.push({ tema: theme, parte: '*', propiedad: 'THEME_MISSING', base: 'PRESENTE', actual: 'AUSENTE' });
+      continue;
+    }
+    for (const part of Object.keys(mod1[theme])) {
+      if (!mod2[theme][part]) {
+        modalDiffs.push({ tema: theme, parte: part, propiedad: 'PART_MISSING', base: 'PRESENTE', actual: 'AUSENTE' });
+        continue;
+      }
+      const props1 = mod1[theme][part];
+      const props2 = mod2[theme][part];
+      for (const prop of ['backgroundColor', 'color', 'borderTopColor', 'borderBottomColor', 'borderTopWidth', 'borderBottomWidth']) {
+        if (props1 && props2 && props1[prop] !== props2[prop]) {
+          modalDiffs.push({
+            tema: theme,
+            parte: part,
+            propiedad: prop,
+            base: props1[prop],
+            actual: props2[prop]
+          });
+        }
+      }
+    }
+  }
+
+  for (const theme of Object.keys(mod2)) {
+    if (!mod1[theme]) continue;
+    for (const part of Object.keys(mod2[theme])) {
+      if (!mod1[theme][part]) {
+        modalDiffs.push({ tema: theme, parte: part, propiedad: 'PART_EXTRA', base: 'AUSENTE', actual: 'PRESENTE' });
+      }
+    }
+  }
+} else if (fs.existsSync(modals2Path) && !fs.existsSync(modals1Path)) {
+  console.warn('⚠️ [MODALES] computed-modals.json presente en actual pero ausente en base.');
+}
+
+if (modalDiffs.length > 0) {
+  console.log('\n⚠️ [MATRIZ DE MODALES DIFF] Discrepancias en modales:');
+  console.table(modalDiffs);
+  fs.writeFileSync(path.join(DIFF_DIR, 'computed-modals-diff.json'), JSON.stringify(modalDiffs, null, 2));
+} else if (fs.existsSync(modals1Path) && fs.existsSync(modals2Path)) {
+  console.log(`\n✅ [MODALES] Computed styles de modales 100% idénticos (0 diferencias).`);
+}
+
 const summaryPath = path.join(DIFF_DIR, 'summary.json');
-fs.writeFileSync(summaryPath, JSON.stringify({ results, styleDiffs, buttonDiffs, badgeDiffs, alertDiffs }, null, 2));
+fs.writeFileSync(summaryPath, JSON.stringify({ results, styleDiffs, buttonDiffs, badgeDiffs, alertDiffs, modalDiffs }, null, 2));
 
 console.log(`\n📊 Resumen de Comparación:`);
 console.log(`- Total de capturas evaluadas: ${files.length}`);
 console.log(`- Píxeles totales distintos: ${totalDiffPixels}`);
 console.log(`- Reporte detallado guardado en: ${summaryPath}`);
 
-if (totalDiffPixels === 0 && !hasCriticalErrors && styleDiffs.length === 0 && buttonDiffs.length === 0 && badgeDiffs.length === 0 && alertDiffs.length === 0) {
+if (totalDiffPixels === 0 && !hasCriticalErrors && styleDiffs.length === 0 && buttonDiffs.length === 0 && badgeDiffs.length === 0 && alertDiffs.length === 0 && modalDiffs.length === 0) {
   console.log('\n🎉 VALIDACIÓN EXITOSA: Determinismo / Identidad total (0 píxeles de diferencia).');
   process.exit(0);
 } else {

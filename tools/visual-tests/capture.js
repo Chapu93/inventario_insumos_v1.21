@@ -520,6 +520,7 @@ async function run() {
         const computedButtonsDump = {};
         const computedBadgesDump = {};
         const computedAlertsDump = {};
+        const computedModalsDump = {};
 
         for (const theme of THEMES) {
           const gotoWithTheme = async (relPath, vpWidth = 1440, vpHeight = 900) => {
@@ -608,6 +609,30 @@ async function run() {
           await page.evaluate(() => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r))));
           await new Promise(r => setTimeout(r, 600));
           await page.screenshot({ path: path.join(currentOutputDir, `state_modal_confirmacion_${theme}.png`), fullPage: false });
+
+          // Medir computed styles de modal de confirmación
+          const modalStyles = await page.evaluate(() => {
+            const getCS = (sel) => {
+              const el = document.querySelector(sel);
+              if (!el) return null;
+              const cs = window.getComputedStyle(el);
+              return {
+                backgroundColor: cs.backgroundColor,
+                color: cs.color,
+                borderTopColor: cs.borderTopColor,
+                borderBottomColor: cs.borderBottomColor,
+                borderTopWidth: cs.borderTopWidth,
+                borderBottomWidth: cs.borderBottomWidth
+              };
+            };
+            return {
+              content: getCS('#modalConfirmacionSITIA .modal-content'),
+              header: getCS('#modalConfirmacionSITIA .modal-header'),
+              body: getCS('#modalConfirmacionSITIA .modal-body'),
+              footer: getCS('#modalConfirmacionSITIA .modal-footer')
+            };
+          });
+          computedModalsDump[theme] = modalStyles;
 
           // 6. Select2 desplegado con scroll determinista (en galería)
           await gotoWithTheme('/tools/visual-tests/component-gallery.php');
@@ -855,6 +880,7 @@ async function run() {
         fs.writeFileSync(path.join(currentOutputDir, 'computed-buttons.json'), JSON.stringify(computedButtonsDump, null, 2));
         fs.writeFileSync(path.join(currentOutputDir, 'computed-badges.json'), JSON.stringify(computedBadgesDump, null, 2));
         fs.writeFileSync(path.join(currentOutputDir, 'computed-alerts.json'), JSON.stringify(computedAlertsDump, null, 2));
+        fs.writeFileSync(path.join(currentOutputDir, 'computed-modals.json'), JSON.stringify(computedModalsDump, null, 2));
       }
     } // Fin bucle de pasadas
 
