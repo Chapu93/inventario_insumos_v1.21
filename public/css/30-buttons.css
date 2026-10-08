@@ -929,10 +929,7 @@ input.btn.btn-outline-primary:focus-visible,
     opacity: 1;
 }
 
-/* NOTA: Se preservan !important para neutralizar completamente los halos de foco residuales sobre las variantes de botones dentro de tablas */
 .table .btn-group .btn:focus:not(:focus-visible) {
     opacity: 0.85;
-    box-shadow: none !important;
-    outline: none !important;
 }
 
