@@ -12,32 +12,40 @@
 }
 
 .modal {
-    --bs-modal-bg: var(--sitia-surface-3);
-    --bs-modal-color: var(--sitia-text);
+    --bs-modal-bg: var(--sitia-modal-bg);
+    --bs-modal-color: var(--sitia-modal-color);
     --bs-modal-border-color: transparent;
-    --bs-modal-header-border-color: var(--sitia-border);
-    --bs-modal-footer-border-color: var(--sitia-border);
+    --bs-modal-header-border-color: var(--sitia-modal-header-border);
+    --bs-modal-footer-border-color: var(--sitia-modal-footer-border);
 }
 
 .modal-content {
-    --bs-modal-bg: var(--sitia-surface-3);
-    --bs-modal-color: var(--sitia-text);
+    --bs-modal-bg: var(--sitia-modal-bg);
+    --bs-modal-color: var(--sitia-modal-color);
     border-radius: 10px;
     border: none;
-    background-color: var(--sitia-surface-3);
+    background-color: var(--sitia-modal-bg);
+    color: var(--sitia-modal-color);
     box-shadow: var(--sitia-shadow-modal);
 }
 
 .modal-header {
-    background-color: var(--sitia-surface-2);
+    background-color: var(--sitia-modal-header-bg);
+    border-bottom: 1px solid var(--sitia-modal-header-border);
     border-radius: 10px 10px 0 0;
-    color: var(--sitia-text);
+    color: var(--sitia-modal-header-color);
+}
+
+.modal-body {
+    background-color: var(--sitia-modal-body-bg);
+    color: var(--sitia-modal-body-color);
 }
 
 .modal-footer {
-    background-color: var(--sitia-surface-1);
-    border-top: 1px solid var(--sitia-border);
+    background-color: var(--sitia-modal-footer-bg);
+    border-top: 1px solid var(--sitia-modal-footer-border);
     border-radius: 0 0 10px 10px;
+    color: var(--sitia-modal-footer-color);
 }
 
 .modal-backdrop.show {

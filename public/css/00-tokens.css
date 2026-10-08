@@ -306,6 +306,18 @@
     --sitia-alert-light-border: var(--bs-light-border-subtle);
     --sitia-alert-light-color: var(--bs-light-text-emphasis);
 
+    /* Modales Semánticos */
+    --sitia-modal-bg: var(--sitia-surface-3);
+    --sitia-modal-color: var(--sitia-text);
+    --sitia-modal-header-bg: var(--sitia-surface-2);
+    --sitia-modal-header-color: var(--sitia-text);
+    --sitia-modal-header-border: var(--sitia-border);
+    --sitia-modal-body-bg: transparent;
+    --sitia-modal-body-color: var(--sitia-text);
+    --sitia-modal-footer-bg: var(--sitia-surface-1);
+    --sitia-modal-footer-color: var(--sitia-text);
+    --sitia-modal-footer-border: var(--sitia-border);
+
     /* Sombras y Elevaciones */
     --sitia-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.08);
     --sitia-shadow-dropdown: 0 6px 20px rgba(0, 0, 0, 0.1);

@@ -210,6 +210,18 @@
     --sitia-alert-light-border: var(--sitia-border);
     --sitia-alert-light-color: var(--sitia-text);
 
+    /* Redefinición de tokens de Modales en Modo Oscuro */
+    --sitia-modal-bg: var(--sitia-surface-3);
+    --sitia-modal-color: var(--sitia-text);
+    --sitia-modal-header-bg: var(--sitia-surface-3);
+    --sitia-modal-header-color: var(--sitia-text);
+    --sitia-modal-header-border: var(--sitia-border);
+    --sitia-modal-body-bg: var(--sitia-surface-3);
+    --sitia-modal-body-color: var(--sitia-text);
+    --sitia-modal-footer-bg: var(--sitia-surface-3);
+    --sitia-modal-footer-color: var(--sitia-text);
+    --sitia-modal-footer-border: var(--sitia-border);
+
     /* Mapeo Bootstrap en Modo Oscuro */
     --bs-primary: var(--sitia-primary);
     --bs-body-bg: var(--sitia-surface-3);
@@ -304,21 +316,6 @@
     }
 [data-theme="dark"] .dropdown-divider {
         border-color: var(--sitia-border);
-    }
-
-/* Modales en Modo Oscuro */
-[data-theme="dark"] .modal-content,
-[data-theme="dark"] .modal-body,
-[data-theme="dark"] .modal-header,
-[data-theme="dark"] .modal-footer {
-        background-color: var(--sitia-surface-3) !important;
-        color: var(--sitia-text) !important;
-    }
-[data-theme="dark"] .modal-header {
-        border-bottom: 1px solid var(--sitia-border) !important;
-    }
-[data-theme="dark"] .modal-footer {
-        border-top: 1px solid var(--sitia-border) !important;
     }
 
 /* Inputs deshabilitados */
