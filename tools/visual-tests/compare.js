@@ -246,15 +246,73 @@ if (buttonDiffs.length > 0) {
   console.log(`\n✅ [MATRIZ DE BOTONES] ${totalVariants} variantes x 5 estados x 2 temas 100% idénticos (0 diferencias).`);
 }
 
+// Comparación estricta de computed-badges.json (Matriz de badges y estados)
+const badges1Path = path.join(BASELINE_DIR, 'computed-badges.json');
+const badges2Path = path.join(TARGET_DIR, 'computed-badges.json');
+const badgeDiffs = [];
+let bg1 = null;
+let bg2 = null;
+
+if (fs.existsSync(badges1Path) && fs.existsSync(badges2Path)) {
+  bg1 = JSON.parse(fs.readFileSync(badges1Path, 'utf-8'));
+  bg2 = JSON.parse(fs.readFileSync(badges2Path, 'utf-8'));
+
+  for (const theme of Object.keys(bg1)) {
+    if (!bg2[theme]) {
+      badgeDiffs.push({ tema: theme, variante: '*', propiedad: 'THEME_MISSING', base: 'PRESENTE', actual: 'AUSENTE' });
+      continue;
+    }
+    for (const variant of Object.keys(bg1[theme])) {
+      if (!bg2[theme][variant]) {
+        badgeDiffs.push({ tema: theme, variante: variant, propiedad: 'VARIANT_MISSING', base: 'PRESENTE', actual: 'AUSENTE' });
+        continue;
+      }
+      const props1 = bg1[theme][variant];
+      const props2 = bg2[theme][variant];
+      for (const prop of ['backgroundColor', 'color', 'borderColor', 'borderTopWidth', 'borderTopStyle', 'fontWeight']) {
+        if (props1[prop] !== props2[prop]) {
+          badgeDiffs.push({
+            tema: theme,
+            variante: variant,
+            propiedad: prop,
+            base: props1[prop],
+            actual: props2[prop]
+          });
+        }
+      }
+    }
+  }
+
+  for (const theme of Object.keys(bg2)) {
+    if (!bg1[theme]) continue;
+    for (const variant of Object.keys(bg2[theme])) {
+      if (!bg1[theme][variant]) {
+        badgeDiffs.push({ tema: theme, variante: variant, propiedad: 'VARIANT_EXTRA', base: 'AUSENTE', actual: 'PRESENTE' });
+      }
+    }
+  }
+} else if (fs.existsSync(badges2Path) && !fs.existsSync(badges1Path)) {
+  console.warn('⚠️ [MATRIZ DE BADGES] computed-badges.json presente en actual pero ausente en base.');
+}
+
+if (badgeDiffs.length > 0) {
+  console.log('\n⚠️ [MATRIZ DE BADGES DIFF] Discrepancias en matriz de badges:');
+  console.table(badgeDiffs);
+  fs.writeFileSync(path.join(DIFF_DIR, 'computed-badges-diff.json'), JSON.stringify(badgeDiffs, null, 2));
+} else if (fs.existsSync(badges1Path) && fs.existsSync(badges2Path)) {
+  const totalBadgeVariants = Object.keys(bg1.light || {}).length;
+  console.log(`\n✅ [MATRIZ DE BADGES] ${totalBadgeVariants} variantes x 2 temas 100% idénticos (0 diferencias).`);
+}
+
 const summaryPath = path.join(DIFF_DIR, 'summary.json');
-fs.writeFileSync(summaryPath, JSON.stringify({ results, styleDiffs, buttonDiffs }, null, 2));
+fs.writeFileSync(summaryPath, JSON.stringify({ results, styleDiffs, buttonDiffs, badgeDiffs }, null, 2));
 
 console.log(`\n📊 Resumen de Comparación:`);
 console.log(`- Total de capturas evaluadas: ${files.length}`);
 console.log(`- Píxeles totales distintos: ${totalDiffPixels}`);
 console.log(`- Reporte detallado guardado en: ${summaryPath}`);
 
-if (totalDiffPixels === 0 && !hasCriticalErrors && styleDiffs.length === 0 && buttonDiffs.length === 0) {
+if (totalDiffPixels === 0 && !hasCriticalErrors && styleDiffs.length === 0 && buttonDiffs.length === 0 && badgeDiffs.length === 0) {
   console.log('\n🎉 VALIDACIÓN EXITOSA: Determinismo / Identidad total (0 píxeles de diferencia).');
   process.exit(0);
 } else {

@@ -351,19 +351,22 @@ require_once __DIR__ . '/../../includes/config.php';
                 <section class="card mb-4">
                     <div class="card-header"><h5>3. Badges y Estados Dinámicos</h5></div>
                     <div class="card-body d-flex flex-wrap gap-2 align-items-center">
-                        <span class="badge bg-primary">Primary</span>
-                        <span class="badge bg-secondary">Secondary</span>
-                        <span class="badge bg-success">Success</span>
-                        <span class="badge bg-danger">Danger</span>
-                        <span class="badge badge-tipo">Badge Tipo</span>
-                        <span class="badge badge-colaborativa">Badge Colaborativa</span>
-                        <span class="badge estado-disponible">estado-disponible</span>
-                        <span class="badge estado-activa">estado-activa</span>
-                        <span class="badge estado-asignado">estado-asignado</span>
-                        <span class="badge estado-parcial">estado-parcial</span>
-                        <span class="badge estado-baja">estado-baja</span>
-                        <span class="badge estado-devuelta">estado-devuelta</span>
-                        <span class="badge estado-anulado">estado-anulado</span>
+                        <span class="badge bg-primary" id="badge_matrix_primary">Primary</span>
+                        <span class="badge bg-secondary" id="badge_matrix_secondary">Secondary</span>
+                        <span class="badge bg-success" id="badge_matrix_success">Success</span>
+                        <span class="badge bg-danger" id="badge_matrix_danger">Danger</span>
+                        <span class="badge bg-warning" id="badge_matrix_warning">Warning</span>
+                        <span class="badge bg-info" id="badge_matrix_info">Info</span>
+                        <span class="badge bg-dark" id="badge_matrix_dark">Dark</span>
+                        <span class="badge badge-tipo" id="badge_matrix_tipo">Badge Tipo</span>
+                        <span class="badge badge-colaborativa" id="badge_matrix_colaborativa">Badge Colaborativa</span>
+                        <span class="badge estado-disponible" id="badge_matrix_estado_disponible">estado-disponible</span>
+                        <span class="badge estado-activa" id="badge_matrix_estado_activa">estado-activa</span>
+                        <span class="badge estado-asignado" id="badge_matrix_estado_asignado">estado-asignado</span>
+                        <span class="badge estado-parcial" id="badge_matrix_estado_parcial">estado-parcial</span>
+                        <span class="badge estado-baja" id="badge_matrix_estado_baja">estado-baja</span>
+                        <span class="badge estado-devuelta" id="badge_matrix_estado_devuelta">estado-devuelta</span>
+                        <span class="badge estado-anulado" id="badge_matrix_estado_anulado">estado-anulado</span>
                     </div>
                 </section>
 

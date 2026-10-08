@@ -518,6 +518,7 @@ async function run() {
       if (!ONLY_ID || ONLY_ID === '12_gallery') {
         console.log(`\n[INTERACCIÓN] (${currentPass.id}) Capturando estados dinámicos en Modo Claro y Oscuro...`);
         const computedButtonsDump = {};
+        const computedBadgesDump = {};
 
         for (const theme of THEMES) {
           const gotoWithTheme = async (relPath, vpWidth = 1440, vpHeight = 900) => {
@@ -782,9 +783,49 @@ async function run() {
             }
           }
           await client.detach();
+
+          // 17. Matriz de Badges y Estados: 16 variantes x 2 temas
+          console.log(`[MATRIZ BADGES] (${currentPass.id}) Midiendo 16 variantes (${theme})...`);
+          const BADGE_VARIANTS = [
+            { id: 'primary', selector: '#badge_matrix_primary' },
+            { id: 'secondary', selector: '#badge_matrix_secondary' },
+            { id: 'success', selector: '#badge_matrix_success' },
+            { id: 'danger', selector: '#badge_matrix_danger' },
+            { id: 'warning', selector: '#badge_matrix_warning' },
+            { id: 'info', selector: '#badge_matrix_info' },
+            { id: 'dark', selector: '#badge_matrix_dark' },
+            { id: 'badge-tipo', selector: '#badge_matrix_tipo' },
+            { id: 'badge-colaborativa', selector: '#badge_matrix_colaborativa' },
+            { id: 'estado-disponible', selector: '#badge_matrix_estado_disponible' },
+            { id: 'estado-activa', selector: '#badge_matrix_estado_activa' },
+            { id: 'estado-asignado', selector: '#badge_matrix_estado_asignado' },
+            { id: 'estado-parcial', selector: '#badge_matrix_estado_parcial' },
+            { id: 'estado-baja', selector: '#badge_matrix_estado_baja' },
+            { id: 'estado-devuelta', selector: '#badge_matrix_estado_devuelta' },
+            { id: 'estado-anulado', selector: '#badge_matrix_estado_anulado' }
+          ];
+
+          computedBadgesDump[theme] = {};
+          for (const variant of BADGE_VARIANTS) {
+            const styles = await page.evaluate((sel) => {
+              const el = document.querySelector(sel);
+              if (!el) throw new Error(`[MATRIZ ERROR] Selector de badge no encontrado: ${sel}`);
+              const cs = window.getComputedStyle(el);
+              return {
+                backgroundColor: cs.backgroundColor,
+                color: cs.color,
+                borderColor: cs.borderColor,
+                borderTopWidth: cs.borderTopWidth,
+                borderTopStyle: cs.borderTopStyle,
+                fontWeight: cs.fontWeight
+              };
+            }, variant.selector);
+            computedBadgesDump[theme][variant.id] = styles;
+          }
         }
 
         fs.writeFileSync(path.join(currentOutputDir, 'computed-buttons.json'), JSON.stringify(computedButtonsDump, null, 2));
+        fs.writeFileSync(path.join(currentOutputDir, 'computed-badges.json'), JSON.stringify(computedBadgesDump, null, 2));
       }
     } // Fin bucle de pasadas
 
