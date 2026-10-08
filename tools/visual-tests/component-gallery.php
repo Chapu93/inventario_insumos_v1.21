@@ -557,10 +557,10 @@ require_once __DIR__ . '/../../includes/config.php';
                             <button class="btn btn-secondary dropdown-toggle show" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="true">
                                 Dropdown Desplegado
                             </button>
-                            <ul class="dropdown-menu show position-static" aria-labelledby="dropdownMenuButton">
-                                <li><a class="dropdown-item" href="#">Acción 1</a></li>
+                            <ul class="dropdown-menu show position-static" aria-labelledby="dropdownMenuButton" id="gallery_dropdown_menu">
+                                <li><a class="dropdown-item" href="#" id="gallery_dropdown_item_1">Acción 1</a></li>
                                 <li><a class="dropdown-item" href="#">Acción 2</a></li>
-                                <li><hr class="dropdown-divider"></li>
+                                <li><hr class="dropdown-divider" id="gallery_dropdown_divider"></li>
                                 <li><a class="dropdown-item text-danger" href="#">Acción Peligrosa</a></li>
                             </ul>
                         </div>

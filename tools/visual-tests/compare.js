@@ -419,15 +419,72 @@ if (modalDiffs.length > 0) {
   console.log(`\n✅ [MODALES] Computed styles de modales 100% idénticos (0 diferencias).`);
 }
 
+// Comparación estricta de computed-dropdowns.json (Dropdowns)
+const dropdowns1Path = path.join(BASELINE_DIR, 'computed-dropdowns.json');
+const dropdowns2Path = path.join(TARGET_DIR, 'computed-dropdowns.json');
+const dropdownDiffs = [];
+let drop1 = null;
+let drop2 = null;
+
+if (fs.existsSync(dropdowns1Path) && fs.existsSync(dropdowns2Path)) {
+  drop1 = JSON.parse(fs.readFileSync(dropdowns1Path, 'utf-8'));
+  drop2 = JSON.parse(fs.readFileSync(dropdowns2Path, 'utf-8'));
+
+  for (const theme of Object.keys(drop1)) {
+    if (!drop2[theme]) {
+      dropdownDiffs.push({ tema: theme, parte: '*', propiedad: 'THEME_MISSING', base: 'PRESENTE', actual: 'AUSENTE' });
+      continue;
+    }
+    for (const part of Object.keys(drop1[theme])) {
+      if (!drop2[theme][part]) {
+        dropdownDiffs.push({ tema: theme, parte: part, propiedad: 'PART_MISSING', base: 'PRESENTE', actual: 'AUSENTE' });
+        continue;
+      }
+      const props1 = drop1[theme][part];
+      const props2 = drop2[theme][part];
+      for (const prop of ['backgroundColor', 'borderColor', 'borderTopColor', 'borderTopWidth', 'borderTopStyle', 'color']) {
+        if (props1[prop] !== undefined && props2[prop] !== undefined && props1[prop] !== props2[prop]) {
+          dropdownDiffs.push({
+            tema: theme,
+            parte: part,
+            propiedad: prop,
+            base: props1[prop],
+            actual: props2[prop]
+          });
+        }
+      }
+    }
+  }
+
+  for (const theme of Object.keys(drop2)) {
+    if (!drop1[theme]) continue;
+    for (const part of Object.keys(drop2[theme])) {
+      if (!drop1[theme][part]) {
+        dropdownDiffs.push({ tema: theme, parte: part, propiedad: 'PART_EXTRA', base: 'AUSENTE', actual: 'PRESENTE' });
+      }
+    }
+  }
+} else if (fs.existsSync(dropdowns2Path) && !fs.existsSync(dropdowns1Path)) {
+  console.warn('⚠️ [DROPDOWNS] computed-dropdowns.json presente en actual pero ausente en base.');
+}
+
+if (dropdownDiffs.length > 0) {
+  console.log('\n⚠️ [MATRIZ DE DROPDOWNS DIFF] Discrepancias en dropdowns:');
+  console.table(dropdownDiffs);
+  fs.writeFileSync(path.join(DIFF_DIR, 'computed-dropdowns-diff.json'), JSON.stringify(dropdownDiffs, null, 2));
+} else if (fs.existsSync(dropdowns1Path) && fs.existsSync(dropdowns2Path)) {
+  console.log(`\n✅ [DROPDOWNS] Computed styles de dropdowns 100% idénticos (0 diferencias).`);
+}
+
 const summaryPath = path.join(DIFF_DIR, 'summary.json');
-fs.writeFileSync(summaryPath, JSON.stringify({ results, styleDiffs, buttonDiffs, badgeDiffs, alertDiffs, modalDiffs }, null, 2));
+fs.writeFileSync(summaryPath, JSON.stringify({ results, styleDiffs, buttonDiffs, badgeDiffs, alertDiffs, modalDiffs, dropdownDiffs }, null, 2));
 
 console.log(`\n📊 Resumen de Comparación:`);
 console.log(`- Total de capturas evaluadas: ${files.length}`);
 console.log(`- Píxeles totales distintos: ${totalDiffPixels}`);
 console.log(`- Reporte detallado guardado en: ${summaryPath}`);
 
-if (totalDiffPixels === 0 && !hasCriticalErrors && styleDiffs.length === 0 && buttonDiffs.length === 0 && badgeDiffs.length === 0 && alertDiffs.length === 0 && modalDiffs.length === 0) {
+if (totalDiffPixels === 0 && !hasCriticalErrors && styleDiffs.length === 0 && buttonDiffs.length === 0 && badgeDiffs.length === 0 && alertDiffs.length === 0 && modalDiffs.length === 0 && dropdownDiffs.length === 0) {
   console.log('\n🎉 VALIDACIÓN EXITOSA: Determinismo / Identidad total (0 píxeles de diferencia).');
   process.exit(0);
 } else {

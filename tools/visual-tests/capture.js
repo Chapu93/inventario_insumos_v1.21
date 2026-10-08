@@ -521,6 +521,7 @@ async function run() {
         const computedBadgesDump = {};
         const computedAlertsDump = {};
         const computedModalsDump = {};
+        const computedDropdownsDump = {};
 
         for (const theme of THEMES) {
           const gotoWithTheme = async (relPath, vpWidth = 1440, vpHeight = 900) => {
@@ -875,12 +876,42 @@ async function run() {
             }, variant.selector);
             computedAlertsDump[theme][variant.id] = styles;
           }
+
+          // 19. Dropdowns: menu, item, divider
+          console.log(`[MATRIZ DROPDOWNS] (${currentPass.id}) Midiendo elementos (${theme})...`);
+          const dropdownStyles = await page.evaluate(() => {
+            const menu = document.querySelector('#gallery_dropdown_menu');
+            const item = document.querySelector('#gallery_dropdown_item_1');
+            const divider = document.querySelector('#gallery_dropdown_divider');
+            if (!menu || !item || !divider) throw new Error('[DROPDOWNS ERROR] Elementos no encontrados en galería');
+            const csMenu = window.getComputedStyle(menu);
+            const csItem = window.getComputedStyle(item);
+            const csDivider = window.getComputedStyle(divider);
+            return {
+              menu: {
+                backgroundColor: csMenu.backgroundColor,
+                borderColor: csMenu.borderColor,
+                borderTopWidth: csMenu.borderTopWidth,
+                borderTopStyle: csMenu.borderTopStyle
+              },
+              item: {
+                color: csItem.color
+              },
+              divider: {
+                borderTopColor: csDivider.borderTopColor,
+                borderTopWidth: csDivider.borderTopWidth,
+                borderTopStyle: csDivider.borderTopStyle
+              }
+            };
+          });
+          computedDropdownsDump[theme] = dropdownStyles;
         }
 
         fs.writeFileSync(path.join(currentOutputDir, 'computed-buttons.json'), JSON.stringify(computedButtonsDump, null, 2));
         fs.writeFileSync(path.join(currentOutputDir, 'computed-badges.json'), JSON.stringify(computedBadgesDump, null, 2));
         fs.writeFileSync(path.join(currentOutputDir, 'computed-alerts.json'), JSON.stringify(computedAlertsDump, null, 2));
         fs.writeFileSync(path.join(currentOutputDir, 'computed-modals.json'), JSON.stringify(computedModalsDump, null, 2));
+        fs.writeFileSync(path.join(currentOutputDir, 'computed-dropdowns.json'), JSON.stringify(computedDropdownsDump, null, 2));
       }
     } // Fin bucle de pasadas
 
