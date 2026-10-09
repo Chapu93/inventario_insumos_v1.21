@@ -479,7 +479,15 @@ async function run() {
                 };
                 return hasPixels(c1) && hasPixels(c2);
               }, { timeout: 6000 });
-              await new Promise(r => setTimeout(r, 650));
+              await page.evaluate(() => {
+                if (window.Chart && window.Chart.instances) {
+                  Object.values(window.Chart.instances).forEach(inst => {
+                    inst.stop();
+                    inst.render();
+                  });
+                }
+              });
+              await new Promise(r => setTimeout(r, 400));
             }
 
             const fileName = `${item.id}_${theme}_${vp.name}.png`;

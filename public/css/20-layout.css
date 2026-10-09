@@ -177,39 +177,6 @@ html.sidebar-collapsed .sidebar {
     border-radius: 0 2px 2px 0;
 }
 
-/* Menús desplegables (Dropdowns) */
-.dropdown-menu {
-    --bs-dropdown-bg: var(--sitia-dropdown-bg);
-    --bs-dropdown-color: var(--sitia-dropdown-color);
-    --bs-dropdown-border-color: var(--sitia-dropdown-border);
-    --bs-dropdown-link-color: var(--sitia-dropdown-link-color);
-    --bs-dropdown-link-hover-color: var(--sitia-dropdown-link-hover-color);
-    --bs-dropdown-link-hover-bg: var(--sitia-dropdown-link-hover-bg);
-    --bs-dropdown-divider-bg: var(--sitia-dropdown-divider);
-    background-color: var(--sitia-dropdown-bg);
-    border-color: var(--sitia-dropdown-border);
-}
-
-.dropdown-item {
-    color: var(--sitia-dropdown-link-color);
-}
-
-.dropdown-item:hover,
-.dropdown-item:focus {
-    background-color: var(--sitia-dropdown-link-hover-bg);
-    color: var(--sitia-dropdown-link-hover-color);
-}
-
-.dropdown-divider {
-    border-top: 1px solid var(--sitia-dropdown-divider);
-    border-color: var(--sitia-dropdown-divider);
-}
-
-/* Oculta la flecha indicadora nativa de Bootstrap en elementos de layout personalizados */
-.dropdown-toggle::after {
-    display: none !important;
-}
-
 /* Top Navbar: Prevalece sobre la clase utilitaria .bg-light de Bootstrap */
 .navbar.bg-light {
     background-color: var(--sitia-surface-2) !important;
