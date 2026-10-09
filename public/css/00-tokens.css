@@ -284,6 +284,10 @@
     --sitia-card-header-danger-text: var(--sitia-primitive-red-900);
     --sitia-card-header-warning-bg: var(--sitia-primitive-amber-100);
     --sitia-card-header-warning-text: var(--sitia-primitive-amber-900);
+    --sitia-card-header-success-border: rgba(0, 0, 0, 0.06);
+    --sitia-card-header-info-border: rgba(0, 0, 0, 0.06);
+    --sitia-card-header-danger-border: rgba(0, 0, 0, 0.06);
+    --sitia-card-header-warning-border: rgba(0, 0, 0, 0.06);
 
     /* Alertas Semánticas */
     --sitia-alert-success-bg: var(--bs-success-bg-subtle);
@@ -337,6 +341,31 @@
     --sitia-file-btn-color: var(--sitia-text);
     --sitia-file-btn-border: var(--sitia-border);
     --sitia-file-btn-hover-bg: var(--bs-secondary-bg);
+
+    /* Dashboard Cards / KPI Semánticos */
+    --sitia-kpi-card-bg: var(--sitia-surface-3);
+    --sitia-kpi-card-color: var(--sitia-text);
+    --sitia-kpi-card-border: var(--sitia-border);
+
+    --sitia-kpi-primary-bg: var(--sitia-primary);
+    --sitia-kpi-primary-color: var(--sitia-white);
+    --sitia-kpi-primary-border-left: 1px solid var(--sitia-border);
+
+    --sitia-kpi-success-bg: var(--sitia-success);
+    --sitia-kpi-success-color: var(--sitia-white);
+    --sitia-kpi-success-border-left: 1px solid var(--sitia-border);
+
+    --sitia-kpi-info-bg: var(--sitia-info);
+    --sitia-kpi-info-color: var(--sitia-white);
+    --sitia-kpi-info-border-left: 1px solid var(--sitia-border);
+
+    --sitia-kpi-warning-bg: var(--sitia-warning);
+    --sitia-kpi-warning-color: var(--sitia-primitive-gray-800);
+    --sitia-kpi-warning-border-left: 1px solid var(--sitia-border);
+
+    --sitia-kpi-danger-bg: var(--sitia-danger);
+    --sitia-kpi-danger-color: var(--sitia-white);
+    --sitia-kpi-danger-border-left: 1px solid var(--sitia-border);
 
     /* Sombras y Elevaciones */
     --sitia-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.08);

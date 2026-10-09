@@ -1,36 +1,41 @@
 /* Dashboard KPIs */
 .dashboard-card {
-    background-color: var(--sitia-surface-3);
-    color: var(--sitia-text);
+    background-color: var(--sitia-kpi-card-bg);
+    color: var(--sitia-kpi-card-color);
     padding: 1rem 1.25rem;
     border-radius: var(--bs-border-radius);
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.12);
-    border: 1px solid var(--sitia-border);
+    border: 1px solid var(--sitia-kpi-card-border);
 }
 
 .dashboard-card--primary {
-    background: var(--sitia-primary);
-    color: var(--sitia-white);
+    background: var(--sitia-kpi-primary-bg);
+    color: var(--sitia-kpi-primary-color);
+    border-left: var(--sitia-kpi-primary-border-left);
 }
 
 .dashboard-card--success {
-    background: var(--sitia-success);
-    color: var(--sitia-white);
+    background: var(--sitia-kpi-success-bg);
+    color: var(--sitia-kpi-success-color);
+    border-left: var(--sitia-kpi-success-border-left);
 }
 
 .dashboard-card--warning {
-    background: var(--sitia-warning);
-    color: var(--sitia-primitive-gray-800);
+    background: var(--sitia-kpi-warning-bg);
+    color: var(--sitia-kpi-warning-color);
+    border-left: var(--sitia-kpi-warning-border-left);
 }
 
 .dashboard-card--info {
-    background: var(--sitia-info);
-    color: var(--sitia-white);
+    background: var(--sitia-kpi-info-bg);
+    color: var(--sitia-kpi-info-color);
+    border-left: var(--sitia-kpi-info-border-left);
 }
 
 .dashboard-card--danger {
-    background: var(--sitia-danger);
-    color: var(--sitia-white);
+    background: var(--sitia-kpi-danger-bg);
+    color: var(--sitia-kpi-danger-color);
+    border-left: var(--sitia-kpi-danger-border-left);
 }
 
 .dashboard-card h3 {

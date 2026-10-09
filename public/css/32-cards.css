@@ -30,21 +30,25 @@
 .card-header--success {
     background-color: var(--sitia-card-header-success-bg);
     color: var(--sitia-card-header-success-text);
+    border-bottom: 1px solid var(--sitia-card-header-success-border);
 }
 
 .card-header--info {
     background-color: var(--sitia-card-header-info-bg);
     color: var(--sitia-card-header-info-text);
+    border-bottom: 1px solid var(--sitia-card-header-info-border);
 }
 
 .card-header--danger {
     background-color: var(--sitia-card-header-danger-bg);
     color: var(--sitia-card-header-danger-text);
+    border-bottom: 1px solid var(--sitia-card-header-danger-border);
 }
 
 .card-header--warning {
     background-color: var(--sitia-card-header-warning-bg);
     color: var(--sitia-card-header-warning-text);
+    border-bottom: 1px solid var(--sitia-card-header-warning-border);
 }
 
 .card .list-group-item {

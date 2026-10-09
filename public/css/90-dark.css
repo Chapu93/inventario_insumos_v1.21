@@ -242,6 +242,48 @@
     --sitia-file-btn-border: var(--sitia-border);
     --sitia-file-btn-hover-bg: var(--sitia-surface-2);
 
+    /* Redefinición de tokens de Cabeceras de Tarjetas en Modo Oscuro */
+    --sitia-card-header-success-bg: rgba(92, 171, 125, 0.15);
+    --sitia-card-header-success-text: var(--sitia-success);
+    --sitia-card-header-success-border: rgba(92, 171, 125, 0.3);
+
+    --sitia-card-header-info-bg: rgba(74, 167, 155, 0.15);
+    --sitia-card-header-info-text: var(--sitia-info);
+    --sitia-card-header-info-border: rgba(74, 167, 155, 0.3);
+
+    --sitia-card-header-danger-bg: rgba(220, 53, 69, 0.15);
+    --sitia-card-header-danger-text: var(--sitia-primitive-red-150);
+    --sitia-card-header-danger-border: rgba(220, 53, 69, 0.3);
+
+    --sitia-card-header-warning-bg: rgba(255, 193, 7, 0.15);
+    --sitia-card-header-warning-text: var(--sitia-primitive-amber-250);
+    --sitia-card-header-warning-border: rgba(255, 193, 7, 0.3);
+
+    /* Redefinición de tokens de Dashboard Cards / KPI en Modo Oscuro */
+    --sitia-kpi-card-bg: var(--sitia-surface-2);
+    --sitia-kpi-card-color: var(--sitia-text);
+    --sitia-kpi-card-border: var(--sitia-border);
+
+    --sitia-kpi-primary-bg: var(--sitia-surface-2);
+    --sitia-kpi-primary-color: var(--sitia-text);
+    --sitia-kpi-primary-border-left: 4px solid var(--sitia-primary);
+
+    --sitia-kpi-success-bg: var(--sitia-surface-2);
+    --sitia-kpi-success-color: var(--sitia-text);
+    --sitia-kpi-success-border-left: 4px solid var(--sitia-success);
+
+    --sitia-kpi-info-bg: var(--sitia-surface-2);
+    --sitia-kpi-info-color: var(--sitia-text);
+    --sitia-kpi-info-border-left: 4px solid var(--sitia-info);
+
+    --sitia-kpi-warning-bg: var(--sitia-surface-2);
+    --sitia-kpi-warning-color: var(--sitia-text);
+    --sitia-kpi-warning-border-left: 4px solid var(--sitia-warning);
+
+    --sitia-kpi-danger-bg: var(--sitia-surface-2);
+    --sitia-kpi-danger-color: var(--sitia-text);
+    --sitia-kpi-danger-border-left: 4px solid var(--sitia-danger);
+
     /* Mapeo Bootstrap en Modo Oscuro */
     --bs-primary: var(--sitia-primary);
     --bs-body-bg: var(--sitia-surface-3);
@@ -321,28 +363,6 @@
         border-color: var(--sitia-border) !important;
     }
 
-/* Redefinición de dashboard-card en Modo Oscuro */
-[data-theme="dark"] .dashboard-card {
-        background-color: var(--sitia-surface-2) !important;
-        color: var(--sitia-text) !important;
-        border: 1px solid var(--sitia-border) !important;
-    }
-[data-theme="dark"] .dashboard-card--primary {
-        border-left: 4px solid var(--sitia-primary) !important;
-    }
-[data-theme="dark"] .dashboard-card--success {
-        border-left: 4px solid var(--sitia-success) !important;
-    }
-[data-theme="dark"] .dashboard-card--info {
-        border-left: 4px solid var(--sitia-info) !important;
-    }
-[data-theme="dark"] .dashboard-card--warning {
-        border-left: 4px solid var(--sitia-warning) !important;
-    }
-[data-theme="dark"] .dashboard-card--danger {
-        border-left: 4px solid var(--sitia-danger) !important;
-    }
-
 /* Anulación del degradado brillante en Pendientes del Dashboard */
 [data-theme="dark"] .dashboard-card[style*="#FF512F"],
 [data-theme="dark"] .dashboard-card[style*="#DD2476"] {
@@ -380,27 +400,6 @@
     }
 [data-theme="dark"] .dark-text-muted {
         color: var(--sitia-text-muted) !important;
-    }
-
-[data-theme="dark"] .card-header--success {
-        background-color: rgba(92, 171, 125, 0.15) !important;
-        color: var(--sitia-success) !important;
-        border-bottom: 1px solid rgba(92, 171, 125, 0.3) !important;
-    }
-[data-theme="dark"] .card-header--info {
-        background-color: rgba(74, 167, 155, 0.15) !important;
-        color: var(--sitia-info) !important;
-        border-bottom: 1px solid rgba(74, 167, 155, 0.3) !important;
-    }
-[data-theme="dark"] .card-header--danger {
-        background-color: rgba(220, 53, 69, 0.15) !important;
-        color: var(--sitia-primitive-red-150) !important;
-        border-bottom: 1px solid rgba(220, 53, 69, 0.3) !important;
-    }
-[data-theme="dark"] .card-header--warning {
-        background-color: rgba(255, 193, 7, 0.15) !important;
-        color: var(--sitia-primitive-amber-250) !important;
-        border-bottom: 1px solid rgba(255, 193, 7, 0.3) !important;
     }
 
 /* Visor de PDF en Modo Oscuro */
