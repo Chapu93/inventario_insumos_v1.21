@@ -2,18 +2,21 @@
    35-BADGES.CSS - Badges y Estados de SITIA gobernados por tokens semánticos
    ============================================================================ */
 
-/* Badges específicos */
+/* Badges específicos (especificidad compuesta .badge.* sin requerir !important) */
+.badge.badge-tipo,
 .badge-tipo {
-    background-color: var(--sitia-surface-2) !important;
-    color: var(--sitia-text) !important;
+    background-color: var(--sitia-surface-2);
+    color: var(--sitia-text);
     border: 1px solid var(--sitia-border);
 }
 
+.badge.badge-colaborativa,
 .badge-colaborativa {
-    background-color: var(--sitia-badge-colaborativa-bg) !important;
-    color: var(--sitia-badge-colaborativa-color) !important;
-    border: 1px solid var(--sitia-badge-colaborativa-border) !important;
+    background-color: var(--sitia-badge-colaborativa-bg);
+    color: var(--sitia-badge-colaborativa-color);
+    border: 1px solid var(--sitia-badge-colaborativa-border);
 }
+
 
 /* Badges estándar de Bootstrap (.badge.bg-*) */
 .badge.bg-primary {

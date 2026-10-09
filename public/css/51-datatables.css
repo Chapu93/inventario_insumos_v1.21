@@ -34,20 +34,23 @@ table.dataTable,
 .card-header h4,
 .card-header h5,
 .card-header h6 {
-    margin: 0 !important;
-    display: flex !important;
-    align-items: center !important;
+    margin: 0;
+    display: flex;
+    align-items: center;
 }
 
+.dataTables_wrapper .dataTables_filter label,
+.dataTables_wrapper .dataTables_length label,
 .dataTables_filter label,
 .dataTables_length label {
-    display: flex !important;
-    align-items: center !important;
-    gap: 0.5rem !important;
-    margin-bottom: 0 !important;
-    font-size: 0.9rem !important;
-    font-weight: normal !important;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0;
+    font-size: 0.9rem;
+    font-weight: normal;
 }
+
 
 /* Estilo para los controles dentro del card-header */
 .card-header .dataTables_length select,

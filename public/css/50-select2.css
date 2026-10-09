@@ -52,10 +52,11 @@
 
 .select2-container--bootstrap-5 .select2-search--dropdown .select2-search__field::placeholder,
 .select2-container--bootstrap-5 .select2-dropdown .select2-search .select2-search__field::placeholder {
-    color: var(--sitia-muted) !important;
+    color: var(--sitia-muted);
     opacity: 0.8;
     font-size: 0.82rem;
 }
+
 
 .select2-container--bootstrap-5 .select2-results__option {
     color: var(--sitia-text);
