@@ -479,7 +479,7 @@ async function run() {
                 };
                 return hasPixels(c1) && hasPixels(c2);
               }, { timeout: 6000 });
-              await new Promise(r => setTimeout(r, 400));
+              await new Promise(r => setTimeout(r, 650));
             }
 
             const fileName = `${item.id}_${theme}_${vp.name}.png`;

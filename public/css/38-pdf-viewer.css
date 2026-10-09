@@ -16,14 +16,15 @@
 }
 #modalVisorPDF .modal-header {
     flex-shrink: 0;
-    background-color: var(--sitia-surface-1, var(--sitia-primitive-gray-100));
-    border-bottom: 1px solid var(--sitia-border, var(--sitia-primitive-gray-300));
+    background-color: var(--sitia-pdf-header-bg) !important;
+    border-bottom: 1px solid var(--sitia-pdf-header-border) !important;
+    color: var(--sitia-pdf-header-color) !important;
 }
 #modalVisorPDF .modal-body {
     flex: 1 1 auto;
     padding: 0;
     position: relative;
-    background-color: var(--sitia-primitive-gray-700);
+    background-color: var(--sitia-pdf-body-bg) !important;
     overflow: hidden;
 }
 #modalVisorPDF iframe {

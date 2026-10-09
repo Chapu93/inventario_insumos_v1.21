@@ -291,6 +291,12 @@
     --sitia-input-bg: var(--sitia-surface-2);
     --bs-border-color: var(--sitia-border);
     --bs-secondary-bg: var(--sitia-surface-3);
+
+    /* Visor de PDF Integrado */
+    --sitia-pdf-header-bg: var(--sitia-surface-2);
+    --sitia-pdf-header-border: var(--sitia-border);
+    --sitia-pdf-header-color: var(--sitia-text);
+    --sitia-pdf-body-bg: var(--sitia-primitive-gray-850);
 }
 
 [data-theme="dark"] .btn {
@@ -395,7 +401,13 @@
     background-color: var(--sitia-badge-warning-bg) !important;
 }
 
-/* Clases utilitarias y tablas en Modo Oscuro */
+/* ==========================================================================
+   Excepciones de prevalencia sobre utilidades y tablas de Bootstrap
+   --------------------------------------------------------------------------
+   En Modo Oscuro, Bootstrap 5 aplica fondos claros fijos en .bg-light y
+   .table-light. Estas declaraciones aseguran la adaptación a la paleta
+   del sistema respetando la precedencia frente a modales (502cad9:1776-1785).
+   ========================================================================== */
 [data-theme="dark"] .bg-light {
         background-color: var(--sitia-surface-2) !important;
         color: var(--sitia-text) !important;
@@ -463,14 +475,5 @@
         color: var(--sitia-text-muted) !important;
     }
 
-/* Visor de PDF en Modo Oscuro */
-[data-theme="dark"] #modalVisorPDF .modal-header {
-        background-color: var(--sitia-surface-2) !important;
-        border-bottom: 1px solid var(--sitia-border) !important;
-        color: var(--sitia-text) !important;
-    }
-[data-theme="dark"] #modalVisorPDF .modal-body {
-        background-color: var(--sitia-primitive-gray-850) !important;
-    }
 
 

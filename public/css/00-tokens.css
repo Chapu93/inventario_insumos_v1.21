@@ -16,7 +16,6 @@
 
     /* Neutros y Grises */
     --sitia-primitive-gray-100: #f8f9fa;
-    --sitia-primitive-gray-300: #dee2e6;
     --sitia-primitive-gray-600: #6c757d;
     --sitia-primitive-gray-700: #525659;
     --sitia-primitive-gray-800: #212529;
@@ -481,5 +480,11 @@
     --bs-table-border-color: var(--sitia-border);
     --bs-table-striped-bg: var(--sitia-surface-2);
     --bs-table-hover-bg: var(--sitia-table-hover);
+
+    /* Visor de PDF Integrado */
+    --sitia-pdf-header-bg: var(--sitia-primitive-gray-100);
+    --sitia-pdf-header-border: var(--sitia-border);
+    --sitia-pdf-header-color: var(--sitia-text);
+    --sitia-pdf-body-bg: var(--sitia-primitive-gray-700);
 }
 
