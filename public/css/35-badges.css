@@ -18,44 +18,61 @@
 /* Badges estándar de Bootstrap (.badge.bg-*) */
 .badge.bg-primary {
     background-color: var(--sitia-badge-primary-bg) !important;
-    color: var(--sitia-badge-primary-color) !important;
-    border: var(--sitia-badge-border-width) var(--sitia-badge-border-style) var(--sitia-badge-primary-border) !important;
+    color: var(--sitia-badge-primary-color);
+    border: var(--sitia-badge-border-width) var(--sitia-badge-border-style) var(--sitia-badge-primary-border);
 }
 
 .badge.bg-secondary {
     background-color: var(--sitia-badge-secondary-bg) !important;
-    color: var(--sitia-badge-secondary-color) !important;
-    border: var(--sitia-badge-border-width) var(--sitia-badge-border-style) var(--sitia-badge-secondary-border) !important;
+    color: var(--sitia-badge-secondary-color);
+    border: var(--sitia-badge-border-width) var(--sitia-badge-border-style) var(--sitia-badge-secondary-border);
 }
 
 .badge.bg-success {
     background-color: var(--sitia-badge-success-bg) !important;
-    color: var(--sitia-badge-success-color) !important;
-    border: var(--sitia-badge-border-width) var(--sitia-badge-border-style) var(--sitia-badge-success-border) !important;
+    color: var(--sitia-badge-success-color);
+    border: var(--sitia-badge-border-width) var(--sitia-badge-border-style) var(--sitia-badge-success-border);
 }
 
 .badge.bg-danger {
     background-color: var(--sitia-badge-danger-bg) !important;
-    color: var(--sitia-badge-danger-color) !important;
-    border: var(--sitia-badge-border-width) var(--sitia-badge-border-style) var(--sitia-badge-danger-border) !important;
+    color: var(--sitia-badge-danger-color);
+    border: var(--sitia-badge-border-width) var(--sitia-badge-border-style) var(--sitia-badge-danger-border);
 }
 
 .badge.bg-warning {
     background-color: var(--sitia-badge-warning-bg) !important;
-    color: var(--sitia-badge-warning-color) !important;
-    border: var(--sitia-badge-border-width) var(--sitia-badge-border-style) var(--sitia-badge-warning-border) !important;
+    color: var(--sitia-badge-warning-color);
+    border: var(--sitia-badge-border-width) var(--sitia-badge-border-style) var(--sitia-badge-warning-border);
 }
 
 .badge.bg-info {
     background-color: var(--sitia-badge-info-bg) !important;
-    color: var(--sitia-badge-info-color) !important;
-    border: var(--sitia-badge-border-width) var(--sitia-badge-border-style) var(--sitia-badge-info-border) !important;
+    color: var(--sitia-badge-info-color);
+    border: var(--sitia-badge-border-width) var(--sitia-badge-border-style) var(--sitia-badge-info-border);
 }
 
 .badge.bg-dark {
     background-color: var(--sitia-badge-dark-bg) !important;
-    color: var(--sitia-badge-dark-color) !important;
-    border: var(--sitia-badge-border-width) var(--sitia-badge-border-style) var(--sitia-badge-dark-border) !important;
+    color: var(--sitia-badge-dark-color);
+    border: var(--sitia-badge-border-width) var(--sitia-badge-border-style) var(--sitia-badge-dark-border);
+}
+
+/* Prevalencia de utilidades de opacidad sobre badges (.bg-opacity-*) */
+.badge[class*="bg-opacity-"].bg-success {
+    background-color: rgba(var(--bs-success-rgb), var(--bs-bg-opacity, 1)) !important;
+}
+.badge[class*="bg-opacity-"].bg-warning {
+    background-color: rgba(var(--bs-warning-rgb), var(--bs-bg-opacity, 1)) !important;
+}
+.badge[class*="bg-opacity-"].bg-primary {
+    background-color: rgba(var(--bs-primary-rgb), var(--bs-bg-opacity, 1)) !important;
+}
+.badge[class*="bg-opacity-"].bg-info {
+    background-color: rgba(var(--bs-info-rgb), var(--bs-bg-opacity, 1)) !important;
+}
+.badge[class*="bg-opacity-"].bg-danger {
+    background-color: rgba(var(--bs-danger-rgb), var(--bs-bg-opacity, 1)) !important;
 }
 
 /* Estados de SITIA */

@@ -120,6 +120,8 @@ if (MODE.startsWith('baseline')) {
 
 const VIEWPORTS = [
   { name: 'desktop', width: 1440, height: 900 },
+  { name: 'desktop_1366', width: 1366, height: 768 },
+  { name: 'desktop_1280', width: 1280, height: 720 },
   { name: 'tablet',  width: 768,  height: 1024 },
   { name: 'mobile',  width: 375,  height: 812 }
 ];
@@ -813,8 +815,8 @@ async function run() {
           }
           await client.detach();
 
-          // 17. Matriz de Badges y Estados: 16 variantes x 2 temas
-          console.log(`[MATRIZ BADGES] (${currentPass.id}) Midiendo 16 variantes (${theme})...`);
+          // 17. Matriz de Badges y Estados (Base + Utilidades): 30 variantes x 2 temas
+          console.log(`[MATRIZ BADGES] (${currentPass.id}) Midiendo 30 variantes (${theme})...`);
           const BADGE_VARIANTS = [
             { id: 'primary', selector: '#badge_matrix_primary' },
             { id: 'secondary', selector: '#badge_matrix_secondary' },
@@ -831,7 +833,22 @@ async function run() {
             { id: 'estado-parcial', selector: '#badge_matrix_estado_parcial' },
             { id: 'estado-baja', selector: '#badge_matrix_estado_baja' },
             { id: 'estado-devuelta', selector: '#badge_matrix_estado_devuelta' },
-            { id: 'estado-anulado', selector: '#badge_matrix_estado_anulado' }
+            { id: 'estado-anulado', selector: '#badge_matrix_estado_anulado' },
+            // Combinaciones con utilidades auditadas
+            { id: 'util_info_text_dark', selector: '#badge_util_info_text_dark' },
+            { id: 'util_warning_text_dark', selector: '#badge_util_warning_text_dark' },
+            { id: 'util_light_text_dark_border', selector: '#badge_util_light_text_dark_border' },
+            { id: 'util_light_text_muted_border', selector: '#badge_util_light_text_muted_border' },
+            { id: 'util_light_text_primary', selector: '#badge_util_light_text_primary' },
+            { id: 'util_white_text_dark_border', selector: '#badge_util_white_text_dark_border' },
+            { id: 'util_primary_text_white', selector: '#badge_util_primary_text_white' },
+            { id: 'util_success_text_white', selector: '#badge_util_success_text_white' },
+            { id: 'util_primary_subtle', selector: '#badge_util_primary_subtle' },
+            { id: 'util_success_subtle', selector: '#badge_util_success_subtle' },
+            { id: 'util_warning_subtle', selector: '#badge_util_warning_subtle' },
+            { id: 'util_secondary_subtle', selector: '#badge_util_secondary_subtle' },
+            { id: 'util_success_opacity_10', selector: '#badge_util_success_opacity_10' },
+            { id: 'util_warning_opacity_25', selector: '#badge_util_warning_opacity_25' }
           ];
 
           computedBadgesDump[theme] = {};
@@ -852,14 +869,20 @@ async function run() {
             computedBadgesDump[theme][variant.id] = styles;
           }
 
-          // 18. Matriz de Alertas: 5 variantes x 2 temas
-          console.log(`[MATRIZ ALERTAS] (${currentPass.id}) Midiendo 5 variantes (${theme})...`);
+          // 18. Matriz de Alertas (Base + Utilidades): 10 variantes x 2 temas
+          console.log(`[MATRIZ ALERTAS] (${currentPass.id}) Midiendo 10 variantes (${theme})...`);
           const ALERT_VARIANTS = [
             { id: 'success', selector: '#alert_matrix_success' },
             { id: 'warning', selector: '#alert_matrix_warning' },
             { id: 'danger', selector: '#alert_matrix_danger' },
             { id: 'info', selector: '#alert_matrix_info' },
-            { id: 'light', selector: '#alert_matrix_light' }
+            { id: 'light', selector: '#alert_matrix_light' },
+            // Combinaciones con utilidades auditadas
+            { id: 'util_warning_border_warning', selector: '#alert_util_warning_border_warning' },
+            { id: 'util_warning_border_0', selector: '#alert_util_warning_border_0' },
+            { id: 'util_info_border_info', selector: '#alert_util_info_border_info' },
+            { id: 'util_light_border', selector: '#alert_util_light_border' },
+            { id: 'util_success_text_center', selector: '#alert_util_success_text_center' }
           ];
 
           computedAlertsDump[theme] = {};
@@ -879,16 +902,20 @@ async function run() {
             computedAlertsDump[theme][variant.id] = styles;
           }
 
-          // 19. Dropdowns: menu, item, divider
-          console.log(`[MATRIZ DROPDOWNS] (${currentPass.id}) Midiendo elementos (${theme})...`);
+          // 19. Dropdowns: menu, item, divider y combinaciones con utilidades (normal + hover)
+          console.log(`[MATRIZ DROPDOWNS] (${currentPass.id}) Midiendo elementos y utilidades (${theme})...`);
           const dropdownStyles = await page.evaluate(() => {
             const menu = document.querySelector('#gallery_dropdown_menu');
             const item = document.querySelector('#gallery_dropdown_item_1');
             const divider = document.querySelector('#gallery_dropdown_divider');
-            if (!menu || !item || !divider) throw new Error('[DROPDOWNS ERROR] Elementos no encontrados en galería');
+            const itemDanger = document.querySelector('#dropdown_util_item_danger');
+            const itemMuted = document.querySelector('#dropdown_util_item_muted');
+            if (!menu || !item || !divider || !itemDanger || !itemMuted) throw new Error('[DROPDOWNS ERROR] Elementos no encontrados en galería');
             const csMenu = window.getComputedStyle(menu);
             const csItem = window.getComputedStyle(item);
             const csDivider = window.getComputedStyle(divider);
+            const csDanger = window.getComputedStyle(itemDanger);
+            const csMuted = window.getComputedStyle(itemMuted);
             return {
               menu: {
                 backgroundColor: csMenu.backgroundColor,
@@ -897,15 +924,47 @@ async function run() {
                 borderTopStyle: csMenu.borderTopStyle
               },
               item: {
-                color: csItem.color
+                color: csItem.color,
+                backgroundColor: csItem.backgroundColor
               },
               divider: {
                 borderTopColor: csDivider.borderTopColor,
                 borderTopWidth: csDivider.borderTopWidth,
                 borderTopStyle: csDivider.borderTopStyle
+              },
+              item_danger: {
+                color: csDanger.color,
+                backgroundColor: csDanger.backgroundColor
+              },
+              item_muted: {
+                color: csMuted.color,
+                backgroundColor: csMuted.backgroundColor
               }
             };
           });
+
+          // Medir hover en dropdown items con utilidades vía CDP
+          const clientDrop = await page.target().createCDPSession();
+          await clientDrop.send('DOM.enable');
+          await clientDrop.send('CSS.enable');
+          const docDrop = await clientDrop.send('DOM.getDocument');
+
+          const getHoverCS = async (sel) => {
+            const node = await clientDrop.send('DOM.querySelector', { nodeId: docDrop.root.nodeId, selector: sel });
+            await clientDrop.send('CSS.forcePseudoState', { nodeId: node.nodeId, forcedPseudoClasses: ['hover'] });
+            const cs = await page.evaluate((s) => {
+              const el = document.querySelector(s);
+              const st = window.getComputedStyle(el);
+              return { color: st.color, backgroundColor: st.backgroundColor };
+            }, sel);
+            await clientDrop.send('CSS.forcePseudoState', { nodeId: node.nodeId, forcedPseudoClasses: [] });
+            return cs;
+          };
+
+          dropdownStyles.item_danger_hover = await getHoverCS('#dropdown_util_item_danger');
+          dropdownStyles.item_muted_hover = await getHoverCS('#dropdown_util_item_muted');
+          await clientDrop.detach();
+
           computedDropdownsDump[theme] = dropdownStyles;
 
           // 20. Formularios e Inputs: disabled, readonly, input-group-text, file-selector-button
@@ -972,7 +1031,22 @@ async function run() {
             const kWarning = document.querySelector('#gallery_kpi_warning');
             const kDanger = document.querySelector('#gallery_kpi_danger');
 
-            if (!hSuccess || !hInfo || !hWarning || !hDanger || !kBase || !kPrimary || !kSuccess || !kInfo || !kWarning || !kDanger) {
+            const hUtilPri = document.querySelector('#header_util_primary_text_white');
+            const hUtilSuc = document.querySelector('#header_util_success_text_white');
+            const hUtilWar = document.querySelector('#header_util_warning_text_dark');
+            const hUtilWarOp = document.querySelector('#header_util_warning_opacity_10');
+            const hUtilWarSub = document.querySelector('#header_util_warning_subtle');
+            const hUtilSucSub = document.querySelector('#header_util_success_subtle');
+            const hUtilBgLight = document.querySelector('#header_util_bg_light');
+            const hUtilBgWhite = document.querySelector('#header_util_bg_white');
+            const hUtilBodyBorder = document.querySelector('#header_util_body_border_bottom');
+            const hUtilBorder0Trans = document.querySelector('#header_util_border_0_transparent');
+            const kUtilH100 = document.querySelector('#kpi_util_h100');
+            const kUtilGrad = document.querySelector('#kpi_util_gradient');
+
+            if (!hSuccess || !hInfo || !hWarning || !hDanger || !kBase || !kPrimary || !kSuccess || !kInfo || !kWarning || !kDanger ||
+                !hUtilPri || !hUtilSuc || !hUtilWar || !hUtilWarOp || !hUtilWarSub || !hUtilSucSub || !hUtilBgLight || !hUtilBgWhite || !hUtilBodyBorder || !hUtilBorder0Trans ||
+                !kUtilH100 || !kUtilGrad) {
               throw new Error('[TARJETAS Y KPI ERROR] Elementos no encontrados en galería');
             }
 
@@ -1000,15 +1074,58 @@ async function run() {
               header_info: getHeaderStyle(hInfo),
               header_warning: getHeaderStyle(hWarning),
               header_danger: getHeaderStyle(hDanger),
+              header_util_primary: getHeaderStyle(hUtilPri),
+              header_util_success: getHeaderStyle(hUtilSuc),
+              header_util_warning: getHeaderStyle(hUtilWar),
+              header_util_warning_opacity_10: getHeaderStyle(hUtilWarOp),
+              header_util_warning_subtle: getHeaderStyle(hUtilWarSub),
+              header_util_success_subtle: getHeaderStyle(hUtilSucSub),
+              header_util_bg_light: getHeaderStyle(hUtilBgLight),
+              header_util_bg_white: getHeaderStyle(hUtilBgWhite),
+              header_util_body_border: getHeaderStyle(hUtilBodyBorder),
+              header_util_border_0_transparent: getHeaderStyle(hUtilBorder0Trans),
               kpi_base: getKpiStyle(kBase),
               kpi_primary: getKpiStyle(kPrimary),
               kpi_success: getKpiStyle(kSuccess),
               kpi_info: getKpiStyle(kInfo),
               kpi_warning: getKpiStyle(kWarning),
-              kpi_danger: getKpiStyle(kDanger)
+              kpi_danger: getKpiStyle(kDanger),
+              kpi_util_h100: getKpiStyle(kUtilH100),
+              kpi_util_gradient: getKpiStyle(kUtilGrad)
             };
           });
           computedCardsDump[theme] = cardsStyles;
+
+          // 22. Medición de partes de modal con utilidades en galería
+          const modalUtilStyles = await page.evaluate(() => {
+            const getCS = (sel) => {
+              const el = document.querySelector(sel);
+              if (!el) return null;
+              const cs = window.getComputedStyle(el);
+              return {
+                backgroundColor: cs.backgroundColor,
+                color: cs.color,
+                borderTopColor: cs.borderTopColor,
+                borderBottomColor: cs.borderBottomColor,
+                borderTopWidth: cs.borderTopWidth,
+                borderBottomWidth: cs.borderBottomWidth
+              };
+            };
+            return {
+              header_util_primary: getCS('#modal_util_header_primary'),
+              header_util_success: getCS('#modal_util_header_success'),
+              header_util_danger: getCS('#modal_util_header_danger'),
+              header_util_warning: getCS('#modal_util_header_warning'),
+              header_util_light: getCS('#modal_util_header_light'),
+              header_util_warning_subtle: getCS('#modal_util_header_warning_subtle'),
+              content_util_border_0: getCS('#modal_util_content_border_0'),
+              body_util_center: getCS('#modal_util_body_center'),
+              footer_util_light: getCS('#modal_util_footer_light'),
+              footer_util_border_0: getCS('#modal_util_footer_border_0'),
+              title_util_success: getCS('#modal_util_title_success')
+            };
+          });
+          computedModalsDump[theme] = { ...(computedModalsDump[theme] || {}), ...modalUtilStyles };
         }
 
         fs.writeFileSync(path.join(currentOutputDir, 'computed-buttons.json'), JSON.stringify(computedButtonsDump, null, 2));

@@ -31,7 +31,6 @@
 
 .modal-header {
     background-color: var(--sitia-modal-header-bg);
-    border-bottom: 1px solid var(--sitia-modal-header-border);
     border-radius: 10px 10px 0 0;
     color: var(--sitia-modal-header-color);
 }

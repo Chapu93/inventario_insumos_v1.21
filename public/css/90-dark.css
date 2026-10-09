@@ -349,6 +349,52 @@
     color: var(--sitia-on-warning) !important;
 }
 
+/* Prevalencia de texto y bordes en badges translúcidos en Modo Oscuro (reproduce 502cad9:1727-1765) */
+[data-theme="dark"] .badge.bg-success {
+    color: var(--sitia-badge-success-color) !important;
+    border: 1px solid var(--sitia-badge-success-border) !important;
+}
+[data-theme="dark"] .badge.bg-warning {
+    color: var(--sitia-badge-warning-color) !important;
+    border: 1px solid var(--sitia-badge-warning-border) !important;
+}
+[data-theme="dark"] .badge.bg-primary {
+    color: var(--sitia-badge-primary-color) !important;
+    border: 1px solid var(--sitia-badge-primary-border) !important;
+}
+[data-theme="dark"] .badge.bg-info {
+    color: var(--sitia-badge-info-color) !important;
+    border: 1px solid var(--sitia-badge-info-border) !important;
+}
+[data-theme="dark"] .badge.bg-danger {
+    color: var(--sitia-badge-danger-color) !important;
+    border: 1px solid var(--sitia-badge-danger-border) !important;
+}
+[data-theme="dark"] .badge.bg-secondary {
+    color: var(--sitia-badge-secondary-color) !important;
+    border: 1px solid var(--sitia-badge-secondary-border) !important;
+}
+[data-theme="dark"] .badge.bg-dark {
+    color: var(--sitia-badge-dark-color) !important;
+    border: 1px solid var(--sitia-badge-dark-border) !important;
+}
+
+/* Prevalencia de bordes translúcidos de alertas en Modo Oscuro (reproduce 502cad9:1800-1815) */
+[data-theme="dark"] .alert-warning {
+    border-color: var(--sitia-alert-warning-border) !important;
+}
+[data-theme="dark"] .alert-info {
+    border-color: var(--sitia-alert-info-border) !important;
+}
+
+/* Prevalencia de badges translúcidos en Modo Oscuro frente a utilidades de opacidad (reproduce 502cad9:1727-1736) */
+[data-theme="dark"] .badge[class*="bg-opacity-"].bg-success {
+    background-color: var(--sitia-badge-success-bg) !important;
+}
+[data-theme="dark"] .badge[class*="bg-opacity-"].bg-warning {
+    background-color: var(--sitia-badge-warning-bg) !important;
+}
+
 /* Clases utilitarias y tablas en Modo Oscuro */
 [data-theme="dark"] .bg-light {
         background-color: var(--sitia-surface-2) !important;
@@ -362,6 +408,21 @@
         color: var(--sitia-text) !important;
         border-color: var(--sitia-border) !important;
     }
+
+/* Prevalencia de superficies y bordes de modales en Modo Oscuro (reproduce 502cad9:1833-1842, posterior a bg-light) */
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .modal-body,
+[data-theme="dark"] .modal-header,
+[data-theme="dark"] .modal-footer {
+    background-color: var(--sitia-surface-3) !important;
+    color: var(--sitia-text) !important;
+}
+[data-theme="dark"] .modal-header {
+    border-bottom: 1px solid var(--sitia-border) !important;
+}
+[data-theme="dark"] .modal-footer {
+    border-top: 1px solid var(--sitia-border) !important;
+}
 
 /* Anulación del degradado brillante en Pendientes del Dashboard */
 [data-theme="dark"] .dashboard-card[style*="#FF512F"],

@@ -625,6 +625,119 @@ require_once __DIR__ . '/../../includes/config.php';
                         </div>
                     </div>
                 </section>
+
+                <!-- 9. COMBINACIONES DE COMPONENTE + UTILIDADES -->
+                <section class="card mb-4" id="section_component_utilities">
+                    <div class="card-header"><h5>9. Combinaciones de Componente + Utilidades de Bootstrap</h5></div>
+                    <div class="card-body">
+                        <!-- Badges con Utilidades -->
+                        <div class="mb-4">
+                            <h6 class="text-muted mb-2">Badges con Utilidades (text-*, bg-*, border*, opacity)</h6>
+                            <div class="d-flex flex-wrap gap-2 align-items-center">
+                                <span class="badge bg-info text-dark" id="badge_util_info_text_dark">bg-info text-dark</span>
+                                <span class="badge bg-warning text-dark" id="badge_util_warning_text_dark">bg-warning text-dark</span>
+                                <span class="badge bg-light text-dark border" id="badge_util_light_text_dark_border">bg-light text-dark border</span>
+                                <span class="badge bg-light text-muted border" id="badge_util_light_text_muted_border">bg-light text-muted border</span>
+                                <span class="badge bg-light text-primary" id="badge_util_light_text_primary">bg-light text-primary</span>
+                                <span class="badge bg-white text-dark border" id="badge_util_white_text_dark_border">bg-white text-dark border</span>
+                                <span class="badge bg-primary text-white" id="badge_util_primary_text_white">bg-primary text-white</span>
+                                <span class="badge bg-success text-white" id="badge_util_success_text_white">bg-success text-white</span>
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle fw-bold" id="badge_util_primary_subtle">bg-primary-subtle text-primary</span>
+                                <span class="badge bg-success-subtle text-success border border-success-subtle" id="badge_util_success_subtle">bg-success-subtle text-success</span>
+                                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle fw-bold" id="badge_util_warning_subtle">bg-warning-subtle text-warning-emphasis</span>
+                                <span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle fw-bold" id="badge_util_secondary_subtle">bg-secondary-subtle</span>
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success" id="badge_util_success_opacity_10">bg-success opacity 10</span>
+                                <span class="badge bg-warning bg-opacity-25 text-dark border border-warning" id="badge_util_warning_opacity_25">bg-warning opacity 25</span>
+                            </div>
+                        </div>
+
+                        <!-- Alertas con Utilidades -->
+                        <div class="mb-4">
+                            <h6 class="text-muted mb-2">Alertas con Utilidades (border-*, text-center)</h6>
+                            <div class="d-flex flex-column gap-2">
+                                <div class="alert alert-warning border-warning mb-0 py-2 px-3" id="alert_util_warning_border_warning">alert-warning + border-warning</div>
+                                <div class="alert alert-warning border-0 mb-0 py-2 px-3 shadow-sm" id="alert_util_warning_border_0">alert-warning + border-0</div>
+                                <div class="alert alert-info border-info mb-0 py-2 px-3" id="alert_util_info_border_info">alert-info + border-info</div>
+                                <div class="alert alert-light border mb-0 py-2 px-3" id="alert_util_light_border">alert-light + border</div>
+                                <div class="alert alert-success text-center mb-0 py-2 px-3 shadow-sm" id="alert_util_success_text_center">alert-success + text-center</div>
+                            </div>
+                        </div>
+
+                        <!-- Dropdown Items con Utilidades -->
+                        <div class="mb-4">
+                            <h6 class="text-muted mb-2">Dropdown Items con Utilidades (text-danger, text-muted)</h6>
+                            <ul class="dropdown-menu show position-static d-inline-block shadow-sm" id="dropdown_util_menu">
+                                <li><a class="dropdown-item text-danger" href="#" id="dropdown_util_item_danger">dropdown-item text-danger</a></li>
+                                <li><a class="dropdown-item text-muted" href="#" id="dropdown_util_item_muted">dropdown-item text-muted</a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Card Headers con Utilidades -->
+                        <div class="mb-4">
+                            <h6 class="text-muted mb-2">Card Headers con Utilidades (bg-*, text-*, border*)</h6>
+                            <div class="row g-2">
+                                <div class="col-md-3"><div class="card"><div class="card-header bg-primary text-white py-2" id="header_util_primary_text_white">bg-primary text-white</div><div class="card-body p-2"><small class="text-muted">Cuerpo</small></div></div></div>
+                                <div class="col-md-3"><div class="card"><div class="card-header bg-success text-white py-2" id="header_util_success_text_white">bg-success text-white</div><div class="card-body p-2"><small class="text-muted">Cuerpo</small></div></div></div>
+                                <div class="col-md-3"><div class="card"><div class="card-header bg-warning text-dark py-2" id="header_util_warning_text_dark">bg-warning text-dark</div><div class="card-body p-2"><small class="text-muted">Cuerpo</small></div></div></div>
+                                <div class="col-md-3"><div class="card"><div class="card-header bg-warning bg-opacity-10 py-2" id="header_util_warning_opacity_10">bg-warning opacity 10</div><div class="card-body p-2"><small class="text-muted">Cuerpo</small></div></div></div>
+                                <div class="col-md-3"><div class="card"><div class="card-header bg-warning-subtle text-warning-emphasis py-2" id="header_util_warning_subtle">warning-subtle emphasis</div><div class="card-body p-2"><small class="text-muted">Cuerpo</small></div></div></div>
+                                <div class="col-md-3"><div class="card"><div class="card-header bg-success-subtle py-2" id="header_util_success_subtle">bg-success-subtle</div><div class="card-body p-2"><small class="text-muted">Cuerpo</small></div></div></div>
+                                <div class="col-md-3"><div class="card"><div class="card-header bg-light py-2" id="header_util_bg_light">bg-light</div><div class="card-body p-2"><small class="text-muted">Cuerpo</small></div></div></div>
+                                <div class="col-md-3"><div class="card"><div class="card-header bg-white py-2" id="header_util_bg_white">bg-white</div><div class="card-body p-2"><small class="text-muted">Cuerpo</small></div></div></div>
+                                <div class="col-md-3"><div class="card"><div class="card-header bg-body border-bottom py-2" id="header_util_body_border_bottom">bg-body border-bottom</div><div class="card-body p-2"><small class="text-muted">Cuerpo</small></div></div></div>
+                                <div class="col-md-3"><div class="card"><div class="card-header border-0 bg-transparent py-2" id="header_util_border_0_transparent">border-0 bg-transparent</div><div class="card-body p-2"><small class="text-muted">Cuerpo</small></div></div></div>
+                            </div>
+                        </div>
+
+                        <!-- Modales de muestra con Utilidades -->
+                        <div class="mb-4">
+                            <h6 class="text-muted mb-2">Partes de Modal con Utilidades (header bg-*, footer bg-*, border-0, text-center)</h6>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="modal-content shadow-sm" id="modal_util_card_1">
+                                        <div class="modal-header bg-primary text-white py-2" id="modal_util_header_primary"><h6 class="modal-title mb-0">Modal Header Primary</h6></div>
+                                        <div class="modal-body py-2 text-center" id="modal_util_body_center"><p class="mb-0">Body text-center</p></div>
+                                        <div class="modal-footer bg-light py-1" id="modal_util_footer_light"><small class="text-muted">Footer bg-light</small></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="modal-content shadow-sm" id="modal_util_card_2">
+                                        <div class="modal-header bg-success text-white py-2" id="modal_util_header_success"><h6 class="modal-title text-success mb-0" id="modal_util_title_success">Modal Title Success</h6></div>
+                                        <div class="modal-body py-2"><p class="mb-0">Body normal</p></div>
+                                        <div class="modal-footer border-0 py-1" id="modal_util_footer_border_0"><small class="text-muted">Footer border-0</small></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="modal-content shadow-sm border-0" id="modal_util_content_border_0">
+                                        <div class="modal-header bg-danger text-white py-2" id="modal_util_header_danger"><h6 class="modal-title mb-0">Modal Header Danger</h6></div>
+                                        <div class="modal-header bg-warning text-dark py-2" id="modal_util_header_warning"><h6 class="modal-title mb-0">Modal Header Warning</h6></div>
+                                        <div class="modal-header bg-light border-bottom py-2" id="modal_util_header_light"><h6 class="modal-title mb-0">Header Light Border-bottom</h6></div>
+                                        <div class="modal-header bg-warning-subtle text-warning-emphasis border-bottom border-warning-subtle py-2" id="modal_util_header_warning_subtle"><h6 class="modal-title mb-0">Header Warning Subtle</h6></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dashboard Cards con Utilidades -->
+                        <div class="mb-2">
+                            <h6 class="text-muted mb-2">Dashboard Cards con Utilidades (h-100, gradiente inline)</h6>
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <div class="dashboard-card dashboard-card--primary h-100" id="kpi_util_h100">
+                                        <h3>15</h3>
+                                        <p class="mb-0">KPI primary h-100</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="dashboard-card dashboard-card--primary h-100" style="background: linear-gradient(45deg, #FF512F, #DD2476); border-left-color: #DD2476; cursor: pointer;" id="kpi_util_gradient">
+                                        <h3>28</h3>
+                                        <p class="mb-0">KPI gradient inline</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
         </div>
     </div>
