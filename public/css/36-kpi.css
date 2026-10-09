@@ -45,8 +45,8 @@
 }
 
 
-/* Tarjetas del Dashboard compactas en pantallas reducidas */
-@media (max-width: 1400px), (max-height: 820px) {
+/* Tarjetas del Dashboard compactas en pantallas reducidas (xxl-down: 1399.98px y viewport compacto < 820px) */
+@media (max-width: 1399.98px), (max-height: 820px) {
     .dashboard-card {
         padding: 0.65rem 0.9rem;
     }
@@ -61,3 +61,4 @@
         font-size: 1.4rem;
     }
 }
+

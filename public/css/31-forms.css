@@ -107,9 +107,11 @@
 }
 
 
-/* Breakpoint Móviles: Filtros */
+/* Breakpoint Móviles y Tablets: Filtros (768px inclusive) */
 @media (max-width: 768px) {
     .filtros-container .row > [class^="col-"] {
         margin-bottom: 0.5rem;
     }
 }
+
+

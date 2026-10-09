@@ -63,8 +63,11 @@ body,
     }
 }
 
-/* Responsive Density: Escala base para laptops y pantallas de baja altura */
-@media (max-width: 1400px), (max-height: 820px) {
+/* Responsive Density: Escala base para laptops (xxl-down: 1399.98px) y pantallas de baja altura.
+ * Justificación de max-height 820px: En monitores 1366x768 o 1920x1080 con escala al 125%/150% de Windows,
+ * la altura útil del viewport es menor a 800px. La densidad compacta previene scroll vertical excesivo
+ * en cabeceras de tablas y tarjetas de administración. */
+@media (max-width: 1399.98px), (max-height: 820px) {
     html {
         font-size: 14.45px; /* Aumentado un 5% adicional (de 13.75px a 14.45px, ~90% de escala) */
     }
@@ -75,3 +78,4 @@ body,
         margin-bottom: 0.75rem !important;
     }
 }
+

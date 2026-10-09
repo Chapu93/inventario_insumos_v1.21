@@ -90,12 +90,12 @@ Existen dos categorías exclusivas de excepciones admitidas en la arquitectura:
 ### Breakpoints Responsive (Bootstrap 5)
 | Breakpoint | Media Query | Propósito en SITIA |
 |---|---|---|
-| **Mobile** | `@media (max-width: 768px)` | Dispositivos móviles y tablets verticales |
+| **Mobile / Tablet vertical** | `@media (max-width: 768px)` | Dispositivos móviles y tablets verticales (768px inclusive, footer compacto y filtros) |
 | **Tablet / Lg-down** | `@media (max-width: 991.98px)` | Ocultamiento de sidebar y barra de navegación colapsada |
 | **Desktop / Lg-up** | `@media (min-width: 992px)` | Sidebar expandida y layout fijo de escritorio |
-| **Laptop HD Density** | `@media (max-width: 1400px), (max-height: 820px)` | Densidad vertical compacta para laptops (1366x768) |
+| **Laptop HD Density (xxl-down)** | `@media (max-width: 1399.98px), (max-height: 820px)` | Densidad vertical compacta para laptops (1366x768) o monitores con escala de Windows (altura < 820px) |
 
-*Prohibido usar `max-height` para alterar anchos de layout horizontal.*
+*Justificación técnica de `max-height: 820px`: En monitores 1366x768 o 1920x1080 escalados al 125%/150% de Windows, el viewport útil vertical es <800px. La densidad compacta previene scroll vertical excesivo en cabeceras de tablas y KPIs. Prohibido usar `max-height` para alterar anchos de layout horizontal.*
 
 ### Escala Semántica de Z-Index (`00-tokens.css`)
 Nunca usar números mágicos arbitrarios (`999`, `9999`). Utilizar la escala:
@@ -127,4 +127,5 @@ Antes de confirmar cualquier cambio de CSS, ejecutar:
    node tools/visual-tests/capture.js --mode ab
    node tools/visual-tests/compare.js --mode ab
    ```
-   El resultado debe ser estrictamente **0 diferencias** (102 capturas y matriz completa idénticas al píxel).
+   El resultado debe ser estrictamente **0 diferencias** (150 capturas en 5 viewports y 7 matrices completas idénticas al píxel).
+
